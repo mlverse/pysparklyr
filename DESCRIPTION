@@ -13,6 +13,7 @@ RoxygenNote: 7.2.3
 Imports: 
     cli,
     glue,
-    reticulate
+    reticulate,
+    sparklyr
 URL: https://github.com/edgararuiz/pysparklyr
 BugReports: https://github.com/edgararuiz/pysparklyr/issues

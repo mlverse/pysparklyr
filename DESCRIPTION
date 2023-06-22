@@ -11,6 +11,8 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports: 
+    cli,
+    glue,
     reticulate
 URL: https://github.com/edgararuiz/pysparklyr
 BugReports: https://github.com/edgararuiz/pysparklyr/issues

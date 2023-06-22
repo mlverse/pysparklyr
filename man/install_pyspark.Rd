@@ -4,13 +4,13 @@
 \alias{install_pyspark}
 \title{Installs python dependencies}
 \usage{
-install_pyspark(python_version = NULL, virtualenv_name = "sparklyr2")
+install_pyspark(python_version = NULL, virtualenv_name = "r-sparklyr")
 }
 \arguments{
 \item{python_version}{The version of python to install if not available}
 
 \item{virtualenv_name}{The name of the Virtual Environment to use to
-install the python libraries. Defaults to "sparklyr2".}
+install the python libraries. Defaults to "r-sparklyr".}
 }
 \description{
 Installs python dependencies

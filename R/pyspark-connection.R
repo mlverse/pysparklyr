@@ -1,4 +1,9 @@
 #' @export
+spark_version.pyspark_connection<- function(sc) {
+  sc$state$spark_context$version
+}
+
+#' @export
 connection_is_open.pyspark_connection <- function(sc) {
   #TODO: replace with actual connection state code
   TRUE
@@ -23,22 +28,24 @@ spark_session.pyspark_connection <- function(sc) {
 invoke.pyspark_connection <- function(jobj, method, ...) {
   invoke_conn(
     jobj = jobj,
+    context = jobj$state$spark_context,
     method = method,
     ... = ...
   )
 }
 
 #' @export
-invoke.python.builtin.object<- function(jobj, method, ...) {
+invoke.python.builtin.object <- function(jobj, method, ...) {
   invoke_conn(
     jobj = jobj,
+    context = jobj,
     method = method,
     ... = ...
   )
 }
 
-invoke_conn <- function(jobj, method, ...) {
-  x <- py_get_attr(jobj, method)
+invoke_conn <- function(jobj, context, method, ...) {
+  x <- py_get_attr(context, method)
   if(inherits(x, "python.builtin.method")) {
     run_x <- py_call(x, ...)
     out <- as_spark_pyobj(run_x, jobj)

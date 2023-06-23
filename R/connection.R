@@ -13,7 +13,7 @@ spark_connect_method.spark_method_spark_connect <- function(
     scala_version,
     ...
 ) {
-  py_spark_connect(host = master, method = method)
+  py_spark_connect(host = master, method = method, config = config)
 }
 
 
@@ -23,7 +23,8 @@ py_spark_connect <- function(host,
                              method = c("auto", "spark_connect", "db_connect", "local"),
                              virtualenv_name = "r-sparklyr",
                              spark_version = NULL,
-                             databricks_connect_version = NULL
+                             databricks_connect_version = NULL,
+                             config = list()
                              ) {
   master <- ""
   remote <- ""
@@ -75,6 +76,7 @@ py_spark_connect <- function(host,
       master = master,
       remote = remote,
       cluster_id = cluster_id,
+      config = config,
       method = method,
       python = python,
       con = structure(list(), class = c("Hive", "DBIConnection"))
@@ -91,6 +93,12 @@ connection_is_open.connect_spark <- function(sc) {
   TRUE
 }
 
+#' @importFrom sparklyr spark_connection
+#' @export
+spark_connection.connect_spark <- function(sc) {
+  sc
+}
+
 env_version <- function(envname, spark = NULL, db = NULL) {
   ver <- envname
   if(!is.null(spark) | !is.null(db)) {
@@ -102,4 +110,12 @@ env_version <- function(envname, spark = NULL, db = NULL) {
     }
   }
   ver
+}
+
+#' @importFrom sparklyr invoke
+#' @export
+invoke <- function(jobj, method, ...) {
+  method <- jobj$python[[method]]
+  res <- rlang::exec(method, ...)
+  res$toPandas()
 }

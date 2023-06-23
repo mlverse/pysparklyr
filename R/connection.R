@@ -81,35 +81,14 @@ py_spark_connect <- function(host,
       python = python,
       con = structure(list(), class = c("Hive", "DBIConnection"))
     ),
-    class = c(con_class, "spark_pyspark_connection", "spark_connection")
+    class = c(con_class, "pyspark_connection", "spark_connection")
   )
 
   sc
 }
-
-#' @importFrom sparklyr connection_is_open
-#' @export
-connection_is_open.connect_spark <- function(sc) {
-  TRUE
-}
-
-#' @importFrom sparklyr spark_connection
-#' @export
-spark_connection.connect_spark <- function(sc) {
-  sc
-}
-
-#' @importFrom sparklyr hive_context
-#' @export
-hive_context.connect_spark <- function(sc) {
-  sc
-}
-
-#' @importFrom sparklyr spark_session
-#' @export
-spark_session.connect_spark <- function(sc) {
-  sc
-}
+methods::setOldClass(
+  c("connect_spark", "pyspark_connection", "spark_connection")
+  )
 
 env_version <- function(envname, spark = NULL, db = NULL) {
   ver <- envname
@@ -124,10 +103,62 @@ env_version <- function(envname, spark = NULL, db = NULL) {
   ver
 }
 
+
+#' @importFrom sparklyr connection_is_open
+#' @export
+connection_is_open.pyspark_connection <- function(sc) {
+  TRUE
+}
+
+#' @importFrom sparklyr spark_connection
+#' @export
+spark_connection.pyspark_connection <- function(sc) {
+  sc
+}
+
+#' @export
+spark_connection.python.builtin.object <- function(sc) {
+  sc
+}
+
+
+#' @importFrom sparklyr hive_context
+#' @export
+hive_context.pyspark_connection <- function(sc) {
+  sc
+}
+
+#' @importFrom sparklyr spark_session
+#' @export
+spark_session.pyspark_connection <- function(sc) {
+  sc
+}
+
 #' @importFrom sparklyr invoke
 #' @export
-invoke.connect_spark <- function(jobj, method, ...) {
+invoke.pyspark_connection <- function(jobj, method, ...) {
   method <- jobj$python[[method]]
-  res <- rlang::exec(method, ...)
-  res$toPandas()
+  rlang::exec(method, ...)
+}
+
+#' @export
+invoke.python.builtin.object <- function(jobj, method, ...) {
+  py_call(py_get_attr(jobj, method), ...)
+}
+
+
+#' @importFrom sparklyr spark_dataframe
+#' @export
+spark_dataframe.pyspark_connection <- function(x, ...) {
+  x
+}
+#' @export
+spark_dataframe.python.builtin.object <- function(x, ...) {
+  x
+}
+
+#' @importFrom dplyr collect
+#' @export
+collect.python.builtin.object <- function(x, ...) {
+  x$toPandas()
 }

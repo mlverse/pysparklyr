@@ -81,7 +81,7 @@ py_spark_connect <- function(host,
       python = python,
       con = structure(list(), class = c("Hive", "DBIConnection"))
     ),
-    class = c("spark_connection", "spark_pyspark_connection", con_class)
+    class = c(con_class, "spark_pyspark_connection", "spark_connection")
   )
 
   sc
@@ -96,6 +96,18 @@ connection_is_open.connect_spark <- function(sc) {
 #' @importFrom sparklyr spark_connection
 #' @export
 spark_connection.connect_spark <- function(sc) {
+  sc
+}
+
+#' @importFrom sparklyr hive_context
+#' @export
+hive_context.connect_spark <- function(sc) {
+  sc
+}
+
+#' @importFrom sparklyr spark_session
+#' @export
+spark_session.connect_spark <- function(sc) {
   sc
 }
 
@@ -114,7 +126,7 @@ env_version <- function(envname, spark = NULL, db = NULL) {
 
 #' @importFrom sparklyr invoke
 #' @export
-invoke <- function(jobj, method, ...) {
+invoke.connect_spark <- function(jobj, method, ...) {
   method <- jobj$python[[method]]
   res <- rlang::exec(method, ...)
   res$toPandas()

@@ -17,6 +17,7 @@ Imports:
     glue,
     purrr,
     reticulate,
+    methods,
     rlang,
     sparklyr
 URL: https://github.com/edgararuiz/pysparklyr

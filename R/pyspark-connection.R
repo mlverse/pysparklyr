@@ -60,13 +60,8 @@ spark_dataframe.pyspark_connection <- function(x, ...) {
   x
 }
 
-as_spark_pyobj <- function(obj, conn) {
-  structure(
-    list(
-      pyspark_obj = obj,
-      connection = conn
-    ),
-    class = "spark_pyobj"
-  )
+#' @export
+spark_web.pyspark_connection <- function(sc, ...) {
+  #TODO: Implement later when SparkContext is implemented
+  ""
 }
-setOldClass("spark_pyobj")

@@ -33,8 +33,13 @@ spark_dataframe.spark_pyobj  <- function(x, ...) {
   x
 }
 
-#' @importFrom dplyr collect
-#' @export
-collect.spark_pyobj <- function(x, ...) {
-  x$pyspark_obj$toPandas()
+as_spark_pyobj <- function(obj, conn) {
+  structure(
+    list(
+      pyspark_obj = obj,
+      connection = conn
+    ),
+    class = c("spark_pyobj", "spark_jobj")
+  )
 }
+setOldClass(c("spark_pyobj", "spark_jobj"))

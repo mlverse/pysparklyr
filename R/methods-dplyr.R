@@ -4,6 +4,14 @@ collect.spark_pyobj <- function(x, ...) {
   x$pyspark_obj$toPandas()
 }
 
+#' @importFrom dplyr collect
+#' @export
+collect.tbl_pysparklyr <- function(x, ...) {
+  sc <- x[[1]]
+  res <- sc$state$spark_context$sql(remote_query(x))
+  res$toPandas()
+}
+
 #' @importFrom sparklyr sdf_copy_to
 #' @export
 sdf_copy_to.pyspark_connection <- function(sc,
@@ -33,7 +41,7 @@ sdf_copy_to.pyspark_connection <- function(sc,
 #' @importFrom dplyr tbl
 #' @export
 tbl.pyspark_connection <- function(src, from, ...) {
-  sql_from <- as.sql(from, con = src)
+  sql_from <- as.sql(from, con = src$con)
   pyspark_obj <- src$state$spark_context$table(sql_from)
   vars <- pyspark_obj$columns
   tbl_sql(

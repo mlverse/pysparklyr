@@ -12,6 +12,14 @@ collect.tbl_pysparklyr <- function(x, ...) {
   res$toPandas()
 }
 
+#' @export
+spark_dataframe.tbl_pysparklyr <- function(x, ...) {
+  conn <- x[[1]]
+  query <- x[[2]]
+  qry <- sql_render(query, conn)
+  invoke(conn, "sql", qry)
+}
+
 #' @importFrom sparklyr sdf_copy_to
 #' @export
 sdf_copy_to.pyspark_connection <- function(sc,
@@ -44,12 +52,16 @@ tbl.pyspark_connection <- function(src, from, ...) {
   sql_from <- as.sql(from, con = src$con)
   pyspark_obj <- src$state$spark_context$table(sql_from)
   vars <- pyspark_obj$columns
-  tbl_sql(
+  out <- tbl_sql(
     subclass = "pysparklyr",
     src = src,
     from = sql_from,
     vars = vars
   )
+  out_class <- class(out)
+  new_class <- c(out_class[1], "tbl_spark", out_class[2:length(out_class)])
+  class(out) <- new_class
+  out
 }
 
 

@@ -28,11 +28,6 @@ invoke.spark_pyobj <- function(jobj, method, ...) {
     )
 }
 
-#' @export
-spark_dataframe.spark_pyobj  <- function(x, ...) {
-  x
-}
-
 as_spark_pyobj <- function(obj, conn) {
   structure(
     list(

@@ -14,6 +14,7 @@ Imports:
     cli,
     DBI,
     dplyr,
+    dbplyr,
     glue,
     purrr,
     reticulate,

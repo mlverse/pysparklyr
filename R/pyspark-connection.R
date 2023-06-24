@@ -35,6 +35,16 @@ invoke.pyspark_connection <- function(jobj, method, ...) {
 }
 
 #' @export
+invoke_new.connect_spark<- function(jobj, method, ...) {
+  invoke_conn(
+    jobj = jobj,
+    context = jobj$state$spark_context,
+    method = method,
+    ... = ...
+  )
+}
+
+#' @export
 invoke.python.builtin.object <- function(jobj, method, ...) {
   invoke_conn(
     jobj = jobj,

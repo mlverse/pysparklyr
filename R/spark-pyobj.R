@@ -25,7 +25,12 @@ invoke.spark_pyobj <- function(jobj, method, ...) {
     context = jobj$pyspark_obj,
     method = method,
     ... = ...
-    )
+  )
+}
+
+#' @export
+collect.spark_pyobj <- function(x, ...) {
+  x$pyspark_obj$toPandas()
 }
 
 as_spark_pyobj <- function(obj, conn, class = NULL) {

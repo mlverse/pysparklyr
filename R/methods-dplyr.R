@@ -1,10 +1,3 @@
-#' @importFrom dplyr collect
-#' @export
-collect.spark_pyobj <- function(x, ...) {
-  x$pyspark_obj$toPandas()
-}
-
-#' @importFrom dplyr collect
 #' @export
 collect.tbl_pysparklyr <- function(x, ...) {
   sc <- x[[1]]
@@ -20,7 +13,6 @@ spark_dataframe.tbl_pysparklyr <- function(x, ...) {
   invoke(conn, "sql", qry)
 }
 
-#' @importFrom sparklyr sdf_copy_to
 #' @export
 sdf_copy_to.pyspark_connection <- function(sc,
                                            x,
@@ -46,7 +38,6 @@ sdf_copy_to.pyspark_connection <- function(sc,
   tbl(src = sc, from = name)
 }
 
-#' @importFrom dplyr tbl
 #' @export
 tbl.pyspark_connection <- function(src, from, ...) {
   sql_from <- as.sql(from, con = src$con)
@@ -63,5 +54,3 @@ tbl.pyspark_connection <- function(src, from, ...) {
   class(out) <- new_class
   out
 }
-
-

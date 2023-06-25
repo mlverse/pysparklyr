@@ -1,11 +1,11 @@
 #' @export
-spark_version.pyspark_connection<- function(sc) {
+spark_version.pyspark_connection <- function(sc) {
   sc$state$spark_context$version
 }
 
 #' @export
 connection_is_open.pyspark_connection <- function(sc) {
-  #TODO: replace with actual connection state code
+  # TODO: replace with actual connection state code
   TRUE
 }
 
@@ -35,7 +35,7 @@ invoke.pyspark_connection <- function(jobj, method, ...) {
 }
 
 #' @export
-invoke_new.connect_spark<- function(jobj, class, ...) {
+invoke_new.connect_spark <- function(jobj, class, ...) {
   classes <- unlist(strsplit(class, "[.]"))
   classes <- classes[classes != "org"]
   classes <- classes[classes != "apache"]
@@ -63,7 +63,7 @@ invoke.python.builtin.object <- function(jobj, method, ...) {
 
 invoke_conn <- function(jobj, context, method, ...) {
   x <- py_get_attr(context, method)
-  if(inherits(x, "python.builtin.method")) {
+  if (inherits(x, "python.builtin.method")) {
     run_x <- py_call(x, ...)
     out <- as_spark_pyobj(run_x, jobj)
   } else {
@@ -79,6 +79,6 @@ spark_dataframe.pyspark_connection <- function(x, ...) {
 
 #' @export
 spark_web.pyspark_connection <- function(sc, ...) {
-  #TODO: Implement later when SparkContext is implemented
+  # TODO: Implement later when SparkContext is implemented
   ""
 }

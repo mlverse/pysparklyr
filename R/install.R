@@ -4,8 +4,7 @@
 #' install the python libraries. Defaults to "r-sparklyr".
 #' @export
 install_pyspark <- function(python_version = NULL,
-                            virtualenv_name = "r-sparklyr"
-                            ) {
+                            virtualenv_name = "r-sparklyr") {
   if (!py_available()) {
     if (is.null(python_version)) {
       python_path <- install_python()

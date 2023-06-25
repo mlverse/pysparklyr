@@ -70,4 +70,3 @@ import_check <- function(x, virtualenv_name) {
 
   out
 }
-

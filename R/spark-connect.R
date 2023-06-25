@@ -1,4 +1,3 @@
-#' @importFrom sparklyr spark_connect_method
 #' @export
 spark_connect_method.spark_method_spark_connect <- function(
     x,
@@ -11,8 +10,7 @@ spark_connect_method.spark_method_spark_connect <- function(
     hadoop_version,
     extensions,
     scala_version,
-    ...
-) {
+    ...) {
   py_spark_connect(host = master, method = method, config = config)
 }
 
@@ -24,8 +22,7 @@ py_spark_connect <- function(host,
                              virtualenv_name = "r-sparklyr",
                              spark_version = NULL,
                              databricks_connect_version = NULL,
-                             config = list()
-                             ) {
+                             config = list()) {
   master <- ""
   remote <- ""
 
@@ -38,7 +35,7 @@ py_spark_connect <- function(host,
     if (!is.null(cluster_id)) {
       method <- "db_connect"
     }
-    if(substr(host, 1, 5) == "local") {
+    if (substr(host, 1, 5) == "local") {
       method <- "local"
       master <- "local"
     }
@@ -90,15 +87,15 @@ py_spark_connect <- function(host,
 }
 methods::setOldClass(
   c("connect_spark", "pyspark_connection", "spark_connection")
-  )
+)
 
 env_version <- function(envname, spark = NULL, db = NULL) {
   ver <- envname
-  if(!is.null(spark) | !is.null(db)) {
-    if(!is.null(db)) {
+  if (!is.null(spark) | !is.null(db)) {
+    if (!is.null(db)) {
       ver <- glue("{envname}-db-{db}")
     }
-    if(!is.null(spark) & ver == envname) {
+    if (!is.null(spark) & ver == envname) {
       ver <- glue("{envname}-pyspark-{spark}")
     }
   }

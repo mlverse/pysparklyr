@@ -28,11 +28,12 @@ invoke.spark_pyobj <- function(jobj, method, ...) {
     )
 }
 
-as_spark_pyobj <- function(obj, conn) {
+as_spark_pyobj <- function(obj, conn, class = NULL) {
   structure(
     list(
       pyspark_obj = obj,
-      connection = conn
+      connection = conn,
+      class = class
     ),
     class = c("spark_pyobj", "spark_jobj")
   )

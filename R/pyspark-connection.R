@@ -35,13 +35,20 @@ invoke.pyspark_connection <- function(jobj, method, ...) {
 }
 
 #' @export
-invoke_new.connect_spark<- function(jobj, method, ...) {
-  invoke_conn(
-    jobj = jobj,
-    context = jobj$state$spark_context,
-    method = method,
-    ... = ...
-  )
+invoke_new.connect_spark<- function(jobj, class, ...) {
+  classes <- unlist(strsplit(class, "[.]"))
+  classes <- classes[classes != "org"]
+  classes <- classes[classes != "apache"]
+  classes <- classes[classes != "spark"]
+
+  fn <- classes[length(classes)]
+  lib <- classes[1:(length(classes) - 1)]
+
+  ml_lib <- paste0(c("pyspark", lib), collapse = ".")
+
+  imp <- import(ml_lib)
+  ml_fun <- py_get_attr(imp, fn)
+  as_spark_pyobj(obj = ml_fun, conn = jobj, class = class)
 }
 
 #' @export

@@ -91,3 +91,7 @@ env_version <- function(envname, spark = NULL, db = NULL) {
   }
   ver
 }
+
+python_conn <- function(x) {
+  x$state$spark_context
+}

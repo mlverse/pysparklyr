@@ -11,35 +11,26 @@ spark_connect_method.spark_method_spark_connect <- function(
     extensions,
     scala_version,
     ...) {
-  py_spark_connect(host = master, method = method, config = config)
+
+  py_spark_connect(
+    master = master,
+    method = method,
+    config = config,
+    ... = ...
+    )
 }
 
 
-py_spark_connect <- function(host,
+py_spark_connect <- function(master,
                              token = Sys.getenv("DATABRICKS_TOKEN"),
                              cluster_id = NULL,
-                             method = c("auto", "spark_connect", "db_connect", "local"),
+                             method = "",
                              virtualenv_name = "r-sparklyr",
                              spark_version = NULL,
                              databricks_connect_version = NULL,
                              config = list()) {
-  master <- ""
-  remote <- ""
 
   method <- method[[1]]
-
-  if (method == "auto") {
-    if (is.null(cluster_id) & grepl("sc://", host)) {
-      method <- "spark_connect"
-    }
-    if (!is.null(cluster_id)) {
-      method <- "db_connect"
-    }
-    if (substr(host, 1, 5) == "local") {
-      method <- "local"
-      master <- "local"
-    }
-  }
 
   virtualenv_name <- env_version(
     envname = virtualenv_name,
@@ -50,30 +41,29 @@ py_spark_connect <- function(host,
   if (method == "spark_connect") {
     pyspark <- import_check("pyspark", virtualenv_name)
     pyspark_sql <- pyspark$sql
-    remote <- pyspark_sql$SparkSession$builder$remote(host)
+    remote <- pyspark_sql$SparkSession$builder$remote(master)
     python <- remote$getOrCreate()
     con_class <- "connect_spark"
-    remote <- host
+    master_label <- glue("Spark Connect - {master}")
   }
 
   if (method == "db_connect") {
     db <- import_check("databricks.connect", virtualenv_name)
     remote <- db$DatabricksSession$builder$remote(
-      host = host,
+      host = master,
       token = token,
       cluster_id = cluster_id
     )
     python <- remote$getOrCreate()
     con_class <- "connect_databricks"
-    remote <- host
+    master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
   }
 
   spark_context <- list(spark_context = python)
 
   sc <- structure(
     list(
-      master = master,
-      remote = remote,
+      master = master_label,
       cluster_id = cluster_id,
       config = config,
       method = method,

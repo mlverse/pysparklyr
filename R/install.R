@@ -25,6 +25,7 @@ install_pyspark <- function(python_version = NULL,
     packages = c(
       "pyspark", "pandas", "PyArrow", "grpcio", "google-api-python-client",
       "grpcio_status", "databricks-connect"
-    )
+    ),
+    pip_options = "--index-url https://packagemanager.posit.co/pypi/2023-06-01/simple"
   )
 }

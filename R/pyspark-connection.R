@@ -82,3 +82,9 @@ spark_web.pyspark_connection <- function(sc, ...) {
   # TODO: Implement later when SparkContext is implemented
   ""
 }
+
+#' @export
+spark_log.pyspark_connection <- function(sc, n = 100, filter = NULL, ...) {
+  # TODO: Implement later when SparkContext is implemented
+  ""
+}

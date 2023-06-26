@@ -11,9 +11,13 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+```
 
+
+```{r, include = FALSE}
 library(remotes)
 library(dplyr)
+library(dbplyr)
 library(sparklyr)
 library(pysparklyr)
 
@@ -42,7 +46,7 @@ install_github("edgararuiz/pysparklyr", ref = "demo")
 install_github("sparklyr/sparklyr", ref = "demo")
 ```
 
-# Setup
+## Setup
 
 Aside from PySpark, there are several Python libraries needed for the integration to work. `pysparklyr` has a helper function (`install_pyspark()`) that sets up a new Virtual Environment, and installs the needed Python libraries: 
 
@@ -53,4 +57,98 @@ library(pysparklyr)
 install_pyspark()
 ```
 
+## Connecting
+
+```{r}
+sc <- spark_connect(
+  master = "https://rstudio-partner-posit-default.cloud.databricks.com",
+  cluster_id = "0608-170338-jwkec0wi",
+  method = "databricks_connect"
+)
+```
+
+<img src = 'man/readme/rstudio-connection.png'>
+
+```{r}
+library(dplyr)
+library(dbplyr)
+
+trips <- tbl(sc, in_catalog("samples", "nyctaxi", "trips"))
+
+trips
+```
+
+```{r}
+trips %>% 
+  group_by(pickup_zip) %>% 
+  summarise(
+    count = n(),
+    avg_distance = mean(trip_distance, na.rm = TRUE)
+  )
+```
+
+
+```{r}
+spark_disconnect(sc)
+```
+
+
+## Progress
+
+### Installation
+
+- [x] Helper function to install Python and needed libraries
+
+### Connectivity and Session
+- [x]  Initial connection routines
+- [x]  Spark Connect connectivity
+- [ ]  Initiate Spark Connect when creating new connection, similar to "local" (Maybe)
+
+### RStudio Integration
+- [x] Initial Connection contract works
+- [x] Implement and integrate custom three layer (catalog, schema, table) structure for navigation 
+- [x] Implement column preview for `pyspark_connection`. Mainly because the current way does not allow for a three layer structure.
+- [x] Implement "top 1000 row preview" for `pyspark_connection`. Mainly because the current way does not allow for a three layer structure.
+- [x] `sparklyr` - Prevent showing the Spark and Log buttons if the connection has no target to offer
+- [ ] Implement Spark and Log buttons for Spark Connect and DB Connect. **Blocked** - Until SparkSession is implemented in Spark 3.5
+
+### DBI 
+- [x] Integration with DBI methods. This was done my modifying a couple of `sparklyr` routines. More testing is needed to confirm all works
+
+### `dplyr`
+
+- Implement needed methods:
+  - [x] `tbl()`
+  - [x] `collect()`
+  - [x] `copy_to()` - Implemented for `sparklyr`'s `sdf_copy_to()` since it was already an exported method. This made it a drop in integration.
+
+### Lower level integration
+- [x] Implement the `invoke()` method for `pysparklyr_connection`
+- [ ] Implement `invoke_new()` method for `pysparklyr_connection`. Initial implmentation is available, but more testing is needed.
+
+### ML
+
+- [ ] First successful run of an `ft_` function
+- [ ] Run all `ft_` functions, and have all/most pass tests
+  - [ ] Determine what to do with functions that will not run
+- [ ] First successful run of an `ml_` function
+- [ ] Run all `ft_` functions, and have all/most pass tests
+  - [ ] Determine what to do with functions that will not run
+- [ ] First successful run of an `sdf_` function
+- [ ] Run all `sdf_` functions, and have all/most pass tests
+  - [ ] Determine what to do with functions that will not run
+
+### Data
+
+- [ ] First successful run of an `spark_read_` / `spark_write_` function
+- [ ] Run all `spark_read_` / `spark_write_` functions, and have all/most pass tests
+  - [ ] Determine what to do with functions that will not run
+
+### Stream
+
+- [ ] Test streaming 
+  
+### Arrow 
+
+- [ ] Test `arrow` integration 
 

@@ -61,3 +61,56 @@ spark_connect_db_objects.pyspark_connection <- function(sc,
   sc_catalog$setCurrentCatalog(current_catalog)
   out
 }
+
+#' @importFrom sparklyr spark_connect_db_columns
+#' @export
+spark_connect_db_columns.pyspark_connection <- function(sc,
+                                                        table = NULL,
+                                                        view = NULL,
+                                                        catalog = NULL,
+                                                        schema = NULL) {
+  tbl_df <- rs_get_table(sc, catalog, schema, table)
+
+  tbl_sample <- collect(head(tbl_df))
+
+  tbl_info <- map_chr(tbl_sample, ~ paste0(rs_type(.x), " ", rs_vals(.x)))
+
+  data.frame(
+    name = names(tbl_info),
+    type = tbl_info
+  )
+}
+
+rs_get_table <- function(sc, catalog, schema, table) {
+  context <- python_conn(sc)
+  if (is.null(catalog)) {
+    catalog <- context$catalog$currentCatalog()
+  }
+  if (is.null(schema)) {
+    schema <- context$catalog$currentDatabase()
+  }
+  x <- in_catalog(catalog, schema, table)
+  if (!context$catalog$tableExists(as.sql(x, sc$con))) {
+    x <- table
+  }
+  tbl(sc, x)
+}
+
+rs_type <- function(x) {
+  class <- class(x)[[1]]
+  if (class == "integer") class <- "int"
+  if (class == "numeric") class <- "num"
+  if (class == "POSIXct") class <- "dttm"
+  if (class == "character") class <- "chr"
+  class
+}
+
+rs_vals <- function(x) {
+  ln <- 30
+  x <- paste0(x, collapse = " ")
+  if (nchar(x) > ln) {
+    x <- substr(x, 1, (ln - 3))
+    x <- paste0(x, "...")
+  }
+  x
+}

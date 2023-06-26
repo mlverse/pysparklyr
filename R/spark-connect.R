@@ -90,7 +90,7 @@ py_spark_connect <- function(master,
       config = config,
       method = method,
       state = spark_context,
-      con = structure(list(), class = c("spark_connection", "Hive", "DBIConnection"))
+      con = structure(list(), class = c("spark_connection", "DBIConnection"))
     ),
     class = c(con_class, "pyspark_connection", "spark_connection", "DBIConnection")
   )

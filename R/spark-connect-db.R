@@ -81,6 +81,33 @@ spark_connect_db_columns.pyspark_connection <- function(sc,
   )
 }
 
+#' @importFrom sparklyr spark_connect_db_preview
+#' @export
+spark_connect_db_preview.pyspark_connection <- function(
+    sc,
+    rowLimit,
+    table = NULL,
+    view = NULL,
+    catalog = NULL,
+    schema = NULL) {
+  tbl_df <- rs_get_table(sc, catalog, schema, table)
+  collect(head(tbl_df, rowLimit))
+}
+
+rs_get_table <- function(sc, catalog, schema, table) {
+  if (is.null(catalog)) {
+    catalog <- sc$python$catalog$currentCatalog()
+  }
+  if (is.null(schema)) {
+    schema <- sc$python$catalog$currentDatabase()
+  }
+  x <- in_catalog(catalog, schema, table)
+  if (!sc$python$catalog$tableExists(as.sql(x, sc$con))) {
+    x <- table
+  }
+  tbl(sc, x)
+}
+
 rs_get_table <- function(sc, catalog, schema, table) {
   context <- python_conn(sc)
   if (is.null(catalog)) {

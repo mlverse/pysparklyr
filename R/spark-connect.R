@@ -101,6 +101,10 @@ methods::setOldClass(
   c("connect_spark", "pyspark_connection", "spark_connection")
 )
 
+methods::setOldClass(
+  c("connect_databricks", "pyspark_connection", "spark_connection")
+)
+
 env_version <- function(envname, spark = NULL, db = NULL) {
   ver <- envname
   if (!is.null(spark) | !is.null(db)) {

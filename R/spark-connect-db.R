@@ -1,10 +1,10 @@
-#' @importFrom sparklyr rstudio_db_objects
+#' @importFrom sparklyr spark_connect_db_objects
 #' @export
-rstudio_db_objects.pyspark_connection <- function(sc,
-                                                  catalog = NULL,
-                                                  schema = NULL,
-                                                  name = NULL,
-                                                  type = NULL) {
+spark_connect_db_objects.pyspark_connection <- function(sc,
+                                                        catalog = NULL,
+                                                        schema = NULL,
+                                                        name = NULL,
+                                                        type = NULL) {
   df_catalogs <- data.frame()
   df_databases <- data.frame()
   df_tables <- data.frame()

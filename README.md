@@ -45,7 +45,6 @@ sc <- spark_connect(
   cluster_id = "0608-170338-jwkec0wi",
   method = "databricks_connect"
 )
-#> ✔ Using the 'r-sparklyr' virtual environment (/Users/edgar/.virtualenvs/r-sparklyr/bin/python)
 ```
 
 <img src = 'man/readme/rstudio-connection.png'>
@@ -57,21 +56,6 @@ library(dbplyr)
 trips <- tbl(sc, in_catalog("samples", "nyctaxi", "trips"))
 
 trips
-#> # Source: spark<`samples`.`nyctaxi`.`trips`> [?? x 6]
-#>    tpep_pickup_datetime tpep_dropoff_datetime trip_distance fare_amount
-#>    <dttm>               <dttm>                        <dbl>       <dbl>
-#>  1 2016-02-14 10:52:13  2016-02-14 11:16:04            4.94        19  
-#>  2 2016-02-04 12:44:19  2016-02-04 12:46:00            0.28         3.5
-#>  3 2016-02-17 11:13:57  2016-02-17 11:17:55            0.7          5  
-#>  4 2016-02-18 04:36:07  2016-02-18 04:41:45            0.8          6  
-#>  5 2016-02-22 08:14:41  2016-02-22 08:31:52            4.51        17  
-#>  6 2016-02-05 00:45:02  2016-02-05 00:50:26            1.8          7  
-#>  7 2016-02-15 09:03:28  2016-02-15 09:18:45            2.58        12  
-#>  8 2016-02-25 13:09:26  2016-02-25 13:24:50            1.4         11  
-#>  9 2016-02-13 10:28:18  2016-02-13 10:36:36            1.21         7.5
-#> 10 2016-02-13 18:03:48  2016-02-13 18:10:24            0.6          6  
-#> # ℹ more rows
-#> # ℹ 2 more variables: pickup_zip <int>, dropoff_zip <int>
 ```
 
 ``` r
@@ -81,20 +65,6 @@ trips %>%
     count = n(),
     avg_distance = mean(trip_distance, na.rm = TRUE)
   )
-#> # Source: spark<?> [?? x 3]
-#>    pickup_zip count avg_distance
-#>         <int> <dbl>        <dbl>
-#>  1      10032    15         4.49
-#>  2      10013   273         2.98
-#>  3      10022   519         2.00
-#>  4      10162   414         2.19
-#>  5      10018  1012         2.60
-#>  6      11106    39         2.03
-#>  7      10011  1129         2.29
-#>  8      11103    16         2.75
-#>  9      11237    15         3.31
-#> 10      11422   429        15.5 
-#> # ℹ more rows
 ```
 
 ``` r
@@ -113,6 +83,8 @@ spark_disconnect(sc)
 - [x] Spark Connect connectivity
 - [ ] Initiate Spark Connect when creating new connection, similar to
   “local” (Maybe)
+- [ ] Fail when user changes from one connection to another in the same
+  R/Python session
 
 ### RStudio Integration
 
@@ -127,6 +99,7 @@ spark_disconnect(sc)
   connection has no target to offer
 - [ ] Implement Spark and Log buttons for Spark Connect and DB Connect.
   **Blocked** - Until SparkSession is implemented in Spark 3.5
+- [ ] Find a way to get the Connection pane to be async to the IDE
 
 ### DBI
 
@@ -146,17 +119,28 @@ spark_disconnect(sc)
 
 - [x] Implement the `invoke()` method for `pysparklyr_connection`
 - [ ] Implement `invoke_new()` method for `pysparklyr_connection`.
-  Initial implmentation is available, but more testing is needed.
+  Initial implementation is available, but more testing is needed.
+
+### Auth
+
+- [ ] Implement Databricks Oauth
+- [ ] Implement Azure auth
+- [x] Implement PATH based auth
 
 ### ML
 
-- [ ] First successful run of an `ft_` function
+**Blocked: MLlib not supported in Spark Connect 3.4**
+
+- [ ] First successful run of an `ft_` functions
 - [ ] Run all `ft_` functions, and have all/most pass tests
   - [ ] Determine what to do with functions that will not run
-- [ ] First successful run of an `ml_` function
+- [ ] First successful run of an `ml_` functions
 - [ ] Run all `ft_` functions, and have all/most pass tests
   - [ ] Determine what to do with functions that will not run
-- [ ] First successful run of an `sdf_` function
+
+### SDF
+
+- [ ] First successful run of an `sdf_` functions
 - [ ] Run all `sdf_` functions, and have all/most pass tests
   - [ ] Determine what to do with functions that will not run
 
@@ -174,3 +158,17 @@ spark_disconnect(sc)
 ### Arrow
 
 - [ ] Test `arrow` integration
+
+### Testing
+
+- [ ] Unit testing
+- [ ] Integration testing
+  - [ ] Add exported method to skip tests based on connection
+  - [ ] Add skip commands to specific tests
+- [ ] Environments
+  - [ ] Initial run against Spark Connect
+  - [ ] Initial run against Databricks Connect
+- [ ] CI
+  - [ ] Add Spark Connect to current GH Spark Tests action
+  - [ ] GH action that creates a Databricks cluster and runs tests
+  - [ ] GH action that creates a Azure cluster and runs tests

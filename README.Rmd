@@ -9,8 +9,10 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "100%",
+  eval = FALSE
 )
+
 ```
 
 
@@ -103,6 +105,7 @@ spark_disconnect(sc)
 - [x]  Initial connection routines
 - [x]  Spark Connect connectivity
 - [ ]  Initiate Spark Connect when creating new connection, similar to "local" (Maybe)
+- [ ]  Fail when user changes from one connection to another in the same R/Python session
 
 ### RStudio Integration
 - [x] Initial Connection contract works
@@ -111,6 +114,7 @@ spark_disconnect(sc)
 - [x] Implement "top 1000 row preview" for `pyspark_connection`. Mainly because the current way does not allow for a three layer structure.
 - [x] `sparklyr` - Prevent showing the Spark and Log buttons if the connection has no target to offer
 - [ ] Implement Spark and Log buttons for Spark Connect and DB Connect. **Blocked** - Until SparkSession is implemented in Spark 3.5
+- [ ] Find a way to get the Connection pane to be async to the IDE
 
 ### DBI 
 - [x] Integration with DBI methods. This was done my modifying a couple of `sparklyr` routines. More testing is needed to confirm all works
@@ -124,17 +128,28 @@ spark_disconnect(sc)
 
 ### Lower level integration
 - [x] Implement the `invoke()` method for `pysparklyr_connection`
-- [ ] Implement `invoke_new()` method for `pysparklyr_connection`. Initial implmentation is available, but more testing is needed.
+- [ ] Implement `invoke_new()` method for `pysparklyr_connection`. Initial implementation is available, but more testing is needed.
 
-### ML
+### Auth 
 
-- [ ] First successful run of an `ft_` function
+- [ ] Implement Databricks Oauth
+- [ ] Implement Azure auth
+- [x] Implement PATH based auth
+
+### ML 
+
+**Blocked: MLlib not supported in Spark Connect 3.4**
+
+- [ ] First successful run of an `ft_` functions
 - [ ] Run all `ft_` functions, and have all/most pass tests
   - [ ] Determine what to do with functions that will not run
-- [ ] First successful run of an `ml_` function
+- [ ] First successful run of an `ml_` functions
 - [ ] Run all `ft_` functions, and have all/most pass tests
   - [ ] Determine what to do with functions that will not run
-- [ ] First successful run of an `sdf_` function
+  
+### SDF
+
+- [ ] First successful run of an `sdf_` functions
 - [ ] Run all `sdf_` functions, and have all/most pass tests
   - [ ] Determine what to do with functions that will not run
 
@@ -152,3 +167,16 @@ spark_disconnect(sc)
 
 - [ ] Test `arrow` integration 
 
+### Testing
+
+- [ ] Unit testing
+- [ ] Integration testing 
+  - [ ] Add exported method to skip tests based on connection
+  - [ ] Add skip commands to specific tests
+- [ ] Environments
+  - [ ] Initial run against Spark Connect
+  - [ ] Initial run against Databricks Connect
+- [ ] CI
+  - [ ] Add Spark Connect to current GH Spark Tests action
+  - [ ] GH action that creates a Databricks cluster and runs tests
+  - [ ] GH action that creates a Azure cluster and runs tests

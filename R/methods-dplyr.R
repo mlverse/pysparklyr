@@ -32,6 +32,9 @@ sdf_copy_to.pyspark_connection <- function(sc,
       )
     }
   }
+  col_names <- colnames(x)
+  col_names <- gsub("\\.", "_", col_names)
+  colnames(x) <- col_names
   df_copy <- context$createDataFrame(r_to_py(x))
   df_copy$cache()
   df_copy$createTempView(name)

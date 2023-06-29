@@ -1,3 +1,26 @@
+#' @importFrom dplyr compute
+#' @export
+compute.tbl_pysparklyr <- function(x, name = NULL, ...) {
+  cache_query(x, name = name, storage_level = "MEMORY_AND_DISK")
+}
+
+#' @importFrom dbplyr remote_query
+#' @importFrom sparklyr random_string
+cache_query <- function(table,
+                        name = NULL,
+                        storage_level = "MEMORY_AND_DISK"
+                        ) {
+  # https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-cache-table.html
+  if(is.null(name)) {
+    name <- random_string()
+  }
+  x <- remote_query(table)
+  query <- glue("CACHE TABLE {name} OPTIONS ('storageLevel' '{storage_level}') {x}")
+  sc <- spark_connection(table)
+  invoke(sc, "sql", query)
+  tbl(sc, name)
+}
+
 #' @export
 collect.tbl_pysparklyr <- function(x, ...) {
   sc <- x[[1]]
@@ -13,10 +36,11 @@ spark_dataframe.tbl_pysparklyr <- function(x, ...) {
   invoke(conn, "sql", qry)
 }
 
+#' @importFrom sparklyr spark_table_name
 #' @export
 sdf_copy_to.pyspark_connection <- function(sc,
                                            x,
-                                           name,
+                                           name = spark_table_name(substitute(x)),
                                            memory,
                                            repartition,
                                            overwrite,

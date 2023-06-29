@@ -25,7 +25,9 @@ cache_query <- function(table,
 collect.tbl_pysparklyr <- function(x, ...) {
   sc <- x[[1]]
   res <- sc$state$spark_context$sql(remote_query(x))
-  res$toPandas()
+  out <- res$toPandas()
+  attr(out, "pandas.index") <- NULL
+  tibble(out)
 }
 
 #' @export

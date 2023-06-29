@@ -2,7 +2,7 @@
 #' @importFrom sparklyr spark_connection connection_is_open hive_context
 #' @importFrom sparklyr sdf_copy_to spark_connect_method spark_log
 #' @importFrom purrr map_lgl map_chr map
-#' @importFrom dplyr tbl collect
+#' @importFrom dplyr tbl collect tibble
 #' @importFrom methods new is
 #' @import reticulate
 #' @import dbplyr

@@ -30,7 +30,9 @@ invoke.spark_pyobj <- function(jobj, method, ...) {
 
 #' @export
 collect.spark_pyobj <- function(x, ...) {
-  x$pyspark_obj$toPandas()
+  out <- x$pyspark_obj$toPandas()
+  attr(out, "pandas.index") <- NULL
+  tibble(out)
 }
 
 as_spark_pyobj <- function(obj, conn, class = NULL) {

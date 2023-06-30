@@ -15,7 +15,7 @@ install_pyspark <- function(python_version = NULL,
   }
 
   if (!(virtualenv_name %in% virtualenv_list())) {
-    virtualenv_create(virtualenv_name, package = NULL)
+    virtualenv_create(virtualenv_name, packages = NULL)
   }
 
   use_virtualenv(virtualenv_name)

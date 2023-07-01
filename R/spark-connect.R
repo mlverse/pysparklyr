@@ -24,7 +24,7 @@ spark_connect_method.spark_method_spark_connect <- function(
 spark_connect_method.spark_method_databricks_connect <- function(
     x,
     method,
-    master,
+    master = Sys.getenv("DATABRICKS_HOST"),
     spark_home,
     config,
     app_name,
@@ -90,13 +90,18 @@ py_spark_connect <- function(master,
       config = config,
       method = method,
       state = spark_context,
-      con = structure(list(), class = c("spark_connection", "DBIConnection"))
+      con = structure(list(), class = c("Hive", "spark_connection", "DBIConnection"))
     ),
     class = c(con_class, "pyspark_connection", "spark_connection", "DBIConnection")
   )
 
   sc
 }
+methods::setOldClass(
+  c("Hive", "spark_connection")
+)
+
+
 methods::setOldClass(
   c("connect_spark", "pyspark_connection", "spark_connection")
 )

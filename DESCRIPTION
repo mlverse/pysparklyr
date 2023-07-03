@@ -20,6 +20,7 @@ Imports:
     reticulate,
     methods,
     rlang,
-    sparklyr
+    sparklyr,
+    tidyselect
 URL: https://github.com/edgararuiz/pysparklyr
 BugReports: https://github.com/edgararuiz/pysparklyr/issues

@@ -83,3 +83,11 @@ tbl.pyspark_connection <- function(src, from, ...) {
   class(out) <- new_class
   out
 }
+
+
+#' @importFrom tidyselect tidyselect_data_has_predicates
+#' @export
+tidyselect_data_has_predicates.tbl_pysparklyr <- function(x) {
+  FALSE
+}
+

@@ -9,8 +9,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%",
-  eval = FALSE
+  out.width = "100%"
 )
 
 ```
@@ -22,7 +21,7 @@ library(dbplyr)
 library(sparklyr)
 library(pysparklyr)
 
-install_github("sparklyr/sparklyr", ref = "demo")
+install_github("sparklyr/sparklyr", ref = "demo") 
 install_github("edgararuiz/pysparklyr", ref = "demo")
 
 
@@ -44,8 +43,9 @@ Development of this package requires regular updates to `sparklyr`. The most sta
 ``` r
 library(remotes)
 
-install_github("edgararuiz/pysparklyr", ref = "demo")
 install_github("sparklyr/sparklyr", ref = "demo")
+install_github("edgararuiz/pysparklyr", ref = "demo")
+
 ```
 
 ## Setup
@@ -59,17 +59,43 @@ library(pysparklyr)
 install_pyspark()
 ```
 
-## Connecting
+## Connecting to Databricks (ML 13+)
+
+For convenience, and safety, you can save your authentication token (PAT), and your
+company's Databrick's URL in a environment variable. The two variables are:
+
+- `DATABRICKS_TOKEN` 
+- `DATABRICKS_HOST`
+
+This will prevent your token to be shown in plain text in your code. You can set
+the environment variables at the beginning of your R session using `Sys.setenv()`.
+Preferably, the two variables can be set for all R sessions by saving them to the
+`.Renviron` file. The `usethis` package has a handy function that opens the file
+so you can edit it: `usethis::edit_r_environ()`. Just add the two entries to
+your `.Renviron` file.
+
+After that, use `spark_connect()` to open the connection to Databricks. You will
+need to only pass the `cluster_id` of your cluster, and tell `sparklyr` that
+you are connecting to a cluster version ML 13+ by using `method = "databricks_connect"`
 
 ```{r}
 sc <- spark_connect(
-  master = "https://rstudio-partner-posit-default.cloud.databricks.com",
   cluster_id = "0608-170338-jwkec0wi",
   method = "databricks_connect"
 )
 ```
 
+## Using with Databricks 13+
+
+Through `pysparklyr`, `sparklyr` is able to display the navigation to the full
+data catalog accessible to your user in Databricks. That will be displayed in
+the RStudio's Connections Pane, as shown below. 
+
 <img src="man/readme/rstudio-connection.png"/>
+
+You can use `dbplyr`'s `in_catalog()` function to access the different tables 
+inside your data catalog. After pointing `tbl()` to a specific table, you can 
+use `dplyr`. 
 
 ```{r}
 library(dplyr)
@@ -125,12 +151,13 @@ spark_disconnect(sc)
 -   Implement needed methods:
     -   [x] `tbl()`
     -   [x] `collect()`
+    -   [x] `compute()` 
     -   [x] `copy_to()` - Implemented for `sparklyr`'s `sdf_copy_to()` since it was already an exported method. This made it a drop in integration.
 
 ### Lower level integration
 
 -   [x] Implement the `invoke()` method for `pysparklyr_connection`
--   [ ] Implement `invoke_new()` method for `pysparklyr_connection`. Initial implementation is available, but more testing is needed.
+-   [ ] Implement `invoke_new()` method for `pysparklyr_connection`. Initial implementation is available, but more testing is needed. **Blocked: MLlib not supported in Spark Connect 3.4**
 
 ### Auth
 

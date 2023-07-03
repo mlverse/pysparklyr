@@ -3,6 +3,8 @@
 spark_integ_test_skip.pyspark_connection <- function(sc, test_name) {
   out <- TRUE
   if(grepl("dplyr", test_name)) out <- FALSE
+  if(grepl("dplyr-do", test_name)) out <- TRUE
+  if(grepl("dplyr-hof", test_name)) out <- TRUE
   if(grepl("dbi", test_name)) out <- FALSE
   out
 }

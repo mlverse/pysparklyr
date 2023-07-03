@@ -70,6 +70,9 @@ py_spark_connect <- function(master,
   }
 
   if (method == "databricks_connect") {
+    if(is.null(master)) {
+      master <-  Sys.getenv("DATABRICKS_HOST")
+    }
     db <- import_check("databricks.connect", virtualenv_name)
     remote <- db$DatabricksSession$builder$remote(
       host = master,

@@ -1,3 +1,12 @@
+#' @importFrom sparklyr spark_integ_test_skip
+#' @export
+spark_integ_test_skip.pyspark_connection <- function(sc, test_name) {
+  out <- TRUE
+  if(grepl("dplyr", test_name)) out <- FALSE
+  if(grepl("dbi", test_name)) out <- FALSE
+  out
+}
+
 #' @export
 spark_version.pyspark_connection <- function(sc) {
   sc$state$spark_context$version

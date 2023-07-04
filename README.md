@@ -64,7 +64,6 @@ sc <- spark_connect(
   cluster_id = "0608-170338-jwkec0wi",
   method = "databricks_connect"
 )
-#> ✔ Using the 'r-sparklyr' virtual environment (/Users/edgar/.virtualenvs/r-sparklyr/bin/python)
 ```
 
 ## Using with Databricks 13+
@@ -86,21 +85,6 @@ library(dbplyr)
 trips <- tbl(sc, in_catalog("samples", "nyctaxi", "trips"))
 
 trips
-#> # Source: spark<`samples`.`nyctaxi`.`trips`> [?? x 6]
-#>    tpep_pickup_datetime tpep_dropoff_datetime trip_distance fare_amount
-#>    <dttm>               <dttm>                        <dbl>       <dbl>
-#>  1 2016-02-14 10:52:13  2016-02-14 11:16:04            4.94        19  
-#>  2 2016-02-04 12:44:19  2016-02-04 12:46:00            0.28         3.5
-#>  3 2016-02-17 11:13:57  2016-02-17 11:17:55            0.7          5  
-#>  4 2016-02-18 04:36:07  2016-02-18 04:41:45            0.8          6  
-#>  5 2016-02-22 08:14:41  2016-02-22 08:31:52            4.51        17  
-#>  6 2016-02-05 00:45:02  2016-02-05 00:50:26            1.8          7  
-#>  7 2016-02-15 09:03:28  2016-02-15 09:18:45            2.58        12  
-#>  8 2016-02-25 13:09:26  2016-02-25 13:24:50            1.4         11  
-#>  9 2016-02-13 10:28:18  2016-02-13 10:36:36            1.21         7.5
-#> 10 2016-02-13 18:03:48  2016-02-13 18:10:24            0.6          6  
-#> # ℹ more rows
-#> # ℹ 2 more variables: pickup_zip <int>, dropoff_zip <int>
 ```
 
 ``` r
@@ -110,20 +94,6 @@ trips %>%
     count = n(),
     avg_distance = mean(trip_distance, na.rm = TRUE)
   )
-#> # Source: spark<?> [?? x 3]
-#>    pickup_zip count avg_distance
-#>         <int> <dbl>        <dbl>
-#>  1      10032    15         4.49
-#>  2      10013   273         2.98
-#>  3      10022   519         2.00
-#>  4      10162   414         2.19
-#>  5      10018  1012         2.60
-#>  6      11106    39         2.03
-#>  7      10011  1129         2.29
-#>  8      11103    16         2.75
-#>  9      11237    15         3.31
-#> 10      11422   429        15.5 
-#> # ℹ more rows
 ```
 
 ``` r
@@ -167,13 +137,34 @@ spark_disconnect(sc)
 
 ### `dplyr`
 
-- Implement needed methods:
+- Implement **core** methods:
   - [x] `tbl()`
   - [x] `collect()`
   - [x] `compute()`
   - [x] `copy_to()` - Implemented for `sparklyr`’s `sdf_copy_to()` since
     it was already an exported method. This made it a drop in
     integration.
+- Implement specific functions:
+  - [ ] `where()` - Needs predicate support, which is not available by
+    default through SQL. May need to find an alternative via PySpark.
+    This may not be needed for first CRAN release.
+  - [ ] `sample_frac()`
+  - [ ] `sample_n()`
+  - [x] `slice_max()` - Worked out-of-the-box
+  - [ ] `cumprod()` - Questioning its implementation. `sparklyr` did it
+    via a custom Scala implementation. `dbplyr` doesn’t seem to support
+    it.
+  - [ ] `distinct()` - Mostly works. Breaks when its followed by another
+    lazy op. (test line 150)
+  - [x] Hive Operators work, such as `LIKE` via `%like%` - Worked
+    out-of-the-box
+  - [ ] High Order Functions (Arrays)
+  - [ ] Table joins
+  - [ ] `lead()`
+  - [ ] `lag()`
+  - [ ] `rowSums()` - Mosts tests currently pass, but not all
+  - [x] `cor()`, `cov()`, `sd()` - Worked out-of-the-box
+  - [x] `weighted.mean()` - Worked out-of-the-box
 
 ### Lower level integration
 

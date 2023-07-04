@@ -9,7 +9,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "100%",
+  eval = FALSE
 )
 
 ```
@@ -148,12 +149,28 @@ spark_disconnect(sc)
 
 ### `dplyr`
 
--   Implement needed methods:
+-   Implement **core** methods:
     -   [x] `tbl()`
     -   [x] `collect()`
     -   [x] `compute()` 
     -   [x] `copy_to()` - Implemented for `sparklyr`'s `sdf_copy_to()` since it was already an exported method. This made it a drop in integration.
-
+    
+-  Implement specific functions:
+    - [ ] `where()` - Needs predicate support, which is not available by default through SQL. May need to find an alternative via PySpark. This may not be needed for first CRAN release.
+    - [ ] `sample_frac()` 
+    - [ ] `sample_n()`
+    - [x] `slice_max()` - Worked out-of-the-box
+    - [ ] `cumprod()` - Questioning its implementation. `sparklyr` did it via a custom Scala implementation. `dbplyr` doesn't seem to support it.
+    - [ ] `distinct()` - Mostly works. Breaks when its followed by another lazy op. (test line 150)
+    - [x] Hive Operators work, such as `LIKE` via `%like%` - Worked out-of-the-box
+    - [ ] High Order Functions (Arrays)
+    - [ ] Table joins
+    - [ ] `lead()`
+    - [ ] `lag()`
+    - [ ] `rowSums()` - Mosts tests currently pass, but not all
+    - [x] `cor()`, `cov()`, `sd()` - Worked out-of-the-box
+    - [x] `weighted.mean()` - Worked out-of-the-box
+  
 ### Lower level integration
 
 -   [x] Implement the `invoke()` method for `pysparklyr_connection`

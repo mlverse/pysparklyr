@@ -91,3 +91,10 @@ tidyselect_data_has_predicates.tbl_pysparklyr <- function(x) {
   FALSE
 }
 
+#' @importFrom dplyr same_src
+#' @export
+same_src.pyspark_connection <- function(x, y) {
+  identical(x$master, y$master) &&
+  identical(x$method, y$method) &&
+  identical(x$state, y$state)
+}

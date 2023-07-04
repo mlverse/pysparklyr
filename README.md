@@ -164,7 +164,8 @@ spark_disconnect(sc)
   - [x] Hive Operators work, such as `LIKE` via `%like%` - Worked
     out-of-the-box
   - [ ] High Order Functions (Arrays)
-  - [ ] Table joins
+  - [x] Table joins - Added `same_src()` method for PySpark connection
+    to get it to work
   - [ ] `lead()`
   - [ ] `lag()`
   - [ ] `rowSums()` - Mosts tests currently pass, but not all

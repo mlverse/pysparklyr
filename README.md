@@ -135,6 +135,11 @@ spark_disconnect(sc)
 - [x] Integration with DBI methods. This was done my modifying a couple
   of `sparklyr` routines. More testing is needed to confirm all works
 
+- Specific `DBI` functions
+
+  - [ ] `dbColumnInfo()`
+  - [ ] `dbWriteTable()`
+
 ### `dplyr`
 
 - Implement **core** methods:

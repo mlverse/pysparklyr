@@ -49,7 +49,9 @@ spark_ide_objects.pyspark_connection <- function(sc,
         tables <- tables[schemas]
 
         if (length(tables) > 0) {
-          df_tables <- data.frame(name = map_chr(tables, ~ .x$name))
+          table_names <- map_chr(tables, ~ .x$name)
+          final_names <- table_names[!grepl("^sparklyr_tmp_", table_names)]
+          df_tables <- data.frame(name = final_names)
           df_tables$type <- "table"
         }
       }

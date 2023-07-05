@@ -1,6 +1,6 @@
-#' @importFrom sparklyr spark_connect_db_objects
+#' @importFrom sparklyr spark_ide_objects
 #' @export
-spark_connect_db_objects.pyspark_connection <- function(sc,
+spark_ide_objects.pyspark_connection <- function(sc,
                                                         catalog = NULL,
                                                         schema = NULL,
                                                         name = NULL,
@@ -62,9 +62,9 @@ spark_connect_db_objects.pyspark_connection <- function(sc,
   out
 }
 
-#' @importFrom sparklyr spark_connect_db_columns
+#' @importFrom sparklyr spark_ide_columns
 #' @export
-spark_connect_db_columns.pyspark_connection <- function(sc,
+spark_ide_columns.pyspark_connection <- function(sc,
                                                         table = NULL,
                                                         view = NULL,
                                                         catalog = NULL,
@@ -81,9 +81,9 @@ spark_connect_db_columns.pyspark_connection <- function(sc,
   )
 }
 
-#' @importFrom sparklyr spark_connect_db_preview
+#' @importFrom sparklyr spark_ide_preview
 #' @export
-spark_connect_db_preview.pyspark_connection <- function(
+spark_ide_preview.pyspark_connection <- function(
     sc,
     rowLimit,
     table = NULL,

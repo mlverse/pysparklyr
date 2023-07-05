@@ -18,6 +18,7 @@ cache_query <- function(table,
   query <- glue("CACHE TABLE {name} OPTIONS ('storageLevel' '{storage_level}') {x}")
   sc <- spark_connection(table)
   invoke(sc, "sql", query)
+  spark_ide_connection_updated(sc, name)
   tbl(sc, name)
 }
 
@@ -37,6 +38,7 @@ spark_dataframe.tbl_pysparklyr <- function(x, ...) {
   qry <- sql_render(query, conn)
   invoke(conn, "sql", qry)
 }
+
 
 #' @importFrom sparklyr spark_table_name
 #' @export
@@ -64,6 +66,9 @@ sdf_copy_to.pyspark_connection <- function(sc,
   df_copy <- context$createDataFrame(r_to_py(x))
   df_copy$cache()
   df_copy$createTempView(name)
+
+  spark_ide_connection_updated(sc, name)
+
   tbl(src = sc, from = name)
 }
 

@@ -153,21 +153,22 @@ spark_disconnect(sc)
   - [ ] `where()` - Needs predicate support, which is not available by
     default through SQL. May need to find an alternative via PySpark.
     This may not be needed for first CRAN release.
-  - [ ] `sample_frac()`
-  - [ ] `sample_n()`
+  - [ ] `sample_frac()` / `sample_n()` - `slice_sample()` works, but no
+    resampling or replcement is available
   - [x] `slice_max()` - Worked out-of-the-box
   - [ ] `cumprod()` - Questioning its implementation. `sparklyr` did it
     via a custom Scala implementation. `dbplyr` doesn’t seem to support
     it.
   - [ ] `distinct()` - Mostly works. Breaks when its followed by another
-    lazy op. (test line 150)
+    lazy op
   - [x] Hive Operators work, such as `LIKE` via `%like%` - Worked
     out-of-the-box
   - [ ] High Order Functions (Arrays)
   - [x] Table joins - Added `same_src()` method for PySpark connection
     to get it to work
-  - [ ] `lead()`
-  - [ ] `lag()`
+  - [ ] `lead()` / `lag()` - Works for numeric fields. For character
+    fields, it process the windowed function but it returns a list
+    column for some reason
   - [ ] `rowSums()` - Mosts tests currently pass, but not all
   - [x] `cor()`, `cov()`, `sd()` - Worked out-of-the-box
   - [x] `weighted.mean()` - Worked out-of-the-box
@@ -201,6 +202,8 @@ spark_disconnect(sc)
 - [ ] First successful run of an `sdf_` functions
 - [ ] Run all `sdf_` functions, and have all/most pass tests
   - [ ] Determine what to do with functions that will not run
+- Individual functions:
+  - [ ] `sdf_broadcast()` **Blocked** Needs SparkContext to work
 
 ### Data
 

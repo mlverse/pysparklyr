@@ -71,5 +71,7 @@ to_pandas_cleaned <- function(x) {
       collected[[cur_var]] <- cur
     }
   }
-  tibble(collected)
+  out <- tibble(collected)
+  attr(out, "pandas.index") <- NULL
+  out
 }

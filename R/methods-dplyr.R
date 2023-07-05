@@ -24,7 +24,6 @@ collect.tbl_pysparklyr <- function(x, ...) {
   sc <- x[[1]]
   res <- sc$state$spark_context$sql(remote_query(x))
   to_pandas_cleaned(res)
-  #attr(out, "pandas.index") <- NULL
 }
 
 #' @export

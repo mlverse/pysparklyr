@@ -200,6 +200,8 @@ spark_disconnect(sc)
 -   [ ] First successful run of an `sdf_` functions
 -   [ ] Run all `sdf_` functions, and have all/most pass tests
     -   [ ] Determine what to do with functions that will not run
+-  Individual functions:
+    - [ ] `sdf_broadcast()` **Blocked** Needs SparkContext to work
 
 ### Data
 

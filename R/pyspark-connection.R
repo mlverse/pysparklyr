@@ -1,4 +1,3 @@
-#' @importFrom sparklyr spark_integ_test_skip
 #' @export
 spark_integ_test_skip.pyspark_connection <- function(sc, test_name) {
   out <- TRUE

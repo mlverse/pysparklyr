@@ -1,11 +1,8 @@
-#' @importFrom dplyr compute
 #' @export
 compute.tbl_pysparklyr <- function(x, name = NULL, ...) {
   cache_query(x, name = name, storage_level = "MEMORY_AND_DISK")
 }
 
-#' @importFrom dbplyr remote_query
-#' @importFrom sparklyr random_string
 cache_query <- function(table,
                         name = NULL,
                         storage_level = "MEMORY_AND_DISK"
@@ -40,7 +37,7 @@ spark_dataframe.tbl_pysparklyr <- function(x, ...) {
 }
 
 
-#' @importFrom sparklyr spark_table_name
+
 #' @export
 sdf_copy_to.pyspark_connection <- function(sc,
                                            x,
@@ -89,14 +86,11 @@ tbl.pyspark_connection <- function(src, from, ...) {
   out
 }
 
-
-#' @importFrom tidyselect tidyselect_data_has_predicates
 #' @export
 tidyselect_data_has_predicates.tbl_pysparklyr <- function(x) {
   FALSE
 }
 
-#' @importFrom dplyr same_src
 #' @export
 same_src.pyspark_connection <- function(x, y) {
   identical(x$master, y$master) &&

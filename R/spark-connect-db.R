@@ -1,4 +1,3 @@
-#' @importFrom sparklyr spark_ide_objects
 #' @export
 spark_ide_objects.pyspark_connection <- function(sc,
                                                         catalog = NULL,
@@ -62,7 +61,6 @@ spark_ide_objects.pyspark_connection <- function(sc,
   out
 }
 
-#' @importFrom sparklyr spark_ide_columns
 #' @export
 spark_ide_columns.pyspark_connection <- function(sc,
                                                         table = NULL,
@@ -81,7 +79,6 @@ spark_ide_columns.pyspark_connection <- function(sc,
   )
 }
 
-#' @importFrom sparklyr spark_ide_preview
 #' @export
 spark_ide_preview.pyspark_connection <- function(
     sc,

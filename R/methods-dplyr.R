@@ -16,6 +16,7 @@ sample_n.tbl_pysparklyr <- function(tbl, size, replace = FALSE,
 sample_frac.tbl_pysparklyr <- function(tbl, size = 1, replace = FALSE,
                                        weight = NULL, .env = NULL, ...
                                        ){
+  sc <- spark_connection(tbl)
   weight <- enquo(weight)
   if(!quo_is_null(weight)) {
     abort("`weight` is not supported in this Spark connection")
@@ -25,7 +26,7 @@ sample_frac.tbl_pysparklyr <- function(tbl, size = 1, replace = FALSE,
   out <- df$sample(fraction = size, withReplacement = TRUE)
   tmp_name <- glue("sparklyr_tmp_{random_string()}")
   out$createTempView(tmp_name)
-  out <- tbl(spark_connection(tbl), tmp_name)
+  out <- tbl(sc, tmp_name)
   out
 }
 

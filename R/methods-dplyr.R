@@ -1,7 +1,8 @@
-#' @importFrom dplyr sample_n slice_sample
+#' @importFrom dplyr sample_n sample_frac slice_sample
+#' @importFrom sparklyr random_string
 #' @export
 sample_n.tbl_pysparklyr <- function(tbl, size, replace = FALSE,
-                                    weight = NULL, .env = NULL
+                                    weight = NULL, .env = NULL, ...
                                     ) {
   slice_sample(
     .data = tbl,
@@ -10,6 +11,24 @@ sample_n.tbl_pysparklyr <- function(tbl, size, replace = FALSE,
     weight_by = !! enquo(weight)
     )
 }
+
+#' @export
+sample_frac.tbl_pysparklyr <- function(tbl, size = 1, replace = FALSE,
+                                       weight = NULL, .env = NULL, ...
+                                       ){
+  weight <- enquo(weight)
+  if(!quo_is_null(weight)) {
+    abort("`weight` is not supported in this Spark connection")
+  }
+  res <- invoke(sc, "sql", remote_query(tbl))
+  df <- res[[1]]
+  out <- df$sample(fraction = size, withReplacement = TRUE)
+  tmp_name <- glue("sparklyr_tmp_{random_string()}")
+  out$createTempView(tmp_name)
+  out <- tbl(spark_connection(tbl), tmp_name)
+  out
+}
+
 
 #' @export
 compute.tbl_pysparklyr <- function(x, name = NULL, ...) {
@@ -72,7 +91,7 @@ sdf_copy_to.pyspark_connection <- function(sc,
   col_names <- gsub("\\.", "_", col_names)
   colnames(x) <- col_names
   df_copy <- context$createDataFrame(r_to_py(x))
-  df_copy$cache()
+  #df_copy$cache()
   df_copy$createTempView(name)
 
   spark_ide_connection_updated(sc, name)

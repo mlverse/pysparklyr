@@ -17,7 +17,9 @@ spark_ide_objects.pyspark_connection <- function(sc,
     if (length(tables) > 0) {
       temps <- tables[map_lgl(tables, ~ .x$isTemporary)]
       if (length(temps) > 0) {
-        df_tables <- data.frame(name = map_chr(temps, ~ .x$name))
+        table_names <- map_chr(tables, ~ .x$name)
+        final_names <- table_names[!grepl("sparklyr_tmp_", table_names)]
+        df_tables <- data.frame(name = final_names)
         df_tables$type <- "table"
       }
       df_tables <- rbind(df_tables, df_cat)
@@ -50,7 +52,7 @@ spark_ide_objects.pyspark_connection <- function(sc,
 
         if (length(tables) > 0) {
           table_names <- map_chr(tables, ~ .x$name)
-          final_names <- table_names[!grepl("^sparklyr_tmp_", table_names)]
+          final_names <- table_names[!grepl("sparklyr_tmp_", table_names)]
           df_tables <- data.frame(name = final_names)
           df_tables$type <- "table"
         }

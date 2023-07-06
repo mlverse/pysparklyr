@@ -1,3 +1,16 @@
+#' @importFrom dplyr sample_n slice_sample
+#' @export
+sample_n.tbl_pysparklyr <- function(tbl, size, replace = FALSE,
+                                    weight = NULL, .env = NULL
+                                    ) {
+  slice_sample(
+    .data = tbl,
+    n = size,
+    replace = replace,
+    weight_by = !! enquo(weight)
+    )
+}
+
 #' @export
 compute.tbl_pysparklyr <- function(x, name = NULL, ...) {
   cache_query(x, name = name, storage_level = "MEMORY_AND_DISK")

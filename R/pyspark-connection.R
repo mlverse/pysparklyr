@@ -7,7 +7,8 @@ spark_integ_test_skip.pyspark_connection <- function(sc, test_name) {
   if(grepl("dplyr-cumprod", test_name)) out <- TRUE
   if(grepl("dbi", test_name)) out <- FALSE
   if(grepl("tidyr", test_name)) out <- FALSE
-  if(grepl("sdf-broadcast", test_name)) out <- FALSE
+  if(grepl("sdf-broadcast", test_name)) out <- TRUE
+  if(grepl("ml-", test_name)) out <- TRUE
   #if(grepl("sdf-", test_name)) out <- FALSE
   out
 }

@@ -37,12 +37,25 @@ spark_read_csv.pyspark_connection <- function(
     out$repartition(repartition)
   }
 
-  if(memory) {
-    if(overwrite && name %in% dbListTables(sc)) {
-      dbRemoveTable(name)
-    }
-    out$createTempView("test")
+  if(overwrite && name %in% dbListTables(sc)) {
+    dbRemoveTable(sc, name)
   }
 
+  if(is.null(name)) {
+    name <- random_string()
+  }
+
+  if(memory) {
+    # temp_name <- glue("sparklyr_tmp_{random_string()}")
+    # out$createTempView(temp_name)
+    # temp_table <- tbl(sc, temp_name)
+    # cache_query(table = temp_table, name = name)
+    out$createTempView(name)
+    out$persist()
+  } else {
+    out$createTempView(name)
+  }
+
+  out <- tbl(sc, name)
   out
 }

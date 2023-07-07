@@ -73,9 +73,9 @@ spark_dataframe.tbl_pysparklyr <- function(x, ...) {
 sdf_copy_to.pyspark_connection <- function(sc,
                                            x,
                                            name = spark_table_name(substitute(x)),
-                                           memory,
-                                           repartition,
-                                           overwrite,
+                                           memory = TRUE,
+                                           repartition = 0,
+                                           overwrite = FALSE,
                                            struct_columns,
                                            ...) {
   context <- sc$state$spark_context
@@ -91,9 +91,18 @@ sdf_copy_to.pyspark_connection <- function(sc,
   col_names <- colnames(x)
   col_names <- gsub("\\.", "_", col_names)
   colnames(x) <- col_names
+
   df_copy <- context$createDataFrame(r_to_py(x))
-  #df_copy$cache()
   df_copy$createTempView(name)
+
+  repartition <- as.integer(repartition)
+  if(repartition > 0) {
+    df_copy$repartition(repartition)
+  }
+
+  if(memory) {
+    df_copy$persist()
+  }
 
   spark_ide_connection_updated(sc, name)
 

@@ -51,11 +51,11 @@ spark_read_csv.pyspark_connection <- function(
     # temp_table <- tbl(sc, temp_name)
     # cache_query(table = temp_table, name = name)
     out$createTempView(name)
-    out$persist()
+    storage_level <- import("pyspark.storagelevel")
+    out$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
   } else {
     out$createTempView(name)
   }
-
-  out <- tbl(sc, name)
-  out
+  spark_ide_connection_updated(sc, name)
+  tbl(sc, name)
 }

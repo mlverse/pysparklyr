@@ -67,8 +67,6 @@ spark_dataframe.tbl_pysparklyr <- function(x, ...) {
   invoke(conn, "sql", qry)
 }
 
-
-
 #' @export
 sdf_copy_to.pyspark_connection <- function(sc,
                                            x,
@@ -101,7 +99,8 @@ sdf_copy_to.pyspark_connection <- function(sc,
   }
 
   if(memory) {
-    df_copy$persist()
+    storage_level <- import("pyspark.storagelevel")
+    df_copy$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
   }
 
   spark_ide_connection_updated(sc, name)

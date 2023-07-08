@@ -158,7 +158,9 @@ spark_disconnect(sc)
     -   [x] `collect()`
     -   [x] `compute()` 
     -   [x] `copy_to()` - Implemented for `sparklyr`'s `sdf_copy_to()` since it was already an exported method. This made it a drop in integration.
-    
+        - [ ] Repartition does not seem to be working
+        - [ ] Caching does not seem to be working
+      
 -  Implement specific functions:
     - [ ] `where()` - Needs predicate support, which is not available by default through SQL. May need to find an alternative via PySpark. This may not be needed for first CRAN release.
     - [x] `sample_frac()` - Supported: `weights` No | `replace` Yes
@@ -206,10 +208,37 @@ spark_disconnect(sc)
 
 ### Data
 
--   [ ] First successful run of an `spark_read_` / `spark_write_` function
--   [ ] Run all `spark_read_` / `spark_write_` functions, and have all/most pass tests
-    -   [ ] Determine what to do with functions that will not run
-
+-   [x] First successful run of an `spark_read_` / `spark_write_` function
+-   [x] Run all `spark_read_` / `spark_write_` functions, and have all/most pass tests - None of them work 
+    -   [x] Determine what to do with functions that will not run
+- Overall progress
+  - [x] Worked up general plan to port over read/write functions
+  - [ ] `schema` support for reading non-CSV file
+  - Individual functions
+    - [x] `spark_read_csv()` 
+    - [x] `spark_read_parquet()`
+    - [ ] `spark_read_text()`
+    - [ ] `spark_read_avro()`
+    - [ ] `spark_read_binary()`
+    - [ ] `spark_read_source()`
+    - [ ] `spark_read_delta()`
+    - [ ] `spark_read_table()`
+    - [ ] `spark_read_jdbc()`
+    - [ ] `spark_read_json()`
+    - [ ] `spark_read_libsvm()`
+    - [ ] `spark_read_orc()`
+    - [ ] `spark_write_csv()` 
+    - [ ] `spark_write_parquet()`
+    - [ ] `spark_write_text()`
+    - [ ] `spark_write_avro()`
+    - [ ] `spark_write_rds()`   
+    - [ ] `spark_write_delta()`
+    - [ ] `spark_write_source()`
+    - [ ] `spark_write_json()`
+    - [ ] `spark_write_orc()`
+    - [ ] `spark_write_table()`
+    
+    
 ### Stream
 
 -   [ ] Test streaming

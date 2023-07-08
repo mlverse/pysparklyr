@@ -49,7 +49,15 @@ spark_read_parquet.spark_connection <- function(
     ...) {
   con <- python_conn(sc)
 
-  read <- con$read$parquet(path)
+  new_schema <- NULL
+  if(!is.null(columns)) new_schema <- columns
+  if(!is.null(schema))new_schema <- schema
+  if(!is.null(new_schema)) {
+    sch <- con$read$schema(new_schema)
+    read <- sch$parquet(path)
+  } else {
+    read <- con$read$parquet(path)
+  }
 
   finalize_read(read, sc, name, memory, repartition, overwrite)
 }
@@ -68,17 +76,17 @@ finalize_read <- function(x, sc, name, memory, repartition, overwrite) {
     name <- random_string()
   }
 
+  x$createTempView(name)
+
   if(memory) {
     # temp_name <- glue("sparklyr_tmp_{random_string()}")
     # x$createTempView(temp_name)
     # temp_table <- tbl(sc, temp_name)
     # cache_query(table = temp_table, name = name)
-    x$createTempView(name)
     storage_level <- import("pyspark.storagelevel")
     x$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
-  } else {
-    x$createTempView(name)
   }
+
   spark_ide_connection_updated(sc, name)
   tbl(sc, name)
 }

@@ -1,4 +1,4 @@
-#' @importFrom sparklyr spark_read_csv
+#' @importFrom sparklyr spark_read_csv spark_read_parquet
 #' @export
 spark_read_csv.pyspark_connection <- function(
     sc,
@@ -20,7 +20,7 @@ spark_read_csv.pyspark_connection <- function(
 
   con <- python_conn(sc)
 
-  out <- con$read$csv(
+  read <- con$read$csv(
     path = path,
     header = header,
     schema = columns,
@@ -32,9 +32,32 @@ spark_read_csv.pyspark_connection <- function(
     nullValue = null_value
     )
 
+  finalize_read(read, sc, name, memory, repartition, overwrite)
+}
+
+#' @export
+spark_read_parquet.spark_connection <- function(
+    sc,
+    name = NULL,
+    path = name,
+    options = list(),
+    repartition = 0,
+    memory = TRUE,
+    overwrite = TRUE,
+    columns = NULL,
+    schema = NULL,
+    ...) {
+  con <- python_conn(sc)
+
+  read <- con$read$parquet(path)
+
+  finalize_read(read, sc, name, memory, repartition, overwrite)
+}
+
+finalize_read <- function(x, sc, name, memory, repartition, overwrite) {
   repartition <- as.integer(repartition)
   if(repartition > 0) {
-    out$repartition(repartition)
+    x$repartition(repartition)
   }
 
   if(overwrite && name %in% dbListTables(sc)) {
@@ -47,14 +70,14 @@ spark_read_csv.pyspark_connection <- function(
 
   if(memory) {
     # temp_name <- glue("sparklyr_tmp_{random_string()}")
-    # out$createTempView(temp_name)
+    # x$createTempView(temp_name)
     # temp_table <- tbl(sc, temp_name)
     # cache_query(table = temp_table, name = name)
-    out$createTempView(name)
+    x$createTempView(name)
     storage_level <- import("pyspark.storagelevel")
-    out$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
+    x$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
   } else {
-    out$createTempView(name)
+    x$createTempView(name)
   }
   spark_ide_connection_updated(sc, name)
   tbl(sc, name)

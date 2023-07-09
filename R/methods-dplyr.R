@@ -1,7 +1,7 @@
 #' @importFrom dplyr sample_n sample_frac slice_sample
 #' @importFrom sparklyr random_string
 #' @export
-sample_n.tbl_pysparklyr <- function(tbl, size, replace = FALSE,
+sample_n.tbl_pyspark <- function(tbl, size, replace = FALSE,
                                     weight = NULL, .env = NULL, ...
                                     ) {
   slice_sample(
@@ -13,7 +13,7 @@ sample_n.tbl_pysparklyr <- function(tbl, size, replace = FALSE,
 }
 
 #' @export
-sample_frac.tbl_pysparklyr <- function(tbl, size = 1, replace = FALSE,
+sample_frac.tbl_pyspark <- function(tbl, size = 1, replace = FALSE,
                                        weight = NULL, .env = NULL, ...
                                        ){
   sc <- spark_connection(tbl)
@@ -32,7 +32,7 @@ sample_frac.tbl_pysparklyr <- function(tbl, size = 1, replace = FALSE,
 
 
 #' @export
-compute.tbl_pysparklyr <- function(x, name = NULL, ...) {
+compute.tbl_pyspark <- function(x, name = NULL, ...) {
   cache_query(x, name = name, storage_level = "MEMORY_AND_DISK")
 }
 
@@ -53,14 +53,14 @@ cache_query <- function(table,
 }
 
 #' @export
-collect.tbl_pysparklyr <- function(x, ...) {
+collect.tbl_pyspark <- function(x, ...) {
   sc <- x[[1]]
   res <- sc$state$spark_context$sql(remote_query(x))
   to_pandas_cleaned(res)
 }
 
 #' @export
-spark_dataframe.tbl_pysparklyr <- function(x, ...) {
+spark_dataframe.tbl_pyspark <- function(x, ...) {
   conn <- x[[1]]
   query <- x[[2]]
   qry <- sql_render(query, conn)
@@ -119,7 +119,7 @@ tbl.pyspark_connection <- function(src, from, ...) {
   pyspark_obj <- src$state$spark_context$table(sql_from)
   vars <- pyspark_obj$columns
   out <- tbl_sql(
-    subclass = "pysparklyr",
+    subclass = "pyspark",
     src = src,
     from = sql_from,
     vars = vars
@@ -131,7 +131,7 @@ tbl.pyspark_connection <- function(src, from, ...) {
 }
 
 #' @export
-tidyselect_data_has_predicates.tbl_pysparklyr <- function(x) {
+tidyselect_data_has_predicates.tbl_pyspark <- function(x) {
   FALSE
 }
 
@@ -141,3 +141,5 @@ same_src.pyspark_connection <- function(x, y) {
   identical(x$method, y$method) &&
   identical(x$state, y$state)
 }
+
+setOldClass(c("tbl_pyspark", "tbl_spark"))

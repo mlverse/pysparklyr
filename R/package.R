@@ -13,6 +13,7 @@
 #' @import glue
 #' @import cli
 #' @import DBI
+#' @import fs
 NULL
 
 pysparklyr_env <- new.env()

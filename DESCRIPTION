@@ -21,6 +21,7 @@ Imports:
     methods,
     rlang,
     sparklyr,
-    tidyselect
+    tidyselect,
+    fs
 URL: https://github.com/edgararuiz/pysparklyr
 BugReports: https://github.com/edgararuiz/pysparklyr/issues

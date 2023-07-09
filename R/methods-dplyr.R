@@ -91,16 +91,21 @@ sdf_copy_to.pyspark_connection <- function(sc,
   colnames(x) <- col_names
 
   df_copy <- context$createDataFrame(r_to_py(x))
-  df_copy$createTempView(name)
+
 
   repartition <- as.integer(repartition)
   if(repartition > 0) {
+    df_copy$createTempView(name)
     df_copy$repartition(repartition)
-  }
-
-  if(memory) {
-    storage_level <- import("pyspark.storagelevel")
-    df_copy$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
+    if(memory) {
+      storage_level <- import("pyspark.storagelevel")
+      df_copy$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
+    }
+  } else {
+    temp_name <- glue("sparklyr_tmp_{random_string()}")
+    df_copy$createTempView(temp_name)
+    temp_table <- tbl(sc, temp_name)
+    cache_query(table = temp_table, name = name)
   }
 
   spark_ide_connection_updated(sc, name)

@@ -13,25 +13,21 @@ spark_write_csv.tbl_pyspark <- function(
     mode = NULL,
     partition_by = NULL,
     ...) {
-  sc <- spark_connection(x)
-  con <- python_conn(sc)
 
-  query <- con$sql(remote_query(x))
-
-  if (is.null(partition_by)) {
-    query_prep <- query$repartition(1L)$write
-  } else {
-    query_prep <- query$write$partitionBy(partition_by)
-  }
-
-  query_prep %>%
-    py_invoke_option("format", "csv") %>%
-    py_invoke_option("header", header) %>%
-    py_invoke_option("delimiter", delimiter) %>%
-    py_invoke_option("quote", quote) %>%
-    py_invoke_option("charset", charset) %>%
-    py_invoke_option("mode", mode) %>%
-    py_invoke("save", path_expand(path))
+  pyspark_write_generic(
+    x = x,
+    path = path,
+    format = "csv",
+    partition_by = partition_by,
+    mode = mode,
+    options = options,
+    args = list(
+      header = header,
+      delimiter = delimiter,
+      quote = quote,
+      charset = charset
+    )
+  )
 }
 
 #' @export
@@ -46,15 +42,14 @@ spark_write_parquet.tbl_pyspark <- function(
     x = x,
     path = path,
     format = "parquet",
+    mode = mode,
     partition_by = partition_by,
     options = options,
-    args = list(
-      mode = mode
-    )
+    args = list()
   )
 }
 
-pyspark_write_generic <- function(x, path, format, partition_by, options, args){
+pyspark_write_generic <- function(x, path, format, mode, partition_by, options, args){
   sc <- spark_connection(x)
   con <- python_conn(sc)
 
@@ -66,9 +61,11 @@ pyspark_write_generic <- function(x, path, format, partition_by, options, args){
     query_prep <- query$write$partitionBy(partition_by)
   }
 
+  opts <- c(args, options)
+
   query_prep %>%
-    py_invoke_option("format", format) %>%
-    py_invoke_options(options = c(args, options)) %>%
+    py_invoke("format", format) %>%
+    py_invoke_options(options = opts) %>%
     py_invoke("save", path_expand(path))
 }
 

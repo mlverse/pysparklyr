@@ -216,10 +216,10 @@ spark_disconnect(sc)
 - Overall progress
   - [x] Worked up general plan to port over read/write functions
   - [ ] `schema` support for reading non-CSV file
-  - Individual functions
+  - Individual **read** functions
     - [x] `spark_read_csv()`
     - [x] `spark_read_parquet()`
-    - [ ] `spark_read_text()`
+    - [x] `spark_read_text()`
     - [ ] `spark_read_avro()`
     - [ ] `spark_read_binary()`
     - [ ] `spark_read_source()`
@@ -229,15 +229,16 @@ spark_disconnect(sc)
     - [ ] `spark_read_json()`
     - [ ] `spark_read_libsvm()`
     - [ ] `spark_read_orc()`
+  - Individual **write** functions
     - [x] `spark_write_csv()`
     - [x] `spark_write_parquet()`
     - [x] `spark_write_text()`
+    - [x] `spark_write_json()`
+    - [x] `spark_write_orc()`
     - [ ] `spark_write_avro()`
     - [ ] `spark_write_rds()`  
     - [ ] `spark_write_delta()`
     - [ ] `spark_write_source()`
-    - [x] `spark_write_json()`
-    - [x] `spark_write_orc()`
     - [ ] `spark_write_table()`
 
 ### Stream

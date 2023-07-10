@@ -1,4 +1,4 @@
-#' @importFrom sparklyr spark_write_csv spark_write_parquet
+#' @importFrom sparklyr spark_write_csv spark_write_parquet spark_write_text
 #' @export
 spark_write_csv.tbl_pyspark <- function(
     x,
@@ -13,7 +13,6 @@ spark_write_csv.tbl_pyspark <- function(
     mode = NULL,
     partition_by = NULL,
     ...) {
-
   pyspark_write_generic(
     x = x,
     path = path,
@@ -49,7 +48,26 @@ spark_write_parquet.tbl_pyspark <- function(
   )
 }
 
-pyspark_write_generic <- function(x, path, format, mode, partition_by, options, args){
+#' @export
+spark_write_text.tbl_pyspark <- function(
+    x,
+    path,
+    mode = NULL,
+    options = list(),
+    partition_by = NULL,
+    ...) {
+  pyspark_write_generic(
+    x = x,
+    path = path,
+    format = "text",
+    mode = mode,
+    partition_by = partition_by,
+    options = options,
+    args = list()
+  )
+}
+
+pyspark_write_generic <- function(x, path, format, mode, partition_by, options, args) {
   sc <- spark_connection(x)
   con <- python_conn(sc)
 
@@ -85,7 +103,7 @@ py_invoke_option <- function(x, option, value) {
 }
 
 py_invoke_options <- function(x, options) {
-  for(i in seq_along(options)) {
+  for (i in seq_along(options)) {
     curr_option <- options[i]
     x <- py_invoke_option(x, names(curr_option), curr_option[[1]])
   }

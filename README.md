@@ -229,9 +229,9 @@ spark_disconnect(sc)
     - [ ] `spark_read_json()`
     - [ ] `spark_read_libsvm()`
     - [ ] `spark_read_orc()`
-    - [ ] `spark_write_csv()`
-    - [ ] `spark_write_parquet()`
-    - [ ] `spark_write_text()`
+    - [x] `spark_write_csv()`
+    - [x] `spark_write_parquet()`
+    - [x] `spark_write_text()`
     - [ ] `spark_write_avro()`
     - [ ] `spark_write_rds()`  
     - [ ] `spark_write_delta()`

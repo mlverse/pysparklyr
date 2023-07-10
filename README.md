@@ -236,8 +236,8 @@ spark_disconnect(sc)
     - [ ] `spark_write_rds()`  
     - [ ] `spark_write_delta()`
     - [ ] `spark_write_source()`
-    - [ ] `spark_write_json()`
-    - [ ] `spark_write_orc()`
+    - [x] `spark_write_json()`
+    - [x] `spark_write_orc()`
     - [ ] `spark_write_table()`
 
 ### Stream

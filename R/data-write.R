@@ -1,4 +1,5 @@
 #' @importFrom sparklyr spark_write_csv spark_write_parquet spark_write_text
+#' @importFrom sparklyr spark_write_orc spark_write_json
 #' @export
 spark_write_csv.tbl_pyspark <- function(
     x,
@@ -67,6 +68,44 @@ spark_write_text.tbl_pyspark <- function(
   )
 }
 
+#' @export
+spark_write_orc.tbl_pyspark <- function(
+    x,
+    path,
+    mode = NULL,
+    options = list(),
+    partition_by = NULL,
+    ...) {
+  pyspark_write_generic(
+    x = x,
+    path = path,
+    format = "orc",
+    mode = mode,
+    partition_by = partition_by,
+    options = options,
+    args = list()
+  )
+}
+
+#' @export
+spark_write_json.tbl_pyspark <- function(
+    x,
+    path,
+    mode = NULL,
+    options = list(),
+    partition_by = NULL,
+    ...) {
+  pyspark_write_generic(
+    x = x,
+    path = path,
+    format = "json",
+    mode = mode,
+    partition_by = partition_by,
+    options = options,
+    args = list()
+  )
+}
+
 pyspark_write_generic <- function(x, path, format, mode, partition_by, options, args) {
   sc <- spark_connection(x)
   con <- python_conn(sc)
@@ -81,10 +120,12 @@ pyspark_write_generic <- function(x, path, format, mode, partition_by, options, 
 
   opts <- c(args, options)
 
-  query_prep %>%
-    py_invoke("format", format) %>%
-    py_invoke_options(options = opts) %>%
-    py_invoke("save", path_expand(path))
+  invisible(
+    query_prep %>%
+      py_invoke("format", format) %>%
+      py_invoke_options(options = opts) %>%
+      py_invoke("save", path_expand(path))
+  )
 }
 
 py_invoke <- function(x, fun, ...) {

@@ -220,6 +220,7 @@ spark_disconnect(sc)
     - [x] `spark_read_csv()`
     - [x] `spark_read_parquet()`
     - [x] `spark_read_text()`
+    - [x] `spark_read_orc()`  
     - [ ] `spark_read_avro()`
     - [ ] `spark_read_binary()`
     - [ ] `spark_read_source()`
@@ -228,7 +229,6 @@ spark_disconnect(sc)
     - [ ] `spark_read_jdbc()`
     - [ ] `spark_read_json()`
     - [ ] `spark_read_libsvm()`
-    - [ ] `spark_read_orc()`
   - Individual **write** functions
     - [x] `spark_write_csv()`
     - [x] `spark_write_parquet()`

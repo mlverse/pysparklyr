@@ -1,5 +1,5 @@
 #' @importFrom sparklyr spark_read_csv spark_read_parquet spark_read_text
-#' @importFrom sparklyr spark_read_json
+#' @importFrom sparklyr spark_read_json spark_read_orc
 #' @export
 spark_read_csv.pyspark_connection <- function(
     sc,
@@ -88,6 +88,34 @@ spark_read_json.pyspark_connection <- function(
     options = options,
     args = list(
       columns = columns
+    )
+  )
+}
+
+#' @export
+spark_read_orc.pyspark_connection <- function(
+    sc,
+    name = NULL,
+    path = name,
+    options = list(),
+    repartition = 0,
+    memory = TRUE,
+    overwrite = TRUE,
+    columns = NULL,
+    schema = NULL,
+    ...) {
+  pyspark_read_generic(
+    sc = sc,
+    path = path,
+    name = name,
+    format = "orc",
+    memory = memory,
+    repartition = repartition,
+    overwrite = overwrite,
+    options = options,
+    args = list(
+      columns = columns,
+      schema = schema
     )
   )
 }

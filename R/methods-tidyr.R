@@ -33,7 +33,7 @@ pivot_longer.tbl_pyspark <- function(
   spark_df$createOrReplaceTempView(temp_name)
   te_df <- tbl(sc, temp_name)
   col_names <- te_df %>%
-    select(!! cols) %>%
+    select(!! enquo(cols)) %>%
     colnames()
 
   # Determining what columns are NOT selected
@@ -52,15 +52,76 @@ pivot_longer.tbl_pyspark <- function(
     remove_first <- TRUE
   }
 
-  un_pivoted <- spark_df$unpivot(
-    ids = as.list(col_dif),
-    values = as.list(col_names),
-    variableColumnName = names_to,
-    valueColumnName = values_to
+  if(!is.null(names_sep)) {
+
+    if(length(names_to) > 2) {
+      abort("Only two level is supported")
+    }
+
+    if(names_to[[1]] == ".value") {
+      val_no <- 1
+      nm_no <- 2
+    } else {
+      val_no <- 2
+      nm_no <- 1
+    }
+
+    val_vals <- col_names %>%
+      strsplit("_") %>%
+      map(~ .x[[val_no]]) %>%
+      unlist()
+
+    nm_vals <- col_names %>%
+      strsplit("_") %>%
+      map(~ .x[[nm_no]]) %>%
+      unlist()
+
+    u_val <- unique(val_vals)
+    u_nm <- unique(nm_vals)
+
+    all_pv <- NULL
+    for(i in seq_along(u_val)) {
+      nm_rm <- list()
+      c_val <- u_val[[i]]
+      nm_rm[[val_no]] <- c_val
+      nm_rm[[nm_no]] <- names_sep
+      nm_rm <- paste0(nm_rm, collapse = "")
+      cur_cols <- col_names[which(val_vals == c_val)]
+      sel_df <- spark_df$select(c(col_dif, cur_cols))
+      for(i in seq_along(cur_cols)) {
+        ren_cols <-  sub(nm_rm, "", cur_cols)
+        sel_df <- sel_df$withColumnRenamed(
+          existing = cur_cols[[i]],
+          new = sub(nm_rm, "", ren_cols[[i]])
+          )
+      }
+
+      all_pv[[i]] <- sel_df$unpivot(
+        ids = as.list(col_dif),
+        values = as.list(ren_cols),
+        variableColumnName = names_to[[nm_no]],
+        valueColumnName = c_val
+      )
+
+    }
+
+    un_pivoted <- all_pv[[2]]$join(
+      other = all_pv[[1]],
+      on = as.list(c(col_dif, names_to[[nm_no]])),
+      how = "full"
+      )
+
+  } else {
+    un_pivoted <- spark_df$unpivot(
+      ids = as.list(col_dif),
+      values = as.list(col_names),
+      variableColumnName = names_to,
+      valueColumnName = values_to
     )
+  }
 
   # Cleaning up by removing the temp view with the operations
-  # that ocurred before pivoting
+  # that occurred before pivoting
   dbRemoveTable(sc, temp_name)
 
 
@@ -69,12 +130,16 @@ pivot_longer.tbl_pyspark <- function(
   un_pivoted$createOrReplaceTempView(up_name)
   out <- tbl(sc, up_name)
 
-  # This si where we remove the extrenous column if we had
+  # This is where we remove the extraneous column if we had
   # to use the first column as dummy. Would like to figure
   # out how to do the column selection at the DataFrame level
   # and not the SQL level, but it'll do for now.
   if(remove_first) {
-    out <- select(out, - expr(!! col_dif))
+    out <- select(out, - sym(!! col_dif))
+  }
+
+  if(values_drop_na) {
+    out <- filter(out, !is.na(!! sym(values_to)))
   }
   out
  }

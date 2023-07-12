@@ -6,7 +6,7 @@
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom dplyr tbl collect tibble same_src compute
 #' @importFrom purrr map_lgl map_chr map
-#' @importFrom rlang enquo `!!` quo_is_null
+#' @importFrom rlang enquo `!!` quo_is_null sym
 #' @importFrom methods new is
 #' @import reticulate
 #' @import dbplyr

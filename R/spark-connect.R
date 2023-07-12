@@ -62,9 +62,11 @@ py_spark_connect <- function(master,
 
   if (method == "spark_connect") {
     pyspark <- import_check("pyspark", virtualenv_name)
+    delta <- import_check("delta.pip_utils", virtualenv_name)
     pyspark_sql <- pyspark$sql
     remote <- pyspark_sql$SparkSession$builder$remote(master)
-    python <- remote$getOrCreate()
+    delta_remote <- delta$configure_spark_with_delta_pip(remote)
+    python <- delta_remote$getOrCreate()
     con_class <- "connect_spark"
     master_label <- glue("Spark Connect - {master}")
   }

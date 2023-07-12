@@ -149,8 +149,10 @@ spark_disconnect(sc)
   - [x] `copy_to()` - Implemented for `sparklyr`’s `sdf_copy_to()` since
     it was already an exported method. This made it a drop in
     integration.
-    - [ ] Repartition does not seem to be working
-    - [ ] Caching does not seem to be working
+    - [ ] Re-partition does not seem to be working
+    - [ ] Caching does not seem to be working via regular the PySpark
+      Dataframe op, it does work when I use SQL to cache (via
+      `CACHE TABLE`) but can’t re-partition that way
 - Implement specific functions:
   - [ ] `where()` - Needs predicate support, which is not available by
     default through SQL. May need to find an alternative via PySpark.
@@ -174,6 +176,10 @@ spark_disconnect(sc)
   - [ ] `rowSums()` - Mosts tests currently pass, but not all
   - [x] `cor()`, `cov()`, `sd()` - Worked out-of-the-box
   - [x] `weighted.mean()` - Worked out-of-the-box
+
+### `tidyr`
+
+- [ ] No `tidyr` functions work
 
 ### Lower level integration
 
@@ -216,6 +222,7 @@ spark_disconnect(sc)
 - Overall progress
   - [x] Worked up general plan to port over read/write functions
   - [ ] `schema` support for reading non-CSV file
+  - [ ] Re-partition is being ignored by Spark connection
   - Individual **read** functions
     - [x] `spark_read_csv()`
     - [x] `spark_read_parquet()`
@@ -253,11 +260,11 @@ spark_disconnect(sc)
 
 - [ ] Unit testing
 - [ ] Integration testing
-  - [ ] Add exported method to skip tests based on connection
-  - [ ] Add skip commands to specific tests
-- [ ] Environments
-  - [ ] Initial run against Spark Connect
-  - [ ] Initial run against Databricks Connect
+  - [x] Add exported method to skip tests based on connection
+  - [x] Add skip commands to specific tests (Ongoing)
+- [x] Environments
+  - [x] Initial run against Spark Connect
+  - [x] Initial run against Databricks Connect
 - [ ] CI
   - [ ] Add Spark Connect to current GH Spark Tests action
   - [ ] GH action that creates a Databricks cluster and runs tests

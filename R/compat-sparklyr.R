@@ -171,7 +171,7 @@
   out <- tibble::as_tibble(out)
 
   if (convert) {
-    out[] <- purrr::map(out, type.convert, as.is = TRUE)
+    out <- purrr::map(out, type.convert, as.is = TRUE)
   }
 
   out

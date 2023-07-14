@@ -36,6 +36,10 @@ pivot_longer.tbl_pyspark <- function(
     select(!! enquo(cols)) %>%
     colnames()
 
+  if(length(col_names) == 0) {
+    rlang::abort("`cols` must select at least one column.")
+  }
+
   # Determining what columns are NOT selected
   col_all <- spark_df$columns
   col_dif <- col_all
@@ -113,7 +117,7 @@ pivot_longer.tbl_pyspark <- function(
         next_df <- all_pv[[(no_i - 1)]]
         out <- out$join(
           other = next_df,
-          on = as.list( c(col_dif, names_to[[nm_no]])),
+          on = as.list(c(col_dif, names_to[[nm_no]])),
           how = "full"
         )
       }
@@ -146,6 +150,7 @@ pivot_longer.tbl_pyspark <- function(
 un_pivot <- function(x, ids, values, names_to,
                      values_to, remove_first, values_drop_na
                      ) {
+
   out <- x$unpivot(
     ids = as.list(ids),
     values = as.list(values),

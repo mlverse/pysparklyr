@@ -52,6 +52,8 @@ pivot_longer.tbl_pyspark <- function(
     remove_first <- TRUE
   }
 
+  # If there is a name separator, this loop will process to
+  # PySpark unpivot ops
   if(!is.null(names_sep)) {
 
     if(length(names_to) > 2) {
@@ -77,7 +79,6 @@ pivot_longer.tbl_pyspark <- function(
       unlist()
 
     u_val <- unique(val_vals)
-    u_nm <- unique(nm_vals)
 
     all_pv <- NULL
     for(i in seq_along(u_val)) {
@@ -88,44 +89,48 @@ pivot_longer.tbl_pyspark <- function(
       nm_rm <- paste0(nm_rm, collapse = "")
       cur_cols <- col_names[which(val_vals == c_val)]
       sel_df <- spark_df$select(c(col_dif, cur_cols))
-      for(i in seq_along(cur_cols)) {
+      for(j in seq_along(cur_cols)) {
         ren_cols <-  sub(nm_rm, "", cur_cols)
         sel_df <- sel_df$withColumnRenamed(
-          existing = cur_cols[[i]],
-          new = sub(nm_rm, "", ren_cols[[i]])
+          existing = cur_cols[[j]],
+          new = sub(nm_rm, "", ren_cols[[j]])
           )
       }
-
-      all_pv[[i]] <- sel_df$unpivot(
-        ids = as.list(col_dif),
-        values = as.list(ren_cols),
-        variableColumnName = names_to[[nm_no]],
-        valueColumnName = c_val
+      all_pv[[i]] <- un_pivot(
+        x = sel_df,
+        ids = col_dif,
+        values = ren_cols,
+        names_to = names_to[[nm_no]],
+        values_to = c_val,
+        remove_first = remove_first,
+        values_drop_na = values_drop_na
       )
-
     }
 
-    out <- all_pv[[2]]$join(
-      other = all_pv[[1]],
-      on = as.list(c(col_dif, names_to[[nm_no]])),
-      how = "full"
-      )
+    out <- NULL
+    for(i in seq_along(all_pv)) {
+      no_i <- length(all_pv) - i + 1
+      if(no_i > 1) {
+        if(is.null(out)) out <- all_pv[[no_i]]
+        next_df <- all_pv[[(no_i - 1)]]
+        out <- out$join(
+          other = next_df,
+          on = as.list(c(col_dif, names_to[[nm_no]])),
+          how = "full"
+        )
+      }
+    }
 
   } else {
-    out <- spark_df$unpivot(
-      ids = as.list(col_dif),
-      values = as.list(col_names),
-      variableColumnName = names_to,
-      valueColumnName = values_to
-    )
-
-    if(remove_first) {
-      out <- out$select(list(names_to, values_to))
-    }
-
-    if(values_drop_na) {
-      out <- out$dropna(subset = values_to)
-    }
+    out <- un_pivot(
+      x = spark_df,
+      ids = col_dif,
+      values = col_names,
+      names_to = names_to,
+      values_to = values_to,
+      remove_first = remove_first,
+      values_drop_na = values_drop_na
+      )
   }
 
   # Cleaning up by removing the temp view with the operations
@@ -136,4 +141,24 @@ pivot_longer.tbl_pyspark <- function(
   up_name <- glue("sparklyr_tmp_{random_string()}")
   out$createOrReplaceTempView(up_name)
   tbl(sc, up_name)
- }
+}
+
+un_pivot <- function(x, ids, values, names_to,
+                     values_to, remove_first, values_drop_na
+                     ) {
+  out <- x$unpivot(
+    ids = as.list(ids),
+    values = as.list(values),
+    variableColumnName = names_to,
+    valueColumnName = values_to
+  )
+
+  if(remove_first) {
+    out <- out$select(list(names_to, values_to))
+  }
+
+  if(values_drop_na) {
+    out <- out$dropna(subset = values_to)
+  }
+  out
+}

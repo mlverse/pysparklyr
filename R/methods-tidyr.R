@@ -123,7 +123,10 @@ pivot_longer.tbl_pyspark <- function(
       }
     }
 
-    out <- out$select(as.list(c(col_dif, u_val)))
+    output_cols <- colnames(output_names)
+    output_cols <- output_cols[output_cols != ".value"]
+
+    out <- out$select(as.list(c(col_dif, output_cols, u_val)))
 
   } else {
     out <- un_pivot(

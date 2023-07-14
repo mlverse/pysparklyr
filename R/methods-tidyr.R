@@ -54,7 +54,13 @@ pivot_longer.tbl_pyspark <- function(
 
   # If there is a name separator, this loop will process to
   # PySpark unpivot ops
-  if(!is.null(names_sep)) {
+  if(length(names_to) > 1) {
+
+    if (!is.null(names_sep)) {
+      output_names <- .str_separate(col_names, names_to, sep = names_sep)
+    } else {
+      output_names <- .str_extract(col_names, names_to, regex = names_pattern)
+    }
 
     if(length(names_to) > 2) {
       abort("Only two level is supported")
@@ -68,15 +74,7 @@ pivot_longer.tbl_pyspark <- function(
       nm_no <- 1
     }
 
-    val_vals <- col_names %>%
-      strsplit("_") %>%
-      map(~ .x[[val_no]]) %>%
-      unlist()
-
-    nm_vals <- col_names %>%
-      strsplit("_") %>%
-      map(~ .x[[nm_no]]) %>%
-      unlist()
+    val_vals <- output_names[".value"][[1]]
 
     u_val <- unique(val_vals)
 
@@ -115,11 +113,13 @@ pivot_longer.tbl_pyspark <- function(
         next_df <- all_pv[[(no_i - 1)]]
         out <- out$join(
           other = next_df,
-          on = as.list(c(col_dif, names_to[[nm_no]])),
+          on = as.list( c(col_dif, names_to[[nm_no]])),
           how = "full"
         )
       }
     }
+
+    out <- out$select(as.list(c(col_dif, u_val)))
 
   } else {
     out <- un_pivot(

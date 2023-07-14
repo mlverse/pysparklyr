@@ -179,7 +179,13 @@ spark_disconnect(sc)
 
 ### `tidyr`
 
-- [ ] No `tidyr` functions work
+- [ ] `fill()`
+- [ ] `nest()`
+- [ ] `pivot_longer()` - **In progress** - Passing most tests, 23 of 29
+- [ ] `pivot_wider()`
+- [ ] `separate()`
+- [ ] `unite()`
+- [ ] `unnest()`
 
 ### Lower level integration
 

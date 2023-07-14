@@ -105,41 +105,35 @@ pivot_longer.tbl_pyspark <- function(
 
     }
 
-    un_pivoted <- all_pv[[2]]$join(
+    out <- all_pv[[2]]$join(
       other = all_pv[[1]],
       on = as.list(c(col_dif, names_to[[nm_no]])),
       how = "full"
       )
 
   } else {
-    un_pivoted <- spark_df$unpivot(
+    out <- spark_df$unpivot(
       ids = as.list(col_dif),
       values = as.list(col_names),
       variableColumnName = names_to,
       valueColumnName = values_to
     )
+
+    if(remove_first) {
+      out <- out$select(list(names_to, values_to))
+    }
+
+    if(values_drop_na) {
+      out <- out$dropna(subset = values_to)
+    }
   }
 
   # Cleaning up by removing the temp view with the operations
   # that occurred before pivoting
   dbRemoveTable(sc, temp_name)
 
-
   # Creating temp view with the pivoting results
   up_name <- glue("sparklyr_tmp_{random_string()}")
-  un_pivoted$createOrReplaceTempView(up_name)
-  out <- tbl(sc, up_name)
-
-  # This is where we remove the extraneous column if we had
-  # to use the first column as dummy. Would like to figure
-  # out how to do the column selection at the DataFrame level
-  # and not the SQL level, but it'll do for now.
-  if(remove_first) {
-    out <- select(out, - sym(!! col_dif))
-  }
-
-  if(values_drop_na) {
-    out <- filter(out, !is.na(!! sym(values_to)))
-  }
-  out
+  out$createOrReplaceTempView(up_name)
+  tbl(sc, up_name)
  }

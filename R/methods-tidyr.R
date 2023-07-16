@@ -98,6 +98,9 @@ pivot_longer.tbl_pyspark <- function(
           new = sub(nm_rm, "", ren_cols[[j]])
           )
       }
+
+      check_same_types(x = sel_df, col_names = ren_cols)
+
       all_pv[[i]] <- un_pivot(
         x = sel_df,
         ids = col_dif,
@@ -129,6 +132,9 @@ pivot_longer.tbl_pyspark <- function(
     out <- out$select(as.list(c(col_dif, output_cols, u_val)))
 
   } else {
+
+    check_same_types(x = spark_df, col_names = col_names)
+
     out <- un_pivot(
       x = spark_df,
       ids = col_dif,
@@ -169,4 +175,18 @@ un_pivot <- function(x, ids, values, names_to,
     out <- out$dropna(subset = values_to)
   }
   out
+}
+
+check_same_types <- function(x, col_names) {
+  dtypes <- x$select(col_names)$dtypes
+  char_types <- map_chr(dtypes, ~ .x[[2]])
+  char_match <- length(unique(char_types)) == 1
+
+  if(!char_match) {
+    type_names <- map_chr(dtypes, ~ paste0(.x[[1]], " <", .x[[2]], ">"))
+    rlang::abort(glue(
+      "There is a data type mismatch: {paste0(type_names, collapse = ' ')}"
+    ))
+  }
+
 }

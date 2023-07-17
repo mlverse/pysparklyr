@@ -121,7 +121,7 @@ spark_read_orc.pyspark_connection <- function(
 }
 
 #' @export
-spark_read_parquet.spark_connection <- function(
+spark_read_parquet.pyspark_connection <- function(
     sc,
     name = NULL,
     path = name,

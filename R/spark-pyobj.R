@@ -1,4 +1,12 @@
 #' @export
+sdf_read_column.spark_pyjobj <- function(x, column) {
+  sdf <- spark_dataframe(x)
+  col_df <- invoke(sdf, "select", column, list())
+  col_df <- collect(col_df)
+  col_df[[column]]
+}
+
+#' @export
 spark_version.spark_pyobj <- function(sc) {
   sc$connection$state$spark_context$version
 }

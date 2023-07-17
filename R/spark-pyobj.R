@@ -1,7 +1,7 @@
 #' @export
 sdf_read_column.spark_pyjobj <- function(x, column) {
   sdf <- spark_dataframe(x)
-  col_df <- invoke(sdf, "select", column, list())
+  col_df <- invoke(sdf, "select", column)
   col_df <- collect(col_df)
   col_df[[column]]
 }

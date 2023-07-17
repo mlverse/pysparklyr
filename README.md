@@ -64,6 +64,7 @@ sc <- spark_connect(
   cluster_id = "0608-170338-jwkec0wi",
   method = "databricks_connect"
 )
+#> ✔ Using the 'r-sparklyr' virtual environment (/Users/edgar/.virtualenvs/r-sparklyr/bin/python)
 ```
 
 ## Using with Databricks 13+
@@ -85,6 +86,21 @@ library(dbplyr)
 trips <- tbl(sc, in_catalog("samples", "nyctaxi", "trips"))
 
 trips
+#> # Source: spark<`samples`.`nyctaxi`.`trips`> [?? x 6]
+#>    tpep_pickup_datetime tpep_dropoff_datetime trip_distance fare_amount
+#>    <dttm>               <dttm>                        <dbl>       <dbl>
+#>  1 2016-02-14 10:52:13  2016-02-14 11:16:04            4.94        19  
+#>  2 2016-02-04 12:44:19  2016-02-04 12:46:00            0.28         3.5
+#>  3 2016-02-17 11:13:57  2016-02-17 11:17:55            0.7          5  
+#>  4 2016-02-18 04:36:07  2016-02-18 04:41:45            0.8          6  
+#>  5 2016-02-22 08:14:41  2016-02-22 08:31:52            4.51        17  
+#>  6 2016-02-05 00:45:02  2016-02-05 00:50:26            1.8          7  
+#>  7 2016-02-15 09:03:28  2016-02-15 09:18:45            2.58        12  
+#>  8 2016-02-25 13:09:26  2016-02-25 13:24:50            1.4         11  
+#>  9 2016-02-13 10:28:18  2016-02-13 10:36:36            1.21         7.5
+#> 10 2016-02-13 18:03:48  2016-02-13 18:10:24            0.6          6  
+#> # ℹ more rows
+#> # ℹ 2 more variables: pickup_zip <int>, dropoff_zip <int>
 ```
 
 ``` r
@@ -94,184 +110,22 @@ trips %>%
     count = n(),
     avg_distance = mean(trip_distance, na.rm = TRUE)
   )
+#> # Source: spark<?> [?? x 3]
+#>    pickup_zip count avg_distance
+#>         <int> <dbl>        <dbl>
+#>  1      10032    15         4.49
+#>  2      10013   273         2.98
+#>  3      10022   519         2.00
+#>  4      10162   414         2.19
+#>  5      10018  1012         2.60
+#>  6      11106    39         2.03
+#>  7      10011  1129         2.29
+#>  8      11103    16         2.75
+#>  9      11237    15         3.31
+#> 10      11422   429        15.5 
+#> # ℹ more rows
 ```
 
 ``` r
 spark_disconnect(sc)
 ```
-
-## Progress
-
-### Installation
-
-- [x] Helper function to install Python and needed libraries
-
-### Connectivity and Session
-
-- [x] Initial connection routines
-- [x] Spark Connect connectivity
-- [ ] Initiate Spark Connect when creating new connection, similar to
-  “local” (Maybe)
-- [ ] Fail when user changes from one connection to another in the same
-  R/Python session
-
-### RStudio Integration
-
-- [x] Initial Connection contract works
-- [x] Implement and integrate custom three layer (catalog, schema,
-  table) structure for navigation
-- [x] Implement column preview for `pyspark_connection`. Mainly because
-  the current way does not allow for a three layer structure.
-- [x] Implement “top 1000 row preview” for `pyspark_connection`. Mainly
-  because the current way does not allow for a three layer structure.
-- [x] `sparklyr` - Prevent showing the Spark and Log buttons if the
-  connection has no target to offer
-- [ ] Implement Spark and Log buttons for Spark Connect and DB Connect.
-  **Blocked** - Until SparkSession is implemented in Spark 3.5
-- [ ] Find a way to get the Connection pane to be async to the IDE
-
-### DBI
-
-- [x] Integration with DBI methods. This was done my modifying a couple
-  of `sparklyr` routines. More testing is needed to confirm all works
-
-- Specific `DBI` functions
-
-  - [ ] `dbColumnInfo()`
-  - [ ] `dbWriteTable()`
-
-### `dplyr`
-
-- Implement **core** methods:
-  - [x] `tbl()`
-  - [x] `collect()`
-  - [x] `compute()`
-  - [x] `copy_to()` - Implemented for `sparklyr`’s `sdf_copy_to()` since
-    it was already an exported method. This made it a drop in
-    integration.
-    - [ ] Re-partition does not seem to be working
-    - [ ] Caching does not seem to be working via regular the PySpark
-      Dataframe op, it does work when I use SQL to cache (via
-      `CACHE TABLE`) but can’t re-partition that way
-- Implement specific functions:
-  - [ ] `where()` - Needs predicate support, which is not available by
-    default through SQL. May need to find an alternative via PySpark.
-    This may not be needed for first CRAN release.
-  - [x] `sample_frac()` - Supported: `weights` No \| `replace` Yes
-  - [x] `sample_n()` - Supported: `weights` No \| `replace` No
-  - [x] `slice_max()` - Worked out-of-the-box
-  - [ ] `cumprod()` - Questioning its implementation. `sparklyr` did it
-    via a custom Scala implementation. `dbplyr` doesn’t seem to support
-    it.
-  - [ ] `distinct()` - Mostly works. Breaks when its followed by another
-    lazy op
-  - [x] Hive Operators work, such as `LIKE` via `%like%` - Worked
-    out-of-the-box
-  - [ ] High Order Functions (Arrays)
-  - [x] Table joins - Added `same_src()` method for PySpark connection
-    to get it to work
-  - [ ] `lead()` / `lag()` - Works for numeric fields. For character
-    fields, it process the windowed function but it returns a list
-    column for some reason
-  - [ ] `rowSums()` - Mosts tests currently pass, but not all
-  - [x] `cor()`, `cov()`, `sd()` - Worked out-of-the-box
-  - [x] `weighted.mean()` - Worked out-of-the-box
-
-### `tidyr`
-
-- [ ] `fill()`
-- [ ] `nest()`
-- [ ] `pivot_longer()` - **In progress** - Passing most tests, 23 of 29
-- [ ] `pivot_wider()`
-- [ ] `separate()`
-- [ ] `unite()`
-- [ ] `unnest()`
-
-### Lower level integration
-
-- [x] Implement the `invoke()` method for `pysparklyr_connection`
-- [ ] Implement `invoke_new()` method for `pysparklyr_connection`.
-  Initial implementation is available, but more testing is needed.
-  **Blocked: MLlib not supported in Spark Connect 3.4**
-
-### Auth
-
-- [ ] Implement Databricks Oauth
-- [ ] Implement Azure auth
-- [x] Implement PATH based auth
-
-### ML
-
-**Blocked: MLlib not supported in Spark Connect 3.4**
-
-- [ ] First successful run of an `ft_` functions
-- [ ] Run all `ft_` functions, and have all/most pass tests
-  - [ ] Determine what to do with functions that will not run
-- [ ] First successful run of an `ml_` functions
-- [ ] Run all `ft_` functions, and have all/most pass tests
-  - [ ] Determine what to do with functions that will not run
-
-### SDF
-
-- [ ] First successful run of an `sdf_` functions
-- [ ] Run all `sdf_` functions, and have all/most pass tests
-  - [ ] Determine what to do with functions that will not run
-- Individual functions:
-  - [ ] `sdf_broadcast()` **Blocked** Needs SparkContext to work
-
-### Data
-
-- [x] First successful run of an `spark_read_` / `spark_write_` function
-- [x] Run all `spark_read_` / `spark_write_` functions, and have
-  all/most pass tests - None of them work
-  - [x] Determine what to do with functions that will not run
-- Overall progress
-  - [x] Worked up general plan to port over read/write functions
-  - [ ] `schema` support for reading non-CSV file
-  - [ ] Re-partition is being ignored by Spark connection
-  - Individual **read** functions
-    - [x] `spark_read_csv()`
-    - [x] `spark_read_parquet()`
-    - [x] `spark_read_text()`
-    - [x] `spark_read_orc()`  
-    - [x] `spark_read_json()`
-    - [ ] `spark_read_avro()`
-    - [ ] `spark_read_binary()`
-    - [ ] `spark_read_source()`
-    - [ ] `spark_read_delta()`
-    - [ ] `spark_read_table()`
-    - [ ] `spark_read_jdbc()`
-    - [ ] `spark_read_libsvm()`
-  - Individual **write** functions
-    - [x] `spark_write_csv()`
-    - [x] `spark_write_parquet()`
-    - [x] `spark_write_text()`
-    - [x] `spark_write_json()`
-    - [x] `spark_write_orc()`
-    - [ ] `spark_write_avro()`
-    - [ ] `spark_write_rds()`  
-    - [ ] `spark_write_delta()`
-    - [ ] `spark_write_source()`
-    - [ ] `spark_write_table()`
-
-### Stream
-
-- [ ] Test streaming
-
-### Arrow
-
-- [ ] Test `arrow` integration
-
-### Testing
-
-- [ ] Unit testing
-- [ ] Integration testing
-  - [x] Add exported method to skip tests based on connection
-  - [x] Add skip commands to specific tests (Ongoing)
-- [x] Environments
-  - [x] Initial run against Spark Connect
-  - [x] Initial run against Databricks Connect
-- [ ] CI
-  - [ ] Add Spark Connect to current GH Spark Tests action
-  - [ ] GH action that creates a Databricks cluster and runs tests
-  - [ ] GH action that creates a Azure cluster and runs tests

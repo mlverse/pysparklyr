@@ -1,15 +1,16 @@
 #' @export
-spark_ide_objects.pyspark_connection <- function(sc,
-                                                        catalog = NULL,
-                                                        schema = NULL,
-                                                        name = NULL,
-                                                        type = NULL) {
+spark_ide_objects.pyspark_connection <- function(
+    con,
+    catalog = NULL,
+    schema = NULL,
+    name = NULL,
+    type = NULL) {
   df_catalogs <- data.frame()
   df_databases <- data.frame()
   df_tables <- data.frame()
   df_cat <- data.frame()
 
-  sc_catalog <- python_conn(sc)$catalog
+  sc_catalog <- python_conn(con)$catalog
   current_catalog <- sc_catalog$currentCatalog()
   if (is.null(catalog)) {
     sc_catalog$setCurrentCatalog("spark_catalog")
@@ -66,12 +67,13 @@ spark_ide_objects.pyspark_connection <- function(sc,
 }
 
 #' @export
-spark_ide_columns.pyspark_connection <- function(sc,
-                                                        table = NULL,
-                                                        view = NULL,
-                                                        catalog = NULL,
-                                                        schema = NULL) {
-  tbl_df <- rs_get_table(sc, catalog, schema, table)
+spark_ide_columns.pyspark_connection <- function(
+    con,
+    table = NULL,
+    view = NULL,
+    catalog = NULL,
+    schema = NULL) {
+  tbl_df <- rs_get_table(con, catalog, schema, table)
 
   tbl_sample <- collect(head(tbl_df))
 
@@ -85,18 +87,18 @@ spark_ide_columns.pyspark_connection <- function(sc,
 
 #' @export
 spark_ide_preview.pyspark_connection <- function(
-    sc,
+    con,
     rowLimit,
     table = NULL,
     view = NULL,
     catalog = NULL,
     schema = NULL) {
-  tbl_df <- rs_get_table(sc, catalog, schema, table)
+  tbl_df <- rs_get_table(con, catalog, schema, table)
   collect(head(tbl_df, rowLimit))
 }
 
-rs_get_table <- function(sc, catalog, schema, table) {
-  context <- python_conn(sc)
+rs_get_table <- function(con, catalog, schema, table) {
+  context <- python_conn(con)
   if (is.null(catalog)) {
     catalog <- context$catalog$currentCatalog()
   }
@@ -104,10 +106,10 @@ rs_get_table <- function(sc, catalog, schema, table) {
     schema <- context$catalog$currentDatabase()
   }
   x <- in_catalog(catalog, schema, table)
-  if (!context$catalog$tableExists(as.sql(x, sc$con))) {
+  if (!context$catalog$tableExists(as.sql(x, con$con))) {
     x <- table
   }
-  tbl(sc, x)
+  tbl(con, x)
 }
 
 rs_type <- function(x) {

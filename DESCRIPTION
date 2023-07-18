@@ -19,10 +19,12 @@ Imports:
     reticulate,
     methods,
     rlang,
-    sparklyr,
+    sparklyr (>= 1.8.2.9000),
     tidyselect,
     fs,
     magrittr,
     tidyr
 URL: https://github.com/edgararuiz/pysparklyr
 BugReports: https://github.com/edgararuiz/pysparklyr/issues
+Remotes:  
+    sparklyr/sparklyr

@@ -1,7 +1,7 @@
 # ---------------------------- tidyr pivot_longer ------------------------------
 .strsep <- function(x, sep) {
   nchar <- nchar(x)
-  pos <- purrr::map(sep, function(i) {
+  pos <- map(sep, function(i) {
     if (i >= 0) {
       return(i)
     }
@@ -9,7 +9,7 @@
   })
   pos <- c(list(0), pos, list(nchar))
 
-  purrr::map(seq_len(length(pos) - 1), function(i) {
+  map(seq_len(length(pos) - 1), function(i) {
     substr(x, pos[[i]] + 1, pos[[i + 1]])
   })
 }
@@ -86,15 +86,15 @@
 
 .str_split_fixed <- function(value, sep, n, extra = "warn", fill = "warn") {
   if (extra == "error") {
-    rlang::warn(glue::glue(
+    warn(glue(
       "`extra = \"error\"` is deprecated. \\
        Please use `extra = \"warn\"` instead"
     ))
     extra <- "warn"
   }
 
-  extra <- rlang::arg_match(extra, c("warn", "merge", "drop"))
-  fill <- rlang::arg_match(fill, c("warn", "left", "right"))
+  extra <- arg_match(extra, c("warn", "merge", "drop"))
+  fill <- arg_match(fill, c("warn", "left", "right"))
 
   n_max <- if (extra == "merge") n else -1L
   pieces <- .str_split_n(value, sep, n_max = n_max)
@@ -104,7 +104,7 @@
   n_big <- length(simp$too_big)
   if (extra == "warn" && n_big > 0) {
     idx <- .list_indices(simp$too_big)
-    rlang::warn(glue::glue(
+    warn(glue(
       "Expected {n} pieces. ",
       "Additional pieces discarded in {n_big} rows [{idx}]."
     ))
@@ -113,7 +113,7 @@
   n_sml <- length(simp$too_sml)
   if (fill == "warn" && n_sml > 0) {
     idx <- .list_indices(simp$too_sml)
-    rlang::warn(glue::glue(
+    warn(glue(
       "Expected {n} pieces. ",
       "Missing pieces filled with `NA` in {n_sml} rows [{idx}]."
     ))
@@ -124,27 +124,27 @@
 
 .str_separate <- function(x, into, sep, extra = "warn", fill = "warn") {
   if (!is.character(into)) {
-    rlang::abort("`into` must be a character vector")
+    abort("`into` must be a character vector")
   }
 
   if (is.numeric(sep)) {
     out <- .strsep(x, sep)
-  } else if (rlang::is_character(sep)) {
+  } else if (is_character(sep)) {
     out <- .str_split_fixed(x, sep, length(into), extra = extra, fill = fill)
   } else {
-    rlang::abort("`sep` must be either numeric or character")
+    abort("`sep` must be either numeric or character")
   }
 
-  names(out) <- rlang::as_utf8_character(into)
+  names(out) <- as_utf8_character(into)
   out <- out[!is.na(names(out))]
 
-  tibble::as_tibble(out)
+  as_tibble(out)
 }
 
 .str_extract <- function(x, into, regex, convert = FALSE) {
   stopifnot(
-    rlang::is_string(regex),
-    rlang::is_character(into)
+    is_string(regex),
+    is_character(into)
   )
 
   out <- .str_match_first(x, regex)
@@ -159,19 +159,19 @@
   if (anyDuplicated(into)) {
     pieces <- split(out, into)
     into <- names(pieces)
-    out <- purrr::map(pieces, purrr::pmap_chr, paste0, sep = "")
+    out <- map(pieces, pmap_chr, paste0, sep = "")
   }
 
-  into <- rlang::as_utf8_character(into)
+  into <- as_utf8_character(into)
 
   non_na_into <- !is.na(into)
   out <- out[non_na_into]
   names(out) <- into[non_na_into]
 
-  out <- tibble::as_tibble(out)
+  out <- as_tibble(out)
 
   if (convert) {
-    out <- purrr::map(out, type.convert, as.is = TRUE)
+    out <- map(out, type.convert, as.is = TRUE)
   }
 
   out

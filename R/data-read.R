@@ -1,5 +1,3 @@
-#' @importFrom sparklyr spark_read_csv spark_read_parquet spark_read_text
-#' @importFrom sparklyr spark_read_json spark_read_orc
 #' @export
 spark_read_csv.pyspark_connection <- function(
     sc,

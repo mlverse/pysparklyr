@@ -22,7 +22,7 @@ library(sparklyr)
 library(pysparklyr)
 
 install_github("sparklyr/sparklyr") 
-install_github("edgararuiz/pysparklyr")
+install_github("mlverse/pysparklyr")
 
 
 #install_pyspark()
@@ -32,6 +32,7 @@ install_github("edgararuiz/pysparklyr")
 
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/mlverse/pysparklyr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mlverse/pysparklyr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 Integrates `sparklyr` with PySpark and Databricks. The main reson of this package is because the new Spark and Databricks Connect connection method does not work with standard `sparklyr` integration.
@@ -44,7 +45,7 @@ Development of this package requires regular updates to `sparklyr`. The most sta
 library(remotes)
 
 install_github("sparklyr/sparklyr")
-install_github("edgararuiz/pysparklyr")
+install_github("mlverse/pysparklyr")
 
 ```
 

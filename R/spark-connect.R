@@ -105,16 +105,16 @@ py_spark_connect <- function(master,
 
   sc
 }
-methods::setOldClass(
+setOldClass(
   c("Hive", "spark_connection")
 )
 
 
-methods::setOldClass(
+setOldClass(
   c("connect_spark", "pyspark_connection", "spark_connection")
 )
 
-methods::setOldClass(
+setOldClass(
   c("connect_databricks", "pyspark_connection", "spark_connection")
 )
 

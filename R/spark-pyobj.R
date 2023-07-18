@@ -12,13 +12,8 @@ spark_version.spark_pyobj <- function(sc) {
 }
 
 #' @export
-spark_context.spark_pyobj <- function(sc) {
-  sc$connection
-}
-
-#' @export
-spark_connection.spark_pyobj <- function(sc) {
-  sc$connection
+spark_connection.spark_pyobj <- function(x, ...) {
+  x$connection
 }
 
 #' @export
@@ -73,7 +68,7 @@ to_pandas_cleaned <- function(x) {
     if(orig_vars[[i]] != "array") {
       cur_var <- names(list_vars[i])
       cur <- collected[[cur_var]]
-      cur_null <- purrr::map_lgl(cur, is.null)
+      cur_null <- map_lgl(cur, is.null)
       cur <- as.character(cur)
       cur[cur_null] <- NA
       collected[[cur_var]] <- cur

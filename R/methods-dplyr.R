@@ -1,5 +1,3 @@
-#' @importFrom dplyr sample_n sample_frac slice_sample
-#' @importFrom sparklyr random_string
 #' @export
 sample_n.tbl_pyspark <- function(tbl, size, replace = FALSE,
                                     weight = NULL, .env = NULL, ...
@@ -128,6 +126,11 @@ tbl.pyspark_connection <- function(src, from, ...) {
   new_class <- c(out_class[1], "tbl_spark", out_class[2:length(out_class)])
   class(out) <- new_class
   out
+}
+
+#' @export
+tbl_ptype.tbl_pyspark <- function(.data) {
+  abort("Predicates are not supported in thie back-end")
 }
 
 #' @export

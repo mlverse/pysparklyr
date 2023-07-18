@@ -16,7 +16,6 @@ spark_integ_test_skip.pyspark_connection <- function(sc, test_name) {
   if(grepl("sample-frac-exact", test_name)) out <- TRUE
 
   if(grepl("dbi", test_name)) out <- FALSE
-  if(grepl("tidyr", test_name)) out <- FALSE
   if(grepl("sdf-broadcast", test_name)) out <- TRUE
   if(grepl("ml-", test_name)) out <- TRUE
 
@@ -35,8 +34,8 @@ connection_is_open.pyspark_connection <- function(sc) {
 }
 
 #' @export
-spark_connection.pyspark_connection <- function(sc) {
-  sc
+spark_connection.pyspark_connection <- function(x, ...) {
+  x
 }
 
 #' @export
@@ -60,7 +59,7 @@ invoke.pyspark_connection <- function(jobj, method, ...) {
 }
 
 #' @export
-invoke_new.connect_spark <- function(jobj, class, ...) {
+invoke_new.connect_spark <- function(sc, class, ...) {
   classes <- unlist(strsplit(class, "[.]"))
   classes <- classes[classes != "org"]
   classes <- classes[classes != "apache"]
@@ -73,7 +72,7 @@ invoke_new.connect_spark <- function(jobj, class, ...) {
 
   imp <- import(ml_lib)
   ml_fun <- py_get_attr(imp, fn)
-  as_spark_pyobj(obj = ml_fun, conn = jobj, class = class)
+  as_spark_pyobj(obj = ml_fun, conn = sc, class = class)
 }
 
 #' @export

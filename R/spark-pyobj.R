@@ -53,6 +53,15 @@ to_pandas_cleaned <- function(x) {
   fields <- x$dtypes
   orig_types <- map_chr(fields, ~ .x[[2]])
 
+  dec_types <- map_lgl(orig_types, ~ grepl("decimal\\(", .x))
+
+  if(sum(dec_types) > 0) {
+    sql_functions <- import("pyspark.sql.functions")
+    for(field in fields[dec_types]) {
+      x <- x$withColumn("r", sql_functions$col(field[[1]])$cast("double"))
+    }
+  }
+
   collected <- x$toPandas()
   col_types <- map_chr(
     collected, ~ {

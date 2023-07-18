@@ -16,7 +16,6 @@ spark_integ_test_skip.pyspark_connection <- function(sc, test_name) {
   if(grepl("sample-frac-exact", test_name)) out <- TRUE
 
   if(grepl("dbi", test_name)) out <- FALSE
-  if(grepl("tidyr", test_name)) out <- FALSE
   if(grepl("sdf-broadcast", test_name)) out <- TRUE
   if(grepl("ml-", test_name)) out <- TRUE
 

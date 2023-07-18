@@ -129,6 +129,11 @@ tbl.pyspark_connection <- function(src, from, ...) {
 }
 
 #' @export
+tbl_ptype.tbl_pyspark <- function(.data) {
+  abort("Predicates are not supported in thie back-end")
+}
+
+#' @export
 tidyselect_data_has_predicates.tbl_pyspark <- function(x) {
   FALSE
 }

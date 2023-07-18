@@ -10,7 +10,7 @@
 #' @importFrom sparklyr spark_write_orc spark_write_json
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble
-#' @importFrom dplyr sample_n sample_frac slice_sample select
+#' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype
 #' @importFrom purrr map_lgl map_chr map pmap_chr
 #' @importFrom rlang enquo `!!` quo_is_null sym arg_match warn abort
 #' @importFrom rlang is_string is_character as_utf8_character

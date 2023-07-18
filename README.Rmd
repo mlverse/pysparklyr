@@ -22,7 +22,7 @@ library(sparklyr)
 library(pysparklyr)
 
 install_github("sparklyr/sparklyr") 
-install_github("edgararuiz/pysparklyr")
+install_github("mlverse/pysparklyr")
 
 
 #install_pyspark()
@@ -45,7 +45,7 @@ Development of this package requires regular updates to `sparklyr`. The most sta
 library(remotes)
 
 install_github("sparklyr/sparklyr")
-install_github("edgararuiz/pysparklyr")
+install_github("mlverse/pysparklyr")
 
 ```
 

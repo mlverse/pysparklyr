@@ -4,6 +4,8 @@
 # pysparklyr
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/mlverse/pysparklyr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mlverse/pysparklyr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 Integrates `sparklyr` with PySpark and Databricks. The main reson of
@@ -20,7 +22,7 @@ called `demo`. Both packages have this branch. To install use:
 library(remotes)
 
 install_github("sparklyr/sparklyr")
-install_github("edgararuiz/pysparklyr")
+install_github("mlverse/pysparklyr")
 ```
 
 ## Setup

@@ -1,5 +1,3 @@
-#' @importFrom sparklyr spark_write_csv spark_write_parquet spark_write_text
-#' @importFrom sparklyr spark_write_orc spark_write_json
 #' @export
 spark_write_csv.tbl_pyspark <- function(
     x,

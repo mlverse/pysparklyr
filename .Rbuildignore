@@ -1,3 +1,5 @@
 ^pysparklyr\.Rproj$
 ^\.Rproj\.user$
 ^README\.Rmd$
+^progress\.md$
+^LICENSE\.md$

@@ -1,5 +1,3 @@
-#' @importFrom dplyr sample_n sample_frac slice_sample
-#' @importFrom sparklyr random_string
 #' @export
 sample_n.tbl_pyspark <- function(tbl, size, replace = FALSE,
                                     weight = NULL, .env = NULL, ...

@@ -1,4 +1,3 @@
-#' @importFrom tidyr pivot_longer
 #' @export
 pivot_longer.tbl_pyspark <- function(
   data,
@@ -37,7 +36,7 @@ pivot_longer.tbl_pyspark <- function(
     colnames()
 
   if(length(col_names) == 0) {
-    rlang::abort("`cols` must select at least one column.")
+    abort("`cols` must select at least one column.")
   }
 
   # Determining what columns are NOT selected
@@ -184,7 +183,7 @@ check_same_types <- function(x, col_names) {
 
   if(!char_match) {
     type_names <- map_chr(dtypes, ~ paste0(.x[[1]], " <", .x[[2]], ">"))
-    rlang::abort(glue(
+    abort(glue(
       "There is a data type mismatch: {paste0(type_names, collapse = ' ')}"
     ))
   }

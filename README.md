@@ -19,8 +19,8 @@ called `demo`. Both packages have this branch. To install use:
 ``` r
 library(remotes)
 
-install_github("sparklyr/sparklyr", ref = "demo")
-install_github("edgararuiz/pysparklyr", ref = "demo")
+install_github("sparklyr/sparklyr")
+install_github("edgararuiz/pysparklyr")
 ```
 
 ## Setup

@@ -8,15 +8,15 @@
 [![R-CMD-check](https://github.com/mlverse/pysparklyr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mlverse/pysparklyr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-Integrates `sparklyr` with PySpark and Databricks. The main reson of
+Integrates `sparklyr` with PySpark and Databricks. The main reason of
 this package is because the new Spark and Databricks Connect connection
 method does not work with standard `sparklyr` integration.
 
 ## Installation
 
-Development of this package requires regular updates to `sparklyr`. The
-most stable version of the integration will be available in a branch
-called `demo`. Both packages have this branch. To install use:
+Development of this package requires regular updates to `sparklyr`. To
+try out, use the development version of both packages, which are
+available on GitHub:
 
 ``` r
 library(remotes)
@@ -34,7 +34,6 @@ installs the needed Python libraries:
 
 ``` r
 library(sparklyr)
-library(pysparklyr)
 
 install_pyspark()
 ```
@@ -106,8 +105,8 @@ trips
 ```
 
 ``` r
-trips %>% 
-  group_by(pickup_zip) %>% 
+trips %>%
+  group_by(pickup_zip) %>%
   summarise(
     count = n(),
     avg_distance = mean(trip_distance, na.rm = TRUE)

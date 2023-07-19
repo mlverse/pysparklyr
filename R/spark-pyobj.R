@@ -8,7 +8,7 @@ sdf_read_column.spark_pyjobj <- function(x, column) {
 
 #' @export
 spark_version.spark_pyobj <- function(sc) {
-  sc$connection$state$spark_context$version
+  python_conn(sc)$version
 }
 
 #' @export

@@ -55,7 +55,6 @@ Aside from PySpark, there are several Python libraries needed for the integratio
 
 ``` r
 library(sparklyr)
-library(pysparklyr)
 
 install_pyspark()
 ```

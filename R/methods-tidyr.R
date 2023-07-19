@@ -19,7 +19,7 @@ pivot_longer.tbl_pyspark <- function(
 
   sc <- spark_connection(data)
 
-  spark_df <- python_conn(sc)$sql(remote_query(data))
+  spark_df <- tbl_pyspark_sdf(data)
 
   # This part is so that we can run tidyeval on the resulting
   # Spark Data Frame. We're converting the resulting SDF back
@@ -28,9 +28,8 @@ pivot_longer.tbl_pyspark <- function(
   # the original `data` variable, becuase it `pivot_longer()` may
   # be called after one or several `dplyr` commands. So we have to
   # operate the piped commands first.
-  temp_name <- glue("sparklyr_tmp_{random_string()}")
-  spark_df$createOrReplaceTempView(temp_name)
-  te_df <- tbl(sc, temp_name)
+  temp_name <- tbl_temp_name()
+  te_df <- tbl_pyspark_temp(spark_df, data, temp_name)
   col_names <- te_df %>%
     select(!! enquo(cols)) %>%
     colnames()
@@ -150,9 +149,7 @@ pivot_longer.tbl_pyspark <- function(
   dbRemoveTable(sc, temp_name)
 
   # Creating temp view with the pivoting results
-  up_name <- glue("sparklyr_tmp_{random_string()}")
-  out$createOrReplaceTempView(up_name)
-  tbl(sc, up_name)
+  tbl_pyspark_temp(out, sc)
 }
 
 un_pivot <- function(x, ids, values, names_to,

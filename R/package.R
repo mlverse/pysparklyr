@@ -27,3 +27,6 @@
 NULL
 
 pysparklyr_env <- new.env()
+pysparklyr_env$temp_prefix <- "sparklyr_tmp_"
+temp_prefix <- function() pysparklyr_env$temp_prefix
+

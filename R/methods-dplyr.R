@@ -14,18 +14,13 @@ sample_n.tbl_pyspark <- function(tbl, size, replace = FALSE,
 sample_frac.tbl_pyspark <- function(tbl, size = 1, replace = FALSE,
                                        weight = NULL, .env = NULL, ...
                                        ){
-  sc <- spark_connection(tbl)
   weight <- enquo(weight)
   if(!quo_is_null(weight)) {
     abort("`weight` is not supported in this Spark connection")
   }
-  res <- invoke(sc, "sql", remote_query(tbl))
-  df <- res[[1]]
-  out <- df$sample(fraction = size, withReplacement = TRUE)
-  tmp_name <- glue("sparklyr_tmp_{random_string()}")
-  out$createTempView(tmp_name)
-  out <- tbl(sc, tmp_name)
-  out
+  df <- tbl_pyspark_sdf(tbl)
+  sampled <- df$sample(fraction = size, withReplacement = TRUE)
+  tbl_pyspark_temp(sampled, tbl)
 }
 
 
@@ -52,9 +47,9 @@ cache_query <- function(table,
 
 #' @export
 collect.tbl_pyspark <- function(x, ...) {
-  sc <- x[[1]]
-  res <- sc$state$spark_context$sql(remote_query(x))
-  to_pandas_cleaned(res)
+  x %>%
+    tbl_pyspark_sdf() %>%
+    to_pandas_cleaned()
 }
 
 #' @export
@@ -74,7 +69,7 @@ sdf_copy_to.pyspark_connection <- function(sc,
                                            overwrite = FALSE,
                                            struct_columns,
                                            ...) {
-  context <- sc$state$spark_context
+  context <- python_conn(sc)
   if (context$catalog$tableExists(name)) {
     if (overwrite) {
       context$catalog$dropTempView(name)
@@ -99,22 +94,23 @@ sdf_copy_to.pyspark_connection <- function(sc,
       storage_level <- import("pyspark.storagelevel")
       df_copy$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
     }
+    out <- tbl(src = sc, from = name)
   } else {
-    temp_name <- glue("sparklyr_tmp_{random_string()}")
-    df_copy$createTempView(temp_name)
-    temp_table <- tbl(sc, temp_name)
-    cache_query(table = temp_table, name = name)
+    out <- df_copy %>%
+      tbl_pyspark_temp(sc) %>%
+      cache_query(name = name)
   }
 
   spark_ide_connection_updated(sc, name)
 
-  tbl(src = sc, from = name)
+  out
 }
 
 #' @export
 tbl.pyspark_connection <- function(src, from, ...) {
   sql_from <- as.sql(from, con = src$con)
-  pyspark_obj <- src$state$spark_context$table(sql_from)
+  con <- python_conn(src)
+  pyspark_obj <- con$table(sql_from)
   vars <- pyspark_obj$columns
   out <- tbl_sql(
     subclass = "pyspark",
@@ -143,6 +139,23 @@ same_src.pyspark_connection <- function(x, y) {
   identical(x$master, y$master) &&
   identical(x$method, y$method) &&
   identical(x$state, y$state)
+}
+
+tbl_pyspark_sdf <- function(x) {
+  con <- python_conn(x[[1]])
+  qry <- remote_query(x)
+  con$sql(qry)
+}
+
+tbl_temp_name <- function() glue("{temp_prefix()}{random_string()}")
+
+tbl_pyspark_temp <- function(x, conn, tmp_name = NULL) {
+  sc <- spark_connection(conn)
+  if(is.null(tmp_name)) {
+    tmp_name <- tbl_temp_name()
+  }
+  x$createOrReplaceTempView(tmp_name)
+  tbl(sc, tmp_name)
 }
 
 setOldClass(c("tbl_pyspark", "tbl_spark"))

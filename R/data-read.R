@@ -160,7 +160,7 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
                                  overwrite, args, options = list()) {
   opts <- c(args, options)
 
-  if(inherits(sc, "pyspark_connection")) {
+  if (inherits(sc, "pyspark_connection")) {
     x <- python_conn(sc)$read %>%
       py_invoke_options(options = opts) %>%
       py_invoke(format, path_expand(path))

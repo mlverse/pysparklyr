@@ -1,21 +1,19 @@
 #' @export
 sample_n.tbl_pyspark <- function(tbl, size, replace = FALSE,
-                                    weight = NULL, .env = NULL, ...
-                                    ) {
+                                 weight = NULL, .env = NULL, ...) {
   slice_sample(
     .data = tbl,
     n = size,
     replace = replace,
-    weight_by = !! enquo(weight)
-    )
+    weight_by = !!enquo(weight)
+  )
 }
 
 #' @export
 sample_frac.tbl_pyspark <- function(tbl, size = 1, replace = FALSE,
-                                       weight = NULL, .env = NULL, ...
-                                       ){
+                                    weight = NULL, .env = NULL, ...) {
   weight <- enquo(weight)
-  if(!quo_is_null(weight)) {
+  if (!quo_is_null(weight)) {
     abort("`weight` is not supported in this Spark connection")
   }
   df <- tbl_pyspark_sdf(tbl)
@@ -31,10 +29,9 @@ compute.tbl_pyspark <- function(x, name = NULL, ...) {
 
 cache_query <- function(table,
                         name = NULL,
-                        storage_level = "MEMORY_AND_DISK"
-                        ) {
+                        storage_level = "MEMORY_AND_DISK") {
   # https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-cache-table.html
-  if(is.null(name)) {
+  if (is.null(name)) {
     name <- random_string()
   }
   x <- remote_query(table)
@@ -87,10 +84,10 @@ sdf_copy_to.pyspark_connection <- function(sc,
 
 
   repartition <- as.integer(repartition)
-  if(repartition > 0) {
+  if (repartition > 0) {
     df_copy$createTempView(name)
     df_copy$repartition(repartition)
-    if(memory) {
+    if (memory) {
       storage_level <- import("pyspark.storagelevel")
       df_copy$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
     }
@@ -137,8 +134,8 @@ tidyselect_data_has_predicates.tbl_pyspark <- function(x) {
 #' @export
 same_src.pyspark_connection <- function(x, y) {
   identical(x$master, y$master) &&
-  identical(x$method, y$method) &&
-  identical(x$state, y$state)
+    identical(x$method, y$method) &&
+    identical(x$state, y$state)
 }
 
 tbl_pyspark_sdf <- function(x) {
@@ -151,7 +148,7 @@ tbl_temp_name <- function() glue("{temp_prefix()}{random_string()}")
 
 tbl_pyspark_temp <- function(x, conn, tmp_name = NULL) {
   sc <- spark_connection(conn)
-  if(is.null(tmp_name)) {
+  if (is.null(tmp_name)) {
     tmp_name <- tbl_temp_name()
   }
   x$createOrReplaceTempView(tmp_name)

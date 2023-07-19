@@ -11,13 +11,12 @@ spark_connect_method.spark_method_spark_connect <- function(
     extensions,
     scala_version,
     ...) {
-
   py_spark_connect(
     master = master,
     method = method,
     config = config,
     ... = ...
-    )
+  )
 }
 
 #' @export
@@ -33,7 +32,6 @@ spark_connect_method.spark_method_databricks_connect <- function(
     extensions,
     scala_version,
     ...) {
-
   py_spark_connect(
     master = master,
     method = method,
@@ -51,7 +49,6 @@ py_spark_connect <- function(master,
                              spark_version = NULL,
                              databricks_connect_version = NULL,
                              config = list()) {
-
   method <- method[[1]]
 
   virtualenv_name <- env_version(
@@ -72,11 +69,11 @@ py_spark_connect <- function(master,
   }
 
   if (method == "databricks_connect") {
-    if(is.null(master)) {
-      master <-  Sys.getenv("DATABRICKS_HOST")
+    if (is.null(master)) {
+      master <- Sys.getenv("DATABRICKS_HOST")
     }
-    if(is.null(cluster_id)) {
-      cluster_id <-  Sys.getenv("DATABRICKS_CLUSTER_ID")
+    if (is.null(cluster_id)) {
+      cluster_id <- Sys.getenv("DATABRICKS_CLUSTER_ID")
     }
     db <- import_check("databricks.connect", virtualenv_name)
     remote <- db$DatabricksSession$builder$remote(

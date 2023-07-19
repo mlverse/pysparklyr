@@ -11,7 +11,6 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
-
 ```
 
 ```{r, include = FALSE}
@@ -21,11 +20,11 @@ library(dbplyr)
 library(sparklyr)
 library(pysparklyr)
 
-install_github("sparklyr/sparklyr") 
+install_github("sparklyr/sparklyr")
 install_github("mlverse/pysparklyr")
 
 
-#install_pyspark()
+# install_pyspark()
 ```
 
 # pysparklyr
@@ -107,8 +106,8 @@ trips
 ```
 
 ```{r}
-trips %>% 
-  group_by(pickup_zip) %>% 
+trips %>%
+  group_by(pickup_zip) %>%
   summarise(
     count = n(),
     avg_distance = mean(trip_distance, na.rm = TRUE)

@@ -1,10 +1,13 @@
 Package: pysparklyr
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9001
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Title: Provides a 'PySpark' back-end for the 'sparklyr' package
+Version: 0.0.0.9002
+Authors@R: c(
+    person("Edgar", "Ruiz", , "edgar@posit.co", role = c("aut", "cre")),
+    person(given = "Posit Software, PBC", role = c("cph", "fnd"))
+    )
+Description: It enables 'sparklyr' to integrate with 'Spark Connect', and
+    'Databricks Connect' by providing a wrapper over the 'PySpark' 'python'
+    library.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -24,7 +27,7 @@ Imports:
     fs,
     magrittr,
     tidyr
-URL: https://github.com/edgararuiz/pysparklyr
-BugReports: https://github.com/edgararuiz/pysparklyr/issues
+URL: https://github.com/mlverse/pysparklyr
+BugReports: https://github.com/mlverse/pysparklyr/issues
 Remotes:  
     sparklyr/sparklyr

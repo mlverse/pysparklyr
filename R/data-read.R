@@ -142,36 +142,17 @@ spark_read_parquet.pyspark_connection <- function(
     read <- con$read$parquet(path)
   }
 
-  finalize_read(read, sc, name, memory, repartition, overwrite)
-}
-
-finalize_read <- function(x, sc, name, memory, repartition, overwrite) {
-  repartition <- as.integer(repartition)
-  if (repartition > 0) {
-    x$repartition(repartition)
-  }
-
-  if (overwrite && name %in% dbListTables(sc)) {
-    dbRemoveTable(sc, name)
-  }
-
-  if (is.null(name)) {
-    name <- random_string()
-  }
-
-  x$createTempView(name)
-
-  if (memory) {
-    # temp_name <- glue("sparklyr_tmp_{random_string()}")
-    # x$createTempView(temp_name)
-    # temp_table <- tbl(sc, temp_name)
-    # cache_query(table = temp_table, name = name)
-    storage_level <- import("pyspark.storagelevel")
-    x$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
-  }
-
-  spark_ide_connection_updated(sc, name)
-  tbl(sc, name)
+  pyspark_read_generic(
+    sc = read,
+    path = NULL,
+    name = name,
+    format = NULL,
+    memory = memory,
+    repartition = repartition,
+    overwrite = overwrite,
+    options = NULL,
+    args = NULL
+  )
 }
 
 
@@ -179,9 +160,13 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
                                  overwrite, args, options = list()) {
   opts <- c(args, options)
 
-  x <- python_conn(sc)$read %>%
-    py_invoke_options(options = opts) %>%
-    py_invoke(format, path_expand(path))
+  if (inherits(sc, "pyspark_connection")) {
+    x <- python_conn(sc)$read %>%
+      py_invoke_options(options = opts) %>%
+      py_invoke(format, path_expand(path))
+  } else {
+    x <- sc
+  }
 
   repartition <- as.integer(repartition)
   if (repartition > 0) {
@@ -199,10 +184,6 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
   x$createTempView(name)
 
   if (memory) {
-    # temp_name <- glue("sparklyr_tmp_{random_string()}")
-    # x$createTempView(temp_name)
-    # temp_table <- tbl(sc, temp_name)
-    # cache_query(table = temp_table, name = name)
     storage_level <- import("pyspark.storagelevel")
     x$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
   }

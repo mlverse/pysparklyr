@@ -1,25 +1,23 @@
 #' @export
 pivot_longer.tbl_pyspark <- function(
-  data,
-  cols,
-  ...,
-  cols_vary = "fastest",
-  names_to = "name",
-  names_prefix = NULL,
-  names_sep = NULL,
-  names_pattern = NULL,
-  names_ptypes = NULL,
-  names_transform = NULL,
-  names_repair = "check_unique",
-  values_to = "value",
-  values_drop_na = FALSE,
-  values_ptypes = NULL,
-  values_transform = NULL
-  ){
-
+    data,
+    cols,
+    ...,
+    cols_vary = "fastest",
+    names_to = "name",
+    names_prefix = NULL,
+    names_sep = NULL,
+    names_pattern = NULL,
+    names_ptypes = NULL,
+    names_transform = NULL,
+    names_repair = "check_unique",
+    values_to = "value",
+    values_drop_na = FALSE,
+    values_ptypes = NULL,
+    values_transform = NULL) {
   sc <- spark_connection(data)
 
-  spark_df <- python_conn(sc)$sql(remote_query(data))
+  spark_df <- tbl_pyspark_sdf(data)
 
   # This part is so that we can run tidyeval on the resulting
   # Spark Data Frame. We're converting the resulting SDF back
@@ -28,21 +26,20 @@ pivot_longer.tbl_pyspark <- function(
   # the original `data` variable, becuase it `pivot_longer()` may
   # be called after one or several `dplyr` commands. So we have to
   # operate the piped commands first.
-  temp_name <- glue("sparklyr_tmp_{random_string()}")
-  spark_df$createOrReplaceTempView(temp_name)
-  te_df <- tbl(sc, temp_name)
+  temp_name <- tbl_temp_name()
+  te_df <- tbl_pyspark_temp(spark_df, data, temp_name)
   col_names <- te_df %>%
-    select(!! enquo(cols)) %>%
+    select(!!enquo(cols)) %>%
     colnames()
 
-  if(length(col_names) == 0) {
+  if (length(col_names) == 0) {
     abort("`cols` must select at least one column.")
   }
 
   # Determining what columns are NOT selected
   col_all <- spark_df$columns
   col_dif <- col_all
-  for(col in col_names) {
+  for (col in col_names) {
     col_dif <- col_dif[col_dif != col]
   }
 
@@ -50,26 +47,25 @@ pivot_longer.tbl_pyspark <- function(
   # I chose to pass the first one, and then remove it after performing the
   # un-pivot operation. Not ideal, but it works
   remove_first <- FALSE
-  if(length(col_dif) == 0) {
+  if (length(col_dif) == 0) {
     col_dif <- col_all[1]
     remove_first <- TRUE
   }
 
   # If there is a name separator, this loop will process to
   # PySpark unpivot ops
-  if(length(names_to) > 1) {
-
+  if (length(names_to) > 1) {
     if (!is.null(names_sep)) {
       output_names <- .str_separate(col_names, names_to, sep = names_sep)
     } else {
       output_names <- .str_extract(col_names, names_to, regex = names_pattern)
     }
 
-    if(length(names_to) > 2) {
+    if (length(names_to) > 2) {
       abort("Only two level is supported")
     }
 
-    if(names_to[[1]] == ".value") {
+    if (names_to[[1]] == ".value") {
       val_no <- 1
       nm_no <- 2
     } else {
@@ -82,7 +78,7 @@ pivot_longer.tbl_pyspark <- function(
     u_val <- unique(val_vals)
 
     all_pv <- NULL
-    for(i in seq_along(u_val)) {
+    for (i in seq_along(u_val)) {
       nm_rm <- list()
       c_val <- u_val[[i]]
       nm_rm[[val_no]] <- c_val
@@ -90,12 +86,12 @@ pivot_longer.tbl_pyspark <- function(
       nm_rm <- paste0(nm_rm, collapse = "")
       cur_cols <- col_names[which(val_vals == c_val)]
       sel_df <- spark_df$select(c(col_dif, cur_cols))
-      for(j in seq_along(cur_cols)) {
-        ren_cols <-  sub(nm_rm, "", cur_cols)
+      for (j in seq_along(cur_cols)) {
+        ren_cols <- sub(nm_rm, "", cur_cols)
         sel_df <- sel_df$withColumnRenamed(
           existing = cur_cols[[j]],
           new = sub(nm_rm, "", ren_cols[[j]])
-          )
+        )
       }
 
       check_same_types(x = sel_df, col_names = ren_cols)
@@ -112,10 +108,10 @@ pivot_longer.tbl_pyspark <- function(
     }
 
     out <- NULL
-    for(i in seq_along(all_pv)) {
+    for (i in seq_along(all_pv)) {
       no_i <- length(all_pv) - i + 1
-      if(no_i > 1) {
-        if(is.null(out)) out <- all_pv[[no_i]]
+      if (no_i > 1) {
+        if (is.null(out)) out <- all_pv[[no_i]]
         next_df <- all_pv[[(no_i - 1)]]
         out <- out$join(
           other = next_df,
@@ -129,9 +125,7 @@ pivot_longer.tbl_pyspark <- function(
     output_cols <- output_cols[output_cols != ".value"]
 
     out <- out$select(as.list(c(col_dif, output_cols, u_val)))
-
   } else {
-
     check_same_types(x = spark_df, col_names = col_names)
 
     out <- un_pivot(
@@ -142,7 +136,7 @@ pivot_longer.tbl_pyspark <- function(
       values_to = values_to,
       remove_first = remove_first,
       values_drop_na = values_drop_na
-      )
+    )
   }
 
   # Cleaning up by removing the temp view with the operations
@@ -150,15 +144,11 @@ pivot_longer.tbl_pyspark <- function(
   dbRemoveTable(sc, temp_name)
 
   # Creating temp view with the pivoting results
-  up_name <- glue("sparklyr_tmp_{random_string()}")
-  out$createOrReplaceTempView(up_name)
-  tbl(sc, up_name)
+  tbl_pyspark_temp(out, sc)
 }
 
 un_pivot <- function(x, ids, values, names_to,
-                     values_to, remove_first, values_drop_na
-                     ) {
-
+                     values_to, remove_first, values_drop_na) {
   out <- x$unpivot(
     ids = as.list(ids),
     values = as.list(values),
@@ -166,11 +156,11 @@ un_pivot <- function(x, ids, values, names_to,
     valueColumnName = values_to
   )
 
-  if(remove_first) {
+  if (remove_first) {
     out <- out$select(list(names_to, values_to))
   }
 
-  if(values_drop_na) {
+  if (values_drop_na) {
     out <- out$dropna(subset = values_to)
   }
   out
@@ -181,11 +171,10 @@ check_same_types <- function(x, col_names) {
   char_types <- map_chr(dtypes, ~ .x[[2]])
   char_match <- length(unique(char_types)) == 1
 
-  if(!char_match) {
+  if (!char_match) {
     type_names <- map_chr(dtypes, ~ paste0(.x[[1]], " <", .x[[2]], ">"))
     abort(glue(
       "There is a data type mismatch: {paste0(type_names, collapse = ' ')}"
     ))
   }
-
 }

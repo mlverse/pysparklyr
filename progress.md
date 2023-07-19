@@ -21,6 +21,10 @@
 -   [ ] Implement Spark and Log buttons for Spark Connect and DB Connect. **Blocked** - Until SparkSession is implemented in Spark 3.5
 -   [ ] Find a way to get the Connection pane to be async to the IDE
 
+### Data 
+
+- [x] `NA`'s are not supported in numeric fields, everything is translated as `NaN`
+
 ### DBI
 
 -   [x] Integration with DBI methods. This was done my modifying a couple of `sparklyr` routines. More testing is needed to confirm all works
@@ -40,16 +44,16 @@
         - [ ] Caching does not seem to be working via regular the PySpark Dataframe op, it does work when I use SQL to cache (via `CACHE TABLE`) but can't re-partition that way
       
 -  Implement specific functions:
-    - [ ] `where()` - Needs predicate support, which is not available by default through SQL. May need to find an alternative via PySpark. This may not be needed for first CRAN release.
+    - [x] `where()` / `..._if()` - Do not plan to support predicates. Determining the field types is a very expensive operation, and it should be discouraged. `dbplyr` does not support it.  Will reconsider based on community feedback
     - [x] `sample_frac()` - Supported: `weights` No | `replace` Yes
     - [x] `sample_n()` - Supported: `weights` No | `replace` No
     - [x] `slice_max()` - Worked out-of-the-box
-    - [ ] `cumprod()` - Questioning its implementation. `sparklyr` did it via a custom Scala implementation. `dbplyr` doesn't seem to support it.
-    - [ ] `distinct()` - Mostly works. Breaks when its followed by another lazy op
+    - [x] `cumprod()` - Do not plan to support. `dbplyr` does not support it. Will reconsider based on community feedback.
+    - [x] `distinct()` 
     - [x] Hive Operators work, such as `LIKE` via `%like%` - Worked out-of-the-box
     - [ ] High Order Functions (Arrays)
     - [x] Table joins - Added `same_src()` method for PySpark connection to get it to work
-    - [ ] `lead()` / `lag()` - Works for numeric fields. For character fields, it process the windowed function but it returns a list column for some reason
+    - [x] `lead()` / `lag()` 
     - [ ] `rowSums()` - Mosts tests currently pass, but not all
     - [x] `cor()`, `cov()`, `sd()` - Worked out-of-the-box
     - [x] `weighted.mean()` - Worked out-of-the-box

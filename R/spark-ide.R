@@ -17,13 +17,9 @@ spark_ide_objects.pyspark_connection <- function(
     tables <- sc_catalog$listTables(dbName = "default")
     if (length(tables) > 0) {
       temps <- tables[map_lgl(tables, ~ .x$isTemporary)]
-      if (length(temps) > 0) {
-        table_names <- map_chr(tables, ~ .x$name)
-        final_names <- table_names[!grepl("sparklyr_tmp_", table_names)]
-        df_tables <- data.frame(name = final_names)
-        df_tables$type <- "table"
-      }
-      df_tables <- rbind(df_tables, df_cat)
+      df_tables <- temps %>%
+        rs_tables() %>%
+        rbind(df_cat)
     }
 
     catalogs <- sc_catalog$listCatalogs()
@@ -50,13 +46,7 @@ spark_ide_objects.pyspark_connection <- function(
         schemas <- map(tables, ~ .x$namespace == schema)
         schemas <- map_lgl(schemas, ~ ifelse(length(.x), .x, FALSE))
         tables <- tables[schemas]
-
-        if (length(tables) > 0) {
-          table_names <- map_chr(tables, ~ .x$name)
-          final_names <- table_names[!grepl("sparklyr_tmp_", table_names)]
-          df_tables <- data.frame(name = final_names)
-          df_tables$type <- "table"
-        }
+        df_tables <- rs_tables(tables)
       }
       out <- df_tables
     }
@@ -129,4 +119,15 @@ rs_vals <- function(x) {
     x <- paste0(x, "...")
   }
   x
+}
+
+rs_tables <- function(x) {
+  out <- data.frame()
+  if (length(x) > 0) {
+    table_names <- map_chr(x, ~ .x$name)
+    final_names <- table_names[!grepl(temp_prefix(), table_names)]
+    out <- data.frame(name = final_names)
+    out$type <- "table"
+  }
+  out
 }

@@ -105,10 +105,7 @@ spark_write_json.tbl_pyspark <- function(
 }
 
 pyspark_write_generic <- function(x, path, format, mode, partition_by, options, args) {
-  sc <- spark_connection(x)
-  con <- python_conn(sc)
-
-  query <- con$sql(remote_query(x))
+  query <- tbl_pyspark_sdf(x)
 
   if (is.null(partition_by)) {
     query_prep <- query$repartition(1L)$write

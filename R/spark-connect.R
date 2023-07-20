@@ -94,6 +94,7 @@ py_spark_connect <- function(master,
       cluster_id = cluster_id,
       config = config,
       method = method,
+      python_obj = python,
       state = spark_context,
       con = structure(list(), class = c("spark_connection", "DBIConnection"))
     ),
@@ -130,4 +131,25 @@ env_version <- function(envname, spark = NULL, db = NULL) {
 
 python_conn <- function(x) {
   x$state$spark_context
+}
+
+python_obj_get <- function(x) {
+  sc <- spark_connection(x)
+  sc$python_obj
+}
+
+python_obj_set <- function(sc, obj) {
+  sc$python_obj <- obj
+  sc
+}
+
+python_sdf <- function(x) {
+  pyobj <- python_obj_get(x)
+  class_pyobj <- class(pyobj)
+  name <- remote_name(x)
+  out <- NULL
+  if(!is.null(name) && any(grepl("dataframe", class_x))) {
+    out <- pyobj
+  }
+  out
 }

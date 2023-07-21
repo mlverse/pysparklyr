@@ -3,7 +3,9 @@ head.tbl_pyspark <- function(x, n = 6L, ...) {
   if(!is.null(python_sdf(x))) {
     sdf <- tbl_pyspark_sdf(x)
     sdf_limit <- sdf$limit(as.integer(n))
-    return(python_obj_tbl_set(x, sdf_limit))
+    x <- python_obj_tbl_set(x, sdf_limit)
+    x[[2]] <- lazy_select_query(x[[2]], limit = n)
+    NextMethod()
   } else {
     NextMethod()
   }

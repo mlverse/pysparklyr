@@ -9,11 +9,11 @@
 #' @importFrom sparklyr spark_write_csv spark_write_parquet spark_write_text
 #' @importFrom sparklyr spark_write_orc spark_write_json
 #' @importFrom tidyselect tidyselect_data_has_predicates
-#' @importFrom dplyr tbl collect tibble same_src compute as_tibble
-#' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype
+#' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
+#' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by
 #' @importFrom purrr map_lgl map_chr map pmap_chr
-#' @importFrom rlang enquo `!!` quo_is_null sym arg_match warn abort
-#' @importFrom rlang is_string is_character as_utf8_character
+#' @importFrom rlang enquo `!!` `!!!` quo_is_null sym arg_match warn abort
+#' @importFrom rlang is_string is_character as_utf8_character parse_exprs
 #' @importFrom methods new is setOldClass
 #' @importFrom tidyselect matches
 #' @importFrom utils head type.convert

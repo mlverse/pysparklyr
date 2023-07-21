@@ -144,7 +144,13 @@ pivot_longer.tbl_pyspark <- function(
   dbRemoveTable(sc, temp_name)
 
   # Creating temp view with the pivoting results
-  tbl_pyspark_temp(out, sc)
+  out <- tbl_pyspark_temp(out, sc)
+  gr_out <- group_vars(data)
+  if(length(gr_out) > 0) {
+    out <- group_by(out, !!! rlang::syms(gr_out))
+  }
+
+  out
 }
 
 un_pivot <- function(x, ids, values, names_to,

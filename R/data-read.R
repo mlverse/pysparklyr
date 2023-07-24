@@ -157,8 +157,19 @@ spark_read_parquet.pyspark_connection <- function(
 
 
 pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
-                                 overwrite, args, options = list()) {
+                                 overwrite, args, options = list()
+                                 ) {
   opts <- c(args, options)
+
+  rename_fields <- FALSE
+  schema <- args$schema
+  if(!is.null(schema)) {
+    if(!is.list(schema)) {
+      rename_fields <- TRUE
+    } else {
+      abort("Complex schemas not yet supported")
+    }
+  }
 
   if (inherits(sc, "pyspark_connection")) {
     x <- python_conn(sc)$read %>%
@@ -179,6 +190,16 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
 
   if (is.null(name) | identical(path, name)) {
     name <- gen_sdf_name(path)
+  }
+
+  if(rename_fields) {
+    cur_names <- x$columns
+    for(i in seq_along(cur_names)) {
+      x <- x$withColumnRenamed(
+        existing = cur_names[[i]],
+        new = schema[[i]]
+      )
+    }
   }
 
   x$createTempView(name)

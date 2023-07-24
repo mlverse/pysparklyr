@@ -26,8 +26,9 @@ Imports:
     tidyselect,
     fs,
     magrittr,
-    tidyr
+    tidyr,
+    vctrs
 URL: https://github.com/mlverse/pysparklyr
 BugReports: https://github.com/mlverse/pysparklyr/issues
-Remotes:  
+Remotes: 
     sparklyr/sparklyr

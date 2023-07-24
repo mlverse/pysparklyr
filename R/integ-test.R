@@ -20,5 +20,6 @@ spark_integ_test_skip.pyspark_connection <- function(sc, test_name) {
     supports("format-parquet") %>%
     supports("format-orc") %>%
     supports("format-json") %>%
-    supports("format-text")
+    supports("format-text") %>%
+    supports("pivot-longer")
 }

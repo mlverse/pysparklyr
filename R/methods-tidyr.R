@@ -103,7 +103,8 @@ pivot_longer.tbl_pyspark <- function(
         names_to = names_to[[nm_no]],
         values_to = c_val,
         remove_first = remove_first,
-        values_drop_na = values_drop_na
+        values_drop_na = values_drop_na,
+        repair = names_repair
       )
     }
 
@@ -135,7 +136,8 @@ pivot_longer.tbl_pyspark <- function(
       names_to = names_to,
       values_to = values_to,
       remove_first = remove_first,
-      values_drop_na = values_drop_na
+      values_drop_na = values_drop_na,
+      repair = names_repair
     )
   }
 
@@ -153,8 +155,14 @@ pivot_longer.tbl_pyspark <- function(
   out
 }
 
-un_pivot <- function(x, ids, values, names_to,
-                     values_to, remove_first, values_drop_na) {
+un_pivot <- function(x, ids,
+                     values,
+                     names_to,
+                     values_to,
+                     remove_first,
+                     values_drop_na,
+                     repair
+                     ) {
   out <- x$unpivot(
     ids = as.list(ids),
     values = as.list(values),
@@ -169,6 +177,13 @@ un_pivot <- function(x, ids, values, names_to,
   if (values_drop_na) {
     out <- out$dropna(subset = values_to)
   }
+
+  col_names <- out$columns
+
+  if(length(unique(col_names)) != length(col_names)) {
+    new_names <- vec_as_names(col_names, repair = repair)
+  }
+
   out
 }
 

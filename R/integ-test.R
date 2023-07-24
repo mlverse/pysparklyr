@@ -13,7 +13,7 @@ spark_integ_test_skip.pyspark_connection <- function(sc, test_name) {
   out %>%
     supports("dplyr") %>%
     supports("dplyr-do", TRUE) %>%
-    supports("dplyr_hof", TRUE) %>%
+    supports("dplyr-hof", TRUE) %>%
     supports("dplyr-cumprod", TRUE) %>%
     supports("DBI") %>%
     supports("format-csv") %>%

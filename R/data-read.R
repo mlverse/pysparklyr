@@ -177,8 +177,8 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
     dbRemoveTable(sc, name)
   }
 
-  if (is.null(name)) {
-    name <- random_string()
+  if (is.null(name) | identical(path, name)) {
+    name <- gen_sdf_name(path)
   }
 
   x$createTempView(name)
@@ -190,4 +190,12 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
 
   spark_ide_connection_updated(sc, name)
   tbl(sc, name)
+}
+
+gen_sdf_name <- function(path) {
+  path %>%
+    path_file() %>%
+    path_ext_remove() %>%
+    gsub("[[:punct:]]", "", .) %>%
+    random_string()
 }

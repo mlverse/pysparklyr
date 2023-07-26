@@ -2,30 +2,35 @@
 #' @param python_version The version of python to install if not available
 #' @param virtualenv_name The name of the Virtual Environment to use to
 #' install the python libraries. Defaults to "r-sparklyr".
+#' @param force Flag that tells `reticulate` to re-create the Python Virtual
+#' Environment even if one with the same name already exists
+#' @param ignored_installed Flag that tells `reticulate` to ignore the Python
+#' library installation if the given library is already installed
 #' @export
 install_pyspark <- function(python_version = NULL,
-                            virtualenv_name = "r-sparklyr") {
-  if (!py_available()) {
-    if (is.null(python_version)) {
-      python_path <- install_python()
-    } else {
-      python_path <- install_python(version = python_version)
-    }
-    use_python(python = python_path)
-  }
+                            virtualenv_name = "r-sparklyr",
+                            force = FALSE,
+                            ignored_installed = TRUE
+                            ) {
 
-  if (!(virtualenv_name %in% virtualenv_list())) {
-    virtualenv_create(virtualenv_name, packages = NULL)
-  }
+  pkgs <- c(
+    "pyspark", "pandas", "PyArrow", "grpcio", "google-api-python-client",
+    "grpcio_status", "databricks-connect", "delta-spark"
+  )
 
-  use_virtualenv(virtualenv_name)
+  opts <- "--index-url https://packagemanager.posit.co/pypi/2023-06-01/simple"
+
+  virtualenv_create(
+    virtualenv_name,
+    version = ">=3.9",
+    pip_options = opts,
+    force = force
+  )
 
   py_install(
+    packages = pkgs,
     envname = virtualenv_name,
-    packages = c(
-      "pyspark", "pandas", "PyArrow", "grpcio", "google-api-python-client",
-      "grpcio_status", "databricks-connect", "delta-spark"
-    ),
-    pip_options = "--index-url https://packagemanager.posit.co/pypi/2023-06-01/simple"
-  )
+    ignore_installed = ignored_installed,
+    pip_options = opts
+    )
 }

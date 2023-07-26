@@ -25,8 +25,8 @@ install_pyspark <- function(python_version = NULL,
   if(is.null(virtualenv_starter(version))) {
     cli_abort(
       paste(
-        "Python version 3.9 or higher is required by some of the needed",
-        "libraries. Use: {.run reticulate::install_python(version = '3.9:latest')}",
+        "Python version 3.9 or higher is required by some libraries.",
+        "Use: {.run reticulate::install_python(version = '3.9:latest')}",
         "to install."
         )
       )

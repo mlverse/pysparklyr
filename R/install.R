@@ -13,6 +13,8 @@ install_pyspark <- function(python_version = NULL,
                             ignored_installed = TRUE
                             ) {
 
+  version <- ">=3.9"
+
   pkgs <- c(
     "pyspark", "pandas", "PyArrow", "grpcio", "google-api-python-client",
     "grpcio_status", "databricks-connect", "delta-spark"
@@ -20,9 +22,19 @@ install_pyspark <- function(python_version = NULL,
 
   opts <- "--index-url https://packagemanager.posit.co/pypi/2023-06-01/simple"
 
+  if(is.null(virtualenv_starter(version))) {
+    cli_abort(
+      paste(
+        "Python version 3.9 or higher is required by some of the needed",
+        "libraries. Use: {.run reticulate::install_python(version = '3.9:latest')}",
+        "to install."
+        )
+      )
+  }
+
   virtualenv_create(
     virtualenv_name,
-    version = ">=3.9",
+    version = version,
     pip_options = opts,
     force = force
   )

@@ -223,9 +223,9 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
 }
 
 gen_sdf_name <- function(path) {
-  path %>%
+  x <- path %>%
     path_file() %>%
-    path_ext_remove() %>%
-    gsub("[[:punct:]]", "", .) %>%
-    random_string()
+    path_ext_remove()
+
+  random_string(gsub("[[:punct:]]", "", x))
 }

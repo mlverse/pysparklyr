@@ -27,6 +27,19 @@
 #' @import fs
 NULL
 
+.onLoad <- function(...) {
+
+  use_virtualenv(
+    virtualenv = "r-sparklyr",
+    required = FALSE
+    )
+
+  use_condaenv(
+    condaenv = "r-sparklyr",
+    required = FALSE
+    )
+}
+
 pysparklyr_env <- new.env()
 pysparklyr_env$temp_prefix <- "sparklyr_tmp_"
 temp_prefix <- function() pysparklyr_env$temp_prefix

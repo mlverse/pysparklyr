@@ -6,11 +6,16 @@
 #' Environment even if one with the same name already exists
 #' @param ignored_installed Flag that tells `reticulate` to ignore the Python
 #' library installation if the given library is already installed
+#' @param method Installation method. By default, "auto" automatically finds
+#'  a method that will work in the local environment. Change the default to
+#'  force a specific installation method. Note that the "virtualenv" method is
+#'   not available on Windows.
 #' @export
-install_pyspark <- function(python_version = NULL,
-                            virtualenv_name = "r-sparklyr",
+install_pyspark <- function(virtualenv_name = "r-sparklyr",
+                            python_version = NULL,
                             force = FALSE,
-                            ignored_installed = TRUE
+                            ignored_installed = TRUE,
+                            method = c("auto", "virtualenv", "conda")
                             ) {
 
   version <- ">=3.9"
@@ -32,17 +37,13 @@ install_pyspark <- function(python_version = NULL,
       )
   }
 
-  virtualenv_create(
-    virtualenv_name,
-    version = version,
-    pip_options = opts,
-    force = force
-  )
-
   py_install(
     packages = pkgs,
     envname = virtualenv_name,
     ignore_installed = ignored_installed,
-    pip_options = opts
+    pip_options = opts,
+    method = method,
+    version = version,
+    force = force
     )
 }

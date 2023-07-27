@@ -202,15 +202,24 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
     }
   }
 
-  x$createTempView(name)
-
   if (memory) {
-    storage_level <- import("pyspark.storagelevel")
-    x$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
+    if(repartition > 1) {
+      storage_level <- import("pyspark.storagelevel")
+      x$createOrReplaceTempView(name)
+      x$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
+      out <- tbl(sc, name)
+    } else {
+      out <- x %>%
+        tbl_pyspark_temp(sc) %>%
+        cache_query(name = name)
+    }
+  } else {
+    x$createOrReplaceTempView(name)
+    out <- tbl(sc, name)
   }
 
   spark_ide_connection_updated(sc, name)
-  tbl(sc, name)
+  out
 }
 
 gen_sdf_name <- function(path) {

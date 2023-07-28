@@ -1,6 +1,24 @@
 #' @export
-sample_n.tbl_pyspark <- function(tbl, size, replace = FALSE,
-                                 weight = NULL, .env = NULL, ...) {
+head.tbl_pyspark <- function(x, n = 6L, ...) {
+  if(!is.null(python_sdf(x))) {
+    sdf <- tbl_pyspark_sdf(x)
+    sdf_limit <- sdf$limit(as.integer(n))
+    x <- python_obj_tbl_set(x, sdf_limit)
+    x[[2]] <- lazy_select_query(x[[2]], limit = n)
+    NextMethod()
+  } else {
+    NextMethod()
+  }
+}
+
+#' @export
+sample_n.tbl_pyspark <- function(
+    tbl,
+    size,
+    replace = FALSE,
+    weight = NULL,
+    .env = NULL, ...
+    ) {
   slice_sample(
     .data = tbl,
     n = size,
@@ -109,6 +127,7 @@ tbl.pyspark_connection <- function(src, from, ...) {
   con <- python_conn(src)
   pyspark_obj <- con$table(sql_from)
   vars <- pyspark_obj$columns
+  src <- python_obj_con_set(src, pyspark_obj)
   out <- tbl_sql(
     subclass = "pyspark",
     src = src,
@@ -139,9 +158,13 @@ same_src.pyspark_connection <- function(x, y) {
 }
 
 tbl_pyspark_sdf <- function(x) {
-  con <- python_conn(x[[1]])
-  qry <- remote_query(x)
-  con$sql(qry)
+  out <- python_sdf(x)
+  if(is.null(out)) {
+    con <- python_conn(x[[1]])
+    qry <- remote_query(x)
+    out <- con$sql(qry)
+  }
+  out
 }
 
 tbl_temp_name <- function() glue("{temp_prefix()}{random_string()}")

@@ -157,8 +157,19 @@ spark_read_parquet.pyspark_connection <- function(
 
 
 pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
-                                 overwrite, args, options = list()) {
+                                 overwrite, args, options = list()
+                                 ) {
   opts <- c(args, options)
+
+  rename_fields <- FALSE
+  schema <- args$schema
+  if(!is.null(schema)) {
+    if(!is.list(schema)) {
+      rename_fields <- TRUE
+    } else {
+      abort("Complex schemas not yet supported")
+    }
+  }
 
   if (inherits(sc, "pyspark_connection")) {
     x <- python_conn(sc)$read %>%
@@ -177,17 +188,44 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
     dbRemoveTable(sc, name)
   }
 
-  if (is.null(name)) {
-    name <- random_string()
+  if (is.null(name) | identical(path, name)) {
+    name <- gen_sdf_name(path)
   }
 
-  x$createTempView(name)
+  if(rename_fields) {
+    cur_names <- x$columns
+    for(i in seq_along(cur_names)) {
+      x <- x$withColumnRenamed(
+        existing = cur_names[[i]],
+        new = schema[[i]]
+      )
+    }
+  }
 
   if (memory) {
-    storage_level <- import("pyspark.storagelevel")
-    x$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
+    if(repartition > 1) {
+      storage_level <- import("pyspark.storagelevel")
+      x$createOrReplaceTempView(name)
+      x$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
+      out <- tbl(sc, name)
+    } else {
+      out <- x %>%
+        tbl_pyspark_temp(sc) %>%
+        cache_query(name = name)
+    }
+  } else {
+    x$createOrReplaceTempView(name)
+    out <- tbl(sc, name)
   }
 
   spark_ide_connection_updated(sc, name)
-  tbl(sc, name)
+  out
+}
+
+gen_sdf_name <- function(path) {
+  x <- path %>%
+    path_file() %>%
+    path_ext_remove()
+
+  random_string(gsub("[[:punct:]]", "", x))
 }

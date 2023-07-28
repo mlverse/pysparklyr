@@ -4,13 +4,30 @@
 \alias{install_pyspark}
 \title{Installs python dependencies}
 \usage{
-install_pyspark(python_version = NULL, virtualenv_name = "r-sparklyr")
+install_pyspark(
+  virtualenv_name = "r-sparklyr",
+  python_version = NULL,
+  force = FALSE,
+  ignored_installed = TRUE,
+  method = c("auto", "virtualenv", "conda")
+)
 }
 \arguments{
-\item{python_version}{The version of python to install if not available}
-
 \item{virtualenv_name}{The name of the Virtual Environment to use to
 install the python libraries. Defaults to "r-sparklyr".}
+
+\item{python_version}{The version of python to install if not available}
+
+\item{force}{Flag that tells \code{reticulate} to re-create the Python Virtual
+Environment even if one with the same name already exists}
+
+\item{ignored_installed}{Flag that tells \code{reticulate} to ignore the Python
+library installation if the given library is already installed}
+
+\item{method}{Installation method. By default, "auto" automatically finds
+a method that will work in the local environment. Change the default to
+force a specific installation method. Note that the "virtualenv" method is
+not available on Windows.}
 }
 \description{
 Installs python dependencies

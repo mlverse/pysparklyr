@@ -19,15 +19,17 @@ Imports:
     dbplyr,
     glue,
     purrr,
-    reticulate,
+    reticulate (>= 1.30.9000),
     methods,
     rlang,
     sparklyr (>= 1.8.2.9000),
     tidyselect,
     fs,
     magrittr,
-    tidyr
+    tidyr,
+    vctrs
 URL: https://github.com/mlverse/pysparklyr
 BugReports: https://github.com/mlverse/pysparklyr/issues
 Remotes:  
-    sparklyr/sparklyr
+    sparklyr/sparklyr,
+    rstudio/reticulate

@@ -13,12 +13,16 @@ spark_integ_test_skip.pyspark_connection <- function(sc, test_name) {
   out %>%
     supports("dplyr") %>%
     supports("dplyr-do", TRUE) %>%
-    supports("dplyr_hof", TRUE) %>%
+    supports("dplyr-hof", TRUE) %>%
     supports("dplyr-cumprod", TRUE) %>%
     supports("DBI") %>%
     supports("format-csv") %>%
     supports("format-parquet") %>%
     supports("format-orc") %>%
     supports("format-json") %>%
-    supports("format-text")
+    supports("format-text") %>%
+    supports("pivot-longer") %>%
+    supports("pivot-longer-names-repair", TRUE) %>%
+    supports("pivot-longer-values-transform", TRUE) %>%
+    supports("ml-", TRUE)
 }

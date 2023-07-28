@@ -24,5 +24,6 @@ spark_integ_test_skip.pyspark_connection <- function(sc, test_name) {
     supports("pivot-longer") %>%
     supports("pivot-longer-names-repair", TRUE) %>%
     supports("pivot-longer-values-transform", TRUE) %>%
-    supports("ml-", TRUE)
+    supports("ml-", TRUE) %>%
+    supports("sdf-distinct")
 }

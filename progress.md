@@ -92,11 +92,10 @@
 
 ### SDF
 
--   [ ] First successful run of an `sdf_` functions
--   [ ] Run all `sdf_` functions, and have all/most pass tests
-    -   [ ] Determine what to do with functions that will not run
--  Individual functions:
+-  Individual functions - If not listed here, assume it is not supported:
     - [ ] `sdf_broadcast()` **Blocked** Needs SparkContext to work
+    - [x] `sdf_dim()`
+    - [x] `sdf_distinct()`
 
 ### Data
 

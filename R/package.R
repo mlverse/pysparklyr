@@ -19,6 +19,7 @@
 #' @importFrom utils head type.convert
 #' @importFrom tidyr pivot_longer
 #' @importFrom vctrs vec_as_names
+#' @importFrom processx process
 #' @import reticulate
 #' @import dbplyr
 #' @import glue

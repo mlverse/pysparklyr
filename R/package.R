@@ -8,6 +8,7 @@
 #' @importFrom sparklyr spark_read_json spark_read_orc
 #' @importFrom sparklyr spark_write_csv spark_write_parquet spark_write_text
 #' @importFrom sparklyr spark_write_orc spark_write_json
+#' @importFrom sparklyr spark_install_find
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by
@@ -19,6 +20,7 @@
 #' @importFrom utils head type.convert
 #' @importFrom tidyr pivot_longer
 #' @importFrom vctrs vec_as_names
+#' @importFrom processx process
 #' @import reticulate
 #' @import dbplyr
 #' @import glue

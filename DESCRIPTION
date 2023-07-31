@@ -27,9 +27,10 @@ Imports:
     fs,
     magrittr,
     tidyr,
-    vctrs
+    vctrs,
+    processx
 URL: https://github.com/mlverse/pysparklyr
 BugReports: https://github.com/mlverse/pysparklyr/issues
-Remotes:  
+Remotes: 
     sparklyr/sparklyr,
     rstudio/reticulate

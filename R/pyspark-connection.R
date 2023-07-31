@@ -63,12 +63,21 @@ invoke.python.builtin.object <- function(jobj, method, ...) {
 
 invoke_conn <- function(jobj, context, method, ...) {
   x <- py_get_attr(context, method)
+  out <- NULL
   if (inherits(x, "python.builtin.method")) {
     run_x <- py_call(x, ...)
-    out <- as_spark_pyobj(run_x, jobj)
-  } else {
-    out <- py_to_r(x)
+
+    if(inherits(run_x, "numpy.number")) {
+      out <- py_to_r(run_x)
+    }
+
+    if(is.null(out)) {
+      out <- as_spark_pyobj(run_x, jobj)
+    }
   }
+
+  if (is.null(out)) out <- py_to_r(x)
+
   out
 }
 

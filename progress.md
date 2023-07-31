@@ -8,7 +8,7 @@
 
 -   [x] Initial connection routines
 -   [x] Spark Connect connectivity
--   [ ] Initiate Spark Connect when creating new connection, similar to "local" (Maybe)
+-   [x] Initiate Spark Connect when creating new connection, similar to "local" 
 -   [ ] Fail when user changes from one connection to another in the same R/Python session
 
 ### RStudio Integration

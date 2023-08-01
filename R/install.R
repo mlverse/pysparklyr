@@ -1,49 +1,68 @@
 #' Installs python dependencies
-#' @param python_version The version of python to install if not available
-#' @param virtualenv_name The name of the Virtual Environment to use to
-#' install the python libraries. Defaults to "r-sparklyr".
-#' @param force Flag that tells `reticulate` to re-create the Python Virtual
-#' Environment even if one with the same name already exists
-#' @param ignored_installed Flag that tells `reticulate` to ignore the Python
-#' library installation if the given library is already installed
-#' @param method Installation method. By default, "auto" automatically finds
-#'  a method that will work in the local environment. Change the default to
-#'  force a specific installation method. Note that the "virtualenv" method is
-#'   not available on Windows.
+#' @param envname The name of the Python Environment to use to install the
+#'   Python libraries. Defaults to "r-sparklyr".
+#' @param python_version The version of Python to use to create the Python
+#'   environment.
+#' @param new_env If `TRUE`, any existing Python virtual environment and/or
+#'   Conda environment specified by `envname` is deleted first.
+#' @param method The installation method to use. If creating a new environment,
+#'   `"auto"` (the default) is equivalent to `"virtualenv"`. Otherwise `"auto"`
+#'   infers the installation method based on the type of Python environment
+#'   specified by `envname`.
+#' @param ... Passed on to [`reticulate::py_install()`]
 #' @export
-install_pyspark <- function(virtualenv_name = "r-sparklyr",
-                            python_version = NULL,
-                            force = FALSE,
-                            ignored_installed = TRUE,
-                            method = c("auto", "virtualenv", "conda")
-                            ) {
+install_pyspark <- function(envname = "r-sparklyr",
+                            ...,
+                            python_version = ">=3.9",
+                            new_env = identical(envname, "r-sparklyr"),
+                            method = c("auto", "virtualenv", "conda")) {
 
-  version <- ">=3.9"
-
-  pkgs <- c(
-    "pyspark", "pandas", "PyArrow", "grpcio", "google-api-python-client",
-    "grpcio_status", "databricks-connect", "delta-spark"
+  packages <- c(
+    "pyspark",
+    "pandas",
+    "PyArrow",
+    "grpcio",
+    "google-api-python-client",
+    "grpcio_status",
+    "databricks-connect",
+    "delta-spark"
   )
 
-  opts <- "--index-url https://packagemanager.posit.co/pypi/2023-06-01/simple"
+  pip_options <- "--index-url https://packagemanager.posit.co/pypi/2023-06-01/simple"
+  # in cause user supplied pip_options in ...
+  pip_options <- c(pip_options, list(...)$pip_options)
 
-  if(is.null(virtualenv_starter(version))) {
-    cli_abort(
-      paste(
+  method <- match.arg(method)
+
+  if(new_env) {
+    if(method %in% c("auto", "virtualenv"))
+      tryCatch(virtualenv_remove(envname, confirm = FALSE), error = identity)
+    if(method %in% c("auto", "conda"))
+      tryCatch(conda_remove(envname, conda = list(...)$conda %||% "auto"),
+                            error = identity)
+  }
+
+  if(new_env && method != "conda" &&
+     is.null(virtualenv_starter(python_version)))
+    cli_abort(paste(
         "Python version 3.9 or higher is required by some libraries.",
         "Use: {.run reticulate::install_python(version = '3.9:latest')}",
         "to install."
-        )
-      )
-  }
+    ))
+
+
+  # conda_install() doesn't accept a version constraint for python_version
+  if(method == "conda" && python_version == ">=3.9")
+    python_version <- "3.9"
 
   py_install(
-    packages = pkgs,
-    envname = virtualenv_name,
-    ignore_installed = ignored_installed,
-    pip_options = opts,
+    packages = packages,
+    envname = envname,
     method = method,
-    version = version,
-    force = force
-    )
+    python_version = python_version,
+    pip = TRUE,
+    pip_options = pip_options,
+    ...
+  )
+
 }

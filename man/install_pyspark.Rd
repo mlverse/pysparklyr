@@ -5,29 +5,29 @@
 \title{Installs python dependencies}
 \usage{
 install_pyspark(
-  virtualenv_name = "r-sparklyr",
-  python_version = NULL,
-  force = FALSE,
-  ignored_installed = TRUE,
+  envname = "r-sparklyr",
+  ...,
+  python_version = ">=3.9",
+  new_env = identical(envname, "r-sparklyr"),
   method = c("auto", "virtualenv", "conda")
 )
 }
 \arguments{
-\item{virtualenv_name}{The name of the Virtual Environment to use to
-install the python libraries. Defaults to "r-sparklyr".}
+\item{envname}{The name of the Python Environment to use to install the
+Python libraries. Defaults to "r-sparklyr".}
 
-\item{python_version}{The version of python to install if not available}
+\item{...}{Passed on to \code{\link[reticulate:py_install]{reticulate::py_install()}}}
 
-\item{force}{Flag that tells \code{reticulate} to re-create the Python Virtual
-Environment even if one with the same name already exists}
+\item{python_version}{The version of Python to use to create the Python
+environment.}
 
-\item{ignored_installed}{Flag that tells \code{reticulate} to ignore the Python
-library installation if the given library is already installed}
+\item{new_env}{If \code{TRUE}, any existing Python virtual environment and/or
+Conda environment specified by \code{envname} is deleted first.}
 
-\item{method}{Installation method. By default, "auto" automatically finds
-a method that will work in the local environment. Change the default to
-force a specific installation method. Note that the "virtualenv" method is
-not available on Windows.}
+\item{method}{The installation method to use. If creating a new environment,
+\code{"auto"} (the default) is equivalent to \code{"virtualenv"}. Otherwise \code{"auto"}
+infers the installation method based on the type of Python environment
+specified by \code{envname}.}
 }
 \description{
 Installs python dependencies

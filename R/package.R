@@ -13,7 +13,7 @@
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by
 #' @importFrom purrr map_lgl map_chr map pmap_chr
-#' @importFrom rlang enquo `!!` `!!!` quo_is_null sym arg_match warn abort
+#' @importFrom rlang enquo `!!` `!!!` quo_is_null sym arg_match warn abort `%||%`
 #' @importFrom rlang is_string is_character as_utf8_character parse_exprs
 #' @importFrom methods new is setOldClass
 #' @importFrom tidyselect matches
@@ -31,15 +31,9 @@ NULL
 
 .onLoad <- function(...) {
 
-  use_virtualenv(
-    virtualenv = "r-sparklyr",
-    required = FALSE
-    )
+  use_virtualenv("r-sparklyr", required = FALSE)
+  use_condaenv("r-sparklyr", required = FALSE)
 
-  use_condaenv(
-    condaenv = "r-sparklyr",
-    required = FALSE
-    )
 }
 
 pysparklyr_env <- new.env()

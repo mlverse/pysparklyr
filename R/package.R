@@ -34,6 +34,7 @@ NULL
   # RStudio inside the Databricks cluster environment
   db_path <- "/databricks/python/bin/python"
   if(file_exists(db_path)) {
+    cli_text(glue("Using Python: {db_path}"))
     use_python(db_path)
   }
   use_virtualenv("r-sparklyr", required = FALSE)

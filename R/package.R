@@ -30,7 +30,12 @@
 NULL
 
 .onLoad <- function(...) {
-
+  # Points to specific Python installation if using
+  # RStudio inside the Databricks cluster environment
+  db_path <- "/databricks/python/bin/python"
+  if(file_exists(db_path)) {
+    use_python(db_path)
+  }
   use_virtualenv("r-sparklyr", required = FALSE)
   use_condaenv("r-sparklyr", required = FALSE)
 

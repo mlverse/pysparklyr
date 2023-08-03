@@ -81,7 +81,8 @@ py_spark_connect <- function(master,
       token = token,
       cluster_id = cluster_id
     )
-    python <- remote$getOrCreate()
+    agent <- remote$userAgent("sparklyr")
+    python <- agent$getOrCreate()
     con_class <- "connect_databricks"
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
   }

@@ -50,6 +50,11 @@ install_pyspark <- function(envname = "r-sparklyr",
         "to install."
     ))
 
+  if(dir.exists("/databricks/")) {
+    # https://github.com/mlverse/pysparklyr/issues/11
+    op <- options("reticulate.virtualenv.module" = "virtualenv")
+    on.exit(options(op))
+  }
 
   # conda_install() doesn't accept a version constraint for python_version
   if(method == "conda" && python_version == ">=3.9")

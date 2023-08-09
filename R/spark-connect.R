@@ -81,7 +81,24 @@ py_spark_connect <- function(master,
       token = token,
       cluster_id = cluster_id
     )
-    python <- remote$getOrCreate()
+
+    check_rstudio <- try(RStudio.Version(), silent = TRUE)
+
+    if(inherits(check_rstudio, "try-error")) {
+      rstudio_chr <- NULL
+    } else {
+      rstudio_chr <- glue("rstudio/{check_rstudio$long_version}")
+    }
+
+    user_agent <- glue(
+      paste(
+        "sparklyr/{packageVersion('sparklyr')}",
+        rstudio_chr
+        )
+      )
+
+    agent <- remote$userAgent(user_agent)
+    python <- agent$getOrCreate()
     con_class <- "connect_databricks"
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
   }

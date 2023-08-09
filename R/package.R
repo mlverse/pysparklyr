@@ -30,10 +30,8 @@
 NULL
 
 .onLoad <- function(...) {
-
   use_virtualenv("r-sparklyr", required = FALSE)
   use_condaenv("r-sparklyr", required = FALSE)
-
 }
 
 pysparklyr_env <- new.env()

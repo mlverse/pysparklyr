@@ -20,10 +20,12 @@ spark_connect_service_start <- function(version = "3.4",
     stderr = "|",
     stdin = "|"
     )
-   cli_text("-- Starting Spark Connect locally ...")
-   output <- prs$read_all_output()
-   cli_text(output)
-   invisible()
+  cli_div(theme = cli_colors())
+  cli_text("{.header Starting {.spark Spark Connect} locally ...}")
+  output <- prs$read_all_output()
+  cli_bullets(c(" " = "{.info {output}}"))
+  cli_end()
+  invisible()
 }
 
 #' @rdname spark_connect_service_start
@@ -33,12 +35,14 @@ spark_connect_service_stop <- function(version = "3.4",
                                        ) {
   get_version <- spark_install_find(version = version)
   cmd <- path(get_version$sparkVersionDir, "sbin", "stop-connect-server.sh")
-  cli_text("-- Stopping Spark Connect")
+  cli_div(theme = cli_colors())
+  cli_text("{.header Stopping} {.spark Spark Connect}")
   prs <- process$new(
     command = cmd,
     stdout = "|",
     stderr = "|",
     stdin = "|"
   )
-
+  cli_bullets(c(" " = "{.info - Shutdown command sent}"))
+  cli_end()
 }

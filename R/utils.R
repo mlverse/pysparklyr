@@ -18,7 +18,8 @@ cli_colors <- function(envir = parent.frame()) {
   list(
     span.header= list(color = "black"),
     span.class = list(color = "darkgray"),
-    span.info = list(color = "magenta")
+    span.info = list(color = "magenta"),
+    span.spark = list(color = "darkgreen")
   )
 }
 

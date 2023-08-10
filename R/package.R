@@ -34,6 +34,8 @@ NULL
   use_condaenv("r-sparklyr", required = FALSE)
 }
 
+globalVariables("RStudio.Version")
+
 pysparklyr_env <- new.env()
 pysparklyr_env$temp_prefix <- "sparklyr_tmp_"
 temp_prefix <- function() pysparklyr_env$temp_prefix

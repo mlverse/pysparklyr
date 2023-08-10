@@ -13,3 +13,12 @@ check_arg_supported <- function(x, msg = NULL) {
   }
   invisible()
 }
+
+cli_colors <- function(envir = parent.frame()) {
+  list(
+    span.header= list(color = "black"),
+    span.class = list(color = "darkgray"),
+    span.info = list(color = "magenta")
+  )
+}
+

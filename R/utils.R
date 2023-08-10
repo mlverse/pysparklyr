@@ -16,10 +16,10 @@ check_arg_supported <- function(x, msg = NULL) {
 
 cli_colors <- function(envir = parent.frame()) {
   list(
-    span.header= list(color = "black"),
+    span.header= list(color = "silver"),
     span.class = list(color = "darkgray"),
-    span.info = list(color = "magenta"),
-    span.spark = list(color = "darkgreen")
+    span.info = list(),
+    span.spark = list(color = "darkgray")
   )
 }
 

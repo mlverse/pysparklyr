@@ -55,8 +55,10 @@ import_check <- function(x, virtualenv_name) {
   } else {
     if (is.null(pysparklyr_env$vars$python_init)) {
       if (env_loaded) {
-        msg <- "Using the '{virtualenv_name}' virtual environment ({py_exe()})"
+        msg <- "Using the {.emph '{virtualenv_name}'} virtual environment {.class ({py_exe()})}"
+        cli_div(theme = cli_colors())
         cli_alert_success(msg)
+        cli_end()
       } else {
         msg <- paste(
           "Not using the '{virtualenv_name}' virtual environment",

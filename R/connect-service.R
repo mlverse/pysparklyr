@@ -21,7 +21,7 @@ spark_connect_service_start <- function(version = "3.4",
     stdin = "|"
     )
   cli_div(theme = cli_colors())
-  cli_text("{.header Starting {.spark Spark Connect} locally ...}")
+  cli_text("{.header Starting {.emph Spark Connect} locally ...}")
   output <- prs$read_all_output()
   cli_bullets(c(" " = "{.info {output}}"))
   cli_end()
@@ -36,7 +36,7 @@ spark_connect_service_stop <- function(version = "3.4",
   get_version <- spark_install_find(version = version)
   cmd <- path(get_version$sparkVersionDir, "sbin", "stop-connect-server.sh")
   cli_div(theme = cli_colors())
-  cli_text("{.header Stopping} {.spark Spark Connect}")
+  cli_text("{.header Stopping {.emph Spark Connect}}")
   prs <- process$new(
     command = cmd,
     stdout = "|",

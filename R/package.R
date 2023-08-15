@@ -30,8 +30,9 @@
 NULL
 
 .onLoad <- function(...) {
-  use_virtualenv("r-sparklyr", required = FALSE)
-  use_condaenv("r-sparklyr", required = FALSE)
+  env_name <- "r-sparklyr"
+  use_virtualenv(env_name, required = FALSE)
+  use_condaenv(env_name, required = FALSE)
 }
 
 globalVariables("RStudio.Version")

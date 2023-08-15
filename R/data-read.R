@@ -157,14 +157,13 @@ spark_read_parquet.pyspark_connection <- function(
 
 
 pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
-                                 overwrite, args, options = list()
-                                 ) {
+                                 overwrite, args, options = list()) {
   opts <- c(args, options)
 
   rename_fields <- FALSE
   schema <- args$schema
-  if(!is.null(schema)) {
-    if(!is.list(schema)) {
+  if (!is.null(schema)) {
+    if (!is.list(schema)) {
       rename_fields <- TRUE
     } else {
       abort("Complex schemas not yet supported")
@@ -192,9 +191,9 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
     name <- gen_sdf_name(path)
   }
 
-  if(rename_fields) {
+  if (rename_fields) {
     cur_names <- x$columns
-    for(i in seq_along(cur_names)) {
+    for (i in seq_along(cur_names)) {
       x <- x$withColumnRenamed(
         existing = cur_names[[i]],
         new = schema[[i]]
@@ -203,7 +202,7 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
   }
 
   if (memory) {
-    if(repartition > 1) {
+    if (repartition > 1) {
       storage_level <- import("pyspark.storagelevel")
       x$createOrReplaceTempView(name)
       x$persist(storage_level$StorageLevel$MEMORY_AND_DISK)

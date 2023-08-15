@@ -5,16 +5,16 @@
 \title{Installs python dependencies}
 \usage{
 install_pyspark(
-  envname = "r-sparklyr",
+  envname = "recent",
   ...,
   python_version = ">=3.9",
-  new_env = identical(envname, "r-sparklyr"),
+  new_env = identical(envname, "recent"),
   method = c("auto", "virtualenv", "conda")
 )
 }
 \arguments{
 \item{envname}{The name of the Python Environment to use to install the
-Python libraries. Defaults to "r-sparklyr".}
+Python libraries. Defaults to "recent".}
 
 \item{...}{Passed on to \code{\link[reticulate:py_install]{reticulate::py_install()}}}
 

@@ -1,6 +1,6 @@
 #' @export
 head.tbl_pyspark <- function(x, n = 6L, ...) {
-  if(!is.null(python_sdf(x))) {
+  if (!is.null(python_sdf(x))) {
     sdf <- tbl_pyspark_sdf(x)
     sdf_limit <- sdf$limit(as.integer(n))
     x <- python_obj_tbl_set(x, sdf_limit)
@@ -17,8 +17,7 @@ sample_n.tbl_pyspark <- function(
     size,
     replace = FALSE,
     weight = NULL,
-    .env = NULL, ...
-    ) {
+    .env = NULL, ...) {
   slice_sample(
     .data = tbl,
     n = size,
@@ -159,7 +158,7 @@ same_src.pyspark_connection <- function(x, y) {
 
 tbl_pyspark_sdf <- function(x) {
   out <- python_sdf(x)
-  if(is.null(out)) {
+  if (is.null(out)) {
     con <- python_conn(x[[1]])
     qry <- remote_query(x)
     out <- con$sql(qry)

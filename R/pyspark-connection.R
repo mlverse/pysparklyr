@@ -67,11 +67,11 @@ invoke_conn <- function(jobj, context, method, ...) {
   if (inherits(x, "python.builtin.method")) {
     run_x <- py_call(x, ...)
 
-    if(inherits(run_x, "numpy.number")) {
+    if (inherits(run_x, "numpy.number")) {
       out <- py_to_r(run_x)
     }
 
-    if(is.null(out)) {
+    if (is.null(out)) {
       out <- as_spark_pyobj(run_x, jobj)
     }
   }

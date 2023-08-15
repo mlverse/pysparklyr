@@ -5,8 +5,7 @@
 #' @export
 spark_connect_service_start <- function(version = "3.4",
                                         scala_version = "2.12",
-                                        ...
-                                        ) {
+                                        ...) {
   get_version <- spark_install_find(version = version)
   cmd <- path(get_version$sparkVersionDir, "sbin", "start-connect-server.sh")
   args <- c(
@@ -19,7 +18,7 @@ spark_connect_service_start <- function(version = "3.4",
     stdout = "|",
     stderr = "|",
     stdin = "|"
-    )
+  )
   cli_div(theme = cli_colors())
   cli_text("{.header Starting {.emph Spark Connect} locally ...}")
   output <- prs$read_all_output()
@@ -31,8 +30,7 @@ spark_connect_service_start <- function(version = "3.4",
 #' @rdname spark_connect_service_start
 #' @export
 spark_connect_service_stop <- function(version = "3.4",
-                                       ...
-                                       ) {
+                                       ...) {
   get_version <- spark_install_find(version = version)
   cmd <- path(get_version$sparkVersionDir, "sbin", "stop-connect-server.sh")
   cli_div(theme = cli_colors())

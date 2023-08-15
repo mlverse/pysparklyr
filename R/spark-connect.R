@@ -45,7 +45,7 @@ py_spark_connect <- function(master,
                              token = Sys.getenv("DATABRICKS_TOKEN"),
                              cluster_id = NULL,
                              method = "",
-                             virtualenv_name = "r-sparklyr",
+                             virtualenv_name = "recent",
                              spark_version = NULL,
                              databricks_connect_version = NULL,
                              config = list()) {

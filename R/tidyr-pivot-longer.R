@@ -15,7 +15,6 @@ pivot_longer.tbl_pyspark <- function(
     values_drop_na = FALSE,
     values_ptypes = NULL,
     values_transform = NULL) {
-
   check_arg_supported(names_ptypes)
   check_arg_supported(names_transform)
   check_arg_supported(names_repair)
@@ -63,7 +62,7 @@ pivot_longer.tbl_pyspark <- function(
   if (!is.null(names_sep)) {
     output_names <- .str_separate(col_names, names_to, sep = names_sep)
   } else {
-    if(!is.null(names_pattern)) {
+    if (!is.null(names_pattern)) {
       output_names <- .str_extract(col_names, names_to, regex = names_pattern)
     }
   }
@@ -73,7 +72,6 @@ pivot_longer.tbl_pyspark <- function(
   u_val <- unique(val_vals)
 
   if (length(u_val) > 1) {
-
     if (length(names_to) > 2) {
       abort("Only two level is supported")
     }
@@ -86,7 +84,7 @@ pivot_longer.tbl_pyspark <- function(
       nm_no <- 1
     }
 
-    if(length(names_to) > 1) {
+    if (length(names_to) > 1) {
       set_names_to <- names_to[[nm_no]]
     } else {
       set_names_to <- "temp222"
@@ -164,8 +162,8 @@ pivot_longer.tbl_pyspark <- function(
   # Creating temp view with the pivoting results
   out <- tbl_pyspark_temp(out, sc)
   gr_out <- group_vars(data)
-  if(length(gr_out) > 0) {
-    out <- group_by(out, !!! rlang::syms(gr_out))
+  if (length(gr_out) > 0) {
+    out <- group_by(out, !!!rlang::syms(gr_out))
   }
 
   out
@@ -177,8 +175,7 @@ un_pivot <- function(x, ids,
                      values_to,
                      remove_first,
                      values_drop_na,
-                     repair
-                     ) {
+                     repair) {
   out <- x$unpivot(
     ids = as.list(ids),
     values = as.list(values),
@@ -196,7 +193,7 @@ un_pivot <- function(x, ids,
 
   col_names <- out$columns
 
-  if(length(unique(col_names)) != length(col_names)) {
+  if (length(unique(col_names)) != length(col_names)) {
     new_names <- vec_as_names(col_names, repair = repair)
   }
 

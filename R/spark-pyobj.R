@@ -1,6 +1,17 @@
 #' @export
 print.spark_pyobj <- function(x, ...) {
-  print(x$pyspark_obj)
+  pyspark_obj <- x$pyspark_obj
+  pyspark_class <- class(pyspark_obj)[[1]]
+  pyspark_print <- py_str(pyspark_obj)
+  cli_div(theme = cli_colors())
+  cli_text("{.header - {.emph PySpark object}}")
+  cli_bullets(
+    c(
+      " " = "{.class {pyspark_class}}",
+      " " = "{.info {pyspark_print}}"
+    )
+  )
+  cli_end()
 }
 
 #' @export

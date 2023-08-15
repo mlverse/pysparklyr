@@ -33,13 +33,13 @@ import_check <- function(x, virtualenv_name) {
       if (env_loaded) {
         # found & loaded
         cli_abort(paste(
-          "Pyhon library '{x}' is not available in the '{virtualenv_name}'",
+          "Python library '{x}' is not available in the '{virtualenv_name}'",
           "virtual environment. Install all of the needed python libraries",
           "using:", inst
         ))
       } else {
         cli_abort(paste(
-          "Pyhon library '{x}' is not available. The '{virtualenv_name}'",
+          "Python library '{x}' is not available. The '{virtualenv_name}'",
           "virtual environment is installed, but it is not loaded.",
           "Restart your R session, and avoid initializing Python",
           "before using `pysparklyr`"
@@ -47,7 +47,7 @@ import_check <- function(x, virtualenv_name) {
       }
     } else {
       cli_abort(paste(
-        "Pyhon library '{x}' not available. The '{virtualenv_name}'",
+        "Python library '{x}' not available. The '{virtualenv_name}'",
         "virtual environment is not installed. Restart your R session,",
         "and run:", inst
       ))
@@ -55,8 +55,13 @@ import_check <- function(x, virtualenv_name) {
   } else {
     if (is.null(pysparklyr_env$vars$python_init)) {
       if (env_loaded) {
-        msg <- "Using the '{virtualenv_name}' virtual environment ({py_exe()})"
+        msg <- paste(
+          "Using the {.emph '{virtualenv_name}'} virtual",
+          "environment {.class ({py_exe()})}"
+        )
+        cli_div(theme = cli_colors())
         cli_alert_success(msg)
+        cli_end()
       } else {
         msg <- paste(
           "Not using the '{virtualenv_name}' virtual environment",

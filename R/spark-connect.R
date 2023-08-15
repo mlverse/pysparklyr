@@ -2,7 +2,7 @@
 spark_connect_method.spark_method_spark_connect <- function(
     x,
     method,
-    master,
+    master = NULL,
     spark_home,
     config,
     app_name,
@@ -45,7 +45,7 @@ py_spark_connect <- function(master,
                              token = Sys.getenv("DATABRICKS_TOKEN"),
                              cluster_id = NULL,
                              method = "",
-                             virtualenv_name = "r-sparklyr",
+                             virtualenv_name = "recent",
                              spark_version = NULL,
                              databricks_connect_version = NULL,
                              config = list()) {
@@ -57,21 +57,18 @@ py_spark_connect <- function(master,
     db = databricks_connect_version
   )
 
+  conn <- NULL
+
   if (method == "spark_connect") {
     pyspark <- import_check("pyspark", virtualenv_name)
     delta <- import_check("delta.pip_utils", virtualenv_name)
     pyspark_sql <- pyspark$sql
-    remote <- pyspark_sql$SparkSession$builder$remote(master)
-    delta_remote <- delta$configure_spark_with_delta_pip(remote)
-    python <- delta_remote$getOrCreate()
+    conn <- pyspark_sql$SparkSession$builder$remote(master)
     con_class <- "connect_spark"
     master_label <- glue("Spark Connect - {master}")
   }
 
   if (method == "databricks_connect") {
-    if (is.null(master)) {
-      master <- Sys.getenv("DATABRICKS_HOST")
-    }
     if (is.null(cluster_id)) {
       cluster_id <- Sys.getenv("DATABRICKS_CLUSTER_ID")
     }
@@ -84,7 +81,7 @@ py_spark_connect <- function(master,
 
     check_rstudio <- try(RStudio.Version(), silent = TRUE)
 
-    if(inherits(check_rstudio, "try-error")) {
+    if (inherits(check_rstudio, "try-error")) {
       rstudio_chr <- NULL
     } else {
       rstudio_chr <- glue("rstudio/{check_rstudio$long_version}")
@@ -94,13 +91,50 @@ py_spark_connect <- function(master,
       paste(
         "sparklyr/{packageVersion('sparklyr')}",
         rstudio_chr
-        )
       )
-
-    agent <- remote$userAgent(user_agent)
-    python <- agent$getOrCreate()
+    )
+    conn <- remote$userAgent(user_agent)
     con_class <- "connect_databricks"
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
+  }
+
+  python <- conn$getOrCreate()
+
+  get_version <- try(python$version, silent = TRUE)
+
+  if (inherits(get_version, "try-error")) {
+    error_split <- get_version %>%
+      as.character() %>%
+      strsplit("\n\t") %>%
+      unlist()
+
+    error_start <- substr(error_split, 1, 9)
+
+    status_error <- NULL
+    if (any(error_start == "status = ")) {
+      status_error <- error_split[error_start == "status = "]
+    }
+
+    status_details <- NULL
+    if (any(error_start == "details =")) {
+      status_details <- error_split[error_start == "details ="]
+    }
+
+    status_tip <- NULL
+    if (grepl("UNAVAILABLE", status_error)) {
+      status_tip <- "Possible cause = The cluster is not running, or not accessible"
+    }
+    if (grepl("FAILED_PRECONDITION", status_error)) {
+      status_tip <- "Possible cause = The cluster is initializing. Try again later"
+    }
+    rlang::abort(
+      c(
+        "Spark connection error",
+        status_tip,
+        status_error,
+        status_details
+      )
+    )
   }
 
   spark_context <- list(spark_context = python)
@@ -172,7 +206,7 @@ python_sdf <- function(x) {
   class_pyobj <- class(pyobj)
   name <- remote_name(x)
   out <- NULL
-  if(!is.null(name) && any(grepl("dataframe", class_pyobj))) {
+  if (!is.null(name) && any(grepl("dataframe", class_pyobj))) {
     out <- pyobj
   }
   out

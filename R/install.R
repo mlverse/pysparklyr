@@ -1,6 +1,6 @@
 #' Installs python dependencies
 #' @param envname The name of the Python Environment to use to install the
-#'   Python libraries. Defaults to "recent".
+#'   Python libraries. Defaults to "r-sparklyr".
 #' @param python_version The version of Python to use to create the Python
 #'   environment.
 #' @param new_env If `TRUE`, any existing Python virtual environment and/or
@@ -11,10 +11,10 @@
 #'   specified by `envname`.
 #' @param ... Passed on to [`reticulate::py_install()`]
 #' @export
-install_pyspark <- function(envname = "recent",
+install_pyspark <- function(envname = "r-sparklyr",
                             ...,
                             python_version = ">=3.9",
-                            new_env = identical(envname, "recent"),
+                            new_env = identical(envname, "r-sparklyr"),
                             method = c("auto", "virtualenv", "conda")) {
   packages <- c(
     "pyspark",

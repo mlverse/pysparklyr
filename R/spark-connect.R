@@ -206,36 +206,35 @@ build_user_agent <- function() {
   in_rstudio <- FALSE
   in_connect <- FALSE
 
-  check_rstudio <- try(RStudio.Version(), silent = TRUE)
-  if (!inherits(check_rstudio, "try-error")) {
-    in_rstudio <- TRUE
-  }
-
-  if(Sys.getenv("RSTUDIO_PRODUCT") == "CONNECT") {
-    in_connect <- TRUE
-  }
-
-  if(in_connect) {
+  if (Sys.getenv("RSTUDIO_PRODUCT") == "CONNECT") {
     product <- "posit-connect"
   }
 
-  if (in_rstudio && !in_connect) {
-    edition <- check_rstudio$edition
-    if(length(edition) == 0) edition <- ""
-
-    mod <- check_rstudio$mode
-    if(length(mod) == 0) mod <- ""
-
-    if(edition == "Professional") {
-      if(mod == "server") {
-        prod <- "workbench-rstudio"
-      } else {
-        prod <- "rstudio-pro"
-      }
-    } else {
+  if (is.null(product)) {
+    check_rstudio <- try(RStudio.Version(), silent = TRUE)
+    if (!inherits(check_rstudio, "try-error")) {
       prod <- "rstudio"
+
+      edition <- check_rstudio$edition
+      if (length(edition) == 0) edition <- ""
+
+      mod <- check_rstudio$mode
+      if (length(mod) == 0) mod <- ""
+
+      if (edition == "Professional") {
+        if (mod == "server") {
+          prod <- "workbench-rstudio"
+        } else {
+          prod <- "rstudio-pro"
+        }
+      }
+
+      if (Sys.getenv("R_CONFIG_ACTIVE") == "rstudio_cloud") {
+        prod <- "cloud"
+      }
+
+      product <- glue("posit-{prod}/{check_rstudio$long_version}")
     }
-    product <- glue("posit-{prod}/{check_rstudio$long_version}")
   }
 
   glue(

@@ -79,48 +79,7 @@ py_spark_connect <- function(master,
       cluster_id = cluster_id
     )
 
-    product <- NULL
-    in_rstudio <- FALSE
-    in_connect <- FALSE
-
-    check_rstudio <- try(RStudio.Version(), silent = TRUE)
-    if (!inherits(check_rstudio, "try-error")) {
-      in_rstudio <- TRUE
-    }
-
-    if(Sys.getenv("R_CONFIG_ACTIVE") == "rsconnect") {
-      in_connect <- TRUE
-    }
-
-    if(in_connect) {
-      product <- "posit-connect"
-    }
-
-    if (in_rstudio && !in_connect) {
-      edition <- check_rstudio$edition
-      if(length(edition) == 0) edition <- ""
-
-      mod <- check_rstudio$mode
-      if(length(mod) == 0) mod <- ""
-
-      if(edition == "Professional") {
-        if(mod == "server") {
-          prod <- "posit-workbench"
-        } else {
-          prod <- "posit-rstudiopro"
-        }
-      } else {
-        prod <- "posit-rstudio"
-      }
-      product <- glue("{prod}/{check_rstudio$long_version}")
-    }
-
-    user_agent <- glue(
-      paste(
-        "sparklyr/{packageVersion('sparklyr')}",
-        product
-        )
-      )
+    user_agent <- build_user_agent()
 
     conn <- remote$userAgent(user_agent)
     con_class <- "connect_databricks"
@@ -239,4 +198,50 @@ python_sdf <- function(x) {
     out <- pyobj
   }
   out
+}
+
+
+build_user_agent <- function() {
+  product <- NULL
+  in_rstudio <- FALSE
+  in_connect <- FALSE
+
+  check_rstudio <- try(RStudio.Version(), silent = TRUE)
+  if (!inherits(check_rstudio, "try-error")) {
+    in_rstudio <- TRUE
+  }
+
+  if(Sys.getenv("RSTUDIO_PRODUCT") == "CONNECT") {
+    in_connect <- TRUE
+  }
+
+  if(in_connect) {
+    product <- "posit-connect"
+  }
+
+  if (in_rstudio && !in_connect) {
+    edition <- check_rstudio$edition
+    if(length(edition) == 0) edition <- ""
+
+    mod <- check_rstudio$mode
+    if(length(mod) == 0) mod <- ""
+
+    if(edition == "Professional") {
+      if(mod == "server") {
+        prod <- "workbench-rstudio"
+      } else {
+        prod <- "rstudio-pro"
+      }
+    } else {
+      prod <- "rstudio"
+    }
+    product <- glue("posit-{prod}/{check_rstudio$long_version}")
+  }
+
+  glue(
+    paste(
+      "sparklyr/{packageVersion('sparklyr')}",
+      product
+    )
+  )
 }

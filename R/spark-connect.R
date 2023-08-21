@@ -230,7 +230,7 @@ build_user_agent <- function() {
       }
 
       if (Sys.getenv("R_CONFIG_ACTIVE") == "rstudio_cloud") {
-        prod <- "cloud"
+        prod <- "cloud-rstudio"
       }
 
       product <- glue("posit-{prod}/{check_rstudio$long_version}")

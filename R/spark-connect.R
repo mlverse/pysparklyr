@@ -79,20 +79,8 @@ py_spark_connect <- function(master,
       cluster_id = cluster_id
     )
 
-    check_rstudio <- try(RStudio.Version(), silent = TRUE)
+    user_agent <- build_user_agent()
 
-    if (inherits(check_rstudio, "try-error")) {
-      rstudio_chr <- NULL
-    } else {
-      rstudio_chr <- glue("rstudio/{check_rstudio$long_version}")
-    }
-
-    user_agent <- glue(
-      paste(
-        "sparklyr/{packageVersion('sparklyr')}",
-        rstudio_chr
-      )
-    )
     conn <- remote$userAgent(user_agent)
     con_class <- "connect_databricks"
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
@@ -210,4 +198,49 @@ python_sdf <- function(x) {
     out <- pyobj
   }
   out
+}
+
+
+build_user_agent <- function() {
+  product <- NULL
+  in_rstudio <- FALSE
+  in_connect <- FALSE
+
+  if (Sys.getenv("RSTUDIO_PRODUCT") == "CONNECT") {
+    product <- "posit-connect"
+  }
+
+  if (is.null(product)) {
+    check_rstudio <- try(RStudio.Version(), silent = TRUE)
+    if (!inherits(check_rstudio, "try-error")) {
+      prod <- "rstudio"
+
+      edition <- check_rstudio$edition
+      if (length(edition) == 0) edition <- ""
+
+      mod <- check_rstudio$mode
+      if (length(mod) == 0) mod <- ""
+
+      if (edition == "Professional") {
+        if (mod == "server") {
+          prod <- "workbench-rstudio"
+        } else {
+          prod <- "rstudio-pro"
+        }
+      }
+
+      if (Sys.getenv("R_CONFIG_ACTIVE") == "rstudio_cloud") {
+        prod <- "cloud-rstudio"
+      }
+
+      product <- glue("posit-{prod}/{check_rstudio$long_version}")
+    }
+  }
+
+  glue(
+    paste(
+      "sparklyr/{packageVersion('sparklyr')}",
+      product
+    )
+  )
 }

@@ -179,6 +179,33 @@ sdf_register.spark_pyobj <- function(x, name = NULL) {
   )
 }
 
+python_sdf <- function(x) {
+  pyobj <- python_obj_get(x)
+  class_pyobj <- class(pyobj)
+  name <- remote_name(x)
+  out <- NULL
+  if (!is.null(name) && any(grepl("dataframe", class_pyobj))) {
+    out <- pyobj
+  }
+  out
+}
+
+python_obj_get <- function(x) {
+  sc <- spark_connection(x)
+  sc$python_obj
+}
+
+python_obj_con_set <- function(sc, obj) {
+  sc$python_obj <- obj
+  sc
+}
+
+python_obj_tbl_set <- function(tbl, obj) {
+  conn <- spark_connection(tbl)
+  sc <- python_obj_con_set(conn, obj)
+  tbl[[1]] <- sc
+  tbl
+}
 
 tbl_pyspark_temp <- function(x, conn, tmp_name = NULL) {
   sc <- spark_connection(conn)

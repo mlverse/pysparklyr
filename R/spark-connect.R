@@ -172,35 +172,6 @@ python_conn <- function(x) {
   x$state$spark_context
 }
 
-python_obj_get <- function(x) {
-  sc <- spark_connection(x)
-  sc$python_obj
-}
-
-python_obj_con_set <- function(sc, obj) {
-  sc$python_obj <- obj
-  sc
-}
-
-python_obj_tbl_set <- function(tbl, obj) {
-  conn <- spark_connection(tbl)
-  sc <- python_obj_con_set(conn, obj)
-  tbl[[1]] <- sc
-  tbl
-}
-
-python_sdf <- function(x) {
-  pyobj <- python_obj_get(x)
-  class_pyobj <- class(pyobj)
-  name <- remote_name(x)
-  out <- NULL
-  if (!is.null(name) && any(grepl("dataframe", class_pyobj))) {
-    out <- pyobj
-  }
-  out
-}
-
-
 build_user_agent <- function() {
   product <- NULL
   in_rstudio <- FALSE

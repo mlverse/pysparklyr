@@ -45,14 +45,14 @@ py_spark_connect <- function(master,
                              token = Sys.getenv("DATABRICKS_TOKEN"),
                              cluster_id = NULL,
                              method = "",
-                             virtualenv_name = "r-sparklyr",
+                             envname = "r-sparklyr",
                              spark_version = NULL,
                              databricks_connect_version = NULL,
                              config = list()) {
   method <- method[[1]]
 
   virtualenv_name <- env_version(
-    envname = virtualenv_name,
+    envname = envname,
     spark = spark_version,
     db = databricks_connect_version
   )

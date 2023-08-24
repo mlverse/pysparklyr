@@ -27,10 +27,6 @@ install_pyspark <- function(envname = "r-sparklyr",
     "delta-spark"
   )
 
-  pip_options <- "--index-url https://packagemanager.posit.co/pypi/2023-06-15/simple"
-  # in cause user supplied pip_options in ...
-  pip_options <- c(pip_options, list(...)$pip_options)
-
   method <- match.arg(method)
 
   if (new_env) {
@@ -70,7 +66,6 @@ install_pyspark <- function(envname = "r-sparklyr",
     method = method,
     python_version = python_version,
     pip = TRUE,
-    pip_options = pip_options,
     ...
   )
 }

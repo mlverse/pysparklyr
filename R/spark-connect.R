@@ -88,6 +88,10 @@ py_spark_connect <- function(master,
 
   python <- conn$getOrCreate()
 
+  if(con_class == "connect_spark") {
+    python$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
+  }
+
   get_version <- try(python$version, silent = TRUE)
 
   if (inherits(get_version, "try-error")) {

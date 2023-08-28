@@ -45,14 +45,14 @@ py_spark_connect <- function(master,
                              token = Sys.getenv("DATABRICKS_TOKEN"),
                              cluster_id = NULL,
                              method = "",
-                             virtualenv_name = "r-sparklyr",
+                             envname = "r-sparklyr",
                              spark_version = NULL,
                              databricks_connect_version = NULL,
                              config = list()) {
   method <- method[[1]]
 
   virtualenv_name <- env_version(
-    envname = virtualenv_name,
+    envname = envname,
     spark = spark_version,
     db = databricks_connect_version
   )
@@ -87,6 +87,10 @@ py_spark_connect <- function(master,
   }
 
   python <- conn$getOrCreate()
+
+  require_python("pyspark", "3.4.1")
+  require_python("databricks-connect", "13.2.1")
+  python$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
 
   get_version <- try(python$version, silent = TRUE)
 
@@ -171,35 +175,6 @@ env_version <- function(envname, spark = NULL, db = NULL) {
 python_conn <- function(x) {
   x$state$spark_context
 }
-
-python_obj_get <- function(x) {
-  sc <- spark_connection(x)
-  sc$python_obj
-}
-
-python_obj_con_set <- function(sc, obj) {
-  sc$python_obj <- obj
-  sc
-}
-
-python_obj_tbl_set <- function(tbl, obj) {
-  conn <- spark_connection(tbl)
-  sc <- python_obj_con_set(conn, obj)
-  tbl[[1]] <- sc
-  tbl
-}
-
-python_sdf <- function(x) {
-  pyobj <- python_obj_get(x)
-  class_pyobj <- class(pyobj)
-  name <- remote_name(x)
-  out <- NULL
-  if (!is.null(name) && any(grepl("dataframe", class_pyobj))) {
-    out <- pyobj
-  }
-  out
-}
-
 
 build_user_agent <- function() {
   product <- NULL

@@ -27,10 +27,6 @@ install_pyspark <- function(envname = "r-sparklyr",
     "delta-spark"
   )
 
-  pip_options <- "--index-url https://packagemanager.posit.co/pypi/2023-06-15/simple"
-  # in cause user supplied pip_options in ...
-  pip_options <- c(pip_options, list(...)$pip_options)
-
   method <- match.arg(method)
 
   if (new_env) {
@@ -70,7 +66,58 @@ install_pyspark <- function(envname = "r-sparklyr",
     method = method,
     python_version = python_version,
     pip = TRUE,
-    pip_options = pip_options,
     ...
   )
+}
+
+#' Lists installed Python libraries
+#' @param list_all Flag that indicates to display all of the installed packages
+#' or only the top two, namely, `pyspark` and `databricks.connect`
+#' @export
+installed_components <- function(list_all = FALSE) {
+  pkgs <- py_list_packages()
+  db <- pkgs$package == "databricks-connect"
+  ps <- pkgs$package == "pyspark"
+  sel <- db | ps
+  if(!list_all) {
+    new_pkgs <- pkgs[sel, ]
+  } else {
+    new_pkgs <- rbind(pkgs[sel, ], pkgs[!sel, ])
+  }
+  cli_div(theme = cli_colors())
+  cli_h3("R packages")
+  cli_bullets(c("*" = "{.header {.code sparklyr} ({packageVersion('sparklyr')}})"))
+  cli_bullets(c("*" = "{.header {.code pysparklyr} ({packageVersion('pysparklyr')}})"))
+  cli_h3("Python executable")
+  cli_text("{.header {py_exe()}}")
+  cli_h3("Python libraries")
+  for(i in seq_len(nrow(new_pkgs))) {
+    curr_row <- new_pkgs[i, ]
+    cli_bullets(c("*" = "{.header {curr_row$package} ({.header {curr_row$version}})}"))
+  }
+  cli_end()
+  invisible()
+}
+
+require_python <- function(package, version) {
+  pkgs <- py_list_packages()
+  match <- pkgs[pkgs$package == package, ]
+  comp_ver <- compareVersion(version, match$version)
+  if(comp_ver == 1) {
+    cli_div(theme = cli_colors())
+    cli_abort(c(
+      paste0(
+      "{.header A minimum version of} '{version}'",
+      " {.header for}"," `{package}` {.header is required.} ",
+      "{.header Currently, version} '{match$version}' {.header is installed.}"
+      ),
+      paste0(
+        "Use {.run pysparklyr::install_pyspark()}",
+        " to install the latest versions of the libraries."
+      ),
+      "Make sure to restart your R session before trying again."
+
+      ), call = NULL)
+    cli_end()
+  }
 }

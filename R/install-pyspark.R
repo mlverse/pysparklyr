@@ -74,7 +74,7 @@ install_pyspark <- function(envname = "r-sparklyr",
 #' @param list_all Flag that indicates to display all of the installed packages
 #' or only the top two, namely, `pyspark` and `databricks.connect`
 #' @export
-installed_versions <- function(list_all = FALSE) {
+installed_components <- function(list_all = FALSE) {
   pkgs <- py_list_packages()
   db <- pkgs$package == "databricks-connect"
   ps <- pkgs$package == "pyspark"
@@ -85,13 +85,17 @@ installed_versions <- function(list_all = FALSE) {
     new_pkgs <- rbind(pkgs[sel, ], pkgs[!sel, ])
   }
   cli_div(theme = cli_colors())
-  cli_text("{.class Python executable: {py_exe()}}")
+  cli_h3("R packages")
+  cli_bullets(c("*" = "{.header {.code sparklyr} ({packageVersion('sparklyr')}})"))
+  cli_bullets(c("*" = "{.header {.code pysparklyr} ({packageVersion('pysparklyr')}})"))
+  cli_h3("Python executable")
+  cli_text("{.header {py_exe()}}")
+  cli_h3("Python libraries")
   for(i in seq_len(nrow(new_pkgs))) {
     curr_row <- new_pkgs[i, ]
-    cli_li("{.header {curr_row$package} ({.header {curr_row$version}})}")
+    cli_bullets(c("*" = "{.header {curr_row$package} ({.header {curr_row$version}})}"))
   }
   cli_end()
   invisible()
-
-
 }
+

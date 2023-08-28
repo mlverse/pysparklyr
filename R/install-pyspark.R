@@ -99,3 +99,25 @@ installed_components <- function(list_all = FALSE) {
   invisible()
 }
 
+require_python <- function(package, version) {
+  pkgs <- py_list_packages()
+  match <- pkgs[pkgs$package == package, ]
+  comp_ver <- compareVersion(version, match$version)
+  if(comp_ver == 1) {
+    cli_div(theme = cli_colors())
+    cli_abort(c(
+      paste0(
+      "{.header A minimum version of} '{version}'",
+      " {.header for}"," `{package}` {.header is required.} ",
+      "{.header Currently, version} '{match$version}' {.header is installed.}"
+      ),
+      paste0(
+        "Use {.run pysparklyr::install_pyspark()}",
+        " to install the latest versions of the libraries."
+      ),
+      "Make sure to restart your R session before trying again."
+
+      ), call = NULL)
+    cli_end()
+  }
+}

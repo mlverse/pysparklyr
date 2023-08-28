@@ -88,6 +88,8 @@ py_spark_connect <- function(master,
 
   python <- conn$getOrCreate()
 
+  require_python("pyspark", "3.4.1")
+  require_python("databricks-connect", "13.2.1")
   python$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
 
   get_version <- try(python$version, silent = TRUE)

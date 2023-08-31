@@ -24,7 +24,9 @@ install_pyspark <- function(envname = "r-sparklyr",
     "google-api-python-client",
     "grpcio_status",
     "databricks-connect",
-    "delta-spark"
+    "delta-spark",
+    "torch",
+    "torcheval"
   )
 
   method <- match.arg(method)

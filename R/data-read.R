@@ -143,7 +143,7 @@ spark_read_parquet.pyspark_connection <- function(
   }
 
   pyspark_read_generic(
-    sc = read,
+    sc = sc,
     path = NULL,
     name = name,
     format = NULL,
@@ -151,13 +151,14 @@ spark_read_parquet.pyspark_connection <- function(
     repartition = repartition,
     overwrite = overwrite,
     options = NULL,
-    args = NULL
+    args = NULL,
+    py_obj = read
   )
 }
 
 
 pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
-                                 overwrite, args, options = list()) {
+                                 overwrite, args, options = list(), py_obj = NULL) {
   opts <- c(args, options)
 
   rename_fields <- FALSE
@@ -170,12 +171,12 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
     }
   }
 
-  if (inherits(sc, "pyspark_connection")) {
+  if (is.null(py_obj)) {
     x <- python_conn(sc)$read %>%
       py_invoke_options(options = opts) %>%
       py_invoke(format, path_expand(path))
   } else {
-    x <- sc
+    x <- py_obj
   }
 
   repartition <- as.integer(repartition)

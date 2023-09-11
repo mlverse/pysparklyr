@@ -17,7 +17,7 @@
 #' @importFrom rlang is_string is_character as_utf8_character parse_exprs
 #' @importFrom methods new is setOldClass
 #' @importFrom tidyselect matches
-#' @importFrom utils head type.convert
+#' @importFrom utils head type.convert compareVersion
 #' @importFrom tidyr pivot_longer
 #' @importFrom vctrs vec_as_names
 #' @importFrom processx process

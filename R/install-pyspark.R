@@ -18,7 +18,7 @@ install_pyspark <- function(envname = "r-sparklyr",
                             method = c("auto", "virtualenv", "conda")) {
   packages <- c(
     "pyspark",
-    "pandas",
+    "pandas!=2.1.0",
     "PyArrow",
     "grpcio",
     "google-api-python-client",

@@ -68,7 +68,7 @@ install_pyspark <- function(envname = "r-sparklyr",
     method = method,
     python_version = python_version,
     pip = TRUE,
-    ...
+    ... = ...
   )
 }
 

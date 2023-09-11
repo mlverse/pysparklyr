@@ -5,7 +5,12 @@
 \alias{spark_connect_service_stop}
 \title{Starts Spark Connect locally}
 \usage{
-spark_connect_service_start(version = "3.4", scala_version = "2.12", ...)
+spark_connect_service_start(
+  version = "3.4",
+  scala_version = "2.12",
+  include_args = TRUE,
+  ...
+)
 
 spark_connect_service_stop(version = "3.4", ...)
 }
@@ -13,6 +18,10 @@ spark_connect_service_stop(version = "3.4", ...)
 \item{version}{Spark version to use (3.4 or above)}
 
 \item{scala_version}{Acceptable Scala version of packages to be loaded}
+
+\item{include_args}{Flag that indicates wether to add the additional arguments
+to the command that starts the service. At this time, only the 'packages'
+argument is submitted.}
 
 \item{...}{Optional arguments; currently unused}
 }

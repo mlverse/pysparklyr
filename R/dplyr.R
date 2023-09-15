@@ -171,7 +171,7 @@ tbl_temp_name <- function() glue("{temp_prefix()}{random_string()}")
 #' @importFrom sparklyr sdf_register
 #' @export
 sdf_register.spark_pyobj <- function(x, name = NULL) {
-  sc <- spark_connection(sc)
+  sc <- spark_connection(x)
   tbl_pyspark_temp(
     x = x$pyspark_obj,
     conn = sc,

@@ -125,7 +125,7 @@ tbl.pyspark_connection <- function(src, from, ...) {
   sql_from <- as.sql(from, con = src$con)
   con <- python_conn(src)
   pyspark_obj <- con$table(sql_from)
-  vars <- pyspark_obj$columns
+  vars <- as.character(pyspark_obj$columns)
   src <- python_obj_con_set(src, pyspark_obj)
   out <- tbl_sql(
     subclass = "pyspark",

@@ -21,7 +21,7 @@ hive_context.pyspark_connection <- function(sc) {
 
 #' @export
 spark_session.pyspark_connection <- function(sc) {
-  sc
+  sc$session
 }
 
 

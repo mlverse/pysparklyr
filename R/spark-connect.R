@@ -86,13 +86,13 @@ py_spark_connect <- function(master,
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
   }
 
-  python <- conn$getOrCreate()
+  session <- conn$getOrCreate()
 
   require_python("pyspark", "3.4.1")
   require_python("databricks-connect", "13.2.1")
-  python$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
+  session$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
 
-  get_version <- try(python$version, silent = TRUE)
+  get_version <- try(session$version, silent = TRUE)
 
   if (inherits(get_version, "try-error")) {
     error_split <- get_version %>%
@@ -129,15 +129,18 @@ py_spark_connect <- function(master,
     )
   }
 
-  spark_context <- list(spark_context = python)
 
+  # do we need this `spark_context` object?
+  spark_context <- list(spark_context = session)
+
+  # browser()
   sc <- structure(
     list(
       master = master_label,
       cluster_id = cluster_id,
       config = config,
       method = method,
-      python_obj = python,
+      session = session,
       state = spark_context,
       con = structure(list(), class = c("spark_connection", "DBIConnection"))
     ),

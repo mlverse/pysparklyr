@@ -192,11 +192,11 @@ python_sdf <- function(x) {
 
 python_obj_get <- function(x) {
   sc <- spark_connection(x)
-  sc$python_obj
+  sc$session
 }
 
 python_obj_con_set <- function(sc, obj) {
-  sc$python_obj <- obj
+  sc$session <- obj
   sc
 }
 

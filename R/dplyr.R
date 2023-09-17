@@ -141,7 +141,7 @@ tbl.pyspark_connection <- function(src, from, ...) {
 
 #' @export
 tbl_ptype.tbl_pyspark <- function(.data) {
-  abort("Predicates are not supported in thie back-end")
+  abort("Predicates are not supported with this back-end")
 }
 
 #' @export

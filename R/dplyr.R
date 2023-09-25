@@ -125,7 +125,7 @@ tbl.pyspark_connection <- function(src, from, ...) {
   sql_from <- as.sql(from, con = src$con)
   con <- python_conn(src)
   pyspark_obj <- con$table(sql_from)
-  vars <- pyspark_obj$columns
+  vars <- as.character(pyspark_obj$columns)
   src <- python_obj_con_set(src, pyspark_obj)
   out <- tbl_sql(
     subclass = "pyspark",
@@ -141,7 +141,7 @@ tbl.pyspark_connection <- function(src, from, ...) {
 
 #' @export
 tbl_ptype.tbl_pyspark <- function(.data) {
-  abort("Predicates are not supported in thie back-end")
+  abort("Predicates are not supported with this back-end")
 }
 
 #' @export
@@ -171,7 +171,7 @@ tbl_temp_name <- function() glue("{temp_prefix()}{random_string()}")
 #' @importFrom sparklyr sdf_register
 #' @export
 sdf_register.spark_pyobj <- function(x, name = NULL) {
-  sc <- spark_connection(sc)
+  sc <- spark_connection(x)
   tbl_pyspark_temp(
     x = x$pyspark_obj,
     conn = sc,
@@ -192,11 +192,11 @@ python_sdf <- function(x) {
 
 python_obj_get <- function(x) {
   sc <- spark_connection(x)
-  sc$python_obj
+  sc$session
 }
 
 python_obj_con_set <- function(sc, obj) {
-  sc$python_obj <- obj
+  sc$session <- obj
   sc
 }
 

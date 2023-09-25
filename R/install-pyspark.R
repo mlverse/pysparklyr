@@ -18,7 +18,7 @@ install_pyspark <- function(envname = "r-sparklyr",
                             method = c("auto", "virtualenv", "conda")) {
   packages <- c(
     "pyspark",
-    "pandas",
+    "pandas!=2.1.0", # deprecation warnings
     "PyArrow",
     "grpcio",
     "google-api-python-client",
@@ -36,9 +36,10 @@ install_pyspark <- function(envname = "r-sparklyr",
       tryCatch(virtualenv_remove(envname, confirm = FALSE), error = identity)
     }
     if (method %in% c("auto", "conda")) {
-      tryCatch(conda_remove(envname, conda = list(...)$conda %||% "auto"),
-        error = identity
-      )
+      conda <- list(...)$conda %||% "auto"
+      while (!inherits(tryCatch(conda_python(envname, conda), error = identity),
+                       "error"))
+        conda_remove(envname, conda = conda)
     }
   }
 

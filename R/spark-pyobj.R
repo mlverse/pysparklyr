@@ -45,7 +45,7 @@ invoke.spark_pyobj <- function(jobj, method, ...) {
     jobj = jobj$connection,
     context = jobj$pyspark_obj,
     method = method,
-    ... = ...
+    ...
   )
 }
 

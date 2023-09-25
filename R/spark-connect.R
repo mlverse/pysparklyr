@@ -36,7 +36,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     master = master,
     method = method,
     config = config,
-    ... = ...
+    ...
   )
 }
 

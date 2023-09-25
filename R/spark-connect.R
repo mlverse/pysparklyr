@@ -86,7 +86,7 @@ py_spark_connect <- function(master,
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
   }
 
-  session <- conn$getOrCreate()
+  session <- conn$getOrCreate() # pyspark.sql.connect.session.SparkSession
 
   require_python("pyspark", "3.4.1")
   require_python("databricks-connect", "13.2.1")

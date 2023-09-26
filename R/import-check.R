@@ -1,77 +1,118 @@
-import_check <- function(x, virtualenv_name) {
-  env_found <- virtualenv_name %in% virtualenv_list()
-
+import_check <- function(x, envname) {
+  env_found <- !is.na(envname)
   env_loaded <- NA
 
   if (py_available()) {
+    # If there is a Python environment already loaded
     if (env_found) {
-      if (virtualenv_python(virtualenv_name) == py_exe()) {
+      if (env_python(envname) == py_exe()) {
         env_loaded <- TRUE
       } else {
         env_loaded <- FALSE
       }
     }
   } else {
+    # If there is NO Python environment already loaded
     if (env_found) {
-      try(use_virtualenv(virtualenv_name), silent = TRUE)
+      # If the envname is found, we try to use it
+      if (env_type(envname) == "virtualenv") {
+        try(use_virtualenv(envname), silent = TRUE)
+      } else {
+        try(use_condaenv(envname), silent = TRUE)
+      }
     }
   }
 
   out <- try(import(x), silent = TRUE)
 
   if (is.na(env_loaded)) {
-    env_loaded <- virtualenv_python(virtualenv_name) == py_exe()
+    env_loaded <- env_python(envname) == py_exe()
   }
 
   inst <- paste0(
     " {.run pysparklyr::install_pyspark(",
-    "virtualenv_name = \"{virtualenv_name}\")}"
+    "envname = \"{envname}\")}"
   )
 
   if (inherits(out, "try-error")) {
     if (env_found) {
       if (env_loaded) {
         # found & loaded
-        cli_abort(paste(
-          "Python library '{x}' is not available in the '{virtualenv_name}'",
-          "virtual environment. Install all of the needed python libraries",
-          "using:", inst
+        cli_abort(c(
+          paste(
+            "{.emph '{x}' }{.header is not available in the }",
+            "{.emph '{envname}' }{.header Python environment.}"
+          ),
+          paste("{.header - Use}", inst, "{.header to install.}")
         ))
       } else {
-        cli_abort(paste(
-          "Python library '{x}' is not available. The '{virtualenv_name}'",
-          "virtual environment is installed, but it is not loaded.",
-          "Restart your R session, and avoid initializing Python",
-          "before using `pysparklyr`"
+        cli_abort(c(
+          "{.emph '{x}' }{.header is not available current Python environment.}",
+          paste(
+            "{.header - The }{.emph '{envname}'} {.header Python",
+            " environment is installed, but it is not loaded.}"
+          ),
+          paste(
+            "{.header - Restart your R session, and avoid",
+            " initializing Python before using} {.emph '{x}'}"
+          )
         ))
       }
     } else {
-      cli_abort(paste(
-        "Python library '{x}' not available. The '{virtualenv_name}'",
-        "virtual environment is not installed. Restart your R session,",
-        "and run:", inst
+      cli_abort(c(
+        "{.emph '{x}' }{.header is not available current Python environment.}",
+        paste("- The {.emph '{envname}'} Python environment is not installed."),
+        paste("- Restart your R session, and run:", inst)
       ))
     }
   } else {
-    if (is.null(pysparklyr_env$vars$python_init)) {
-      if (env_loaded) {
-        msg <- paste(
-          "Using the {.emph '{virtualenv_name}'} virtual",
-          "environment {.class ({py_exe()})}"
-        )
-        cli_div(theme = cli_colors())
-        cli_alert_success(msg)
-        cli_end()
-      } else {
-        msg <- paste(
-          "Not using the '{virtualenv_name}' virtual environment",
-          "for python. The current path is: {py_exe()}"
-        )
-        cli_alert_danger(msg)
-      }
-      pysparklyr_env$vars$python_init <- 1
+    if (env_loaded) {
+      msg <- paste(
+        "{.header Using the }{.emph '{envname}' }{.header Python}",
+        "{.header environment }{.class ({py_exe()})}"
+      )
+      cli_div(theme = cli_colors())
+      cli_alert_success(msg)
+      cli_end()
+    } else {
+      msg <- paste(
+        "{.header Not using the} {.emph '{envname}'} ",
+        "{.header Python environment}.\n",
+        "{.header - Current Python path:} {.emph {py_exe()}}"
+      )
+      cli_div(theme = cli_colors())
+      cli_alert_warning(msg)
+      cli_end()
     }
   }
 
   out
+}
+
+env_type <- function(envname) {
+  ret <- NA
+  if (virtualenv_exists(envname)) {
+    ret <- "virtualenv"
+  }
+  if (is.na(ret)) {
+    check_conda <- try(conda_python(envname), silent = TRUE)
+    if(!inherits(check_conda, "try-error")) {
+      ret <- "conda"
+    }
+  }
+  ret
+}
+
+env_python <- function(envname) {
+  ret <- NA
+  type <- env_type(envname)
+  if (!is.na(type)) {
+    if (type == "virtualenv") {
+      ret <- virtualenv_python(envname)
+    }
+    if (type == "conda") {
+      ret <- conda_python(envname)
+    }
+  }
+  ret
 }

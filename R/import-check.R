@@ -46,17 +46,20 @@ import_check <- function(x, envname) {
         ))
       } else {
         cli_abort(c(
-          "Python library '{x}' is not available. The '{envname}'",
-          "Python environment is installed, but it is not loaded.",
-          "Restart your R session, and avoid initializing Python",
-          "before using '{x}'"
+          "{.emph '{x}' }{.header is not available current Python environment.}",
+          paste("{.header - The }{.emph '{envname}'} {.header Python",
+                " environment is installed, but it is not loaded.}"
+                ),
+          paste("{.header - Restart your R session, and avoid",
+                " initializing Python before using} {.emph '{x}'}"
+                )
         ))
       }
     } else {
-      cli_abort(paste(
-        "Python library '{x}' not available. The '{envname}'",
-        "Python environment is not installed. Restart your R session,",
-        "and run:", inst
+      cli_abort(c(
+        "{.emph '{x}' }{.header is not available current Python environment.}",
+        paste("- The {.emph '{envname}'} Python environment is not installed."),
+        paste("- Restart your R session, and run:", inst)
       ))
     }
   } else {
@@ -70,7 +73,8 @@ import_check <- function(x, envname) {
       cli_end()
     } else {
       msg <- paste(
-        "{.header Not using the} {.emph '{envname}'} {.header Python environment}.\n",
+        "{.header Not using the} {.emph '{envname}'} ",
+        "{.header Python environment}.\n",
         "{.header - Current Python path:} {.emph {py_exe()}}"
       )
       cli_div(theme = cli_colors())

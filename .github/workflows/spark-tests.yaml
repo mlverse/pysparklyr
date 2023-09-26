@@ -18,16 +18,13 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {spark: '3.4.0', hadoop: '3', name: 'Spark 3.4'}
+          - {spark: '3.4.0', name: 'Spark 3.4'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       SPARK_VERSION:  ${{ matrix.config.spark }}
       HADOOP_VERSION: ${{ matrix.config.hadoop }}
-      LIVY_VERSION:   ${{ matrix.config.livy }}
-      ARROW_VERSION : ${{ matrix.config.arrow }}
-      DBPLYR_VERSION: ${{ matrix.config.dbplyr }}
 
     steps:
       - uses: actions/checkout@v3
@@ -61,8 +58,7 @@ jobs:
       - name: Install Spark (via sparklyr)
         if: steps.cache-spark.outputs.cache-hit != 'true'
         run: |
-          devtools::load_all()
-          spark_install(version = Sys.getenv("SPARK_VERSION"), hadoop_version = Sys.getenv("HADOOP_VERSION"))
+          sparklyr::spark_install(version = Sys.getenv("SPARK_VERSION"))
         shell: Rscript {0}
 
       - name: Cache Scala
@@ -75,8 +71,7 @@ jobs:
       - name: Install Scala (via sparklyr)
         if: steps.cache-scala.outputs.cache-hit != 'true'
         run: |
-          devtools::load_all()
-          download_scalac()
+          sparklyr::download_scalac()
         shell: Rscript {0}
 
       - name: R Session Info
@@ -97,8 +92,7 @@ jobs:
       - name: R Tests
         run: |
           devtools::load_all()
-          spark_major <- as.numeric(substr(Sys.getenv("SPARK_VERSION"), 1, 1))
-          if(spark_major < 3) Sys.setenv("JAVA_HOME" = Sys.getenv("JAVA_HOME_8_X64"))
+          library(sparklyr)
           Sys.getenv("JAVA_HOME")
           devtools::test(reporter = sparklyr_reporter())
         shell: Rscript {0}

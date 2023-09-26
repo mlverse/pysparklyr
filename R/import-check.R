@@ -59,24 +59,25 @@ import_check <- function(x, envname) {
       ))
     }
   } else {
-    if (is.null(pysparklyr_env$vars$python_init)) {
-      if (env_loaded) {
-        msg <- paste(
-          "Using the {.emph '{envname}'} virtual",
-          "environment {.class ({py_exe()})}"
-        )
-        cli_div(theme = cli_colors())
-        cli_alert_success(msg)
-        cli_end()
-      } else {
-        msg <- paste(
-          "Not using the '{envname}' virtual environment",
-          "for python. The current path is: {py_exe()}"
-        )
-        cli_alert_danger(msg)
-      }
-      pysparklyr_env$vars$python_init <- 1
+    if (env_loaded) {
+      msg <- paste(
+        "{.header Using the }{.emph '{envname}' }{.header virtual}",
+        "{.header environment }{.class ({py_exe()})}"
+      )
+      cli_div(theme = cli_colors())
+      cli_alert_success(msg)
+      cli_end()
+    } else {
+      msg <- paste(
+        "{.header Not using the} {.emph '{envname}'} {.header virtual environment}.\n",
+        "{.header - Current Python path:} {.emph {py_exe()}}"
+      )
+      cli_div(theme = cli_colors())
+      cli_alert_warning(msg)
+      cli_end()
     }
+    pysparklyr_env$vars$python_init <- 1
+
   }
 
   out
@@ -98,10 +99,10 @@ env_python <- function(envname) {
   type <- env_type(envname)
   if(!is.na(type)) {
     if(type == "virtualenv") {
-      ret <- virtualenv_python()
+      ret <- virtualenv_python(envname)
     }
     if(type == "conda") {
-      ret <- conda_python()
+      ret <- conda_python(envname)
     }
   }
   ret

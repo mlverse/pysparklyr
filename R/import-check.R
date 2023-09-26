@@ -15,7 +15,7 @@ import_check <- function(x, envname) {
     # If there is NO Python environment already loaded
     if (env_found) {
       # If the envname is found, we try to use it
-      if(env_type(envname) == "virtualenv") {
+      if (env_type(envname) == "virtualenv") {
         try(use_virtualenv(envname), silent = TRUE)
       } else {
         try(use_condaenv(envname), silent = TRUE)
@@ -39,20 +39,23 @@ import_check <- function(x, envname) {
       if (env_loaded) {
         # found & loaded
         cli_abort(c(
-          paste("{.emph '{x}' }{.header is not available in the }",
-                "{.emph '{envname}' }{.header Python environment.}"
-                ),
+          paste(
+            "{.emph '{x}' }{.header is not available in the }",
+            "{.emph '{envname}' }{.header Python environment.}"
+          ),
           paste("{.header - Use}", inst, "{.header to install.}")
         ))
       } else {
         cli_abort(c(
           "{.emph '{x}' }{.header is not available current Python environment.}",
-          paste("{.header - The }{.emph '{envname}'} {.header Python",
-                " environment is installed, but it is not loaded.}"
-                ),
-          paste("{.header - Restart your R session, and avoid",
-                " initializing Python before using} {.emph '{x}'}"
-                )
+          paste(
+            "{.header - The }{.emph '{envname}'} {.header Python",
+            " environment is installed, but it is not loaded.}"
+          ),
+          paste(
+            "{.header - Restart your R session, and avoid",
+            " initializing Python before using} {.emph '{x}'}"
+          )
         ))
       }
     } else {
@@ -88,11 +91,14 @@ import_check <- function(x, envname) {
 
 env_type <- function(envname) {
   ret <- NA
-  if(envname %in% virtualenv_list()) {
+  if (virtualenv_exists(envname)) {
     ret <- "virtualenv"
   }
-  if(envname %in% conda_list()$name && is.na(ret)) {
-    ret <- "conda"
+  if (is.na(ret)) {
+    check_conda <- try(conda_python(envname), silent = TRUE)
+    if(!inherits(check_conda, "try-error")) {
+      ret <- "conda"
+    }
   }
   ret
 }
@@ -100,11 +106,11 @@ env_type <- function(envname) {
 env_python <- function(envname) {
   ret <- NA
   type <- env_type(envname)
-  if(!is.na(type)) {
-    if(type == "virtualenv") {
+  if (!is.na(type)) {
+    if (type == "virtualenv") {
       ret <- virtualenv_python(envname)
     }
-    if(type == "conda") {
+    if (type == "conda") {
       ret <- conda_python(envname)
     }
   }

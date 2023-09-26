@@ -38,30 +38,31 @@ import_check <- function(x, envname) {
     if (env_found) {
       if (env_loaded) {
         # found & loaded
-        cli_abort(paste(
-          "Python library '{x}' is not available in the '{envname}'",
-          "virtual environment. Install all of the needed python libraries",
-          "using:", inst
+        cli_abort(c(
+          paste("{.emph '{x}' }{.header is not available in the }",
+                "{.emph '{envname}' }{.header Python environment.}"
+                ),
+          paste("{.header - Use}", inst, "{.header to install.}")
         ))
       } else {
-        cli_abort(paste(
+        cli_abort(c(
           "Python library '{x}' is not available. The '{envname}'",
-          "virtual environment is installed, but it is not loaded.",
+          "Python environment is installed, but it is not loaded.",
           "Restart your R session, and avoid initializing Python",
-          "before using `pysparklyr`"
+          "before using '{x}'"
         ))
       }
     } else {
       cli_abort(paste(
         "Python library '{x}' not available. The '{envname}'",
-        "virtual environment is not installed. Restart your R session,",
+        "Python environment is not installed. Restart your R session,",
         "and run:", inst
       ))
     }
   } else {
     if (env_loaded) {
       msg <- paste(
-        "{.header Using the }{.emph '{envname}' }{.header virtual}",
+        "{.header Using the }{.emph '{envname}' }{.header Python}",
         "{.header environment }{.class ({py_exe()})}"
       )
       cli_div(theme = cli_colors())
@@ -69,15 +70,13 @@ import_check <- function(x, envname) {
       cli_end()
     } else {
       msg <- paste(
-        "{.header Not using the} {.emph '{envname}'} {.header virtual environment}.\n",
+        "{.header Not using the} {.emph '{envname}'} {.header Python environment}.\n",
         "{.header - Current Python path:} {.emph {py_exe()}}"
       )
       cli_div(theme = cli_colors())
       cli_alert_warning(msg)
       cli_end()
     }
-    pysparklyr_env$vars$python_init <- 1
-
   }
 
   out

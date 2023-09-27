@@ -1,6 +1,6 @@
 Package: pysparklyr
 Title: Provides a 'PySpark' back-end for the 'sparklyr' package
-Version: 0.0.0.9004
+Version: 0.0.0.9005
 Authors@R: c(
     person("Edgar", "Ruiz", , "edgar@posit.co", role = c("aut", "cre")),
     person(given = "Posit Software, PBC", role = c("cph", "fnd"))
@@ -22,7 +22,7 @@ Imports:
     reticulate (>= 1.31),
     methods,
     rlang,
-    sparklyr (>= 1.8.2.9004),
+    sparklyr (>= 1.8.3),
     tidyselect,
     fs,
     magrittr,

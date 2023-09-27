@@ -23,6 +23,7 @@
 #' @importFrom processx process
 #' @import reticulate
 #' @import dbplyr
+#' @import httr2
 #' @import glue
 #' @import cli
 #' @import DBI

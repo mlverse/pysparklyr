@@ -223,14 +223,24 @@ build_user_agent <- function() {
   )
 }
 
-db_spark_versions <- data.frame(
-  db = c("14.0", "13.3", "13.0", "12.2"),
-  spark = c("3.5.0", "3.4.1" , "3.4.0", "3.3.2")
-)
 
-spark_to_db_version <- function(spark_version) {
-  db_spark_versions
+cluster_dbr_version <- function(cluster_id,
+                                host = Sys.getenv("DATABRICKS_HOST"),
+                                token = Sys.getenv("DATABRICKS_TOKEN")
+                                ) {
+  cluster_info <- paste0(
+    host,
+    "/api/2.0/clusters/get"
+  ) %>%
+    request() %>%
+    req_auth_bearer_token(token) %>%
+    req_body_json(list(cluster_id = cluster_id)) %>%
+    req_perform() %>%
+    resp_body_json()
+
+  sp_version <- cluster_info$spark_version
+
+  sp_sep <- unlist(strsplit(sp_version, "\\."))
+
+  paste0(sp_sep[1], ".", sp_sep[2])
 }
-
-
-

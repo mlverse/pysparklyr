@@ -29,12 +29,6 @@
 #' @import fs
 NULL
 
-.onLoad <- function(...) {
-  env_name <- "r-sparklyr"
-  use_virtualenv(env_name, required = FALSE)
-  use_condaenv(env_name, required = FALSE)
-}
-
 globalVariables("RStudio.Version")
 
 pysparklyr_env <- new.env()

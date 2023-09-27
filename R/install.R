@@ -14,7 +14,7 @@
 #' @export
 install_pyspark <- function(
     version = NULL,
-    envname = paste("r-pyspark", version, sep = ifelse(is.null(version), "", "-")),
+    envname = paste("r-sparklyr-pyspark", version, sep = ifelse(is.null(version), "", "-")),
     python_version = ">=3.9",
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
@@ -39,7 +39,7 @@ install_pyspark <- function(
 #' @export
 install_databricks <- function(
     version = NULL,
-    envname = paste("r-databricks", version, sep = ifelse(is.null(version), "", "-")),
+    envname = paste("r-sparklyr-databricks", version, sep = ifelse(is.null(version), "", "-")),
     python_version = ">=3.9",
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),

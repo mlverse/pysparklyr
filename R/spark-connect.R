@@ -222,3 +222,15 @@ build_user_agent <- function() {
     )
   )
 }
+
+db_spark_versions <- data.frame(
+  db = c("14.0", "13.3", "13.0", "12.2"),
+  spark = c("3.5.0", "3.4.1" , "3.4.0", "3.3.2")
+)
+
+spark_to_db_version <- function(spark_version) {
+  db_spark_versions
+}
+
+
+

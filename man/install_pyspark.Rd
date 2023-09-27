@@ -7,7 +7,7 @@
 \usage{
 install_pyspark(
   version = NULL,
-  envname = paste("r-pyspark", version, sep = ifelse(is.null(version), "", "-")),
+  envname = paste("r-sparklyr-pyspark", version, sep = ifelse(is.null(version), "", "-")),
   python_version = ">=3.9",
   new_env = TRUE,
   method = c("auto", "virtualenv", "conda"),
@@ -16,7 +16,8 @@ install_pyspark(
 
 install_databricks(
   version = NULL,
-  envname = paste("r-databricks", version, sep = ifelse(is.null(version), "", "-")),
+  envname = paste("r-sparklyr-databricks", version, sep = ifelse(is.null(version), "",
+    "-")),
   python_version = ">=3.9",
   new_env = TRUE,
   method = c("auto", "virtualenv", "conda"),

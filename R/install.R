@@ -97,6 +97,16 @@ install_environment <- function(
     version <- lib$version
     cli_alert_success("{.header Using version: }{.emph '{version}'}")
     cli_end()
+  } else {
+    lib <- py_library_info(libs, version)
+    if(is.null(lib)) {
+      cli_alert_success(
+        "{.header Checking if provided version is valid against PyPi}"
+        )
+      cli_abort(
+        "{.header Version } {.emph '{version}' }{.header does not exist}"
+      )
+    }
   }
 
   ver <- version %>%
@@ -263,12 +273,19 @@ check_full_version <- function(x) {
   }
 }
 
-py_library_info <- function(lib) {
-  url <- glue("https://pypi.org/pypi/{lib}/json")
-  resp <- url %>%
-    request() %>%
-    req_perform() %>%
-    resp_body_json()
+py_library_info <- function(lib, ver = NULL) {
+  url <- paste0("https://pypi.org/pypi/", lib)
+  if(!is.null(ver)) {
+    url <- paste0(url, "/", ver)
+  }
+  url <- paste0(url, "/json")
+  resp <- tryCatch(
+    url %>%
+      request() %>%
+      req_perform() %>%
+      resp_body_json(),
+    httr2_http_404 = function(cnd) NULL
+  )
 
   resp$info
   # For possible future use

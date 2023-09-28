@@ -35,17 +35,46 @@ install_pyspark <- function(
 
 #' Installs Databricks Connect and Python dependencies
 #' @param version Version of 'databricks.connect' to install
+#' @param cluster_id Target of the cluster ID that will be used with.
+#' If provided, this value will be used to extract the cluster's
+#' version
 #' @rdname install_pyspark
 #' @export
 install_databricks <- function(
     version = NULL,
-    envname = paste("r-sparklyr-databricks", version, sep = ifelse(is.null(version), "", "-")),
+    cluster_id = NULL,
+    envname = NULL,
     python_version = ">=3.9",
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     ...) {
 
-  check_full_version(version)
+  if(!is.null(version) && !is.null(cluster_id)) {
+    cli_div(theme = cli_colors())
+    cli_alert_warning(
+      paste0("{.header Will use the value from }{.emph 'version'},",
+             "{.header and ignoring }{.emph 'cluster_id'}")
+      )
+    cli_end()
+  }
+
+  if(is.null(version) && !is.null(cluster_id)) {
+    version <- cluster_dbr_version(cluster_id)
+  }
+
+  if(!is.null(version)) {
+    ver <- unlist(strsplit(version, "\\."))
+    if(length(ver) == 2) {
+      version <- paste0(version, ".*")
+    }
+  }
+
+  if(is.null(envname)) {
+    envname <- paste(
+      "r-sparklyr-databricks", version,
+      sep = ifelse(is.null(version), "", "-")
+      )
+  }
 
   install_environment(
     libs = "databricks-connect",

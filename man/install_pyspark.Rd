@@ -16,8 +16,8 @@ install_pyspark(
 
 install_databricks(
   version = NULL,
-  envname = paste("r-sparklyr-databricks", version, sep = ifelse(is.null(version), "",
-    "-")),
+  cluster_id = NULL,
+  envname = NULL,
   python_version = ">=3.9",
   new_env = TRUE,
   method = c("auto", "virtualenv", "conda"),
@@ -42,6 +42,10 @@ infers the installation method based on the type of Python environment
 specified by \code{envname}.}
 
 \item{...}{Passed on to \code{\link[reticulate:py_install]{reticulate::py_install()}}}
+
+\item{cluster_id}{Target of the cluster ID that will be used with.
+If provided, this value will be used to extract the cluster's
+version}
 }
 \description{
 Installs Pyspark and Python dependencies

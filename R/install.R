@@ -19,7 +19,6 @@ install_pyspark <- function(
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     ...) {
-
   check_full_version(version)
 
   install_environment(
@@ -48,33 +47,71 @@ install_databricks <- function(
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     ...) {
-
-  if(!is.null(version) && !is.null(cluster_id)) {
+  if (!is.null(version) && !is.null(cluster_id)) {
     cli_div(theme = cli_colors())
     cli_alert_warning(
-      paste0("{.header Will use the value from }{.emph 'version'},",
-             "{.header and ignoring }{.emph 'cluster_id'}")
+      paste0(
+        "{.header Will use the value from }{.emph 'version'},",
+        "{.header and ignoring }{.emph 'cluster_id'}"
       )
+    )
     cli_end()
   }
 
-  if(is.null(version) && !is.null(cluster_id)) {
+  if (is.null(version) && !is.null(cluster_id)) {
+    cli_div(theme = cli_colors())
+    cli_alert_warning(
+      "{.header Retrieving version from cluster }{.emph '{cluster_id}'}"
+    )
     version <- cluster_dbr_version(cluster_id)
+    cli_alert_success("{.header Cluster version: }{.emph '{version}'}")
+    cli_end()
   }
 
-  if(!is.null(version)) {
-    ver <- unlist(strsplit(version, "\\."))
-    if(length(ver) == 2) {
-      version <- paste0(version, ".*")
-    }
+  if (is.null(version)) {
+    cli_div(theme = cli_colors())
+    cli_alert_success(
+      "{.header Retrieving version from PyPi}"
+    )
+    lib <- py_library_info("databricks-connect")
+    version <- lib$version
+    cli_alert_success("{.header Using version: }{.emph '{version}'}")
+    cli_end()
   }
 
-  if(is.null(envname)) {
-    envname <- paste(
-      "r-sparklyr-databricks", version,
-      sep = ifelse(is.null(version), "", "-")
-      )
+  ver <- version %>%
+    strsplit("\\.") %>%
+    unlist()
+
+  ver_name <- version
+  ver_len <- length(ver)
+
+  if (ver_len == 1) {
+    cli_abort(c(
+      "{.emph '{version}' }{.header is not a valid version}",
+      "{.header - Please provide major & minor version (e.g. 10.2) }"
+    ))
   }
+
+  if (ver_len > 3 | ver_len == 0) {
+    cli_abort("{.emph '{version}' }{.header is not a valid version}")
+  }
+
+  if (ver_len == 2) {
+    version <- paste0(version, ".*")
+  }
+
+  if (ver_len == 3) {
+    ver_name <- paste0(ver[1:2], collapse = ".")
+  }
+
+  if (is.null(envname)) {
+    envname <- paste("r-sparklyr-databricks", ver_name, sep = "-")
+  }
+
+  cli_alert_success(
+    "Automatically naming the environment:{.emph '{envname}'}"
+  )
 
   install_environment(
     libs = "databricks-connect",
@@ -95,8 +132,7 @@ install_environment <- function(
     new_env = NULL,
     method = c("auto", "virtualenv", "conda"),
     ...) {
-
-  if(!is.null(version)) {
+  if (!is.null(version)) {
     libs <- paste0(libs, "==", version)
   }
 
@@ -219,4 +255,16 @@ check_full_version <- function(x) {
       ))
     }
   }
+}
+
+py_library_info <- function(lib) {
+  url <- glue("https://pypi.org/pypi/{lib}/json")
+  resp <- url %>%
+    request() %>%
+    req_perform() %>%
+    resp_body_json()
+
+  resp$info
+  # For possible future use
+  # "https://packagemanager.posit.co/__api__/repos/5/packages/{lib}"
 }

@@ -32,6 +32,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     extensions,
     scala_version,
     ...) {
+
   py_spark_connect(
     master = master,
     method = method,
@@ -47,14 +48,14 @@ py_spark_connect <- function(master,
                              method = "",
                              envname = "r-sparklyr",
                              spark_version = NULL,
-                             databricks_connect_version = NULL,
+                             dbr_version = NULL,
                              config = list()) {
   method <- method[[1]]
 
   virtualenv_name <- env_version(
     envname = envname,
     spark = spark_version,
-    db = databricks_connect_version
+    db = dbr_version
   )
 
   conn <- NULL

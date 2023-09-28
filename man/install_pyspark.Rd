@@ -7,7 +7,7 @@
 \usage{
 install_pyspark(
   version = NULL,
-  envname = paste("r-sparklyr-pyspark", version, sep = ifelse(is.null(version), "", "-")),
+  envname = NULL,
   python_version = ">=3.9",
   new_env = TRUE,
   method = c("auto", "virtualenv", "conda"),

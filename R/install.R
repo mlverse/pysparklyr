@@ -47,6 +47,7 @@ install_databricks <- function(
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     ...) {
+
   if (!is.null(version) && !is.null(cluster_id)) {
     cli_div(theme = cli_colors())
     cli_alert_warning(
@@ -68,12 +69,32 @@ install_databricks <- function(
     cli_end()
   }
 
+  install_environment(
+    libs = "databricks-connect",
+    version = version,
+    envname = envname,
+    python_version = python_version,
+    new_env = new_env,
+    method = method,
+    ... = ...
+  )
+}
+
+install_environment <- function(
+    libs = NULL,
+    version = NULL,
+    envname = NULL,
+    python_version = NULL,
+    new_env = NULL,
+    method = c("auto", "virtualenv", "conda"),
+    ...) {
+
   if (is.null(version)) {
     cli_div(theme = cli_colors())
     cli_alert_success(
       "{.header Retrieving version from PyPi}"
     )
-    lib <- py_library_info("databricks-connect")
+    lib <- py_library_info(libs)
     version <- lib$version
     cli_alert_success("{.header Using version: }{.emph '{version}'}")
     cli_end()
@@ -113,25 +134,6 @@ install_databricks <- function(
     "Automatically naming the environment:{.emph '{envname}'}"
   )
 
-  install_environment(
-    libs = "databricks-connect",
-    version = version,
-    envname = envname,
-    python_version = python_version,
-    new_env = new_env,
-    method = method,
-    ... = ...
-  )
-}
-
-install_environment <- function(
-    libs = NULL,
-    version = NULL,
-    envname = NULL,
-    python_version = NULL,
-    new_env = NULL,
-    method = c("auto", "virtualenv", "conda"),
-    ...) {
   if (!is.null(version)) {
     libs <- paste0(libs, "==", version)
   }

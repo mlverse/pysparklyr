@@ -14,12 +14,11 @@
 #' @export
 install_pyspark <- function(
     version = NULL,
-    envname = paste("r-sparklyr-pyspark", version, sep = ifelse(is.null(version), "", "-")),
+    envname = NULL,
     python_version = ">=3.9",
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     ...) {
-  check_full_version(version)
 
   install_environment(
     libs = "pyspark",
@@ -127,7 +126,12 @@ install_environment <- function(
   }
 
   if (is.null(envname)) {
-    envname <- paste("r-sparklyr-databricks", ver_name, sep = "-")
+    if(libs == "databricks-connect") {
+      ln <- "databricks"
+    } else {
+      ln <- libs
+    }
+    envname <- glue("r-sparklyr-{ln}-{ver_name}")
   }
 
   cli_alert_success(

@@ -15,6 +15,7 @@ spark_connect_method.spark_method_spark_connect <- function(
     master = master,
     method = method,
     config = config,
+    spark_version = version,
     ... = ...
   )
 }
@@ -66,10 +67,31 @@ py_spark_connect <- function(master,
           "{.header  automatically identified.}"),
           "Run {.run pysparklyr::install_pyspark()} to install."
         ), call = NULL)
+        cli_end()
       } else {
-        envname <- envs[[1]]
+        if(!is.null(spark_version)) {
+          sp_version <- version_prep(spark_version)
+          envname <- glue("{env_base}{sp_version}")
+          matched <- envs[envs == envname]
+          if(length(matched) == 0) {
+            envname <- envs[[1]]
+            cli_div(theme = cli_colors())
+            cli_alert_warning(paste(
+              "{.header A Python environment with a matching version was not found}",
+              "* {.header Will attempt connecting using }{.emph '{envname}'}",
+              paste0("* {.header To install the proper Python environment use:}",
+                     " {.run pysparklyr::install_pyspark(version = \"{sp_version}\")}"
+              ),
+              sep = "\n"
+            ))
+            cli_end()
+          } else {
+             envname <- matched
+           }
+        } else {
+          envname <- envs[[1]]
       }
-    }
+    }}
 
     pyspark <- import_check("pyspark", envname)
     pyspark_sql <- pyspark$sql
@@ -319,5 +341,6 @@ find_environments <- function(x) {
   all_names <- c(ve_names, conda_names)
   sub_names <- substr(all_names, 1, nchar(x))
   matched <- all_names[sub_names == x]
-  sort(matched, decreasing = FALSE)
+  sorted <- sort(matched, decreasing = TRUE)
+  sorted
 }

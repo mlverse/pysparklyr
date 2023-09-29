@@ -28,7 +28,8 @@ install_databricks(
 \item{version}{Version of 'databricks.connect' to install}
 
 \item{envname}{The name of the Python Environment to use to install the
-Python libraries. Defaults to "r-sparklyr".}
+Python libraries. Default to \code{NULL.} If \code{NULL}, a name will automatically
+be assigned based on the version that will be installed}
 
 \item{python_version}{The version of Python to use to create the Python
 environment.}

@@ -1,7 +1,8 @@
 #' Installs Pyspark and Python dependencies
 #' @param version Version of 'pyspark' to install
 #' @param envname The name of the Python Environment to use to install the
-#'   Python libraries. Defaults to "r-sparklyr".
+#'   Python libraries. Default to `NULL.` If `NULL`, a name will automatically
+#'   be assigned based on the version that will be installed
 #' @param python_version The version of Python to use to create the Python
 #'   environment.
 #' @param new_env If `TRUE`, any existing Python virtual environment and/or
@@ -91,7 +92,7 @@ install_environment <- function(
   if (is.null(version)) {
     cli_div(theme = cli_colors())
     cli_alert_success(
-      "{.header Retrieving version from PyPi}"
+      "{.header Retrieving version from PyPi.org}"
     )
     lib <- py_library_info(libs)
     version <- lib$version
@@ -101,7 +102,7 @@ install_environment <- function(
     lib <- py_library_info(libs, version)
     if(is.null(lib)) {
       cli_alert_success(
-        "{.header Checking if provided version is valid against PyPi}"
+        "{.header Checking if provided version is valid against PyPi.org}"
         )
       cli_abort(
         "{.header Version } {.emph '{version}' }{.header does not exist}"

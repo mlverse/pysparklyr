@@ -29,12 +29,31 @@ import_check <- function(x, envname) {
     env_loaded <- env_python(envname) == py_exe()
   }
 
-  inst <- paste0(
-    " {.run pysparklyr::install_pyspark(",
-    "envname = \"{envname}\")}"
-  )
+  inst <- NULL
+
+  if(substr(envname, 1, 22) == "r-sparklyr-databricks-") {
+    inst <- paste0(
+      " {.run pysparklyr::install_databricks(",
+      "envname = \"{envname}\")}"
+    )
+  }
+
+  if(substr(envname, 1, 19) == "r-sparklyr-pyspark-") {
+    inst <- paste0(
+      " {.run pysparklyr::install_pyspark(",
+      "envname = \"{envname}\")}"
+    )
+  }
+
+  msg_install <- NULL
+  msg_restart <- NULL
+  if(!is.null(inst)) {
+    # msg_install <- paste("{.header - Use} ", inst, "{.header to install.}")
+    # msg_restart <- paste("- Restart your R session, and run:", inst)
+  }
 
   if (inherits(out, "try-error")) {
+    cli_alert_danger(glue("`reticulate` error:\n {out[[1]]}"))
     if (env_found) {
       if (env_loaded) {
         # found & loaded
@@ -43,8 +62,8 @@ import_check <- function(x, envname) {
             "{.emph '{x}' }{.header is not available in the }",
             "{.emph '{envname}' }{.header Python environment.}"
           ),
-          paste("{.header - Use}", inst, "{.header to install.}")
-        ))
+          msg_install
+        ), call = NULL)
       } else {
         cli_abort(c(
           "{.emph '{x}' }{.header is not available current Python environment.}",
@@ -56,14 +75,14 @@ import_check <- function(x, envname) {
             "{.header - Restart your R session, and avoid",
             " initializing Python before using} {.emph '{x}'}"
           )
-        ))
+        ), call = NULL)
       }
     } else {
       cli_abort(c(
         "{.emph '{x}' }{.header is not available current Python environment.}",
         paste("- The {.emph '{envname}'} Python environment is not installed."),
-        paste("- Restart your R session, and run:", inst)
-      ))
+        msg_restart
+      ), call = NULL)
     }
   } else {
     if (env_loaded) {

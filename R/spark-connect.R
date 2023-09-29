@@ -81,7 +81,23 @@ py_spark_connect <- function(master,
       dbr <- version_prep(dbr_version)
     }
 
-    envname <- glue("r-sparklyr-databricks-{dbr}")
+    env_base <- "r-sparklyr-databricks-"
+    envname <- glue("{env_base}{dbr}")
+    envs <- find_environments(env_base)
+    matched <- envs[envs == envname]
+    if(length(matched) == 0) {
+      envname <- envs[[1]]
+      cli_div(theme = cli_colors())
+      cli_alert_warning(paste(
+        "{.header A Python environment with a matching version was not found}",
+        "* {.header Will attempt connecting using }{.emph '{envname}'}",
+        paste0("* {.header To install the proper Python environment use:}",
+               " {.run pysparklyr::install_databricks(version = \"{dbr}\")}"
+               ),
+        sep = "\n"
+        ))
+      cli_end()
+    }
 
     db <- import_check("databricks.connect", envname)
     remote <- db$DatabricksSession$builder$remote(
@@ -284,4 +300,14 @@ cluster_dbr_info <- function(cluster_id,
     req_body_json(list(cluster_id = cluster_id)) %>%
     req_perform() %>%
     resp_body_json()
+}
+
+
+find_environments <- function(x) {
+  conda_names <- conda_list()$name
+  ve_names <- virtualenv_list()
+  all_names <- c(ve_names, conda_names)
+  sub_names <- substr(all_names, 1, nchar(x))
+  matched <- all_names[sub_names == x]
+  sort(matched, decreasing = FALSE)
 }

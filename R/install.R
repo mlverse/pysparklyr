@@ -107,7 +107,7 @@ install_environment <- function(
   ver_name <- version_prep(version)
 
   if(version == ver_name) {
-    version <- paste(version, ".*")
+    version <- paste0(version, ".*")
   }
 
   if (is.null(envname)) {

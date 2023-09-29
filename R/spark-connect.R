@@ -55,13 +55,23 @@ py_spark_connect <- function(master,
   conn <- NULL
 
   if (method == "spark_connect") {
-    virtualenv_name <- env_version(
-      envname = envname,
-      spark = spark_version,
-      db = dbr_version
-    )
-    pyspark <- import_check("pyspark", virtualenv_name)
-    delta <- import_check("delta.pip_utils", virtualenv_name)
+
+    if(is.null(envname)) {
+      env_base <- "r-sparklyr-pyspark-"
+      envs <- find_environments(env_base)
+      if(length(envs) == 0) {
+        cli_div(theme = cli_colors())
+        cli_abort(c(
+         paste0("{.header No environment name provided, and no environment was }",
+          "{.header  automatically identified.}"),
+          "Run {.run pysparklyr::install_pyspark()} to install."
+        ), call = NULL)
+      } else {
+        envname <- envs[[1]]
+      }
+    }
+
+    pyspark <- import_check("pyspark", envname)
     pyspark_sql <- pyspark$sql
     conn <- pyspark_sql$SparkSession$builder$remote(master)
     con_class <- "connect_spark"

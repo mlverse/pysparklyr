@@ -60,13 +60,7 @@ install_databricks <- function(
   }
 
   if (is.null(version) && !is.null(cluster_id)) {
-    cli_div(theme = cli_colors())
-    cli_alert_warning(
-      "{.header Retrieving version from cluster }{.emph '{cluster_id}'}"
-    )
     version <- cluster_dbr_version(cluster_id)
-    cli_alert_success("{.header Cluster version: }{.emph '{version}'}")
-    cli_end()
   }
 
   install_environment(
@@ -235,18 +229,6 @@ require_python <- function(package, version) {
       "Make sure to restart your R session before trying again."
     ), call = NULL)
     cli_end()
-  }
-}
-
-check_full_version <- function(x) {
-  if (!is.null(x)) {
-    ver <- unlist(strsplit(x, "\\."))
-    if (length(ver) < 3) {
-      cli_abort(paste(
-        "Version provided {.emph '{x}'} is not valid.",
-        "Please provide a full version."
-      ))
-    }
   }
 }
 

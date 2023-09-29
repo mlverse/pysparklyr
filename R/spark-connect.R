@@ -94,7 +94,16 @@ py_spark_connect <- function(master,
 
     conn <- remote$userAgent(user_agent)
     con_class <- "connect_databricks"
-    master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
+
+    cluster_info <- cluster_dbr_info(
+      cluster_id = cluster_id,
+      host = master,
+      token = token
+    )
+
+    cluster_name <- substr(cluster_info$cluster_name, 1, 100)
+
+    master_label <- glue("{cluster_name} ({cluster_id})")
   }
 
   session <- conn$getOrCreate() # pyspark.sql.connect.session.SparkSession
@@ -237,19 +246,42 @@ cluster_dbr_version <- function(cluster_id,
                                 host = Sys.getenv("DATABRICKS_HOST"),
                                 token = Sys.getenv("DATABRICKS_TOKEN")
                                 ) {
-  cluster_info <- paste0(
-    host,
-    "/api/2.0/clusters/get"
-  ) %>%
-    request() %>%
-    req_auth_bearer_token(token) %>%
-    req_body_json(list(cluster_id = cluster_id)) %>%
-    req_perform() %>%
-    resp_body_json()
+
+  cli_div(theme = cli_colors())
+  cli_alert_warning(
+    "{.header Retrieving version from cluster }{.emph '{cluster_id}'}"
+  )
+
+  cluster_info <- cluster_dbr_info(
+    cluster_id = cluster_id,
+    host = host,
+    token = token
+  )
 
   sp_version <- cluster_info$spark_version
 
   sp_sep <- unlist(strsplit(sp_version, "\\."))
 
-  paste0(sp_sep[1], ".", sp_sep[2])
+  version <- paste0(sp_sep[1], ".", sp_sep[2])
+
+  cli_alert_success("{.header Cluster version: }{.emph '{version}'}")
+  cli_end()
+
+  version
+}
+
+cluster_dbr_info <- function(cluster_id,
+                             host = Sys.getenv("DATABRICKS_HOST"),
+                             token = Sys.getenv("DATABRICKS_TOKEN")
+) {
+
+  paste0(
+    host,
+    "/api/2.0/clusters/get"
+    ) %>%
+    request() %>%
+    req_auth_bearer_token(token) %>%
+    req_body_json(list(cluster_id = cluster_id)) %>%
+    req_perform() %>%
+    resp_body_json()
 }

@@ -110,30 +110,10 @@ install_environment <- function(
     }
   }
 
-  ver <- version %>%
-    strsplit("\\.") %>%
-    unlist()
+  ver_name <- version_prep(version)
 
-  ver_name <- version
-  ver_len <- length(ver)
-
-  if (ver_len == 1) {
-    cli_abort(c(
-      "{.emph '{version}' }{.header is not a valid version}",
-      "{.header - Please provide major & minor version (e.g. 10.2) }"
-    ))
-  }
-
-  if (ver_len > 3 | ver_len == 0) {
-    cli_abort("{.emph '{version}' }{.header is not a valid version}")
-  }
-
-  if (ver_len == 2) {
-    version <- paste0(version, ".*")
-  }
-
-  if (ver_len == 3) {
-    ver_name <- paste0(ver[1:2], collapse = ".")
+  if(version == ver_name) {
+    version <- paste(version, ".*")
   }
 
   if (is.null(envname)) {
@@ -149,12 +129,8 @@ install_environment <- function(
     "Automatically naming the environment:{.emph '{envname}'}"
   )
 
-  if (!is.null(version)) {
-    libs <- paste0(libs, "==", version)
-  }
-
   packages <- c(
-    libs,
+    paste0(libs, "==", version),
     "pandas!=2.1.0", # deprecation warnings
     "PyArrow",
     "grpcio",
@@ -291,4 +267,35 @@ py_library_info <- function(lib, ver = NULL) {
   resp$info
   # For possible future use
   # "https://packagemanager.posit.co/__api__/repos/5/packages/{lib}"
+}
+
+version_prep <- function(version) {
+  ver <- version %>%
+    strsplit("\\.") %>%
+    unlist()
+
+  ver_name <- NULL
+  ver_len <- length(ver)
+
+  if (ver_len == 1) {
+    cli_abort(c(
+      "{.emph '{version}' }{.header is not a valid version}",
+      "{.header - Please provide major & minor version (e.g. {version}.0) }"
+    ))
+  }
+
+  if (ver_len == 0) {
+    cli_abort("{.emph '{version}' }{.header is not a valid version}")
+  }
+
+  out <- paste0(ver[1:2], collapse = ".")
+
+  if (ver_len > 3) {
+    cli_abort(c(
+      "{.emph '{version}' }{.header contains too many version levels.}",
+      "{.header - Please provide a major/minor version (e.g. {out})}"
+    ))
+  }
+
+  out
 }

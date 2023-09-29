@@ -52,15 +52,14 @@ py_spark_connect <- function(master,
                              config = list()) {
   method <- method[[1]]
 
-  virtualenv_name <- env_version(
-    envname = envname,
-    spark = spark_version,
-    db = dbr_version
-  )
-
   conn <- NULL
 
   if (method == "spark_connect") {
+    virtualenv_name <- env_version(
+      envname = envname,
+      spark = spark_version,
+      db = dbr_version
+    )
     pyspark <- import_check("pyspark", virtualenv_name)
     delta <- import_check("delta.pip_utils", virtualenv_name)
     pyspark_sql <- pyspark$sql
@@ -70,10 +69,21 @@ py_spark_connect <- function(master,
   }
 
   if (method == "databricks_connect") {
-    if (is.null(cluster_id)) {
-      cluster_id <- Sys.getenv("DATABRICKS_CLUSTER_ID")
+    cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
+    master <- master %||% Sys.getenv("DATABRICKS_HOST")
+    if(is.null(dbr_version)) {
+      dbr <- cluster_dbr_version(
+        cluster_id = cluster_id,
+        host = master,
+        token = token
+        )
+    } else {
+      dbr <- version_prep(dbr_version)
     }
-    db <- import_check("databricks.connect", virtualenv_name)
+
+    envname <- glue("r-sparklyr-databricks-{dbr}")
+
+    db <- import_check("databricks.connect", envname)
     remote <- db$DatabricksSession$builder$remote(
       host = master,
       token = token,

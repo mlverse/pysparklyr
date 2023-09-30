@@ -23,3 +23,7 @@ test_spark_connect <- function() {
   }
   .test_env$sc
 }
+
+test_coverage_enable <-  function() {
+  Sys.setenv("CODE_COVERAGE" = "true")
+}

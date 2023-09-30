@@ -12,7 +12,7 @@ spark_ide_objects.pyspark_connection <- function(
 
   limit <- as.numeric(
     Sys.getenv("SPARKLYR_CONNECTION_OBJECT_LIMIT", unset = 1000)
-    )
+  )
 
   sc_catalog <- python_conn(con)$catalog
   current_catalog <- sc_catalog$currentCatalog()

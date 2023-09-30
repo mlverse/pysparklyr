@@ -33,7 +33,6 @@ spark_connect_method.spark_method_databricks_connect <- function(
     extensions,
     scala_version,
     ...) {
-
   py_spark_connect(
     master = master,
     method = method,
@@ -56,42 +55,45 @@ py_spark_connect <- function(master,
   conn <- NULL
 
   if (method == "spark_connect") {
-
-    if(is.null(envname)) {
+    if (is.null(envname)) {
       env_base <- "r-sparklyr-pyspark-"
       envs <- find_environments(env_base)
-      if(length(envs) == 0) {
+      if (length(envs) == 0) {
         cli_div(theme = cli_colors())
         cli_abort(c(
-         paste0("{.header No environment name provided, and no environment was }",
-          "{.header  automatically identified.}"),
+          paste0(
+            "{.header No environment name provided, and no environment was }",
+            "{.header  automatically identified.}"
+          ),
           "Run {.run pysparklyr::install_pyspark()} to install."
         ), call = NULL)
         cli_end()
       } else {
-        if(!is.null(spark_version)) {
+        if (!is.null(spark_version)) {
           sp_version <- version_prep(spark_version)
           envname <- glue("{env_base}{sp_version}")
           matched <- envs[envs == envname]
-          if(length(matched) == 0) {
+          if (length(matched) == 0) {
             envname <- envs[[1]]
             cli_div(theme = cli_colors())
             cli_alert_warning(paste(
               "{.header A Python environment with a matching version was not found}",
               "* {.header Will attempt connecting using }{.emph '{envname}'}",
-              paste0("* {.header To install the proper Python environment use:}",
-                     " {.run pysparklyr::install_pyspark(version = \"{sp_version}\")}"
+              paste0(
+                "* {.header To install the proper Python environment use:}",
+                " {.run pysparklyr::install_pyspark(version = \"{sp_version}\")}"
               ),
               sep = "\n"
             ))
             cli_end()
           } else {
-             envname <- matched
-           }
+            envname <- matched
+          }
         } else {
           envname <- envs[[1]]
+        }
       }
-    }}
+    }
 
     pyspark <- import_check("pyspark", envname)
     pyspark_sql <- pyspark$sql
@@ -103,12 +105,12 @@ py_spark_connect <- function(master,
   if (method == "databricks_connect") {
     cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
     master <- master %||% Sys.getenv("DATABRICKS_HOST")
-    if(is.null(dbr_version)) {
+    if (is.null(dbr_version)) {
       dbr <- cluster_dbr_version(
         cluster_id = cluster_id,
         host = master,
         token = token
-        )
+      )
     } else {
       dbr <- version_prep(dbr_version)
     }
@@ -117,17 +119,18 @@ py_spark_connect <- function(master,
     envname <- glue("{env_base}{dbr}")
     envs <- find_environments(env_base)
     matched <- envs[envs == envname]
-    if(length(matched) == 0) {
+    if (length(matched) == 0) {
       envname <- envs[[1]]
       cli_div(theme = cli_colors())
       cli_alert_warning(paste(
         "{.header A Python environment with a matching version was not found}",
         "* {.header Will attempt connecting using }{.emph '{envname}'}",
-        paste0("* {.header To install the proper Python environment use:}",
-               " {.run pysparklyr::install_databricks(version = \"{dbr}\")}"
-               ),
+        paste0(
+          "* {.header To install the proper Python environment use:}",
+          " {.run pysparklyr::install_databricks(version = \"{dbr}\")}"
+        ),
         sep = "\n"
-        ))
+      ))
       cli_end()
     }
 
@@ -251,7 +254,7 @@ build_user_agent <- function() {
   in_connect <- FALSE
 
   env_var <- Sys.getenv("SPARK_CONNECT_USER_AGENT", unset = NA)
-  if(!is.na(env_var)) {
+  if (!is.na(env_var)) {
     return(env_var)
   }
 
@@ -297,9 +300,7 @@ build_user_agent <- function() {
 
 cluster_dbr_version <- function(cluster_id,
                                 host = Sys.getenv("DATABRICKS_HOST"),
-                                token = Sys.getenv("DATABRICKS_TOKEN")
-                                ) {
-
+                                token = Sys.getenv("DATABRICKS_TOKEN")) {
   cli_div(theme = cli_colors())
   cli_alert_warning(
     "{.header Retrieving version from cluster }{.emph '{cluster_id}'}"
@@ -325,13 +326,11 @@ cluster_dbr_version <- function(cluster_id,
 
 cluster_dbr_info <- function(cluster_id,
                              host = Sys.getenv("DATABRICKS_HOST"),
-                             token = Sys.getenv("DATABRICKS_TOKEN")
-) {
-
+                             token = Sys.getenv("DATABRICKS_TOKEN")) {
   paste0(
     host,
     "/api/2.0/clusters/get"
-    ) %>%
+  ) %>%
     request() %>%
     req_auth_bearer_token(token) %>%
     req_body_json(list(cluster_id = cluster_id)) %>%

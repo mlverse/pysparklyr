@@ -1,5 +1,5 @@
 suppressPackageStartupMessages(library(dplyr))
-#suppressPackageStartupMessages(library(sparklyr))
+suppressPackageStartupMessages(library(sparklyr))
 
 spark_connect_service_start(
   version = test_version_spark(),

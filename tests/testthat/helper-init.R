@@ -15,7 +15,7 @@ test_scala_spark <- function() {
 
 test_spark_connect <- function() {
   if(is.null(.test_env$sc)) {
-    .test_env$sc <- spark_connect(
+    .test_env$sc <- sparklyr::spark_connect(
       master = "sc://localhost",
       method = "spark_connect",
       version = test_version_spark()

@@ -11,3 +11,11 @@ test_that("Can get pypy.org info", {
 
   expect_null(py_library_info("doesnt.exist", ""))
 })
+
+test_that("version_prep() outputs what's expected", {
+  expect_error(version_prep(""))
+  expect_error(version_prep("1"))
+  expect_equal(version_prep("1.1"), "1.1")
+  expect_equal(version_prep("1.1.1"), "1.1")
+  expect_error(version_prep("1.1.1.1"))
+})

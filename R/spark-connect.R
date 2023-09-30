@@ -250,6 +250,11 @@ build_user_agent <- function() {
   in_rstudio <- FALSE
   in_connect <- FALSE
 
+  env_var <- Sys.getenv("SPARK_CONNECT_USER_AGENT", unset = NA)
+  if(!is.na(env_var)) {
+    return(env_var)
+  }
+
   if (Sys.getenv("RSTUDIO_PRODUCT") == "CONNECT") {
     product <- "posit-connect"
   }

@@ -20,7 +20,6 @@ install_pyspark <- function(
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     ...) {
-
   install_environment(
     libs = "pyspark",
     version = version,
@@ -47,7 +46,6 @@ install_databricks <- function(
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     ...) {
-
   if (!is.null(version) && !is.null(cluster_id)) {
     cli_div(theme = cli_colors())
     cli_alert_warning(
@@ -82,7 +80,6 @@ install_environment <- function(
     new_env = NULL,
     method = c("auto", "virtualenv", "conda"),
     ...) {
-
   if (is.null(version)) {
     cli_div(theme = cli_colors())
     cli_alert_success(
@@ -94,10 +91,10 @@ install_environment <- function(
     cli_end()
   } else {
     lib <- py_library_info(libs, version)
-    if(is.null(lib)) {
+    if (is.null(lib)) {
       cli_alert_success(
         "{.header Checking if provided version is valid against PyPi.org}"
-        )
+      )
       cli_abort(
         "{.header Version } {.emph '{version}' }{.header does not exist}"
       )
@@ -106,12 +103,12 @@ install_environment <- function(
 
   ver_name <- version_prep(version)
 
-  if(version == ver_name) {
+  if (version == ver_name) {
     version <- paste0(version, ".*")
   }
 
   if (is.null(envname)) {
-    if(libs == "databricks-connect") {
+    if (libs == "databricks-connect") {
       ln <- "databricks"
     } else {
       ln <- libs
@@ -234,7 +231,7 @@ require_python <- function(package, version) {
 
 py_library_info <- function(lib, ver = NULL) {
   url <- paste0("https://pypi.org/pypi/", lib)
-  if(!is.null(ver)) {
+  if (!is.null(ver)) {
     url <- paste0(url, "/", ver)
   }
   url <- paste0(url, "/json")

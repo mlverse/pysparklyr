@@ -35,7 +35,7 @@ spark_session.pyspark_connection <- function(sc) {
   # should be more flexible, taking row specs, multiple args, etc. matching
   # semantics of R dataframes and take advantage of
   # reticulate::`[.python.builtin.object` for constructing slices, etc.
-  if(is.null(i)) {
+  if (is.null(i)) {
     # special case, since pyspark has no "emptyDataFrame" method to invoke
     sc <- spark_connection(x)
 

@@ -31,14 +31,14 @@ import_check <- function(x, envname) {
 
   inst <- NULL
 
-  if(substr(envname, 1, 22) == "r-sparklyr-databricks-") {
+  if (substr(envname, 1, 22) == "r-sparklyr-databricks-") {
     inst <- paste0(
       " {.run pysparklyr::install_databricks(",
       "envname = \"{envname}\")}"
     )
   }
 
-  if(substr(envname, 1, 19) == "r-sparklyr-pyspark-") {
+  if (substr(envname, 1, 19) == "r-sparklyr-pyspark-") {
     inst <- paste0(
       " {.run pysparklyr::install_pyspark(",
       "envname = \"{envname}\")}"
@@ -47,7 +47,7 @@ import_check <- function(x, envname) {
 
   msg_install <- NULL
   msg_restart <- NULL
-  if(!is.null(inst)) {
+  if (!is.null(inst)) {
     # msg_install <- paste("{.header - Use} ", inst, "{.header to install.}")
     # msg_restart <- paste("- Restart your R session, and run:", inst)
   }
@@ -115,7 +115,7 @@ env_type <- function(envname) {
   }
   if (is.na(ret)) {
     check_conda <- try(conda_python(envname), silent = TRUE)
-    if(!inherits(check_conda, "try-error")) {
+    if (!inherits(check_conda, "try-error")) {
       ret <- "conda"
     }
   }

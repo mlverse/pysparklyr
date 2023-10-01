@@ -101,7 +101,10 @@ jobs:
       - name: Virtual Environment
         run: |
           devtools::load_all()
-          install_pyspark(Sys.getenv("SPARK_VERSION"))
+          install_pyspark(
+            Sys.getenv("SPARK_VERSION"),
+            python = Sys.which("python")
+          )
         shell: Rscript {0}
 
       - name: R Tests

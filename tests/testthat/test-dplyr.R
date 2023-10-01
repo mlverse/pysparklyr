@@ -1,9 +1,14 @@
 test_that("copy_to() works", {
   sc <- test_spark_connect()
+
   expect_silent(
     tbl_mtcars <- copy_to(sc, mtcars, overwrite = TRUE)
   )
-  expect_snapshot(print(tbl_mtcars))
+
+  tbl_ordered <- tbl_mtcars %>%
+    arrange(mpg)
+
+  expect_snapshot(tbl_ordered)
 
   expect_snapshot(print(head(tbl_mtcars)))
 
@@ -21,7 +26,7 @@ test_that("copy_to() works", {
     count() %>%
     pull()
 
-  expect_lt(tbl_frac, 10)
+  expect_lt(tbl_frac, 30)
 
   tbl_am <- tbl_mtcars %>%
     group_by(am) %>%

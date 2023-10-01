@@ -98,6 +98,13 @@ jobs:
           print(t_pkgs[, c("Package", "Version")])
         shell: Rscript {0}
 
+      - name: Cache Environment
+        id: cache-venv
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.virtualenvs/r-sparklyr-pyspark-${{ matrix.config.major }}
+          key: sparklyr-virtualenv-${{ matrix.config.major }}
+
       - name: Virtual Environment
         run: |
           devtools::load_all()

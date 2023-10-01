@@ -1,5 +1,3 @@
-skip_on_ci()
-
 test_that("CSV works", {
   sc <- test_spark_connect()
   tbl_mtcars <- test_table_mtcars()

@@ -1,5 +1,3 @@
-skip_on_ci()
-
 test_that("import_check() exception tests", {
   sc <- test_spark_connect()
 

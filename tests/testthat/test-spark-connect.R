@@ -1,5 +1,3 @@
-skip_on_ci()
-
 test_that("build_user_agent() outputs work", {
   x <- build_user_agent()
   expect_equal(substr(x, 1,8), "sparklyr")

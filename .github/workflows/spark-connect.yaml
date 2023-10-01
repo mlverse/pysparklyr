@@ -107,6 +107,6 @@ jobs:
           devtools::load_all()
           library(sparklyr)
           Sys.getenv("JAVA_HOME")
-          devtools::test()
+          devtools::test(reporter = sparklyr_reporter())
         shell: Rscript {0}
 

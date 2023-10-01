@@ -10,7 +10,7 @@ test_that("copy_to() works", {
 
   expect_snapshot(tbl_ordered)
 
-  expect_snapshot(print(head(tbl_mtcars)))
+  expect_snapshot(print(head(tbl_ordered)))
 
   tbl_n <- tbl_mtcars %>%
     sample_n(5) %>%

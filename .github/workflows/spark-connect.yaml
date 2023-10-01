@@ -94,6 +94,7 @@ jobs:
           key: sparklyr-virtualenv-${{ matrix.config.major }}
 
       - name: Virtual Environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
           devtools::load_all()
           install_pyspark(

@@ -1,6 +1,6 @@
 test_that("copy_to() works", {
   tbl_ordered <- test_table_mtcars() %>%
-    arrange(mpg)
+    arrange(mpg, qsec, hp)
 
   expect_snapshot(tbl_ordered)
 
@@ -37,7 +37,7 @@ test_that("Misc functions", {
 
   tbl_join <- test_table_mtcars() %>%
     left_join(tbl_am, by = "am") %>%
-    arrange(mpg)
+    arrange(mpg, qsec, hp)
 
   expect_snapshot(tbl_join)
 })

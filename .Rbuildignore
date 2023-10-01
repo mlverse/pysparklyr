@@ -4,3 +4,4 @@
 ^progress\.md$
 ^LICENSE\.md$
 ^\.github$
+^codecov\.yml$

@@ -2,7 +2,7 @@ skip_on_ci()
 
 test_that("CSV works", {
   sc <- test_spark_connect()
-  tbl_mtcars <- copy_to(sc, mtcars, overwrite = TRUE)
+  tbl_mtcars <- test_table_mtcars()
   file_name <- tempfile()
   expect_silent(spark_write_csv(tbl_mtcars, file_name))
   expect_snapshot(
@@ -12,7 +12,7 @@ test_that("CSV works", {
 
 test_that("Parquet works", {
   sc <- test_spark_connect()
-  tbl_mtcars <- copy_to(sc, mtcars, overwrite = TRUE)
+  tbl_mtcars <- test_table_mtcars()
   file_name <- tempfile()
   expect_silent(spark_write_parquet(tbl_mtcars, file_name))
   expect_snapshot(
@@ -22,7 +22,7 @@ test_that("Parquet works", {
 
 test_that("ORC works", {
   sc <- test_spark_connect()
-  tbl_mtcars <- copy_to(sc, mtcars, overwrite = TRUE)
+  tbl_mtcars <- test_table_mtcars()
   file_name <- tempfile()
   expect_silent(spark_write_orc(tbl_mtcars, file_name))
   expect_snapshot(
@@ -32,7 +32,7 @@ test_that("ORC works", {
 
 test_that("JSON works", {
   sc <- test_spark_connect()
-  tbl_mtcars <- copy_to(sc, mtcars, overwrite = TRUE)
+  tbl_mtcars <- test_table_mtcars()
   file_name <- tempfile()
   expect_silent(spark_write_json(tbl_mtcars, file_name))
   expect_snapshot(

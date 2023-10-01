@@ -2,7 +2,7 @@ test_that("copy_to() works", {
   sc <- test_spark_connect()
 
   expect_silent(
-    tbl_mtcars <- copy_to(sc, mtcars, overwrite = TRUE)
+    tbl_mtcars <- test_table_mtcars()
   )
 
   tbl_ordered <- tbl_mtcars %>%

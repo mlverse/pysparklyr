@@ -16,13 +16,14 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {spark: '3.4.1', major: '3.4', hadoop: '3', name: 'Spark 3.4'}
+          - {spark: '3.4.1', pyspark: '3.4', hadoop: '3', name: 'PySpark 3.4'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       SPARK_VERSION:  ${{ matrix.config.spark }}
       HADOOP_VERSION: ${{ matrix.config.hadoop }}
+      PYSPARK_VERSION:  ${{ matrix.config.pyspark }}
 
     steps:
       - uses: actions/checkout@v3
@@ -36,6 +37,7 @@ jobs:
         with:
           extra-packages: |
             any::devtools
+
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
@@ -90,8 +92,8 @@ jobs:
         id: cache-venv
         uses: actions/cache@v3
         with:
-          path: /home/runner/.virtualenvs/r-sparklyr-pyspark-${{ matrix.config.major }}
-          key: sparklyr-virtualenv-${{ matrix.config.major }}
+          path: /home/runner/.virtualenvs/r-sparklyr-pyspark-${{ matrix.config.pyspark }}
+          key: sparklyr-virtualenv-${{ matrix.config.pyspark }}
 
       - name: Virtual Environment
         if: steps.cache-venv.outputs.cache-hit != 'true'

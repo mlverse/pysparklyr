@@ -6,9 +6,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/mlverse/pysparklyr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mlverse/pysparklyr/actions/workflows/R-CMD-check.yaml)
-
 [![Spark-Connect](https://github.com/mlverse/pysparklyr/actions/workflows/spark-tests.yaml/badge.svg)](https://github.com/mlverse/pysparklyr/actions/workflows/spark-tests.yaml)
-
+[![codecov](https://codecov.io/gh/mlverse/pysparklyr/graph/badge.svg?token=O1N9qPabpF)](https://codecov.io/gh/mlverse/pysparklyr)
 <!-- badges: end -->
 
 Integrates `sparklyr` with PySpark and Databricks. The main reason of

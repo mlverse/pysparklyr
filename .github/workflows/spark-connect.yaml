@@ -16,6 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
+          - {spark: '3.5.0', pyspark: '3.5', hadoop: '3', name: 'PySpark 3.5'}
           - {spark: '3.4.1', pyspark: '3.4', hadoop: '3', name: 'PySpark 3.4'}
 
     env:
@@ -35,8 +36,8 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: |
-            any::devtools
+          extra-packages: any::devtools
+          needs: check
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v4

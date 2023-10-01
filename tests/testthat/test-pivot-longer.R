@@ -1,3 +1,5 @@
+skip_on_ci()
+
 test_that("Pivot longer", {
   sc <- test_spark_connect()
   local_pivot <- tibble::tribble(

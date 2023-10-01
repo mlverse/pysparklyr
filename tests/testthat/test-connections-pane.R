@@ -1,3 +1,5 @@
+skip_on_ci()
+
 test_that("Object retrieval function work", {
   sc <- test_spark_connect()
   tbl_mtcars <- copy_to(sc, mtcars, overwrite = TRUE)

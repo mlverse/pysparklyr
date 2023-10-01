@@ -47,7 +47,7 @@ jobs:
 
       - name: Cache Spark
         id: cache-spark
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /home/runner/spark/spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
           key: sparklyr-spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
@@ -60,7 +60,7 @@ jobs:
 
       - name: Cache Scala
         id: cache-scala
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /home/runner/scala/
           key: scala-2
@@ -88,7 +88,7 @@ jobs:
 
       - name: Cache Environment
         id: cache-venv
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /home/runner/.virtualenvs/r-sparklyr-pyspark-${{ matrix.config.major }}
           key: sparklyr-virtualenv-${{ matrix.config.major }}

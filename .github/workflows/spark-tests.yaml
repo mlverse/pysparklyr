@@ -1,12 +1,10 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/master/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
-    branches: master
+    branches: main
   pull_request:
-    branches: master
+    branches: main
 
-name: Spark-Tests
+name: Spark-Connect
 
 jobs:
   Spark-Tests:
@@ -18,13 +16,15 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {spark: '3.4.0', name: 'Spark 3.4'}
+          - {spark: '3.5.0', pyspark: '3.5', hadoop: '3', name: 'PySpark 3.5'}
+          - {spark: '3.4.1', pyspark: '3.4', hadoop: '3', name: 'PySpark 3.4'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
       SPARK_VERSION:  ${{ matrix.config.spark }}
       HADOOP_VERSION: ${{ matrix.config.hadoop }}
+      PYSPARK_VERSION:  ${{ matrix.config.pyspark }}
 
     steps:
       - uses: actions/checkout@v3
@@ -36,24 +36,24 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: |
-            any::devtools
-            any::qs
-            any::e1071
-            any::mlbench
-            any::glmnet
-            any::sparklyr.nested
-            any::janeaustenr
-            any::nycflights13
-            any::reshape2
-            any::survival
+          extra-packages: any::devtools
+          needs: check
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Venv
+        run: |
+          sudo apt-get install python3-venv
 
       - name: Cache Spark
         id: cache-spark
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /home/runner/spark/spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
-          key: sparklyr-spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}-3
+          key: sparklyr-spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
 
       - name: Install Spark (via sparklyr)
         if: steps.cache-spark.outputs.cache-hit != 'true'
@@ -63,7 +63,7 @@ jobs:
 
       - name: Cache Scala
         id: cache-scala
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /home/runner/scala/
           key: scala-2
@@ -87,6 +87,23 @@ jobs:
           m_pkgs <- installed.packages()
           t_pkgs <- as.data.frame(m_pkgs, row.names = FALSE)
           print(t_pkgs[, c("Package", "Version")])
+        shell: Rscript {0}
+
+      - name: Cache Environment
+        id: cache-venv
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/.virtualenvs/r-sparklyr-pyspark-${{ matrix.config.pyspark }}
+          key: sparklyr-virtualenv-${{ matrix.config.pyspark }}
+
+      - name: Virtual Environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          devtools::load_all()
+          install_pyspark(
+            Sys.getenv("SPARK_VERSION"),
+            python = Sys.which("python")
+          )
         shell: Rscript {0}
 
       - name: R Tests

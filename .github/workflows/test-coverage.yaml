@@ -1,0 +1,96 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+name: test-coverage
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::covr
+          needs: coverage
+
+      - name: Cache Spark
+        id: cache-spark
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/spark/spark-3.4.1-bin-hadoop3
+          key: sparklyr-spark-3.4.1-bin-hadoop3
+
+      - name: Install Spark (via sparklyr)
+        if: steps.cache-spark.outputs.cache-hit != 'true'
+        run: |
+          sparklyr::spark_install(version = "3.1.3")
+        shell: Rscript {0}
+
+      - name: Cache Scala
+        id: cache-scala
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/scala/
+          key: scala-2
+
+      - name: Install Scala (via sparklyr)
+        if: steps.cache-scala.outputs.cache-hit != 'true'
+        run: |
+          sparklyr::download_scalac()
+        shell: Rscript {0}
+
+      - name: Cache Environment
+        id: cache-venv
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/.virtualenvs/r-sparklyr-pyspark-3.4
+          key: sparklyr-virtualenv-3.4
+
+      - name: Virtual Environment
+        if: steps.cache-venv.outputs.cache-hit != 'true'
+        run: |
+          devtools::load_all()
+          install_pyspark("3.4", python = Sys.which("python"))
+        shell: Rscript {0}
+
+      - name: Test coverage
+        run: |
+          Sys.setenv("CODE_COVERAGE" = "true")
+          covr::codecov(
+            quiet = FALSE,
+            clean = FALSE,
+            install_path = file.path(Sys.getenv("RUNNER_TEMP"), "package")
+          )
+        shell: Rscript {0}
+
+      - name: Show testthat output
+        if: always()
+        run: |
+          ## --------------------------------------------------------------------
+          find ${{ runner.temp }}/package -name 'testthat.Rout*' -exec cat '{}' \; || true
+        shell: bash
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-test-failures
+          path: ${{ runner.temp }}/package

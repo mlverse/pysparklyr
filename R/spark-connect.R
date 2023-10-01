@@ -231,19 +231,6 @@ setOldClass(
   c("connect_databricks", "pyspark_connection", "spark_connection")
 )
 
-env_version <- function(envname, spark = NULL, db = NULL) {
-  ver <- envname
-  if (!is.null(spark) | !is.null(db)) {
-    if (!is.null(db)) {
-      ver <- glue("{envname}-db-{db}")
-    }
-    if (!is.null(spark) & ver == envname) {
-      ver <- glue("{envname}-pyspark-{spark}")
-    }
-  }
-  ver
-}
-
 python_conn <- function(x) {
   x$state$spark_context
 }

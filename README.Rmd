@@ -13,108 +13,19 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r, include = FALSE}
-library(remotes)
-library(dplyr)
-library(dbplyr)
-library(sparklyr)
-library(pysparklyr)
-
-install_github("sparklyr/sparklyr")
-install_github("mlverse/pysparklyr")
-
-
-# install_pyspark()
-```
-
 # pysparklyr
 
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/mlverse/pysparklyr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mlverse/pysparklyr/actions/workflows/R-CMD-check.yaml)
+[![Spark-Connect](https://github.com/mlverse/pysparklyr/actions/workflows/spark-tests.yaml/badge.svg)](https://github.com/mlverse/pysparklyr/actions/workflows/spark-tests.yaml)
+[![codecov](https://codecov.io/gh/mlverse/pysparklyr/graph/badge.svg?token=O1N9qPabpF)](https://codecov.io/gh/mlverse/pysparklyr)
 <!-- badges: end -->
 
-Integrates `sparklyr` with PySpark and Databricks. The main reason of this package is because the new Spark and Databricks Connect connection method does not work with standard `sparklyr` integration.
+Integrates `sparklyr` with PySpark and Databricks. The main reason of this 
+package is because the new Spark and Databricks Connect connection method does
+not work with standard `sparklyr` integration.
 
-## Installation
-
-Development of this package requires regular updates to `sparklyr`. To try out, use the
-development version of both packages, which are available on GitHub:
-
-``` r
-library(remotes)
-
-install_github("sparklyr/sparklyr")
-install_github("mlverse/pysparklyr")
-
-```
-
-## Setup
-
-Aside from PySpark, there are several Python libraries needed for the integration to work. `pysparklyr` has a helper function (`install_pyspark()`) that sets up a new Virtual Environment, and installs the needed Python libraries:
-
-``` r
-library(sparklyr)
-
-install_pyspark()
-```
-
-## Connecting to Databricks (ML 13+)
-
-For convenience, and safety, you can save your authentication token (PAT), and your
-company's Databrick's URL in a environment variable. The two variables are:
-
-- `DATABRICKS_TOKEN` 
-- `DATABRICKS_HOST`
-
-This will prevent your token to be shown in plain text in your code. You can set
-the environment variables at the beginning of your R session using `Sys.setenv()`.
-Preferably, the two variables can be set for all R sessions by saving them to the
-`.Renviron` file. The `usethis` package has a handy function that opens the file
-so you can edit it: `usethis::edit_r_environ()`. Just add the two entries to
-your `.Renviron` file.
-
-After that, use `spark_connect()` to open the connection to Databricks. You will
-need to only pass the `cluster_id` of your cluster, and tell `sparklyr` that
-you are connecting to a cluster version ML 13+ by using `method = "databricks_connect"`
-
-```{r}
-sc <- spark_connect(
-  cluster_id = "0608-170338-jwkec0wi",
-  method = "databricks_connect"
-)
-```
-
-## Using with Databricks 13+
-
-Through `pysparklyr`, `sparklyr` is able to display the navigation to the full
-data catalog accessible to your user in Databricks. That will be displayed in
-the RStudio's Connections Pane, as shown below. 
-
-<img src="man/readme/rstudio-connection.png"/>
-
-You can use `dbplyr`'s `in_catalog()` function to access the different tables 
-inside your data catalog. After pointing `tbl()` to a specific table, you can 
-use `dplyr`. 
-
-```{r}
-library(dplyr)
-library(dbplyr)
-
-trips <- tbl(sc, in_catalog("samples", "nyctaxi", "trips"))
-
-trips
-```
-
-```{r}
-trips %>%
-  group_by(pickup_zip) %>%
-  summarise(
-    count = n(),
-    avg_distance = mean(trip_distance, na.rm = TRUE)
-  )
-```
-
-```{r}
-spark_disconnect(sc)
-```
+To learn how to use, please visit the Spark / Databricks Connect article, 
+available in the official `sparklyr` website: [Spark Connect, and Databricks Connect v2
+](https://spark.rstudio.com/deployment/databricks-spark-connect.html)

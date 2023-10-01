@@ -15,6 +15,7 @@ spark_connect_method.spark_method_spark_connect <- function(
     master = master,
     method = method,
     config = config,
+    spark_version = version,
     ... = ...
   )
 }
@@ -45,23 +46,56 @@ py_spark_connect <- function(master,
                              token = Sys.getenv("DATABRICKS_TOKEN"),
                              cluster_id = NULL,
                              method = "",
-                             envname = "r-sparklyr",
+                             envname = NULL,
                              spark_version = NULL,
-                             databricks_connect_version = NULL,
+                             dbr_version = NULL,
                              config = list()) {
   method <- method[[1]]
-
-  virtualenv_name <- env_version(
-    envname = envname,
-    spark = spark_version,
-    db = databricks_connect_version
-  )
 
   conn <- NULL
 
   if (method == "spark_connect") {
-    pyspark <- import_check("pyspark", virtualenv_name)
-    delta <- import_check("delta.pip_utils", virtualenv_name)
+    if (is.null(envname)) {
+      env_base <- "r-sparklyr-pyspark-"
+      envs <- find_environments(env_base)
+      if (length(envs) == 0) {
+        cli_div(theme = cli_colors())
+        cli_abort(c(
+          paste0(
+            "{.header No environment name provided, and no environment was }",
+            "{.header  automatically identified.}"
+          ),
+          "Run {.run pysparklyr::install_pyspark()} to install."
+        ), call = NULL)
+        cli_end()
+      } else {
+        if (!is.null(spark_version)) {
+          sp_version <- version_prep(spark_version)
+          envname <- glue("{env_base}{sp_version}")
+          matched <- envs[envs == envname]
+          if (length(matched) == 0) {
+            envname <- envs[[1]]
+            cli_div(theme = cli_colors())
+            cli_alert_warning(paste(
+              "{.header A Python environment with a matching version was not found}",
+              "* {.header Will attempt connecting using }{.emph '{envname}'}",
+              paste0(
+                "* {.header To install the proper Python environment use:}",
+                " {.run pysparklyr::install_pyspark(version = \"{sp_version}\")}"
+              ),
+              sep = "\n"
+            ))
+            cli_end()
+          } else {
+            envname <- matched
+          }
+        } else {
+          envname <- envs[[1]]
+        }
+      }
+    }
+
+    pyspark <- import_check("pyspark", envname)
     pyspark_sql <- pyspark$sql
     conn <- pyspark_sql$SparkSession$builder$remote(master)
     con_class <- "connect_spark"
@@ -69,10 +103,38 @@ py_spark_connect <- function(master,
   }
 
   if (method == "databricks_connect") {
-    if (is.null(cluster_id)) {
-      cluster_id <- Sys.getenv("DATABRICKS_CLUSTER_ID")
+    cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
+    master <- master %||% Sys.getenv("DATABRICKS_HOST")
+    if (is.null(dbr_version)) {
+      dbr <- cluster_dbr_version(
+        cluster_id = cluster_id,
+        host = master,
+        token = token
+      )
+    } else {
+      dbr <- version_prep(dbr_version)
     }
-    db <- import_check("databricks.connect", virtualenv_name)
+
+    env_base <- "r-sparklyr-databricks-"
+    envname <- glue("{env_base}{dbr}")
+    envs <- find_environments(env_base)
+    matched <- envs[envs == envname]
+    if (length(matched) == 0) {
+      envname <- envs[[1]]
+      cli_div(theme = cli_colors())
+      cli_alert_warning(paste(
+        "{.header A Python environment with a matching version was not found}",
+        "* {.header Will attempt connecting using }{.emph '{envname}'}",
+        paste0(
+          "* {.header To install the proper Python environment use:}",
+          " {.run pysparklyr::install_databricks(version = \"{dbr}\")}"
+        ),
+        sep = "\n"
+      ))
+      cli_end()
+    }
+
+    db <- import_check("databricks.connect", envname)
     remote <- db$DatabricksSession$builder$remote(
       host = master,
       token = token,
@@ -83,13 +145,20 @@ py_spark_connect <- function(master,
 
     conn <- remote$userAgent(user_agent)
     con_class <- "connect_databricks"
-    master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
+
+    cluster_info <- cluster_dbr_info(
+      cluster_id = cluster_id,
+      host = master,
+      token = token
+    )
+
+    cluster_name <- substr(cluster_info$cluster_name, 1, 100)
+
+    master_label <- glue("{cluster_name} ({cluster_id})")
   }
 
   session <- conn$getOrCreate() # pyspark.sql.connect.session.SparkSession
 
-  require_python("pyspark", "3.4.1")
-  require_python("databricks-connect", "13.2.1")
   session$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
 
   get_version <- try(session$version, silent = TRUE)
@@ -184,6 +253,11 @@ build_user_agent <- function() {
   in_rstudio <- FALSE
   in_connect <- FALSE
 
+  env_var <- Sys.getenv("SPARK_CONNECT_USER_AGENT", unset = NA)
+  if (!is.na(env_var)) {
+    return(env_var)
+  }
+
   if (Sys.getenv("RSTUDIO_PRODUCT") == "CONNECT") {
     product <- "posit-connect"
   }
@@ -221,4 +295,56 @@ build_user_agent <- function() {
       product
     )
   )
+}
+
+
+cluster_dbr_version <- function(cluster_id,
+                                host = Sys.getenv("DATABRICKS_HOST"),
+                                token = Sys.getenv("DATABRICKS_TOKEN")) {
+  cli_div(theme = cli_colors())
+  cli_alert_warning(
+    "{.header Retrieving version from cluster }{.emph '{cluster_id}'}"
+  )
+
+  cluster_info <- cluster_dbr_info(
+    cluster_id = cluster_id,
+    host = host,
+    token = token
+  )
+
+  sp_version <- cluster_info$spark_version
+
+  sp_sep <- unlist(strsplit(sp_version, "\\."))
+
+  version <- paste0(sp_sep[1], ".", sp_sep[2])
+
+  cli_alert_success("{.header Cluster version: }{.emph '{version}'}")
+  cli_end()
+
+  version
+}
+
+cluster_dbr_info <- function(cluster_id,
+                             host = Sys.getenv("DATABRICKS_HOST"),
+                             token = Sys.getenv("DATABRICKS_TOKEN")) {
+  paste0(
+    host,
+    "/api/2.0/clusters/get"
+  ) %>%
+    request() %>%
+    req_auth_bearer_token(token) %>%
+    req_body_json(list(cluster_id = cluster_id)) %>%
+    req_perform() %>%
+    resp_body_json()
+}
+
+
+find_environments <- function(x) {
+  conda_names <- conda_list()$name
+  ve_names <- virtualenv_list()
+  all_names <- c(ve_names, conda_names)
+  sub_names <- substr(all_names, 1, nchar(x))
+  matched <- all_names[sub_names == x]
+  sorted <- sort(matched, decreasing = TRUE)
+  sorted
 }

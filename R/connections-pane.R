@@ -10,6 +10,10 @@ spark_ide_objects.pyspark_connection <- function(
   df_tables <- data.frame()
   df_cat <- data.frame()
 
+  limit <- as.numeric(
+    Sys.getenv("SPARKLYR_CONNECTION_OBJECT_LIMIT", unset = 1000)
+  )
+
   sc_catalog <- python_conn(con)$catalog
   current_catalog <- sc_catalog$currentCatalog()
   if (is.null(catalog)) {
@@ -18,8 +22,7 @@ spark_ide_objects.pyspark_connection <- function(
     if (length(tables) > 0) {
       temps <- tables[map_lgl(tables, ~ .x$isTemporary)]
       df_tables <- temps %>%
-        rs_tables() %>%
-        rbind(df_cat)
+        rs_tables()
     }
 
     catalogs <- sc_catalog$listCatalogs()
@@ -27,15 +30,15 @@ spark_ide_objects.pyspark_connection <- function(
       df_catalogs <- data.frame(name = map_chr(catalogs, ~ .x$name))
       df_catalogs$type <- "catalog"
     }
-
-    out <- rbind(df_tables, df_catalogs)
+    comb <- rbind(df_tables, df_catalogs)
+    out <- head(comb, limit)
   } else {
     sc_catalog$setCurrentCatalog(catalog)
     if (is.null(schema)) {
       databases <- sc_catalog$listDatabases()
       df_databases <- data.frame(name = map_chr(databases, ~ .x$name))
       df_databases$type <- "schema"
-      out <- df_databases
+      out <- head(df_databases, limit)
     } else {
       tables <- sc_catalog$listTables(dbName = schema)
       if (length(tables) > 0) {
@@ -48,7 +51,7 @@ spark_ide_objects.pyspark_connection <- function(
         tables <- tables[schemas]
         df_tables <- rs_tables(tables)
       }
-      out <- df_tables
+      out <- head(df_tables, limit)
     }
   }
 

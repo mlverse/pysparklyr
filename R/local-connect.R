@@ -16,7 +16,7 @@ spark_connect_service_start <- function(version = "3.4",
     "--packages",
     glue("org.apache.spark:spark-connect_{scala_version}:{get_version$sparkVersion}")
   )
-  if(!include_args) {
+  if (!include_args) {
     args <- ""
   }
   prs <- process$new(

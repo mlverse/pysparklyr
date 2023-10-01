@@ -19,3 +19,7 @@ test_that("version_prep() outputs what's expected", {
   expect_equal(version_prep("1.1.1"), "1.1")
   expect_error(version_prep("1.1.1.1"))
 })
+
+test_that("Installation works", {
+  expect_output(install_pyspark(), python = Sys.which("python"))
+})

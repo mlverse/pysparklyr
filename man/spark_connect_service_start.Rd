@@ -19,7 +19,7 @@ spark_connect_service_stop(version = "3.4", ...)
 
 \item{scala_version}{Acceptable Scala version of packages to be loaded}
 
-\item{include_args}{Flag that indicates wether to add the additional arguments
+\item{include_args}{Flag that indicates whether to add the additional arguments
 to the command that starts the service. At this time, only the 'packages'
 argument is submitted.}
 

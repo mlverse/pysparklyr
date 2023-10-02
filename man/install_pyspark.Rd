@@ -3,7 +3,7 @@
 \name{install_pyspark}
 \alias{install_pyspark}
 \alias{install_databricks}
-\title{Installs Pyspark and Python dependencies}
+\title{Installs PySpark and Python dependencies}
 \usage{
 install_pyspark(
   version = NULL,
@@ -49,7 +49,7 @@ If provided, this value will be used to extract the cluster's
 version}
 }
 \description{
-Installs Pyspark and Python dependencies
+Installs PySpark and Python dependencies
 
 Installs Databricks Connect and Python dependencies
 }

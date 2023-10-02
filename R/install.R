@@ -1,4 +1,4 @@
-#' Installs Pyspark and Python dependencies
+#' Installs PySpark and Python dependencies
 #' @param version Version of 'pyspark' to install
 #' @param envname The name of the Python Environment to use to install the
 #'   Python libraries. Default to `NULL.` If `NULL`, a name will automatically

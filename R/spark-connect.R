@@ -33,12 +33,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     extensions,
     scala_version,
     ...) {
-  py_spark_connect(
-    master = master,
-    method = method,
-    config = config,
-    ...
-  )
+  py_spark_connect(master = master, method = method, config = config, ...)
 }
 
 
@@ -61,12 +56,9 @@ py_spark_connect <- function(master,
       if (length(envs) == 0) {
         cli_div(theme = cli_colors())
         cli_abort(c(
-          paste0(
-            "{.header No environment name provided, and no environment was }",
-            "{.header  automatically identified.}"
-          ),
-          "Run {.run pysparklyr::install_pyspark()} to install."
-        ), call = NULL)
+          paste0("{.header No environment name provided, and }",
+                 "{.header  no environment was automatically identified.}"),
+          "Run {.run pysparklyr::install_pyspark()} to install."), call = NULL)
         cli_end()
       } else {
         if (!is.null(spark_version)) {
@@ -82,9 +74,7 @@ py_spark_connect <- function(master,
               paste0(
                 "* {.header To install the proper Python environment use:}",
                 " {.run pysparklyr::install_pyspark(version = \"{sp_version}\")}"
-              ),
-              sep = "\n"
-            ))
+              ), sep = "\n"))
             cli_end()
           } else {
             envname <- matched
@@ -146,11 +136,7 @@ py_spark_connect <- function(master,
     conn <- remote$userAgent(user_agent)
     con_class <- "connect_databricks"
 
-    cluster_info <- cluster_dbr_info(
-      cluster_id = cluster_id,
-      host = master,
-      token = token
-    )
+    cluster_info <- cluster_dbr_info(cluster_id, master, token)
 
     cluster_name <- substr(cluster_info$cluster_name, 1, 100)
 
@@ -158,46 +144,9 @@ py_spark_connect <- function(master,
   }
 
   session <- conn$getOrCreate() # pyspark.sql.connect.session.SparkSession
-
-  session$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
-
   get_version <- try(session$version, silent = TRUE)
-
-  if (inherits(get_version, "try-error")) {
-    error_split <- get_version %>%
-      as.character() %>%
-      strsplit("\n\t") %>%
-      unlist()
-
-    error_start <- substr(error_split, 1, 9)
-
-    status_error <- NULL
-    if (any(error_start == "status = ")) {
-      status_error <- error_split[error_start == "status = "]
-    }
-
-    status_details <- NULL
-    if (any(error_start == "details =")) {
-      status_details <- error_split[error_start == "details ="]
-    }
-
-    status_tip <- NULL
-    if (grepl("UNAVAILABLE", status_error)) {
-      status_tip <- "Possible cause = The cluster is not running, or not accessible"
-    }
-    if (grepl("FAILED_PRECONDITION", status_error)) {
-      status_tip <- "Possible cause = The cluster is initializing. Try again later"
-    }
-    rlang::abort(
-      c(
-        "Spark connection error",
-        status_tip,
-        status_error,
-        status_details
-      )
-    )
-  }
-
+  if (inherits(get_version, "try-error")) cluster_dbr_error(get_version)
+  session$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
 
   # do we need this `spark_context` object?
   spark_context <- list(spark_context = session)
@@ -301,28 +250,36 @@ cluster_dbr_version <- function(cluster_id,
 
   sp_version <- cluster_info$spark_version
 
-  sp_sep <- unlist(strsplit(sp_version, "\\."))
-
-  version <- paste0(sp_sep[1], ".", sp_sep[2])
-
-  cli_alert_success("{.header Cluster version: }{.emph '{version}'}")
-  cli_end()
-
+  if(!is.null(sp_version)) {
+    sp_sep <- unlist(strsplit(sp_version, "\\."))
+    version <- paste0(sp_sep[1], ".", sp_sep[2])
+    cli_alert_success("{.header Cluster version: }{.emph '{version}'}")
+    cli_end()
+  } else {
+    version <- ""
+  }
   version
 }
 
 cluster_dbr_info <- function(cluster_id,
                              host = Sys.getenv("DATABRICKS_HOST"),
                              token = Sys.getenv("DATABRICKS_TOKEN")) {
-  paste0(
-    host,
-    "/api/2.0/clusters/get"
-  ) %>%
-    request() %>%
-    req_auth_bearer_token(token) %>%
-    req_body_json(list(cluster_id = cluster_id)) %>%
-    req_perform() %>%
-    resp_body_json()
+  out <- try(
+    paste0(
+      host,
+      "/api/2.0/clusters/get"
+    ) %>%
+      request() %>%
+      req_auth_bearer_token(token) %>%
+      req_body_json(list(cluster_id = cluster_id)) %>%
+      req_perform() %>%
+      resp_body_json(),
+    silent = TRUE
+  )
+  if(inherits(out, "try-error")) {
+    out <- list()
+  }
+  out
 }
 
 
@@ -334,4 +291,39 @@ find_environments <- function(x) {
   matched <- all_names[sub_names == x]
   sorted <- sort(matched, decreasing = TRUE)
   sorted
+}
+
+cluster_dbr_error <- function(error) {
+    error_split <- error %>%
+      as.character() %>%
+      strsplit("\n\t") %>%
+      unlist()
+
+    error_start <- substr(error_split, 1, 9)
+
+    status_error <- NULL
+    if (any(error_start == "status = ")) {
+      status_error <- error_split[error_start == "status = "]
+    }
+
+    status_details <- NULL
+    if (any(error_start == "details =")) {
+      status_details <- error_split[error_start == "details ="]
+    }
+
+    status_tip <- NULL
+    if (grepl("UNAVAILABLE", status_error)) {
+      status_tip <- "Possible cause = The cluster is not running, or not accessible"
+    }
+    if (grepl("FAILED_PRECONDITION", status_error)) {
+      status_tip <- "Possible cause = The cluster is initializing. Try again later"
+    }
+    rlang::abort(
+      c(
+        "Spark connection error",
+        status_tip,
+        status_error,
+        status_details
+      )
+    )
 }

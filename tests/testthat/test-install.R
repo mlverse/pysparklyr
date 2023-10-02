@@ -20,7 +20,15 @@ test_that("version_prep() outputs what's expected", {
   expect_error(version_prep("1.1.1.1"))
 })
 
-skip_on_ci()
-test_that("Installation works", {
-  expect_output(install_pyspark(), python = Sys.which("python"))
+skip_if(
+  !identical(Sys.getenv("CODE_COVERAGE"), "true"),
+  message = "Reserved for coverage only"
+  )
+
+test_that("PySpark installation works", {
+  expect_output(install_pyspark("3.3", python = Sys.which("python")))
+})
+
+test_that("DB Connect installation works", {
+  expect_output(install_databricks("13.0", python = Sys.which("python")))
 })

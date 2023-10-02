@@ -26,6 +26,22 @@ Integrates `sparklyr` with PySpark and Databricks. The main reason of this
 package is because the new Spark and Databricks Connect connection method does
 not work with standard `sparklyr` integration.
 
+## Installing
+
+To install the version in CRAN use:
+
+```r
+install.packages("pysparklyr")
+```
+
+To get the development version from GitHub use:
+
+```r
+remotes::install_github("mlverse/pysparklyr")
+```
+
+## Using
+
 To learn how to use, please visit the Spark / Databricks Connect article, 
 available in the official `sparklyr` website: [Spark Connect, and Databricks Connect v2
 ](https://spark.rstudio.com/deployment/databricks-spark-connect.html)

@@ -10,6 +10,11 @@ installed_components(list_all = FALSE)
 \item{list_all}{Flag that indicates to display all of the installed packages
 or only the top two, namely, \code{pyspark} and \code{databricks.connect}}
 }
+\value{
+Returns no value, only sends information to the console. The
+information includes the current versions of 'sparklyr', and 'pysparklyr',
+as well as the 'Python' environment currently loaded.
+}
 \description{
 Lists installed Python libraries
 }

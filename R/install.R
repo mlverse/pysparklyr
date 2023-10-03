@@ -12,6 +12,13 @@
 #'   infers the installation method based on the type of Python environment
 #'   specified by `envname`.
 #' @param ... Passed on to [`reticulate::py_install()`]
+#' @returns It returns no value to the R session. This function purpose is to
+#' create the 'Python' environment, and install the appropriate set of 'Python'
+#' libraries inside the new environment. During runtime, this function will send
+#' messages to the console describing the steps that the function is
+#' taking. For example, it will let the user know if it is getting the latest
+#' version of the Python library from 'PyPi.org', and the result of such
+#' query.
 #' @export
 install_pyspark <- function(
     version = NULL,
@@ -181,6 +188,9 @@ install_environment <- function(
 #' Lists installed Python libraries
 #' @param list_all Flag that indicates to display all of the installed packages
 #' or only the top two, namely, `pyspark` and `databricks.connect`
+#' @returns Returns no value, only sends information to the console. The
+#' information includes the current versions of 'sparklyr', and 'pysparklyr',
+#' as well as the 'Python' environment currently loaded.
 #' @export
 installed_components <- function(list_all = FALSE) {
   pkgs <- py_list_packages()

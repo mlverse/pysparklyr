@@ -3,7 +3,7 @@
 \name{spark_connect_service_start}
 \alias{spark_connect_service_start}
 \alias{spark_connect_service_stop}
-\title{Starts Spark Connect locally}
+\title{Starts and stops Spark Connect locally}
 \usage{
 spark_connect_service_start(
   version = "3.4",
@@ -25,6 +25,10 @@ argument is submitted.}
 
 \item{...}{Optional arguments; currently unused}
 }
+\value{
+It returns messages to the console with the status of starting, and
+stopping the local Spark Connect service.
+}
 \description{
-Starts Spark Connect locally
+Starts and stops Spark Connect locally
 }

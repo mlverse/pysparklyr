@@ -48,6 +48,15 @@ specified by \code{envname}.}
 If provided, this value will be used to extract the cluster's
 version}
 }
+\value{
+It returns no value to the R session. This function purpose is to
+create the 'Python' environment, and install the appropriate set of 'Python'
+libraries inside the new environment. During runtime, this function will send
+messages to the console describing the steps that the function is
+taking. For example, it will let the user know if it is getting the latest
+version of the Python library from 'PyPi.org', and the result of such
+query.
+}
 \description{
 Installs PySpark and Python dependencies
 

@@ -1,10 +1,12 @@
-#' Starts Spark Connect locally
+#' Starts and stops Spark Connect locally
 #' @param version Spark version to use (3.4 or above)
 #' @param scala_version Acceptable Scala version of packages to be loaded
 #' @param include_args Flag that indicates whether to add the additional arguments
 #' to the command that starts the service. At this time, only the 'packages'
 #' argument is submitted.
 #' @param ... Optional arguments; currently unused
+#' @returns It returns messages to the console with the status of starting, and
+#' stopping the local Spark Connect service.
 #' @export
 spark_connect_service_start <- function(version = "3.4",
                                         scala_version = "2.12",

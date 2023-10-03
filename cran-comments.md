@@ -1,4 +1,9 @@
-## New submission
+## New package re-submission
+
+Address feedback from CRAN. It adds the a \value section to the the Rd files 
+that were missing them. 
+
+### Original submission message
 
 New package submission. It is an extension to the 'sparklyr' package that
 enables integration with the new 'Spark Connect' via 'Python'. This package

@@ -277,6 +277,19 @@ cluster_dbr_info <- function(cluster_id,
     silent = TRUE
   )
   if(inherits(out, "try-error")) {
+    cli_div(theme = cli_colors())
+    if(grepl("HTTP 404 Not Found", out)) {
+      #cli_abort("{.header Retrieving version from cluster }{.emph '{cluster_id}'}")
+      cli_abort(c(
+        "{.header Error contacting Host (HTTP 404 Not Found).}",
+        "- {.header Verify that Host value is valid:  }{.emph '{host}'}"
+        ))
+    } else {
+      cli_alert_warning(paste0(
+        "{.header Issues connecting to: }{.emph '{cluster_id}'}{.header . Error message:}\n",
+        "{.emph - {out}}"
+      ))
+    }
     out <- list()
   }
   out

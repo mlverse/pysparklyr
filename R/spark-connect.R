@@ -283,7 +283,13 @@ cluster_dbr_info <- function(cluster_id,
     invalid_cluster <- NULL
     invalid_msg <- " <<--- Possibly invalid"
     if(grepl("HTTP 404 Not Found", out)) {
+      parse_host <- url_parse(host)
       invalid_host <- invalid_msg
+      if(!is.null(parse_host$path)) {
+        invalid_host <- glue(
+          "<<--- Likely cause, last part in the URL: \"{parse_host$path}\""
+          )
+      }
     }
     if(grepl("HTTP 401 Unauthorized", out)) {
       invalid_token <- invalid_msg

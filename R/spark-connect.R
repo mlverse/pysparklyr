@@ -278,18 +278,27 @@ cluster_dbr_info <- function(cluster_id,
   )
   if(inherits(out, "try-error")) {
     cli_div(theme = cli_colors())
+    invalid_host <- NULL
+    invalid_token <- NULL
+    invalid_cluster <- NULL
+    invalid_msg <- " <<--- Possibly invalid"
     if(grepl("HTTP 404 Not Found", out)) {
-      #cli_abort("{.header Retrieving version from cluster }{.emph '{cluster_id}'}")
-      cli_abort(c(
-        "{.header Error contacting Host (HTTP 404 Not Found).}",
-        "- {.header Verify that Host value is valid:  }{.emph '{host}'}"
-        ))
-    } else {
-      cli_alert_warning(paste0(
-        "{.header Issues connecting to: }{.emph '{cluster_id}'}{.header . Error message:}\n",
-        "{.emph - {out}}"
-      ))
+      invalid_host <- invalid_msg
     }
+    if(grepl("HTTP 401 Unauthorized", out)) {
+      invalid_token <- invalid_msg
+    }
+    if(grepl("HTTP 400 Bad Request", out)) {
+      invalid_cluster <- invalid_msg
+    }
+    cli_abort(c(
+      invalid_host,
+      "{.header Issues connecting to Databricks. Currently using: }",
+      "{.header |-- Host: }{.emph '{host}' {invalid_host}}",
+      "{.header |-- Cluster ID: }{.emph '{cluster_id}' {invalid_cluster}}",
+      "{.header |-- Token: }{.emph '<REDACTED>' {invalid_token}}",
+      "{.header Error message:} {.class \"{out}\"}"
+    ))
     out <- list()
   }
   out

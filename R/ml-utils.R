@@ -34,3 +34,42 @@ ml_formula <- function(f, data) {
     features = feat_names
   )
 }
+
+snake_to_camel <- function(x) {
+  s <- unlist(strsplit(x, "_"))
+  x <- paste(
+    toupper(substring(s, 1, 1)), substring(s, 2),
+    sep = "", collapse = ""
+  )
+  paste(
+    tolower(substring(x, 1, 1)), substring(x, 2),
+    sep = "", collapse = ""
+  )
+}
+
+ml_connect_not_supported <- function(args, not_supported = c()) {
+  x <- map_chr(
+    not_supported,
+    ~ {
+      if (.x %in% names(args)) {
+        arg <- args[names(args) == .x]
+        if (!is.null(arg[[1]])) {
+          ret <- paste0("{.emph - `", names(arg), "`}")
+        } else {
+          ret <- ""
+        }
+      }
+    }
+  )
+
+  x <- x[x != ""]
+
+  if (length(x) > 0) {
+    cli_abort(c(
+      "The following argument(s) are not supported by Spark Connect:",
+      x,
+      "Set it(them) to `NULL` and try again."
+    ))
+  }
+}
+

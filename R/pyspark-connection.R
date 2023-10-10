@@ -50,6 +50,10 @@ spark_session.pyspark_connection <- function(sc) {
   NextMethod()
 }
 
+#' @export
+invoke_static.pyspark_connection <- function(sc, class, method, ...) {
+  list()
+}
 
 #' @export
 invoke.pyspark_connection <- function(jobj, method, ...) {

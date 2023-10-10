@@ -1,3 +1,4 @@
+#' @export
 ml_logistic_regression.tbl_pyspark <- function(
     x, formula = NULL, fit_intercept = TRUE,
     elastic_net_param = 0, reg_param = 0, max_iter = 100,

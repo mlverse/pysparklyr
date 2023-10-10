@@ -1,15 +1,15 @@
 #' @export
 ml_logistic_regression.tbl_pyspark <- function(
-    x, formula = NULL, fit_intercept = TRUE,
+    x, formula = NULL, fit_intercept = NULL,
     elastic_net_param = NULL, reg_param = NULL, max_iter = 100,
     threshold = NULL, thresholds = NULL, tol = 1e-06,
     weight_col = NULL, aggregation_depth = NULL,
     lower_bounds_on_coefficients = NULL, lower_bounds_on_intercepts = NULL,
     upper_bounds_on_coefficients = NULL, upper_bounds_on_intercepts = NULL,
-    features_col = "features", label_col = "label", family = "auto",
+    features_col = "features", label_col = "label", family = NULL,
     prediction_col = "prediction", probability_col = "probability",
-    raw_prediction_col = "rawPrediction",
-    uid = random_string("logistic_regression_"), ...) {
+    raw_prediction_col = NULL,
+    uid = NULL, ...) {
 
   args <- c(as.list(environment()), list(...))
 
@@ -17,12 +17,11 @@ ml_logistic_regression.tbl_pyspark <- function(
     args = args,
     not_supported = c(
       "elastic_net_param", "reg_param",
-      "threshold", "aggregation_depth"
+      "threshold", "aggregation_depth",
+      "fit_intercept", "raw_prediction_col",
+      "uid"
     )
   )
-
-
-
 
   pyspark <- import("pyspark")
   connect_classification <- import("pyspark.ml.connect.classification")
@@ -57,7 +56,7 @@ ml_logistic_regression.tbl_pyspark <- function(
 
   new_args <- set_names(args, new_names)
 
-  prep_reg <- do.call(connect_classification$LogisticRegression, new_args[2:5])
+  prep_reg <- do.call(connect_classification$LogisticRegression, new_args)
 
   fitted <- prep_reg$fit(tbl_prep)
   fitted

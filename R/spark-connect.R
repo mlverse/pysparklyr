@@ -327,3 +327,11 @@ cluster_dbr_error <- function(error) {
       )
     )
 }
+
+connection_label <- function(x) {
+  ret <- NULL
+  con <- spark_connection(x)
+  if(con$method == "spark_connect") ret <- "Spark Connect"
+  if(con$method == "databricks_connect") ret <- "Databricks Connect"
+  ret
+}

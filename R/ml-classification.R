@@ -14,9 +14,10 @@ ml_logistic_regression.tbl_pyspark <- function(
 
   ml_connect_not_supported(
     args = args,
-    not_supported = c("elastic_net_param", "reg_param", "threshold",
-                      "aggregation_depth", "fit_intercept",
-                      "raw_prediction_col", "uid")
+    not_supported = c(
+      "elastic_net_param", "reg_param", "threshold",
+      "aggregation_depth", "fit_intercept",
+      "raw_prediction_col", "uid", "weight_col")
     )
 
   pyspark <- import("pyspark")
@@ -35,9 +36,9 @@ ml_logistic_regression.tbl_pyspark <- function(
 
   x_df <- x[[1]]$session
 
-  tbl_features <- x_df$withColumn("features", features_array)
-  tbl_label <- tbl_features$withColumnRenamed(label, "label")
-  tbl_prep <- tbl_label$select("label", "features")
+  tbl_features <- x_df$withColumn(features_col, features_array)
+  tbl_label <- tbl_features$withColumnRenamed(label, label_col)
+  tbl_prep <- tbl_label$select(label_col, features_col)
   log_reg <- connect_classification$LogisticRegression()
 
   args$x <- NULL
@@ -56,6 +57,14 @@ ml_logistic_regression.tbl_pyspark <- function(
     args = new_args
     )
 
-  fitted <- prep_reg$fit(tbl_prep)
+  fitted <- try(prep_reg$fit(tbl_prep), silent = TRUE)
+  if(inherits(fitted, "try-error")) {
+    py_error <- reticulate::py_last_error()
+
+    rlang::abort(
+      paste(connection_label(x), "error:"),
+      body = c(fitted, py_error$message)
+    )
+  }
   fitted
 }

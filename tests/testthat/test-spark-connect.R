@@ -28,5 +28,5 @@ test_that("DBR error code returns as expected", {
 
 
 test_that("Cluster info runs as expected", {
-  expect_equal(cluster_dbr_version(""), "")
+  expect_error(cluster_dbr_version(""))
 })

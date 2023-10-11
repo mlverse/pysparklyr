@@ -277,6 +277,34 @@ cluster_dbr_info <- function(cluster_id,
     silent = TRUE
   )
   if(inherits(out, "try-error")) {
+    cli_div(theme = cli_colors())
+    invalid_host <- NULL
+    invalid_token <- NULL
+    invalid_cluster <- NULL
+    invalid_msg <- " <<--- Possibly invalid"
+    if(grepl("HTTP 404 Not Found", out)) {
+      parse_host <- url_parse(host)
+      invalid_host <- invalid_msg
+      if(!is.null(parse_host$path)) {
+        invalid_host <- glue(
+          "<<--- Likely cause, last part in the URL: \"{parse_host$path}\""
+          )
+      }
+    }
+    if(grepl("HTTP 401 Unauthorized", out)) {
+      invalid_token <- invalid_msg
+    }
+    if(grepl("HTTP 400 Bad Request", out)) {
+      invalid_cluster <- invalid_msg
+    }
+    cli_abort(c(
+      invalid_host,
+      "{.header Issues connecting to Databricks. Currently using: }",
+      "{.header |-- Host: }{.emph '{host}' {invalid_host}}",
+      "{.header |-- Cluster ID: }{.emph '{cluster_id}' {invalid_cluster}}",
+      "{.header |-- Token: }{.emph '<REDACTED>' {invalid_token}}",
+      "{.header Error message:} {.class \"{out}\"}"
+    ))
     out <- list()
   }
   out
@@ -284,7 +312,7 @@ cluster_dbr_info <- function(cluster_id,
 
 
 find_environments <- function(x) {
-  conda_names <- conda_list()$name
+  conda_names <- tryCatch(conda_list()$name, error = function(e) character())
   ve_names <- virtualenv_list()
   all_names <- c(ve_names, conda_names)
   sub_names <- substr(all_names, 1, nchar(x))

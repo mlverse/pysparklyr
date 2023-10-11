@@ -312,7 +312,7 @@ cluster_dbr_info <- function(cluster_id,
 
 
 find_environments <- function(x) {
-  conda_names <- conda_list()$name
+  conda_names <- tryCatch(conda_list()$name, error = function(e) character())
   ve_names <- virtualenv_list()
   all_names <- c(ve_names, conda_names)
   sub_names <- substr(all_names, 1, nchar(x))

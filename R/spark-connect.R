@@ -56,9 +56,12 @@ py_spark_connect <- function(master,
       if (length(envs) == 0) {
         cli_div(theme = cli_colors())
         cli_abort(c(
-          paste0("{.header No environment name provided, and }",
-                 "{.header  no environment was automatically identified.}"),
-          "Run {.run pysparklyr::install_pyspark()} to install."), call = NULL)
+          paste0(
+            "{.header No environment name provided, and }",
+            "{.header  no environment was automatically identified.}"
+          ),
+          "Run {.run pysparklyr::install_pyspark()} to install."
+        ), call = NULL)
         cli_end()
       } else {
         if (!is.null(spark_version)) {
@@ -74,7 +77,9 @@ py_spark_connect <- function(master,
               paste0(
                 "* {.header To install the proper Python environment use:}",
                 " {.run pysparklyr::install_pyspark(version = \"{sp_version}\")}"
-              ), sep = "\n"))
+              ),
+              sep = "\n"
+            ))
             cli_end()
           } else {
             envname <- matched
@@ -97,7 +102,7 @@ py_spark_connect <- function(master,
     cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
     master <- master %||% Sys.getenv("DATABRICKS_HOST")
 
-    if(is.na(reticulate_python)) {
+    if (is.na(reticulate_python)) {
       if (is.null(dbr_version)) {
         dbr <- cluster_dbr_version(
           cluster_id = cluster_id,
@@ -127,16 +132,17 @@ py_spark_connect <- function(master,
         cli_end()
       }
     } else {
-     if(!is.na(reticulate_python)) {
-        cli_alert_warning(c(
-          "The `RETICULATE_PYTHON` environment variable is set to:\n",
-          "|- ", reticulate_python, "\n",
-          "- This is the Python environment that will be used\n",
-          "- If you wish to use the environment installed by `sparklyr`",
-          " unnset `RETICULATE_PYTHON`"
-        ))
-       envname <- reticulate_python
-     }
+      if (!is.na(reticulate_python)) {
+        msg <- paste(
+          "{.header Using the Python environment defined in the}",
+          "{.emph 'RETICULATE_PYTHON' }{.header environment variable}",
+          "{.class ({py_exe()})}"
+        )
+        cli_div(theme = cli_colors())
+        cli_alert_warning(msg)
+        cli_end()
+        envname <- reticulate_python
+      }
     }
 
     db <- import_check("databricks.connect", envname)
@@ -265,7 +271,7 @@ cluster_dbr_version <- function(cluster_id,
 
   sp_version <- cluster_info$spark_version
 
-  if(!is.null(sp_version)) {
+  if (!is.null(sp_version)) {
     sp_sep <- unlist(strsplit(sp_version, "\\."))
     version <- paste0(sp_sep[1], ".", sp_sep[2])
     cli_alert_success("{.header Cluster version: }{.emph '{version}'}")
@@ -291,25 +297,25 @@ cluster_dbr_info <- function(cluster_id,
       resp_body_json(),
     silent = TRUE
   )
-  if(inherits(out, "try-error")) {
+  if (inherits(out, "try-error")) {
     cli_div(theme = cli_colors())
     invalid_host <- NULL
     invalid_token <- NULL
     invalid_cluster <- NULL
     invalid_msg <- " <<--- Possibly invalid"
-    if(grepl("HTTP 404 Not Found", out)) {
+    if (grepl("HTTP 404 Not Found", out)) {
       parse_host <- url_parse(host)
       invalid_host <- invalid_msg
-      if(!is.null(parse_host$path)) {
+      if (!is.null(parse_host$path)) {
         invalid_host <- glue(
           "<<--- Likely cause, last part in the URL: \"{parse_host$path}\""
-          )
+        )
       }
     }
-    if(grepl("HTTP 401 Unauthorized", out)) {
+    if (grepl("HTTP 401 Unauthorized", out)) {
       invalid_token <- invalid_msg
     }
-    if(grepl("HTTP 400 Bad Request", out)) {
+    if (grepl("HTTP 400 Bad Request", out)) {
       invalid_cluster <- invalid_msg
     }
     cli_abort(c(
@@ -337,36 +343,36 @@ find_environments <- function(x) {
 }
 
 cluster_dbr_error <- function(error) {
-    error_split <- error %>%
-      as.character() %>%
-      strsplit("\n\t") %>%
-      unlist()
+  error_split <- error %>%
+    as.character() %>%
+    strsplit("\n\t") %>%
+    unlist()
 
-    error_start <- substr(error_split, 1, 9)
+  error_start <- substr(error_split, 1, 9)
 
-    status_error <- NULL
-    if (any(error_start == "status = ")) {
-      status_error <- error_split[error_start == "status = "]
-    }
+  status_error <- NULL
+  if (any(error_start == "status = ")) {
+    status_error <- error_split[error_start == "status = "]
+  }
 
-    status_details <- NULL
-    if (any(error_start == "details =")) {
-      status_details <- error_split[error_start == "details ="]
-    }
+  status_details <- NULL
+  if (any(error_start == "details =")) {
+    status_details <- error_split[error_start == "details ="]
+  }
 
-    status_tip <- NULL
-    if (grepl("UNAVAILABLE", status_error)) {
-      status_tip <- "Possible cause = The cluster is not running, or not accessible"
-    }
-    if (grepl("FAILED_PRECONDITION", status_error)) {
-      status_tip <- "Possible cause = The cluster is initializing. Try again later"
-    }
-    rlang::abort(
-      c(
-        "Spark connection error",
-        status_tip,
-        status_error,
-        status_details
-      )
+  status_tip <- NULL
+  if (grepl("UNAVAILABLE", status_error)) {
+    status_tip <- "Possible cause = The cluster is not running, or not accessible"
+  }
+  if (grepl("FAILED_PRECONDITION", status_error)) {
+    status_tip <- "Possible cause = The cluster is initializing. Try again later"
+  }
+  rlang::abort(
+    c(
+      "Spark connection error",
+      status_tip,
+      status_error,
+      status_details
     )
+  )
 }

@@ -1,13 +1,20 @@
 import_check <- function(x, envname) {
   env_found <- !is.na(envname)
   env_loaded <- NA
+  look_for_env <- TRUE
 
-  if (file.exists(envname)) {
+  if(file.exists(envname)) {
+    env_is_file <- TRUE
+    env_path <- envname
+  } else {
+    env_is_file <- FALSE
+    env_path <- env_python(envname)
+  }
+
+  if (env_is_file) {
     look_for_env <- FALSE
     use_python(envname)
     env_loaded <- TRUE
-  } else {
-    look_for_env <- TRUE
   }
 
   if (look_for_env) {
@@ -33,16 +40,16 @@ import_check <- function(x, envname) {
     }
   }
 
+  if (is.na(env_loaded)) {
+    env_loaded <- env_path == py_exe()
+  }
+
   out <- try(import(x), silent = TRUE)
 
   msg_install <- NULL
   msg_restart <- NULL
 
   if (inherits(out, "try-error")) {
-    if (is.na(env_loaded)) {
-      env_loaded <- env_python(envname) == py_exe()
-    }
-
     inst <- NULL
 
     if (substr(envname, 1, 22) == "r-sparklyr-databricks-") {

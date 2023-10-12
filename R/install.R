@@ -121,11 +121,10 @@ install_environment <- function(
       ln <- libs
     }
     envname <- glue("r-sparklyr-{ln}-{ver_name}")
+    cli_alert_success(
+      "Automatically naming the environment:{.emph '{envname}'}"
+    )
   }
-
-  cli_alert_success(
-    "Automatically naming the environment:{.emph '{envname}'}"
-  )
 
   packages <- c(
     paste0(libs, "==", version),

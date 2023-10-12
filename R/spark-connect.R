@@ -93,35 +93,50 @@ py_spark_connect <- function(master,
   }
 
   if (method == "databricks_connect") {
+    reticulate_python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
     cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
     master <- master %||% Sys.getenv("DATABRICKS_HOST")
-    if (is.null(dbr_version)) {
-      dbr <- cluster_dbr_version(
-        cluster_id = cluster_id,
-        host = master,
-        token = token
-      )
-    } else {
-      dbr <- version_prep(dbr_version)
-    }
 
-    env_base <- "r-sparklyr-databricks-"
-    envname <- glue("{env_base}{dbr}")
-    envs <- find_environments(env_base)
-    matched <- envs[envs == envname]
-    if (length(matched) == 0) {
-      envname <- envs[[1]]
-      cli_div(theme = cli_colors())
-      cli_alert_warning(paste(
-        "{.header A Python environment with a matching version was not found}",
-        "* {.header Will attempt connecting using }{.emph '{envname}'}",
-        paste0(
-          "* {.header To install the proper Python environment use:}",
-          " {.run pysparklyr::install_databricks(version = \"{dbr}\")}"
-        ),
-        sep = "\n"
-      ))
-      cli_end()
+    if(is.na(reticulate_python)) {
+      if (is.null(dbr_version)) {
+        dbr <- cluster_dbr_version(
+          cluster_id = cluster_id,
+          host = master,
+          token = token
+        )
+      } else {
+        dbr <- version_prep(dbr_version)
+      }
+
+      env_base <- "r-sparklyr-databricks-"
+      envname <- glue("{env_base}{dbr}")
+      envs <- find_environments(env_base)
+      matched <- envs[envs == envname]
+      if (length(matched) == 0) {
+        envname <- envs[[1]]
+        cli_div(theme = cli_colors())
+        cli_alert_warning(paste(
+          "{.header A Python environment with a matching version was not found}",
+          "* {.header Will attempt connecting using }{.emph '{envname}'}",
+          paste0(
+            "* {.header To install the proper Python environment use:}",
+            " {.run pysparklyr::install_databricks(version = \"{dbr}\")}"
+          ),
+          sep = "\n"
+        ))
+        cli_end()
+      }
+    } else {
+     if(!is.na(reticulate_python)) {
+        cli_alert_warning(c(
+          "The `RETICULATE_PYTHON` environment variable is set to:\n",
+          "|- ", reticulate_python, "\n",
+          "- This is the Python environment that will be used\n",
+          "- If you wish to use the environment installed by `sparklyr`",
+          " unnset `RETICULATE_PYTHON`"
+        ))
+       envname <- reticulate_python
+     }
     }
 
     db <- import_check("databricks.connect", envname)

@@ -181,7 +181,10 @@ catalog_sql <- function(
   )
 
   if(is.null(catalog)) {
-    all_catalogs <- tbl(sc, in_catalog("system", "information_schema", "catalogs"))
+    all_catalogs <- tbl(
+      src = con,
+      in_catalog("system", "information_schema", "catalogs")
+      )
 
     get_catalogs <- all_catalogs %>%
       select(catalog_name, comment) %>%
@@ -200,7 +203,10 @@ catalog_sql <- function(
   }
 
   if(is.null(schema) && !is.null(catalog)) {
-    all_schema <- tbl(sc, in_catalog("system", "information_schema", "schemata"))
+    all_schema <- tbl(
+      src = con,
+      in_catalog("system", "information_schema", "schemata")
+      )
 
     get_schema <- all_schema %>%
       filter(catalog_name == catalog) %>%
@@ -220,7 +226,10 @@ catalog_sql <- function(
   }
 
   if(!is.null(schema) && !is.null(catalog)) {
-    all_tables <- tbl(sc, in_catalog("system", "information_schema", "tables"))
+    all_tables <- tbl(
+      src = con,
+      in_catalog("system", "information_schema", "tables")
+      )
 
     get_tables <- all_tables %>%
       filter(
@@ -245,3 +254,8 @@ catalog_sql <- function(
 
   out
 }
+
+globalVariables(c(
+  "catalog_name", "schema_name", "table_catalog",
+  "table_name", "table_schema")
+  )

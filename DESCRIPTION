@@ -29,7 +29,8 @@ Imports:
     tidyr,
     vctrs,
     processx,
-    httr2
+    httr2,
+    rstudioapi
 URL: https://github.com/mlverse/pysparklyr
 BugReports: https://github.com/mlverse/pysparklyr/issues
 Suggests: 

@@ -1,6 +1,8 @@
-#' @importFrom sparklyr ml_save
+#' @importFrom sparklyr ml_save ml_load spark_jobj
+#' @importFrom fs path_abs
 #' @export
 ml_save.ml_torch_model <- function(x, path, overwrite = FALSE, ...) {
+  path <- path_abs(path)
   invisible(
     x %>%
       spark_jobj() %>%
@@ -10,4 +12,16 @@ ml_save.ml_torch_model <- function(x, path, overwrite = FALSE, ...) {
         overwrite = overwrite
         )
   )
+}
+
+#' @export
+ml_load <- function(sc, path) {
+  path <- path_abs(path)
+  conn <- python_obj_get(sc)
+
+}
+
+#' @export
+spark_jobj.ml_torch_model <- function(x, ...) {
+  x$pipeline
 }

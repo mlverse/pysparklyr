@@ -24,6 +24,12 @@ sdf_read_column.spark_pyjobj <- function(x, column) {
   col_df[[column]]
 }
 
+#' @importFrom sparklyr spark_jobj
+#' @export
+spark_jobj.ml_torch_model <- function(x, ...) {
+  x$pipeline
+}
+
 #' @export
 spark_version.spark_pyobj <- function(sc) {
   python_conn(sc)$version

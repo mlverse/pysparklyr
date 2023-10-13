@@ -68,4 +68,24 @@ ml_logistic_regression.tbl_pyspark <- function(
        body = fitted
     )
   }
+
+  as_torch_model(fitted, features, label, spark_connection(x))
+
+}
+
+as_torch_model <- function(x, features, label, con) {
+  structure(
+    list(
+      pipeline = as_spark_pyobj(x, con),
+      features = features,
+      label = label
+    ),
+    class = c(
+      "ml_torch_model",
+      "ml_model_logistic_regression",
+      "ml_model_classification",
+      "ml_model_prediction",
+      "ml_model"
+    )
+  )
 }

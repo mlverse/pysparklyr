@@ -52,19 +52,20 @@ ml_logistic_regression.tbl_pyspark <- function(
 
   new_args <- set_names(args, new_names)
 
-  prep_reg <- do.call(
-    what = connect_classification$LogisticRegression,
-    args = new_args
+  invisible(
+    prep_reg <- do.call(
+      what = connect_classification$LogisticRegression,
+      args = new_args
     )
+
+  )
 
   fitted <- try(prep_reg$fit(tbl_prep), silent = TRUE)
   if(inherits(fitted, "try-error")) {
     py_error <- reticulate::py_last_error()
-
-    rlang::abort(
-      paste(connection_label(x), "error:"),
-      body = c(fitted, py_error$message)
+     rlang::abort(
+       paste(connection_label(x), "error:"),
+       body = fitted
     )
   }
-  fitted
 }

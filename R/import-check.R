@@ -1,59 +1,71 @@
 import_check <- function(x, envname) {
   env_found <- !is.na(envname)
   env_loaded <- NA
+  look_for_env <- TRUE
 
-  if (py_available()) {
-    # If there is a Python environment already loaded
-    if (env_found) {
-      if (env_python(envname) == py_exe()) {
-        env_loaded <- TRUE
-      } else {
-        env_loaded <- FALSE
-      }
-    }
+  if(file.exists(envname)) {
+    env_is_file <- TRUE
+    env_path <- envname
   } else {
-    # If there is NO Python environment already loaded
-    if (env_found) {
-      # If the envname is found, we try to use it
-      if (env_type(envname) == "virtualenv") {
-        try(use_virtualenv(envname), silent = TRUE)
-      } else {
-        try(use_condaenv(envname), silent = TRUE)
+    env_is_file <- FALSE
+    env_path <- env_python(envname)
+  }
+
+  if (env_is_file) {
+    look_for_env <- FALSE
+    use_python(envname)
+    env_loaded <- TRUE
+  }
+
+  if (look_for_env) {
+    if (py_available()) {
+      # If there is a Python environment already loaded
+      if (env_found) {
+        if (env_python(envname) == py_exe()) {
+          env_loaded <- TRUE
+        } else {
+          env_loaded <- FALSE
+        }
+      }
+    } else {
+      # If there is NO Python environment already loaded
+      if (env_found) {
+        # If the envname is found, we try to use it
+        if (env_type(envname) == "virtualenv") {
+          try(use_virtualenv(envname), silent = TRUE)
+        } else {
+          try(use_condaenv(envname), silent = TRUE)
+        }
       }
     }
+  }
+
+  if (is.na(env_loaded)) {
+    env_loaded <- env_path == py_exe()
   }
 
   out <- try(import(x), silent = TRUE)
 
-  if (is.na(env_loaded)) {
-    env_loaded <- env_python(envname) == py_exe()
-  }
-
-  inst <- NULL
-
-  if (substr(envname, 1, 22) == "r-sparklyr-databricks-") {
-    inst <- paste0(
-      " {.run pysparklyr::install_databricks(",
-      "envname = \"{envname}\")}"
-    )
-  }
-
-  if (substr(envname, 1, 19) == "r-sparklyr-pyspark-") {
-    inst <- paste0(
-      " {.run pysparklyr::install_pyspark(",
-      "envname = \"{envname}\")}"
-    )
-  }
-
   msg_install <- NULL
   msg_restart <- NULL
-  if (!is.null(inst)) {
-    # msg_install <- paste("{.header - Use} ", inst, "{.header to install.}")
-    # msg_restart <- paste("- Restart your R session, and run:", inst)
-  }
 
   if (inherits(out, "try-error")) {
-    cli_alert_danger(glue("`reticulate` error:\n {out[[1]]}"))
+    inst <- NULL
+
+    if (substr(envname, 1, 22) == "r-sparklyr-databricks-") {
+      inst <- paste0(
+        " {.run pysparklyr::install_databricks(",
+        "envname = \"{envname}\")}"
+      )
+    }
+
+    if (substr(envname, 1, 19) == "r-sparklyr-pyspark-") {
+      inst <- paste0(
+        " {.run pysparklyr::install_pyspark(",
+        "envname = \"{envname}\")}"
+      )
+    }
+
     if (env_found) {
       if (env_loaded) {
         # found & loaded
@@ -84,15 +96,18 @@ import_check <- function(x, envname) {
         msg_restart
       ), call = NULL)
     }
+    cli_alert_danger(glue("`reticulate` error:\n {out[[1]]}"))
   } else {
     if (env_loaded) {
-      msg <- paste(
-        "{.header Using the }{.emph '{envname}' }{.header Python}",
-        "{.header environment }{.class ({py_exe()})}"
-      )
-      cli_div(theme = cli_colors())
-      cli_alert_success(msg)
-      cli_end()
+      if (look_for_env) {
+        msg <- paste(
+          "{.header Using the }{.emph '{envname}' }{.header Python}",
+          "{.header environment }{.class ({py_exe()})}"
+        )
+        cli_div(theme = cli_colors())
+        cli_alert_success(msg)
+        cli_end()
+      }
     } else {
       msg <- paste(
         "{.header Not using the} {.emph '{envname}'} ",

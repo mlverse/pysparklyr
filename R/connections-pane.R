@@ -5,6 +5,39 @@ spark_ide_objects.pyspark_connection <- function(
     schema = NULL,
     name = NULL,
     type = NULL) {
+
+  env_var_sel <- Sys.getenv("SPARKLYR_RSTUDIO_CP_VIEW", unset = NA)
+
+  if(is.na(env_var_sel)) {
+    ret <- catalog_python(
+      con = con,
+      catalog = catalog,
+      schema = schema,
+      name = name,
+      type = type
+    )
+  } else {
+    if(env_var_sel == "uc_only") {
+      # Sys.setenv("SPARKLYR_RSTUDIO_CP_VIEW" = "uc_only")
+      ret <- catalog_sql(
+        con = con,
+        catalog = catalog,
+        schema = schema,
+        name = name,
+        type = type
+      )
+    }
+  }
+
+  ret
+}
+
+catalog_python <- function(
+    con,
+    catalog = NULL,
+    schema = NULL,
+    name = NULL,
+    type = NULL) {
   df_catalogs <- data.frame()
   df_databases <- data.frame()
   df_tables <- data.frame()
@@ -134,3 +167,95 @@ rs_tables <- function(x) {
   }
   out
 }
+
+
+catalog_sql <- function(
+    con,
+    catalog = NULL,
+    schema = NULL,
+    name = NULL,
+    type = NULL) {
+
+  limit <- as.numeric(
+    Sys.getenv("SPARKLYR_CONNECTION_OBJECT_LIMIT", unset = 100)
+  )
+
+  if(is.null(catalog)) {
+    all_catalogs <- tbl(
+      src = con,
+      in_catalog("system", "information_schema", "catalogs")
+      )
+
+    get_catalogs <- all_catalogs %>%
+      select(catalog_name, comment) %>%
+      head(limit) %>%
+      collect()
+
+    df_catalogs <- get_catalogs %>%
+      mutate(
+        name = catalog_name,
+        type = "catalog"
+      ) %>%
+      select(name, type) %>%
+      as.data.frame()
+
+    out <- df_catalogs
+  }
+
+  if(is.null(schema) && !is.null(catalog)) {
+    all_schema <- tbl(
+      src = con,
+      in_catalog("system", "information_schema", "schemata")
+      )
+
+    get_schema <- all_schema %>%
+      filter(catalog_name == catalog) %>%
+      select(schema_name, comment) %>%
+      head(limit) %>%
+      collect()
+
+    df_schema <- get_schema %>%
+      mutate(
+        name = schema_name,
+        type = "schema"
+      ) %>%
+      select(name, type) %>%
+      as.data.frame()
+
+    out <- df_schema
+  }
+
+  if(!is.null(schema) && !is.null(catalog)) {
+    all_tables <- tbl(
+      src = con,
+      in_catalog("system", "information_schema", "tables")
+      )
+
+    get_tables <- all_tables %>%
+      filter(
+        table_catalog == catalog,
+        table_schema == schema
+      ) %>%
+      select(table_name) %>%
+      head(limit) %>%
+      collect()
+
+    df_tables <- get_tables %>%
+      mutate(
+        name = table_name,
+        type = "table"
+      ) %>%
+      select(name, type) %>%
+      as.data.frame()
+
+    out <- df_tables
+  }
+
+
+  out
+}
+
+globalVariables(c(
+  "catalog_name", "schema_name", "table_catalog",
+  "table_name", "table_schema")
+  )

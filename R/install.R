@@ -57,7 +57,7 @@ install_databricks <- function(
     cli_div(theme = cli_colors())
     cli_alert_warning(
       paste0(
-        "{.header Will use the value from }{.emph 'version'},",
+        "{.header Will use the value from }{.emph 'version'}, ",
         "{.header and ignoring }{.emph 'cluster_id'}"
       )
     )
@@ -75,7 +75,7 @@ install_databricks <- function(
     python_version = python_version,
     new_env = new_env,
     method = method,
-    ... = ...
+    ...
   )
 }
 
@@ -121,11 +121,10 @@ install_environment <- function(
       ln <- libs
     }
     envname <- glue("r-sparklyr-{ln}-{ver_name}")
+    cli_alert_success(
+      "Automatically naming the environment:{.emph '{envname}'}"
+    )
   }
-
-  cli_alert_success(
-    "Automatically naming the environment:{.emph '{envname}'}"
-  )
 
   packages <- c(
     paste0(libs, "==", version),

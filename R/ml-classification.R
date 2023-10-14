@@ -20,7 +20,10 @@ ml_logistic_regression.tbl_pyspark <- function(
       "raw_prediction_col", "uid", "weight_col")
     )
 
-  pyspark <- import("pyspark")
+  pyspark <- x %>%
+    spark_connection() %>%
+    import_main()
+
   connect_classification <- import("pyspark.ml.connect.classification")
 
   if (!is.null(formula)) {

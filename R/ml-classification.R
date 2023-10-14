@@ -12,19 +12,13 @@ ml_logistic_regression.tbl_pyspark <- function(
 
   args <- c(as.list(environment()), list(...))
 
-  ml_connect_not_supported(
-    args = args,
-    not_supported = c(
-      "elastic_net_param", "reg_param", "threshold",
-      "aggregation_depth", "fit_intercept",
-      "raw_prediction_col", "uid", "weight_col")
-    )
-
   pyspark <- x %>%
     spark_connection() %>%
-    import_main()
+    import_main_library()
 
-  connect_classification <- import("pyspark.ml.connect.classification")
+  prep_reg <- ml_logistic_regression_prep(x, args)
+
+  x_df <- x[[1]]$session
 
   if (!is.null(formula)) {
     f <- ml_formula(formula, x)
@@ -36,32 +30,9 @@ ml_logistic_regression.tbl_pyspark <- function(
   }
 
   features_array <- pyspark$sql$functions$array(features)
-
-  x_df <- x[[1]]$session
-
   tbl_features <- x_df$withColumn(features_col, features_array)
   tbl_label <- tbl_features$withColumnRenamed(label, label_col)
   tbl_prep <- tbl_label$select(label_col, features_col)
-  log_reg <- connect_classification$LogisticRegression()
-
-  args$x <- NULL
-  args$formula <- NULL
-
-  args <- discard(args, is.null)
-
-  new_names <- args %>%
-    names() %>%
-    map_chr(snake_to_camel)
-
-  new_args <- set_names(args, new_names)
-
-  invisible(
-    prep_reg <- do.call(
-      what = connect_classification$LogisticRegression,
-      args = new_args
-    )
-
-  )
 
   fitted <- try(prep_reg$fit(tbl_prep), silent = TRUE)
   if(inherits(fitted, "try-error")) {
@@ -89,6 +60,38 @@ as_torch_model <- function(x, features, label, con) {
       "ml_model_classification",
       "ml_model_prediction",
       "ml_model"
+    )
+  )
+}
+
+ml_logistic_regression_prep <- function(x, args) {
+  ml_connect_not_supported(
+    args = args,
+    not_supported = c(
+      "elastic_net_param", "reg_param", "threshold",
+      "aggregation_depth", "fit_intercept",
+      "raw_prediction_col", "uid", "weight_col")
+  )
+
+  connect_classification <- import("pyspark.ml.connect.classification")
+
+  log_reg <- connect_classification$LogisticRegression()
+
+  args$x <- NULL
+  args$formula <- NULL
+
+  args <- discard(args, is.null)
+
+  new_names <- args %>%
+    names() %>%
+    map_chr(snake_to_camel)
+
+  new_args <- set_names(args, new_names)
+
+  invisible(
+    do.call(
+      what = connect_classification$LogisticRegression,
+      args = new_args
     )
   )
 }

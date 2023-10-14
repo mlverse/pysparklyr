@@ -271,6 +271,7 @@ installed_components <- function(list_all = FALSE) {
   cli_h3("R packages")
   cli_bullets(c("*" = "{.header {.code sparklyr} ({packageVersion('sparklyr')}})"))
   cli_bullets(c("*" = "{.header {.code pysparklyr} ({packageVersion('pysparklyr')}})"))
+  cli_bullets(c("*" = "{.header {.code reticulate} ({packageVersion('reticulate')}})"))
   cli_h3("Python executable")
   cli_text("{.header {py_exe()}}")
   cli_h3("Python libraries")

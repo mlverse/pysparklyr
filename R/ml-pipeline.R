@@ -8,10 +8,10 @@ ml_pipeline.pyspark_connection <- function(x, ..., uid = NULL) {
 ml_torch_add_stage <- function(x, stage) {
   pipeline <- x$.jobj$pyspark_obj$Pipeline
   if(inherits(pipeline, "pyspark.ml.connect.pipeline.Pipeline")) {
-    ret <- pipeline(stages = c(stage))
-  } else {
     stages <- pipeline$getStages()
     ret <- pipeline(stages = c(stages, stage))
+  } else {
+    ret <- pipeline(stages = c(stage))
   }
   ret
 }

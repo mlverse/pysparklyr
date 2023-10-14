@@ -27,8 +27,11 @@ ml_logistic_regression.ml_torch_pipeline <- function(
     raw_prediction_col = NULL, uid = NULL, ...) {
 
   args <- c(as.list(environment()), list(...))
-  ml_logistic_regression_prep(x, args)
-
+  model <- ml_logistic_regression_prep(x, args)
+  ml_torch_add_stage(
+    x = x,
+    stage = model$.jobj
+  )
 }
 
 #' @export

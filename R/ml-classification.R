@@ -9,14 +9,13 @@ ml_logistic_regression.tbl_pyspark <- function(
     features_col = "features", label_col = "label", family = NULL,
     prediction_col = "prediction", probability_col = "probability",
     raw_prediction_col = NULL, uid = NULL, ...) {
-
   args <- c(as.list(environment()), list(...))
+
+  prep_reg <- ml_logistic_regression_prep(x, args)
 
   pyspark <- x %>%
     spark_connection() %>%
     import_main_library()
-
-  prep_reg <- ml_logistic_regression_prep(x, args)
 
   x_df <- x[[1]]$session
 
@@ -34,17 +33,16 @@ ml_logistic_regression.tbl_pyspark <- function(
   tbl_label <- tbl_features$withColumnRenamed(label, label_col)
   tbl_prep <- tbl_label$select(label_col, features_col)
 
-  fitted <- try(prep_reg$fit(tbl_prep), silent = TRUE)
-  if(inherits(fitted, "try-error")) {
+  fitted <- try(prep_reg$.jobj$fit(tbl_prep), silent = TRUE)
+  if (inherits(fitted, "try-error")) {
     py_error <- reticulate::py_last_error()
-     rlang::abort(
-       paste(connection_label(x), "error:"),
-       body = fitted
+    rlang::abort(
+      paste(connection_label(x), "error:"),
+      body = fitted
     )
   }
 
   as_torch_model(fitted, features, label, spark_connection(x))
-
 }
 
 as_torch_model <- function(x, features, label, con) {
@@ -70,7 +68,8 @@ ml_logistic_regression_prep <- function(x, args) {
     not_supported = c(
       "elastic_net_param", "reg_param", "threshold",
       "aggregation_depth", "fit_intercept",
-      "raw_prediction_col", "uid", "weight_col")
+      "raw_prediction_col", "uid", "weight_col"
+    )
   )
 
   connect_classification <- import("pyspark.ml.connect.classification")
@@ -89,9 +88,28 @@ ml_logistic_regression_prep <- function(x, args) {
   new_args <- set_names(args, new_names)
 
   invisible(
-    do.call(
+    jobj <- do.call(
       what = connect_classification$LogisticRegression,
       args = new_args
+    )
+  )
+
+  structure(
+    list(
+      uid = invoke(jobj, "uid"),
+      features_col = invoke(jobj, "getFeaturesCol"),
+      label_col = invoke(jobj, "getLabelCol"),
+      prediction_col = invoke(jobj, "getPredictionCol"),
+      raw_prediction_col = invoke(jobj, "getPredictionCol"),
+      probability_col = invoke(jobj, "getProbabilityCol"),
+      thresholds = NULL,
+      param_map = list(),
+      .jobj = jobj
+    ),
+    class = c(
+      "ml_logistic_regression", "ml_probabilistic_classifier",
+      "ml_classifier", "ml_predictor", "ml_estimator",
+      "ml_pipeline_stage"
     )
   )
 }

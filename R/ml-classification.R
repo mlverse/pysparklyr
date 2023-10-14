@@ -1,4 +1,20 @@
 #' @export
+ml_logistic_regression.spark_connection <- function(
+    x, formula = NULL, fit_intercept = NULL,
+    elastic_net_param = NULL, reg_param = NULL, max_iter = 100,
+    threshold = NULL, thresholds = NULL, tol = 1e-06,
+    weight_col = NULL, aggregation_depth = NULL,
+    lower_bounds_on_coefficients = NULL, lower_bounds_on_intercepts = NULL,
+    upper_bounds_on_coefficients = NULL, upper_bounds_on_intercepts = NULL,
+    features_col = "features", label_col = "label", family = NULL,
+    prediction_col = "prediction", probability_col = "probability",
+    raw_prediction_col = NULL, uid = NULL, ...) {
+
+  args <- c(as.list(environment()), list(...))
+  ml_logistic_regression_prep(x, args)
+}
+
+#' @export
 ml_logistic_regression.tbl_pyspark <- function(
     x, formula = NULL, fit_intercept = NULL,
     elastic_net_param = NULL, reg_param = NULL, max_iter = 100,

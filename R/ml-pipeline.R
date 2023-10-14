@@ -1,8 +1,19 @@
 #' @export
-ml_pipeline <- function(x, ..., uid = NULL) {
+ml_pipeline.pyspark_connection <- function(x, ..., uid = NULL) {
   connect_pipeline <- import("pyspark.ml.connect.pipeline")
   jobj <- as_spark_pyobj(connect_pipeline, sc)
   as_pipeline(jobj, FALSE)
+}
+
+ml_torch_add_stage <- function(x, stage) {
+  pipeline <- x$.jobj$pyspark_obj$Pipeline
+  if(inherits(pipeline, "pyspark.ml.connect.pipeline.Pipeline")) {
+    ret <- pipeline(stages = c(stage))
+  } else {
+    stages <- pipeline$getStages()
+    ret <- pipeline(stages = c(stages, stage))
+  }
+  ret
 }
 
 as_pipeline <- function(jobj, get_uid = TRUE) {
@@ -17,6 +28,10 @@ as_pipeline <- function(jobj, get_uid = TRUE) {
       param_map = list,
       .jobj = jobj
     ),
-    class = c("ml_estimator", "ml_torch_pipeline_stage", "ml_pipeline_stage")
+    class = c(
+      "ml_torch_pipeline", "ml_pipeline",
+      "ml_torch_estimator", "ml_torch_pipeline_stage",
+      "ml_pipeline_stage"
+      )
   )
 }

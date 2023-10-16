@@ -53,10 +53,15 @@ ml_logistic_regression.tbl_pyspark <- function(
     x = x,
     formula = formula,
     label_col = label_col,
-    features_col = features_col
+    features_col = features_col,
+    lf = "only"
   )
 
-  fitted <- try(prep_reg$.jobj$fit(tbl_prep), silent = TRUE)
+  fitted <- try(
+    prep_reg$.jobj$fit(tbl_prep$df),
+    silent = TRUE
+    )
+
   if (inherits(fitted, "try-error")) {
     py_error <- reticulate::py_last_error()
     rlang::abort(
@@ -65,7 +70,9 @@ ml_logistic_regression.tbl_pyspark <- function(
     )
   }
 
-  as_torch_model(fitted, features, label, spark_connection(x))
+  as_torch_model(
+    fitted, tbl_prep$features, tbl_prep$label, spark_connection(x)
+    )
 }
 
 ml_prep_dataset <- function(
@@ -74,8 +81,11 @@ ml_prep_dataset <- function(
     label = NULL,
     features = NULL,
     label_col = "label",
-    features_col = "features"
+    features_col = "features",
+    lf = c("only", "all")
     ) {
+  lf <- match.arg(lf)
+
   pyspark <- x %>%
     spark_connection() %>%
     import_main_library()
@@ -97,8 +107,22 @@ ml_prep_dataset <- function(
 
   features_array <- pyspark$sql$functions$array(features)
   tbl_features <- x_df$withColumn(features_col, features_array)
-  tbl_label <- tbl_features$withColumnRenamed(label, label_col)
-  tbl_label$select(label_col, features_col)
+  tbl_label <- tbl_features$withColumn(label_col, tbl_features[label])
+
+  if(lf == "only") {
+    tbl_prep <- tbl_label$select(c(label_col, features_col))
+  }
+
+  if(lf == "all") {
+    tbl_prep <- tbl_label
+  }
+
+  list(
+    label = label,
+    features = features,
+    df = tbl_prep
+  )
+
 }
 
 as_torch_model <- function(x, features, label, con) {
@@ -169,4 +193,16 @@ ml_logistic_regression_prep <- function(x, args) {
       "ml_pipeline_stage"
     )
   )
+}
+
+#' @export
+ml_predict.ml_torch_model <- function(x, dataset, ...) {
+  prep <- ml_prep_dataset(
+    x = dataset,
+    label = x$label,
+    features = x$features,
+    lf = "all"
+  )
+  transformed <- x$pipeline$pyspark_obj$transform(prep$df)
+  transformed$toPandas()
 }

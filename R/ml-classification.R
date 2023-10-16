@@ -49,25 +49,12 @@ ml_logistic_regression.tbl_pyspark <- function(
 
   prep_reg <- ml_logistic_regression_prep(x, args)
 
-  pyspark <- x %>%
-    spark_connection() %>%
-    import_main_library()
-
-  x_df <- x[[1]]$session
-
-  if (!is.null(formula)) {
-    f <- ml_formula(formula, x)
-    features <- f$features
-    label <- f$label
-  } else {
-    features <- features_col
-    label <- label_col
-  }
-
-  features_array <- pyspark$sql$functions$array(features)
-  tbl_features <- x_df$withColumn(features_col, features_array)
-  tbl_label <- tbl_features$withColumnRenamed(label, label_col)
-  tbl_prep <- tbl_label$select(label_col, features_col)
+  tbl_prep <- ml_prep_dataset(
+    x = x,
+    formula = formula,
+    label_col = label_col,
+    features_col = features_col
+  )
 
   fitted <- try(prep_reg$.jobj$fit(tbl_prep), silent = TRUE)
   if (inherits(fitted, "try-error")) {
@@ -79,6 +66,39 @@ ml_logistic_regression.tbl_pyspark <- function(
   }
 
   as_torch_model(fitted, features, label, spark_connection(x))
+}
+
+ml_prep_dataset <- function(
+    x,
+    formula = NULL,
+    label = NULL,
+    features = NULL,
+    label_col = "label",
+    features_col = "features"
+    ) {
+  pyspark <- x %>%
+    spark_connection() %>%
+    import_main_library()
+
+  x_df <- x[[1]]$session
+
+  if (!is.null(formula)) {
+    f <- ml_formula(formula, x)
+    features <- f$features
+    label <- f$label
+  } else {
+    if(is.null(features)) {
+      features <- features_col
+    }
+    if(is.null(label)) {
+      label <- label_col
+    }
+  }
+
+  features_array <- pyspark$sql$functions$array(features)
+  tbl_features <- x_df$withColumn(features_col, features_array)
+  tbl_label <- tbl_features$withColumnRenamed(label, label_col)
+  tbl_label$select(label_col, features_col)
 }
 
 as_torch_model <- function(x, features, label, con) {

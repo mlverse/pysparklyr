@@ -2,30 +2,34 @@
 ml_pipeline.pyspark_connection <- function(x, ..., uid = NULL) {
   connect_pipeline <- import("pyspark.ml.connect.pipeline")
   jobj <- as_spark_pyobj(connect_pipeline, sc)
-  as_pipeline(jobj, FALSE)
+  as_pipeline(jobj)
 }
 
 ml_torch_add_stage <- function(x, stage) {
   pipeline <- x$.jobj$pyspark_obj$Pipeline
+  stage_print <- r_to_py("testing") # ml_print_params(stage)
   if(inherits(pipeline, "pyspark.ml.connect.pipeline.Pipeline")) {
     stages <- pipeline$getStages()
+    outputs <- c(x$stages, list(stage_print))
     jobj <- pipeline(stages = c(stages, stage))
   } else {
+    outputs <- list(stage_print)
     jobj <- pipeline(stages = c(stage))
   }
-  as_pipeline(jobj, FALSE)
+  as_pipeline(jobj, outputs, TRUE)
 }
 
-as_pipeline <- function(jobj, get_uid = TRUE) {
+as_pipeline <- function(jobj, outputs = NULL, get_uid = FALSE) {
   if(get_uid) {
     uid <- invoke(jobj, "uid")
   }else {
-    uid <- NULL
+    uid <- "[Not initialized]"
   }
   structure(
     list(
       uid = uid,
       param_map = list,
+      stages = outputs,
       .jobj = jobj
     ),
     class = c(
@@ -34,4 +38,22 @@ as_pipeline <- function(jobj, get_uid = TRUE) {
       "ml_pipeline_stage"
       )
   )
+}
+
+ml_print_params <-  function(x) {
+  x_params <- x$params %>%
+    map_chr(~ {
+      nm <- .x$name
+      nm <- paste0(toupper(substr(nm, 1, 1)), substr(nm, 2, nchar(nm)))
+      fn <- paste0("get", nm)
+      tr <- try(x[fn](), silent = TRUE)
+      if(inherits(tr, "try-error")) {
+        tr <- ""
+      } else {
+        tr <- glue("{.x$name} = {tr}")
+      }
+      tr
+    })
+  x_params <- x_params[x_params != ""]
+  paste0(x_params, collapse = "\n")
 }

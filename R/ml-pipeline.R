@@ -9,11 +9,11 @@ ml_torch_add_stage <- function(x, stage) {
   pipeline <- x$.jobj$pyspark_obj$Pipeline
   if(inherits(pipeline, "pyspark.ml.connect.pipeline.Pipeline")) {
     stages <- pipeline$getStages()
-    ret <- pipeline(stages = c(stages, stage))
+    jobj <- pipeline(stages = c(stages, stage))
   } else {
-    ret <- pipeline(stages = c(stage))
+    jobj <- pipeline(stages = c(stage))
   }
-  ret
+  as_pipeline(jobj, FALSE)
 }
 
 as_pipeline <- function(jobj, get_uid = TRUE) {

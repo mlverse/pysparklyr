@@ -204,5 +204,17 @@ ml_predict.ml_torch_model <- function(x, dataset, ...) {
     lf = "all"
   )
   transformed <- x$pipeline$pyspark_obj$transform(prep$df)
-  transformed$toPandas()
+
+
+  label_col <- x$pipeline$pyspark_obj$getLabelCol()
+  features_col <- x$pipeline$pyspark_obj$getFeaturesCol()
+
+  transformed <- transformed$drop(label_col)
+  transformed <- transformed$drop(features_col)
+
+  tbl_pyspark_temp(
+    x = transformed,
+    conn = spark_connection(dataset)
+    )
 }
+

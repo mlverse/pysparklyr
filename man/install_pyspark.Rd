@@ -11,6 +11,7 @@ install_pyspark(
   python_version = ">=3.9",
   new_env = TRUE,
   method = c("auto", "virtualenv", "conda"),
+  as_job = TRUE,
   ...
 )
 
@@ -21,6 +22,7 @@ install_databricks(
   python_version = ">=3.9",
   new_env = TRUE,
   method = c("auto", "virtualenv", "conda"),
+  as_job = TRUE,
   ...
 )
 }
@@ -41,6 +43,9 @@ Conda environment specified by \code{envname} is deleted first.}
 \code{"auto"} (the default) is equivalent to \code{"virtualenv"}. Otherwise \code{"auto"}
 infers the installation method based on the type of Python environment
 specified by \code{envname}.}
+
+\item{as_job}{Runs the installation if using this function within the
+RStudio IDE.}
 
 \item{...}{Passed on to \code{\link[reticulate:py_install]{reticulate::py_install()}}}
 

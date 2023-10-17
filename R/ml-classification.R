@@ -187,12 +187,24 @@ ml_logistic_regression_prep <- function(x, args) {
       .jobj = jobj
     ),
     class = c(
-      "ml_torch_logistic_regression",
-      "ml_logistic_regression", "ml_probabilistic_classifier",
-      "ml_classifier", "ml_predictor", "ml_estimator",
+      "ml_torch_estimator",
+      "ml_logistic_regression",
+      "ml_probabilistic_classifier",
+      "ml_classifier",
+      "ml_predictor",
+      "ml_estimator",
       "ml_pipeline_stage"
     )
   )
+}
+
+#' @export
+print.ml_torch_model <- function(x, ...) {
+  pyobj <- x$pipeline$pyspark_obj
+  msg <- ml_get_last_item(class(pyobj)[[1]])
+  cli_div(theme = cli_colors())
+  cli_inform("<{.header {msg}}>")
+  cli_end()
 }
 
 #' @export
@@ -203,18 +215,34 @@ ml_predict.ml_torch_model <- function(x, dataset, ...) {
     features = x$features,
     lf = "all"
   )
-  transformed <- x$pipeline$pyspark_obj$transform(prep$df)
 
+  transformed <- transform_impl(x, dataset, prep$df)
 
-  label_col <- x$pipeline$pyspark_obj$getLabelCol()
-  features_col <- x$pipeline$pyspark_obj$getFeaturesCol()
+  transformed
 
-  transformed <- transformed$drop(label_col)
-  transformed <- transformed$drop(features_col)
+}
 
+#' @export
+ml_transform.ml_torch_model <- function(x, dataset, ...) {
+  transform_impl(x, dataset)
+}
+
+transform_impl <- function(x, dataset, df = NULL) {
+  if(is.null(df)) {
+    df <- python_sdf(datasets)
+  }
+  transformed <- x$pipeline$pyspark_obj$transform(df)
   tbl_pyspark_temp(
     x = transformed,
     conn = spark_connection(dataset)
-    )
+  )
 }
 
+#' @export
+print.ml_torch_estimator <- function(x, ...) {
+  pyobj <- x$.jobj
+  msg <- ml_get_last_item(class(pyobj)[[1]])
+  cli_div(theme = cli_colors())
+  cli_inform("<{.header {msg}}>")
+  cli_end()
+}

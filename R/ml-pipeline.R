@@ -33,8 +33,10 @@ as_pipeline <- function(jobj, outputs = NULL, get_uid = FALSE) {
       .jobj = jobj
     ),
     class = c(
-      "ml_torch_pipeline", "ml_pipeline",
-      "ml_torch_estimator", "ml_torch_pipeline_stage",
+      "ml_torch_pipeline",
+      "ml_pipeline",
+      "ml_torch_estimator",
+      "ml_torch_pipeline_stage",
       "ml_pipeline_stage"
       )
   )

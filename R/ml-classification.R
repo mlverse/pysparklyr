@@ -212,7 +212,7 @@ ml_fit.ml_torch_pipeline <- function(x, dataset, ...) {
   dataset <- python_sdf(dataset)
 
   fitted <- try(
-    prep_reg$.jobj$fit(dataset),
+    x$.jobj$fit(dataset),
     silent = TRUE
   )
 

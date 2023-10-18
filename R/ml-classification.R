@@ -209,29 +209,29 @@ print.ml_torch_model <- function(x, ...) {
 
 #' @export
 ml_predict.ml_torch_model <- function(x, dataset, ...) {
-  prep <- ml_prep_dataset(
-    x = dataset,
-    label = x$label,
-    features = x$features,
-    lf = "all"
-  )
-
-  transformed <- transform_impl(x, dataset, prep$df)
-
-  transformed
-
+  transform_impl(x, dataset, prep = TRUE)
 }
 
 #' @export
 ml_transform.ml_torch_model <- function(x, dataset, ...) {
-  transform_impl(x, dataset)
+  transform_impl(x, dataset, prep = FALSE)
 }
 
-transform_impl <- function(x, dataset, df = NULL) {
-  if(is.null(df)) {
-    df <- python_sdf(datasets)
+transform_impl <- function(x, dataset, prep = TRUE) {
+  if(prep) {
+    ml_df <- ml_prep_dataset(
+      x = dataset,
+      label = x$label,
+      features = x$features,
+      lf = "all"
+    )
+    ml_df <- ml_df$df
+  } else {
+    ml_df <- python_sdf(dataset)
   }
-  transformed <- x$pipeline$pyspark_obj$transform(df)
+
+  transformed <- x$pipeline$pyspark_obj$transform(ml_df)
+
   tbl_pyspark_temp(
     x = transformed,
     conn = spark_connection(dataset)

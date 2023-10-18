@@ -36,6 +36,7 @@ as_pipeline <- function(jobj, outputs = NULL, get_uid = FALSE) {
       "ml_torch_pipeline",
       "ml_pipeline",
       "ml_torch_estimator",
+      "ml_estimator",
       "ml_torch_pipeline_stage",
       "ml_pipeline_stage"
       )

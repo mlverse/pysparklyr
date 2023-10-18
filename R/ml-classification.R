@@ -208,6 +208,26 @@ print.ml_torch_model <- function(x, ...) {
 }
 
 #' @export
+ml_fit.ml_torch_pipeline <- function(x, dataset, ...) {
+  dataset <- python_sdf(dataset)
+
+  fitted <- try(
+    prep_reg$.jobj$fit(dataset),
+    silent = TRUE
+  )
+
+  if (inherits(fitted, "try-error")) {
+    py_error <- reticulate::py_last_error()
+    rlang::abort(
+      paste(connection_label(x), "error:"),
+      body = fitted
+    )
+  }
+
+  fitted
+}
+
+#' @export
 ml_predict.ml_torch_model <- function(x, dataset, ...) {
   transform_impl(x, dataset, prep = TRUE)
 }

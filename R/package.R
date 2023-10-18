@@ -9,7 +9,8 @@
 #' @importFrom sparklyr spark_read_json spark_read_orc
 #' @importFrom sparklyr spark_write_csv spark_write_parquet spark_write_text
 #' @importFrom sparklyr spark_write_orc spark_write_json
-#' @importFrom sparklyr ml_logistic_regression ml_pipeline ml_predict ml_transform
+#' @importFrom sparklyr  ml_pipeline ml_predict ml_transform ml_fit
+#' @importFrom sparklyr  ml_logistic_regression
 #' @importFrom sparklyr spark_install_find
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars

@@ -12,6 +12,8 @@
 #'   infers the installation method based on the type of Python environment
 #'   specified by `envname`.
 #' @param ... Passed on to [`reticulate::py_install()`]
+#' @param as_job Runs the installation if using this function within the
+#' RStudio IDE.
 #' @returns It returns no value to the R session. This function purpose is to
 #' create the 'Python' environment, and install the appropriate set of 'Python'
 #' libraries inside the new environment. During runtime, this function will send
@@ -26,14 +28,16 @@ install_pyspark <- function(
     python_version = ">=3.9",
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
+    as_job = TRUE,
     ...) {
-  install_environment(
+  install_as_job(
     libs = "pyspark",
     version = version,
     envname = envname,
     python_version = python_version,
     new_env = new_env,
     method = method,
+    as_job = as_job,
     ... = ...
   )
 }
@@ -52,6 +56,7 @@ install_databricks <- function(
     python_version = ">=3.9",
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
+    as_job = TRUE,
     ...) {
   if (!is.null(version) && !is.null(cluster_id)) {
     cli_div(theme = cli_colors())
@@ -68,15 +73,76 @@ install_databricks <- function(
     version <- cluster_dbr_version(cluster_id)
   }
 
-  install_environment(
+  install_as_job(
     libs = "databricks-connect",
     version = version,
     envname = envname,
     python_version = python_version,
     new_env = new_env,
     method = method,
-    ...
+    as_job = as_job,
+    ... = ...
   )
+}
+
+install_as_job <- function(
+    libs = NULL,
+    version = NULL,
+    envname = NULL,
+    python_version = NULL,
+    new_env = NULL,
+    method = c("auto", "virtualenv", "conda"),
+    as_job = TRUE,
+    ...) {
+  args <- c(as.list(environment()), list(...))
+  in_rstudio <- FALSE
+  check_rstudio <- try(RStudio.Version(), silent = TRUE)
+  if (!inherits(check_rstudio, "try-error")) {
+    in_rstudio <- TRUE
+  }
+  if (as_job && in_rstudio) {
+    args$as_job <- NULL
+    args$method <- args$method[[1]]
+
+    job_name <- paste0("Installing '", libs, "' version '", version, "'")
+
+    arg_list <- args %>%
+      imap(~ {
+        if (inherits(.x, "character")) {
+          x <- paste0("\"", .x, "\"")
+        } else {
+          x <- .x
+        }
+        paste0(.y, " = ", x)
+      }) %>%
+      as.character() %>%
+      paste0(collapse = ", ")
+
+    install_code <- paste0(
+      "pysparklyr:::install_environment(", arg_list, ")"
+    )
+    temp_file <- tempfile()
+    writeLines(install_code, temp_file)
+    invisible(
+      jobRunScript(
+        path = temp_file,
+        name = job_name
+      )
+    )
+    cli_div(theme = cli_colors())
+    cli_alert_success("{.header Running installation as an RStudio job }")
+    cli_end()
+  } else {
+    install_environment(
+      libs = libs,
+      version = version,
+      envname = envname,
+      python_version = python_version,
+      new_env = new_env,
+      method = method,
+      ... = ...
+    )
+  }
 }
 
 install_environment <- function(
@@ -205,6 +271,7 @@ installed_components <- function(list_all = FALSE) {
   cli_h3("R packages")
   cli_bullets(c("*" = "{.header {.code sparklyr} ({packageVersion('sparklyr')}})"))
   cli_bullets(c("*" = "{.header {.code pysparklyr} ({packageVersion('pysparklyr')}})"))
+  cli_bullets(c("*" = "{.header {.code reticulate} ({packageVersion('reticulate')}})"))
   cli_h3("Python executable")
   cli_text("{.header {py_exe()}}")
   cli_h3("Python libraries")

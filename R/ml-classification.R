@@ -97,32 +97,21 @@ ml_prep_dataset <- function(
     features <- f$features
     label <- f$label
   } else {
-    if(is.null(features)) {
-      features <- features_col
-    }
-    if(is.null(label)) {
-      label <- label_col
-    }
+    features <- features %||% features_col
+    label <- label %||% label_col
   }
 
   features_array <- pyspark$sql$functions$array(features)
   tbl_features <- x_df$withColumn(features_col, features_array)
-  tbl_label <- tbl_features$withColumn(label_col, tbl_features[label])
+  ret <- tbl_features$withColumn(label_col, tbl_features[label])
 
   if(lf == "only") {
-    tbl_prep <- tbl_label$select(c(label_col, features_col))
+    ret <- ret$select(c(label_col, features_col))
   }
 
-  if(lf == "all") {
-    tbl_prep <- tbl_label
-  }
-
-  list(
-    label = label,
-    features = features,
-    df = tbl_prep
-  )
-
+  attr(ret, "features")  <- features
+  attr(ret, "label")  <- label
+  ret
 }
 
 as_torch_model <- function(x, features, label, con) {

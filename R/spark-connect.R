@@ -7,7 +7,7 @@ spark_connect_method.spark_method_spark_connect <- function(
     config,
     app_name,
     version,
-    hadoop_version,
+    packages,
     extensions,
     scala_version,
     ...) {
@@ -29,13 +29,12 @@ spark_connect_method.spark_method_databricks_connect <- function(
     config,
     app_name,
     version,
-    hadoop_version,
+    packages,
     extensions,
     scala_version,
     ...) {
   py_spark_connect(master = master, method = method, config = config, ...)
 }
-
 
 py_spark_connect <- function(master,
                              token = Sys.getenv("DATABRICKS_TOKEN"),

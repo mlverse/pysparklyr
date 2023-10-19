@@ -197,40 +197,6 @@ print.ml_torch_model <- function(x, ...) {
 }
 
 #' @export
-ml_fit.ml_torch_pipeline <- function(x, dataset, ...) {
-  py_sdf <- python_sdf(dataset)
-
-  fitted <- try(
-    x$.jobj$fit(py_sdf),
-    silent = TRUE
-  )
-
-  if (inherits(fitted, "try-error")) {
-    py_error <- reticulate::py_last_error()
-    rlang::abort(
-      paste(connection_label(x), "error:"),
-      body = fitted
-    )
-  }
-
-  structure(
-    list(
-      param_map = list(),
-      .jobj = as_spark_pyobj(fitted, spark_connection(dataset))
-    ),
-    class = c(
-      "ml_torch_transformer",
-      "ml_logistic_regression",
-      "ml_probabilistic_classifier",
-      "ml_classifier",
-      "ml_predictor",
-      "ml_transformer",
-      "ml_pipeline_stage"
-    )
-  )
-}
-
-#' @export
 ml_predict.ml_torch_model <- function(x, dataset, ...) {
   transform_impl(x, dataset, prep = TRUE)
 }

@@ -198,10 +198,10 @@ print.ml_torch_model <- function(x, ...) {
 
 #' @export
 ml_fit.ml_torch_pipeline <- function(x, dataset, ...) {
-  dataset <- python_sdf(dataset)
+  py_sdf <- python_sdf(dataset)
 
   fitted <- try(
-    x$.jobj$fit(dataset),
+    x$.jobj$fit(py_sdf),
     silent = TRUE
   )
 
@@ -213,7 +213,21 @@ ml_fit.ml_torch_pipeline <- function(x, dataset, ...) {
     )
   }
 
-  fitted
+  structure(
+    list(
+      param_map = list(),
+      .jobj = as_spark_pyobj(fitted, spark_connection(dataset))
+    ),
+    class = c(
+      "ml_torch_transformer",
+      "ml_logistic_regression",
+      "ml_probabilistic_classifier",
+      "ml_classifier",
+      "ml_predictor",
+      "ml_transformer",
+      "ml_pipeline_stage"
+    )
+  )
 }
 
 #' @export

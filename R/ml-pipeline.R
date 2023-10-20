@@ -104,19 +104,21 @@ ml_fit.ml_torch_pipeline <- function(x, dataset, ...) {
 
   stages <- map(fitted$stages, ml_print_params)
 
+  jobj <- as_spark_pyobj(fitted, spark_connection(dataset))
+
   structure(
     list(
+      uid = invoke(jobj, "uid"),
       param_map = list(),
       stages = stages,
-      .jobj = as_spark_pyobj(fitted, spark_connection(dataset))
+      .jobj = jobj
     ),
     class = c(
+      "ml_torch_pipeline",
+      "ml_pipeline",
       "ml_torch_transformer",
-      "ml_logistic_regression",
-      "ml_probabilistic_classifier",
-      "ml_classifier",
-      "ml_predictor",
       "ml_transformer",
+      "ml_torch_pipeline_stage",
       "ml_pipeline_stage"
     )
   )

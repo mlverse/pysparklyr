@@ -30,6 +30,8 @@ ml_prepare_dataset(
 
 \item{keep_original}{Boolean flag that indicates if the output will contain,
 or not, the original columns from \code{x}. Defaults to \code{TRUE}.}
+
+\item{...}{Added for backwards compatibility. Not in use today.}
 }
 \value{
 A \code{tbl_pyspark}, with either the original columns from \code{x}, plus the

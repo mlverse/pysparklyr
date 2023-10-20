@@ -20,6 +20,7 @@
 #' @param label_col Label column name, as a length-one character vector.
 #' @param keep_original Boolean flag that indicates if the output will contain,
 #' or not, the original columns from `x`. Defaults to `TRUE`.
+#' @param ... Added for backwards compatibility. Not in use today.
 #' @export
 ml_prepare_dataset <- function(
     x,
@@ -48,7 +49,7 @@ ml_prepare_dataset <- function(
     lf = lf
   )
 
-  tbl_pyspark_temp(prep, sc)
+  tbl_pyspark_temp(prep, spark_connection(x))
 }
 
 ml_prep_dataset <- function(

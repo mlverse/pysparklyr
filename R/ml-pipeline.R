@@ -124,7 +124,7 @@ as_pipeline <- function(jobj, outputs = NULL, get_uid = FALSE) {
 #' @importFrom sparklyr ml_save ml_load spark_jobj
 #' @importFrom fs path_abs
 #' @export
-ml_save.ml_connect_model <- function(x, path, overwrite = FALSE, ...) {
+ml_save.ml_connect_pipeline_stage <- function(x, path, overwrite = FALSE, ...) {
   path <- path_abs(path)
   invisible(
     x %>%
@@ -138,8 +138,16 @@ ml_save.ml_connect_model <- function(x, path, overwrite = FALSE, ...) {
 }
 
 #TODO: export ml_load() in sparklyr as S3 method
-ml_load <- function(sc, path) {
+ml_connect_load <- function(sc, path) {
   path <- path_abs(path)
   conn <- python_obj_get(sc)
-
+  connect_pipeline <- import("pyspark.ml.connect.pipeline")
+  pipeline <- connect_pipeline$Pipeline$loadFromLocal(path)
+  class_pipeline <- class(pipeline)
+  class_current <- ml_get_last_item(class_pipeline[[1]])
+  if(class_current == "Pipeline") {
+    outputs <- map(pipeline$getStages(), ml_print_params)
+    ret <- as_pipeline(pipeline, outputs, get_uid = TRUE)
+  }
+  ret
 }

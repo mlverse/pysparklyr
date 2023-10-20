@@ -9,7 +9,6 @@ ml_logistic_regression.pyspark_connection <- function(
     features_col = "features", label_col = "label", family = NULL,
     prediction_col = "prediction", probability_col = "probability",
     raw_prediction_col = NULL, uid = NULL, ...) {
-
   args <- c(as.list(environment()), list(...))
   ml_logistic_regression_prep(x, args)
 }
@@ -25,7 +24,6 @@ ml_logistic_regression.ml_connect_pipeline <- function(
     features_col = "features", label_col = "label", family = NULL,
     prediction_col = "prediction", probability_col = "probability",
     raw_prediction_col = NULL, uid = NULL, ...) {
-
   args <- c(as.list(environment()), list(...))
   model <- ml_logistic_regression_prep(x, args)
   ml_connect_add_stage(
@@ -60,7 +58,7 @@ ml_logistic_regression.tbl_pyspark <- function(
   fitted <- try(
     prep_reg$.jobj$fit(tbl_prep$df),
     silent = TRUE
-    )
+  )
 
   if (inherits(fitted, "try-error")) {
     py_error <- reticulate::py_last_error()
@@ -70,17 +68,11 @@ ml_logistic_regression.tbl_pyspark <- function(
     )
   }
 
-  as_torch_model(
-    fitted, tbl_prep$features, tbl_prep$label, spark_connection(x)
-    )
-}
-
-as_torch_model <- function(x, features, label, con) {
   structure(
     list(
-      pipeline = as_spark_pyobj(x, con),
-      features = features,
-      label = label
+      pipeline = as_spark_pyobj(fitted, spark_connection(x)),
+      features = tbl_prep$features,
+      label = tbl_prep$label
     ),
     class = c(
       "ml_connect_model",
@@ -168,7 +160,7 @@ ml_transform.ml_connect_pipeline_model <- function(x, dataset, ...) {
 }
 
 transform_impl <- function(x, dataset, prep = TRUE, remove = FALSE) {
-  if(prep) {
+  if (prep) {
     ml_df <- ml_prep_dataset(
       x = dataset,
       label = x$label,
@@ -184,7 +176,7 @@ transform_impl <- function(x, dataset, prep = TRUE, remove = FALSE) {
 
   ret <- py_object$transform(ml_df)
 
-  if(remove) {
+  if (remove) {
     stages <- py_object$stages
     last_stage <- stages[[length(stages)]]
     features_col <- last_stage$getFeaturesCol()

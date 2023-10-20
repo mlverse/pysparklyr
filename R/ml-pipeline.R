@@ -1,11 +1,11 @@
 #' @export
 ml_pipeline.pyspark_connection <- function(x, ..., uid = NULL) {
   connect_pipeline <- import("pyspark.ml.connect.pipeline")
-  jobj <- as_spark_pyobj(connect_pipeline, sc)
+  jobj <- as_spark_pyobj(connect_pipeline, x)
   as_pipeline(jobj)
 }
 
-ml_torch_add_stage <- function(x, stage) {
+ml_connect_add_stage <- function(x, stage) {
   pipeline <- x$.jobj$pyspark_obj$Pipeline
   stage_print <- ml_print_params(stage)
   if(inherits(pipeline, "pyspark.ml.connect.pipeline.Pipeline")) {
@@ -33,11 +33,11 @@ as_pipeline <- function(jobj, outputs = NULL, get_uid = FALSE) {
       .jobj = jobj
     ),
     class = c(
-      "ml_torch_pipeline",
+      "ml_connect_pipeline",
       "ml_pipeline",
-      "ml_torch_estimator",
+      "ml_connect_estimator",
       "ml_estimator",
-      "ml_torch_pipeline_stage",
+      "ml_connect_pipeline_stage",
       "ml_pipeline_stage"
       )
   )
@@ -86,7 +86,7 @@ print.ml_output_params <- function(x,...) {
 }
 
 #' @export
-ml_fit.ml_torch_pipeline <- function(x, dataset, ...) {
+ml_fit.ml_connect_pipeline <- function(x, dataset, ...) {
   py_sdf <- python_sdf(dataset)
 
   fitted <- try(
@@ -114,11 +114,11 @@ ml_fit.ml_torch_pipeline <- function(x, dataset, ...) {
       .jobj = jobj
     ),
     class = c(
-      "ml_torch_pipeline_model",
+      "ml_connect_pipeline_model",
       "ml_pipeline_model",
       "ml_transformer",
-      "ml_torch_transformer",
-      "ml_torch_pipeline_stage",
+      "ml_connect_transformer",
+      "ml_connect_pipeline_stage",
       "ml_pipeline_stage"
     )
   )

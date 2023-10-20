@@ -15,7 +15,7 @@ ml_logistic_regression.pyspark_connection <- function(
 }
 
 #' @export
-ml_logistic_regression.ml_torch_pipeline <- function(
+ml_logistic_regression.ml_connect_pipeline <- function(
     x, formula = NULL, fit_intercept = NULL,
     elastic_net_param = NULL, reg_param = NULL, max_iter = 100,
     threshold = NULL, thresholds = NULL, tol = 1e-06,
@@ -28,7 +28,7 @@ ml_logistic_regression.ml_torch_pipeline <- function(
 
   args <- c(as.list(environment()), list(...))
   model <- ml_logistic_regression_prep(x, args)
-  ml_torch_add_stage(
+  ml_connect_add_stage(
     x = x,
     stage = model$.jobj
   )
@@ -122,7 +122,7 @@ as_torch_model <- function(x, features, label, con) {
       label = label
     ),
     class = c(
-      "ml_torch_model",
+      "ml_connect_model",
       "ml_model_logistic_regression",
       "ml_model_classification",
       "ml_model_prediction",
@@ -176,7 +176,7 @@ ml_logistic_regression_prep <- function(x, args) {
       .jobj = jobj
     ),
     class = c(
-      "ml_torch_estimator",
+      "ml_connect_estimator",
       "ml_logistic_regression",
       "ml_probabilistic_classifier",
       "ml_classifier",
@@ -188,7 +188,7 @@ ml_logistic_regression_prep <- function(x, args) {
 }
 
 #' @export
-print.ml_torch_model <- function(x, ...) {
+print.ml_connect_model <- function(x, ...) {
   pyobj <- x$pipeline$pyspark_obj
   msg <- ml_get_last_item(class(pyobj)[[1]])
   cli_div(theme = cli_colors())
@@ -197,12 +197,12 @@ print.ml_torch_model <- function(x, ...) {
 }
 
 #' @export
-ml_predict.ml_torch_model <- function(x, dataset, ...) {
+ml_predict.ml_connect_model <- function(x, dataset, ...) {
   transform_impl(x, dataset, prep = TRUE)
 }
 
 #' @export
-ml_transform.ml_torch_pipeline_model <- function(x, dataset, ...) {
+ml_transform.ml_connect_pipeline_model <- function(x, dataset, ...) {
   transform_impl(x, dataset, prep = FALSE)
 }
 
@@ -230,7 +230,7 @@ transform_impl <- function(x, dataset, prep = TRUE) {
 }
 
 #' @export
-print.ml_torch_estimator <- function(x, ...) {
+print.ml_connect_estimator <- function(x, ...) {
   pyobj <- x$.jobj
   msg <- ml_get_last_item(class(pyobj)[[1]])
   cli_div(theme = cli_colors())

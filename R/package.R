@@ -27,6 +27,8 @@
 #' @importFrom vctrs vec_as_names
 #' @importFrom processx process
 #' @importFrom rstudioapi jobRunScript
+#' @importFrom stats terms
+#' @importFrom utils capture.output
 #' @import reticulate
 #' @import dbplyr
 #' @import httr2

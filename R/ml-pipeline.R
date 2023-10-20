@@ -88,12 +88,21 @@ print.ml_output_params <- function(x,...) {
 }
 
 ml_connect_add_stage <- function(x, stage) {
-  pipeline <- x$.jobj$pyspark_obj$Pipeline
+  pipeline_class <- "pyspark.ml.connect.pipeline.Pipeline"
+  pipeline <- python_obj_get(x)
+  if(!inherits(pipeline, pipeline_class)) {
+    pipeline <- pipeline$Pipeline
+  }
   stage_print <- ml_print_params(stage)
-  if(inherits(pipeline, "pyspark.ml.connect.pipeline.Pipeline")) {
+  if(inherits(pipeline, pipeline_class)) {
     stages <- pipeline$getStages()
     outputs <- c(x$stages, list(stage_print))
-    jobj <- pipeline(stages = c(stages, stage))
+    if(length(stages) > 0) {
+      jobj <- pipeline$setStages(c(stages, stage))
+    } else {
+      jobj <- pipeline(stages = c(stages, stage))
+    }
+
   } else {
     outputs <- list(stage_print)
     jobj <- pipeline(stages = c(stage))

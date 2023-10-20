@@ -96,8 +96,6 @@ ml_logistic_regression_prep <- function(x, args) {
 
   connect_classification <- import("pyspark.ml.connect.classification")
 
-  log_reg <- connect_classification$LogisticRegression()
-
   args$x <- NULL
   args$formula <- NULL
 

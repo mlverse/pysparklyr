@@ -26,6 +26,10 @@ ml_fit.ml_connect_pipeline <- function(x, dataset, ...) {
 
   jobj <- as_spark_pyobj(fitted, spark_connection(dataset))
 
+  as_pipeline_model(jobj, stages)
+}
+
+as_pipeline_model <- function(jobj, stages){
   structure(
     list(
       uid = invoke(jobj, "uid"),
@@ -143,11 +147,14 @@ ml_connect_load <- function(sc, path) {
   conn <- python_obj_get(sc)
   connect_pipeline <- import("pyspark.ml.connect.pipeline")
   pipeline <- connect_pipeline$Pipeline$loadFromLocal(path)
-  class_pipeline <- class(pipeline)
-  class_current <- ml_get_last_item(class_pipeline[[1]])
+  class_current <- ml_get_last_item(class(pipeline)[[1]])
   if(class_current == "Pipeline") {
     outputs <- map(pipeline$getStages(), ml_print_params)
     ret <- as_pipeline(pipeline, outputs, get_uid = TRUE)
+  }
+  if(class_current == "PipelineModel") {
+    outputs <- map(pipeline$stages, ml_print_params)
+    ret <- as_pipeline_model(pipeline, outputs)
   }
   ret
 }

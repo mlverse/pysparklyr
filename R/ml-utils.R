@@ -13,9 +13,9 @@ ml_formula <- function(f, data) {
   feat_names <- colnames(f_factors)
   row_f <- rownames(f_factors)
 
-  for(i in feat_names) {
+  for (i in feat_names) {
     in_data <- i %in% col_data
-    if(!in_data) {
+    if (!in_data) {
       cli_abort(c(
         "Formula resulted in an invalid parameter set\n",
         "- Only '+' is supported."
@@ -24,8 +24,8 @@ ml_formula <- function(f, data) {
   }
 
   label <- NULL
-  for(i in row_f) {
-    if(!(i %in% feat_names)) {
+  for (i in row_f) {
+    if (!(i %in% feat_names)) {
       label <- c(label, i)
     }
   }
@@ -72,4 +72,3 @@ ml_connect_not_supported <- function(args, not_supported = c()) {
     ))
   }
 }
-

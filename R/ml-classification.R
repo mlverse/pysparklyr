@@ -140,56 +140,6 @@ ml_logistic_regression_prep <- function(x, args) {
   )
 }
 
-#' @export
-print.ml_connect_model <- function(x, ...) {
-  pyobj <- x$pipeline$pyspark_obj
-  msg <- ml_get_last_item(class(pyobj)[[1]])
-  cli_div(theme = cli_colors())
-  cli_inform("<{.header {msg}}>")
-  cli_end()
-}
-
-#' @export
-ml_predict.ml_connect_model <- function(x, dataset, ...) {
-  transform_impl(x, dataset, prep = TRUE)
-}
-
-#' @export
-ml_transform.ml_connect_pipeline_model <- function(x, dataset, ...) {
-  transform_impl(x, dataset, prep = FALSE, remove = TRUE)
-}
-
-transform_impl <- function(x, dataset, prep = TRUE, remove = FALSE) {
-  if (prep) {
-    ml_df <- ml_prep_dataset(
-      x = dataset,
-      label = x$label,
-      features = x$features,
-      lf = "all"
-    )
-    ml_df <- ml_df$df
-  } else {
-    ml_df <- python_sdf(dataset)
-  }
-
-  py_object <- python_obj_get(x)
-
-  ret <- py_object$transform(ml_df)
-
-  if (remove) {
-    stages <- py_object$stages
-    last_stage <- stages[[length(stages)]]
-    features_col <- last_stage$getFeaturesCol()
-    label_col <- last_stage$getLabelCol()
-    ret <- ret$drop(label_col)
-    ret <- ret$drop(features_col)
-  }
-
-  tbl_pyspark_temp(
-    x = ret,
-    conn = spark_connection(dataset)
-  )
-}
 
 #' @export
 print.ml_connect_estimator <- function(x, ...) {

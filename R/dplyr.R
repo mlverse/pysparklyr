@@ -192,6 +192,9 @@ python_sdf <- function(x) {
 
 python_obj_get <- function(x) {
   sc <- spark_connection(x)
+  py_object <- "python.builtin.object"
+  if(inherits(x$.jobj, py_object)) return(x$.jobj)
+  if(inherits(x$.jobj$pyspark_obj, py_object)) return(x$.jobj$pyspark_obj)
   sc$session
 }
 

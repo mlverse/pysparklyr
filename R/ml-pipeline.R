@@ -116,8 +116,8 @@ ml_fit.ml_torch_pipeline <- function(x, dataset, ...) {
     class = c(
       "ml_torch_pipeline_model",
       "ml_pipeline_model",
-      "ml_torch_transformer",
       "ml_transformer",
+      "ml_torch_transformer",
       "ml_torch_pipeline_stage",
       "ml_pipeline_stage"
     )

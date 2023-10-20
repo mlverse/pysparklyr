@@ -202,7 +202,7 @@ ml_predict.ml_torch_model <- function(x, dataset, ...) {
 }
 
 #' @export
-ml_transform.ml_torch_model <- function(x, dataset, ...) {
+ml_transform.ml_torch_pipeline_model <- function(x, dataset, ...) {
   transform_impl(x, dataset, prep = FALSE)
 }
 
@@ -219,7 +219,9 @@ transform_impl <- function(x, dataset, prep = TRUE) {
     ml_df <- python_sdf(dataset)
   }
 
-  transformed <- x$pipeline$pyspark_obj$transform(ml_df)
+  py_object <- python_obj_get(x)
+
+  transformed <- py_object$transform(ml_df)
 
   tbl_pyspark_temp(
     x = transformed,

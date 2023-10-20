@@ -164,10 +164,10 @@ ml_predict.ml_connect_model <- function(x, dataset, ...) {
 
 #' @export
 ml_transform.ml_connect_pipeline_model <- function(x, dataset, ...) {
-  transform_impl(x, dataset, prep = FALSE)
+  transform_impl(x, dataset, prep = FALSE, remove = TRUE)
 }
 
-transform_impl <- function(x, dataset, prep = TRUE) {
+transform_impl <- function(x, dataset, prep = TRUE, remove = FALSE) {
   if(prep) {
     ml_df <- ml_prep_dataset(
       x = dataset,
@@ -182,10 +182,19 @@ transform_impl <- function(x, dataset, prep = TRUE) {
 
   py_object <- python_obj_get(x)
 
-  transformed <- py_object$transform(ml_df)
+  ret <- py_object$transform(ml_df)
+
+  if(remove) {
+    stages <- py_object$stages
+    last_stage <- stages[[length(stages)]]
+    features_col <- last_stage$getFeaturesCol()
+    label_col <- last_stage$getLabelCol()
+    ret <- ret$drop(label_col)
+    ret <- ret$drop(features_col)
+  }
 
   tbl_pyspark_temp(
-    x = transformed,
+    x = ret,
     conn = spark_connection(dataset)
   )
 }

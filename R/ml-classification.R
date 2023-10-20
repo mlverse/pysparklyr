@@ -75,45 +75,6 @@ ml_logistic_regression.tbl_pyspark <- function(
     )
 }
 
-ml_prep_dataset <- function(
-    x,
-    formula = NULL,
-    label = NULL,
-    features = NULL,
-    label_col = "label",
-    features_col = "features",
-    lf = c("only", "all")
-    ) {
-  lf <- match.arg(lf)
-
-  pyspark <- x %>%
-    spark_connection() %>%
-    import_main_library()
-
-  x_df <- x[[1]]$session
-
-  if (!is.null(formula)) {
-    f <- ml_formula(formula, x)
-    features <- f$features
-    label <- f$label
-  } else {
-    features <- features %||% features_col
-    label <- label %||% label_col
-  }
-
-  features_array <- pyspark$sql$functions$array(features)
-  tbl_features <- x_df$withColumn(features_col, features_array)
-  ret <- tbl_features$withColumn(label_col, tbl_features[label])
-
-  if(lf == "only") {
-    ret <- ret$select(c(label_col, features_col))
-  }
-
-  attr(ret, "features")  <- features
-  attr(ret, "label")  <- label
-  ret
-}
-
 as_torch_model <- function(x, features, label, con) {
   structure(
     list(

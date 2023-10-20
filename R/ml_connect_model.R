@@ -44,11 +44,17 @@ transform_impl <- function(x, dataset, prep = TRUE, remove = FALSE) {
 
   if (remove) {
     stages <- py_object$stages
-    last_stage <- stages[[length(stages)]]
-    features_col <- last_stage$getFeaturesCol()
-    label_col <- last_stage$getLabelCol()
-    ret <- ret$drop(label_col)
-    ret <- ret$drop(features_col)
+    for(i in stages) {
+      if(i$hasParam("inputCol")) {
+        input_col <- i$getInputCol()
+        ret <- ret$drop(input_col)
+      } else {
+        features_col <- i$getFeaturesCol()
+        label_col <- i$getLabelCol()
+        ret <- ret$drop(label_col)
+        ret <- ret$drop(features_col)
+      }
+    }
   }
 
   tbl_pyspark_temp(

@@ -72,3 +72,28 @@ ml_connect_not_supported <- function(args, not_supported = c()) {
     ))
   }
 }
+
+ml_execute <- function(args, python_library, fn) {
+
+  py_lib <- import(python_library)
+
+  args$x <- NULL
+  args$formula <- NULL
+
+  args <- discard(args, is.null)
+
+  new_names <- args %>%
+    names() %>%
+    map_chr(snake_to_camel)
+
+  new_args <- set_names(args, new_names)
+
+  invisible(
+    jobj <- do.call(
+      what = py_lib[fn],
+      args = new_args
+    )
+  )
+
+  jobj
+}

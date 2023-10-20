@@ -94,25 +94,11 @@ ml_logistic_regression_prep <- function(x, args) {
     )
   )
 
-  connect_classification <- import("pyspark.ml.connect.classification")
-
-  args$x <- NULL
-  args$formula <- NULL
-
-  args <- discard(args, is.null)
-
-  new_names <- args %>%
-    names() %>%
-    map_chr(snake_to_camel)
-
-  new_args <- set_names(args, new_names)
-
-  invisible(
-    jobj <- do.call(
-      what = connect_classification$LogisticRegression,
-      args = new_args
+  jobj <- ml_execute(
+    args = args,
+    python_library =  "pyspark.ml.connect.classification",
+    fn = "LogisticRegression"
     )
-  )
 
   structure(
     list(

@@ -14,7 +14,7 @@ spark_jobj.ml_connect_model <- function(x, ...) {
 
 #' @export
 ml_predict.ml_connect_model <- function(x, dataset, ...) {
-  transform_impl(x, dataset, prep = TRUE)
+  transform_impl(x, dataset, prep = TRUE, remove = TRUE)
 }
 
 ml_get_last_item <- function(x) {
@@ -33,7 +33,6 @@ transform_impl <- function(x, dataset, prep = TRUE, remove = FALSE) {
       features = x$features,
       lf = "all"
     )
-    ml_df <- ml_df$df
   } else {
     ml_df <- python_sdf(dataset)
   }
@@ -43,16 +42,23 @@ transform_impl <- function(x, dataset, prep = TRUE, remove = FALSE) {
   ret <- py_object$transform(ml_df)
 
   if (remove) {
-    stages <- py_object$stages
-    for(i in stages) {
-      if(i$hasParam("inputCol")) {
-        input_col <- i$getInputCol()
-        ret <- ret$drop(input_col)
-      } else {
-        features_col <- i$getFeaturesCol()
-        label_col <- i$getLabelCol()
-        ret <- ret$drop(label_col)
-        ret <- ret$drop(features_col)
+    if(inherits(x, "ml_connect_model")) {
+      label_col <- py_object$getLabelCol()
+      features_col <- py_object$getFeaturesCol()
+      ret <- ret$drop(label_col)
+      ret <- ret$drop(features_col)
+    } else {
+      stages <- py_object$stages
+      for(i in stages) {
+        if(i$hasParam("inputCol")) {
+          input_col <- i$getInputCol()
+          ret <- ret$drop(input_col)
+        } else {
+          features_col <- i$getFeaturesCol()
+          label_col <- i$getLabelCol()
+          ret <- ret$drop(label_col)
+          ret <- ret$drop(features_col)
+        }
       }
     }
   }

@@ -195,6 +195,7 @@ python_obj_get <- function(x) {
   py_object <- "python.builtin.object"
   if(inherits(x$.jobj, py_object)) return(x$.jobj)
   if(inherits(x$.jobj$pyspark_obj, py_object)) return(x$.jobj$pyspark_obj)
+  if(inherits(x$pipeline$pyspark_obj, py_object)) return(model$pipeline$pyspark_obj)
   sc$session
 }
 

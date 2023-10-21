@@ -1,4 +1,15 @@
 #' @importFrom sparklyr ft_standard_scaler
+
+#' @export
+ft_standard_scaler.pyspark_connection <- function(
+    x, input_col = NULL, output_col = NULL,
+    with_mean = NULL, with_std = NULL,
+    uid = NULL,
+    ...) {
+  args <- c(as.list(environment()), list(...))
+  ft_standard_scaler_prep(x, args)
+}
+
 #' @export
 ft_standard_scaler.ml_connect_pipeline <- function(
     x, input_col = NULL, output_col = NULL,

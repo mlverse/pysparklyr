@@ -56,7 +56,7 @@ ml_logistic_regression.tbl_pyspark <- function(
   )
 
   fitted <- try(
-    prep_reg$.jobj$fit(tbl_prep$df),
+    prep_reg$.jobj$fit(tbl_prep),
     silent = TRUE
   )
 
@@ -68,11 +68,13 @@ ml_logistic_regression.tbl_pyspark <- function(
     )
   }
 
+  attrs <- attributes(tbl_prep)
+
   structure(
     list(
       pipeline = as_spark_pyobj(fitted, spark_connection(x)),
-      features = tbl_prep$features,
-      label = tbl_prep$label
+      features = attrs$features,
+      label = attrs$label
     ),
     class = c(
       "ml_connect_model",

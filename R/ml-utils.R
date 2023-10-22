@@ -77,6 +77,9 @@ ml_execute <- function(args, python_library, fn) {
 
   py_lib <- import(python_library)
 
+  # Removes any variable with a "." prefix
+  args <- args[substr(names(args), 1, 1) != "."]
+
   args$x <- NULL
   args$formula <- NULL
 

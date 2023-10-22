@@ -31,20 +31,32 @@ ft_standard_scaler.tbl_pyspark <- function(
     uid = NULL,
     ...) {
 
+  .input_col <- input_col
+  .remove_input <- FALSE
+  if(length(input_col) > 1) {
+    .remove_input <- TRUE
+    input_col <- random_table_name("ft_")
+  }
+
   args <- c(as.list(environment()), list(...))
 
   model <- ft_standard_scaler_prep(x, args)
 
-  ft_name <- random_table_name("ft_")
-
   tbl_prep <- ml_prep_dataset(
     x = x,
-    features = input_col,
-    features_col = ft_name,
-    lf = "only"
+    features = .input_col,
+    features_col = input_col,
+    lf = "all"
   )
 
+  fitted <- ml_fit_impl(model, tbl_prep)
 
+  ret <- fitted$transform(tbl_prep)
+  if(.remove_input) {
+    ret <- ret$drop(input_col)
+  }
+
+  tbl_pyspark_temp(ret, spark_connection(x))
 }
 
 ft_standard_scaler_prep <- function(x, args) {

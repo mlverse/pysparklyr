@@ -18,10 +18,11 @@ ml_fit.ml_connect_pipeline <- function(x, dataset, ...) {
 }
 
 ml_fit_impl <- function(x, dataset) {
-  py_sdf <- python_sdf(dataset)
+  py_dataset <- python_obj_get(dataset)
+  py_x <- python_obj_get(x)
 
   fitted <- try(
-    x$.jobj$fit(py_sdf),
+    py_x$fit(py_dataset),
     silent = TRUE
   )
 

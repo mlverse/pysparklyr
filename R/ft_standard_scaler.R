@@ -24,6 +24,29 @@ ft_standard_scaler.ml_connect_pipeline <- function(
   )
 }
 
+#' @export
+ft_standard_scaler.tbl_pyspark <- function(
+    x, input_col = NULL, output_col = NULL,
+    with_mean = NULL, with_std = NULL,
+    uid = NULL,
+    ...) {
+
+  args <- c(as.list(environment()), list(...))
+
+  model <- ft_standard_scaler_prep(x, args)
+
+  ft_name <- random_table_name("ft_")
+
+  tbl_prep <- ml_prep_dataset(
+    x = x,
+    features = input_col,
+    features_col = ft_name,
+    lf = "only"
+  )
+
+
+}
+
 ft_standard_scaler_prep <- function(x, args) {
   ml_connect_not_supported(
     args = args,

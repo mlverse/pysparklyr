@@ -56,7 +56,7 @@ ml_logistic_regression.tbl_pyspark <- function(
   )
 
   fitted <- try(
-    invoke(python_obj_get(prep_reg), "fit", tbl_prep),
+    invoke(python_obj_get(prep_reg), "fit", python_obj_get(tbl_prep)),
     silent = TRUE
   )
 

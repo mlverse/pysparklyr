@@ -71,6 +71,10 @@ ml_prep_dataset <- function(
     f <- ml_formula(formula, x)
     features <- f$features
     label <- f$label
+  } else {
+    if(is.null(features) && is.null(label)) {
+      return(x)
+    }
   }
 
   ret <- python_obj_get(x)

@@ -39,25 +39,25 @@ transform_impl <- function(x, dataset, prep = TRUE, remove = FALSE, conn = NULL)
 
   py_object <- python_obj_get(x)
 
-  ret <- py_object$transform(ml_df)
+  ret <- invoke(x, "transform", ml_df)
 
   if (remove) {
     if(inherits(x, "ml_connect_model")) {
-      label_col <- py_object$getLabelCol()
-      features_col <- py_object$getFeaturesCol()
-      ret <- ret$drop(label_col)
-      ret <- ret$drop(features_col)
+      label_col <- invoke(x, "getLabelCol")
+      features_col <- invoke(x, "getFeaturesCol")
+      ret <- invoke(ret, "drop", label_col)
+      ret <- invoke(ret, "drop", features_col)
     } else {
       stages <- py_object$stages
       for(i in stages) {
-        if(i$hasParam("inputCol")) {
-          input_col <- i$getInputCol()
-          ret <- ret$drop(input_col)
+        if(invoke(i, "hasParam", "inputCol")) {
+          input_col <- invoke(i, "getInputCol")
+          ret <- invoke(ret, "drop", input_col)
         } else {
-          features_col <- i$getFeaturesCol()
-          label_col <- i$getLabelCol()
-          ret <- ret$drop(label_col)
-          ret <- ret$drop(features_col)
+          label_col <- invoke(i, "getLabelCol")
+          features_col <- invoke(i, "getFeaturesCol")
+          ret <- invoke(ret, "drop", label_col)
+          ret <- invoke(ret, "drop", features_col)
         }
       }
     }

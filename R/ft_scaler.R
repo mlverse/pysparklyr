@@ -20,7 +20,7 @@ ft_standard_scaler.ml_connect_pipeline <- function(
   model <- ft_scaler_prep(args, "StandardScaler")
   ml_connect_add_stage(
     x = x,
-    stage = model$.jobj
+    stage = python_obj_get(model)
   )
 }
 
@@ -58,7 +58,7 @@ ft_max_abs_scaler.ml_connect_pipeline <- function(
   model <- ft_scaler_prep(args, "MaxAbsScaler")
   ml_connect_add_stage(
     x = x,
-    stage = model$.jobj
+    stage = python_obj_get(model)
   )
 }
 
@@ -78,7 +78,6 @@ ft_max_abs_scaler.tbl_pyspark <- function(
 # ------------------------------- Implementation -------------------------------
 
 ft_execute_scaler <- function(x, input_col = NULL, fn = "", ...) {
-
   .input_col <- input_col
   .remove_input <- FALSE
   if (length(input_col) > 1) {

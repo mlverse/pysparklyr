@@ -28,7 +28,7 @@ ml_logistic_regression.ml_connect_pipeline <- function(
   model <- ml_logistic_regression_prep(x, args)
   ml_connect_add_stage(
     x = x,
-    stage = model$.jobj
+    stage = python_obj_get(model)
   )
 }
 
@@ -118,7 +118,7 @@ ml_logistic_regression_prep <- function(x, args) {
 
 #' @export
 print.ml_connect_estimator <- function(x, ...) {
-  pyobj <- x$.jobj
+  pyobj <- python_obj_get(x)
   msg <- ml_get_last_item(class(pyobj)[[1]])
   cli_div(theme = cli_colors())
   cli_inform("<{.header {msg}}>")

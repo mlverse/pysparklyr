@@ -42,8 +42,8 @@ spark_dataframe.spark_pyobj <- function(x, ...) {
 #' @export
 invoke.spark_pyobj <- function(jobj, method, ...) {
   invoke_conn(
-    jobj = jobj$connection,
-    context = jobj$pyspark_obj,
+    jobj = jobj,
+    context = jobj,
     method = method,
     ...
   )

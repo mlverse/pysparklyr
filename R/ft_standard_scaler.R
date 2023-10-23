@@ -51,9 +51,12 @@ ft_standard_scaler.tbl_pyspark <- function(
 
   fitted <- ml_fit_impl(model, tbl_prep)
 
-  ret <- fitted$transform(tbl_prep)
+  #ret <- invoke(fitted, "transform", tbl_prep)
+  ret <- transform_impl(fitted, tbl_prep, prep = FALSE, remove = FALSE,
+                        conn = spark_connection(x)
+                        )
   if(.remove_input) {
-    ret <- ret$drop(input_col)
+    ret <- invoke(ret, "drop", input_col)
   }
 
   tbl_pyspark_temp(ret, spark_connection(x))

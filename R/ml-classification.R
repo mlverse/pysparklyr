@@ -55,18 +55,7 @@ ml_logistic_regression.tbl_pyspark <- function(
     lf = "only"
   )
 
-  fitted <- try(
-    invoke(python_obj_get(prep_reg), "fit", python_obj_get(tbl_prep)),
-    silent = TRUE
-  )
-
-  if (inherits(fitted, "try-error")) {
-    py_error <- reticulate::py_last_error()
-    rlang::abort(
-      paste(connection_label(x), "error:"),
-      body = fitted
-    )
-  }
+  fitted <- ml_fit_impl(prep_reg, tbl_prep)
 
   attrs <- attributes(tbl_prep)
 

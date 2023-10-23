@@ -194,6 +194,7 @@ python_obj_get <- function(x) {
   sc <- spark_connection(x)
   py_object <- "python.builtin.object"
   if(inherits(x, py_object)) return(x)
+  if(inherits(x$pyspark_obj, py_object)) return(x$pyspark_obj)
   if(inherits(x$.jobj, py_object)) return(x$.jobj)
   if(inherits(x$.jobj$pyspark_obj, py_object)) return(x$.jobj$pyspark_obj)
   if(inherits(x$pipeline$pyspark_obj, py_object)) return(model$pipeline$pyspark_obj)
@@ -217,7 +218,8 @@ tbl_pyspark_temp <- function(x, conn, tmp_name = NULL) {
   if (is.null(tmp_name)) {
     tmp_name <- tbl_temp_name()
   }
-  x$createOrReplaceTempView(tmp_name)
+  py_x <- python_obj_get(x)
+  py_x$createOrReplaceTempView(tmp_name)
   tbl(sc, tmp_name)
 }
 

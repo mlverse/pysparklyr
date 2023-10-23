@@ -22,7 +22,7 @@ ml_fit_impl <- function(x, dataset) {
   py_x <- python_obj_get(x)
 
   fitted <- try(
-    py_x$fit(py_dataset),
+    invoke(py_x, "fit", py_dataset),
     silent = TRUE
   )
 

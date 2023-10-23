@@ -1,6 +1,6 @@
 #' @export
 print.ml_connect_model <- function(x, ...) {
-  pyobj <- x$pipeline$pyspark_obj
+  pyobj <- python_obj_get(x)
   msg <- ml_get_last_item(class(pyobj)[[1]])
   cli_div(theme = cli_colors())
   cli_inform("<{.header {msg}}>")
@@ -48,7 +48,7 @@ transform_impl <- function(x, dataset, prep = TRUE, remove = FALSE, conn = NULL)
       ret <- invoke(ret, "drop", label_col)
       ret <- invoke(ret, "drop", features_col)
     } else {
-      stages <- py_object$stages
+      stages <- invoke(py_object, "stages")
       for(i in stages) {
         if(invoke(i, "hasParam", "inputCol")) {
           input_col <- invoke(i, "getInputCol")

@@ -95,16 +95,18 @@ ml_connect_add_stage <- function(x, stage) {
   pipeline_class <- "pyspark.ml.connect.pipeline.Pipeline"
   pipeline <- python_obj_get(x)
   if(!inherits(pipeline, pipeline_class)) {
-    pipeline <- pipeline$Pipeline
+    pipeline <- invoke(pipeline, "Pipeline")
   }
   stage_print <- ml_print_params(stage)
   if(inherits(pipeline, pipeline_class)) {
+    # Not using invoke() here because it's returning a list
+    # and we need a vector
     stages <- pipeline$getStages()
     outputs <- c(x$stages, list(stage_print))
     if(length(stages) > 0) {
-      jobj <- pipeline$setStages(c(stages, stage))
+      jobj <- invoke(pipeline, "setStages", c(stages, stage))
     } else {
-      jobj <- pipeline(stages = c(stages, stage))
+      jobj <- invoke(pipeline, "stages", c(stages, stage))
     }
 
   } else {

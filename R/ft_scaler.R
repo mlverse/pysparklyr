@@ -33,7 +33,8 @@ ft_standard_scaler.tbl_pyspark <- function(
   ft_execute_scaler(
     x = x,
     input_col = input_col,
-    fn = "StandardScaler",
+    output_col = output_col,
+    .fn = "StandardScaler",
     ... = ...
   )
 }
@@ -70,14 +71,15 @@ ft_max_abs_scaler.tbl_pyspark <- function(
   ft_execute_scaler(
     x = x,
     input_col = input_col,
-    fn = "MaxAbsScaler",
+    output_col = output_col,
+    .fn = "MaxAbsScaler",
     ... = ...
   )
 }
 
 # ------------------------------- Implementation -------------------------------
 
-ft_execute_scaler <- function(x, input_col = NULL, fn = "", ...) {
+ft_execute_scaler <- function(x, input_col = NULL, output_col = NULL, .fn = "", ...) {
   .input_col <- input_col
   .remove_input <- FALSE
   if (length(input_col) > 1) {
@@ -87,7 +89,7 @@ ft_execute_scaler <- function(x, input_col = NULL, fn = "", ...) {
 
   args <- c(as.list(environment()), list(...))
 
-  model <- ft_scaler_prep(args, fn)
+  model <- ft_scaler_prep(args, .fn)
 
   tbl_prep <- ml_prep_dataset(
     x = x,

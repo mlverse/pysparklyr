@@ -48,7 +48,7 @@ snake_to_camel <- function(x) {
 }
 
 ml_connect_not_supported <- function(args, not_supported = c()) {
-  x <- map_chr(
+  x <- map(
     not_supported,
     ~ {
       if (.x %in% names(args)) {
@@ -60,7 +60,9 @@ ml_connect_not_supported <- function(args, not_supported = c()) {
         }
       }
     }
-  )
+  ) %>%
+    discard(is.null) %>%
+    as.character()
 
   x <- x[x != ""]
 
@@ -68,7 +70,7 @@ ml_connect_not_supported <- function(args, not_supported = c()) {
     cli_abort(c(
       "The following argument(s) are not supported by Spark Connect:",
       x,
-      "Set it(them) to `NULL` and try again."
+      "Set it/them to `NULL` and try again."
     ))
   }
 }

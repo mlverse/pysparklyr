@@ -7,14 +7,9 @@ ml_pipeline.pyspark_connection <- function(x, ..., uid = NULL) {
 
 #' @export
 ml_fit.ml_connect_pipeline <- function(x, dataset, ...) {
-
   fitted <- ml_fit_impl(x, dataset)
-
-  stages <- map(fitted$stages, ml_print_params)
-
-  jobj <- as_spark_pyobj(fitted, spark_connection(dataset))
-
-  as_pipeline_model(jobj, stages)
+  stages <- map(invoke(fitted, "stages"), ml_print_params)
+  as_pipeline_model(fitted, stages)
 }
 
 ml_fit_impl <- function(x, dataset) {

@@ -75,6 +75,17 @@ invoke.ml_connect_model <- function(jobj, method, ...) {
   )
 }
 
+
+#' @export
+invoke.ml_connect_transformer <- function(jobj, method, ...) {
+  invoke_conn(
+    jobj = jobj,
+    context = jobj,
+    method = method,
+    ... = ...
+  )
+}
+
 #' @export
 invoke.tbl_pyspark <- function(jobj, method, ...) {
   invoke_conn(
@@ -106,7 +117,9 @@ invoke_conn <- function(jobj, context, method, ...) {
     run_x <- py_call(x, ...)
 
     if (inherits(run_x, "numpy.number") |
-        inherits(run_x, "python.builtin.str")
+        inherits(run_x, "python.builtin.str") |
+        inherits(run_x, "python.builtin.bool") |
+        inherits(run_x, "python.builtin.int")
         ) {
       out <- py_to_r(run_x)
     }

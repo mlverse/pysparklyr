@@ -11,7 +11,7 @@ test_that("Logistic Regression works with Spark Connection", {
   )
 })
 
-test_that("Logistic Regression works with Spark Connection", {
+test_that("Logistic Regression works with `tbl_spark`", {
   sc <- test_spark_connect()
   tbl_mtcars <- test_table_mtcars()
   expect_silent(model <- ml_logistic_regression(tbl_mtcars, am ~ .))
@@ -25,5 +25,14 @@ test_that("Logistic Regression works with Spark Connection", {
   )
 })
 
+test_that("Logistic Regression works with Pipeline", {
+  sc <- test_spark_connect()
 
-
+  expect_silent(
+    out <- sc %>%
+      ml_pipeline() %>%
+      ml_logistic_regression()
+  )
+  cap_out <- capture.output(out)
+  expect_snapshot(cap_out[c(1, 3:4, 6:18)])
+})

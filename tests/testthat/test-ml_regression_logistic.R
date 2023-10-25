@@ -36,3 +36,12 @@ test_that("Logistic Regression works with Pipeline", {
   cap_out <- capture.output(out)
   expect_snapshot(cap_out[c(1, 3:4, 6:18)])
 })
+
+
+test_that("Print method works", {
+  sc <- test_spark_connect()
+  expect_snapshot(
+    ml_logistic_regression(sc)
+  )
+
+})

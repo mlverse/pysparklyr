@@ -53,3 +53,10 @@
       [15] "  |    seed: 0"                       
       [16] "  |    tol: 1e-06"                    
 
+# Print method works
+
+    Code
+      ml_logistic_regression(sc)
+    Message <rlang_message>
+      <LogisticRegression>
+

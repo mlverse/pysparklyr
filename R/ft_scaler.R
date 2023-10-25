@@ -84,7 +84,7 @@ ft_execute_scaler <- function(x, input_col = NULL, output_col = NULL, .fn = "", 
   .remove_input <- FALSE
   if (length(input_col) > 1) {
     .remove_input <- TRUE
-    input_col <- random_table_name("ft_")
+    input_col <- random_string("ft_")
   }
 
   args <- c(as.list(environment()), list(...))

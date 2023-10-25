@@ -180,10 +180,17 @@ install_environment <- function(
     version <- paste0(version, ".*")
   }
 
+  add_torch <- FALSE
   if (is.null(envname)) {
     if (libs == "databricks-connect") {
+      if (compareVersion(as.character(ver_name), "14.1") >= 0) {
+        add_torch <- TRUE
+      }
       ln <- "databricks"
     } else {
+      if (compareVersion(as.character(ver_name), "3.5") >= 0) {
+        add_torch <- TRUE
+      }
       ln <- libs
     }
     envname <- glue("r-sparklyr-{ln}-{ver_name}")
@@ -198,10 +205,12 @@ install_environment <- function(
     "PyArrow",
     "grpcio",
     "google-api-python-client",
-    "grpcio_status",
-    "torch",
-    "torcheval"
+    "grpcio_status"
   )
+
+  if (add_torch) {
+    packages <- c(packages, "torch", "torcheval")
+  }
 
   method <- match.arg(method)
 
@@ -303,6 +312,7 @@ py_library_info <- function(lib, ver = NULL) {
 }
 
 version_prep <- function(version) {
+  version <- as.character(version)
   ver <- version %>%
     strsplit("\\.") %>%
     unlist()

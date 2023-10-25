@@ -26,11 +26,11 @@ skip_if(
   )
 
 test_that("PySpark installation works", {
-  expect_output(install_pyspark("3.3", python = Sys.which("python")))
+  expect_output(install_pyspark("3.3", as_job = FALSE, python = Sys.which("python")))
   reticulate::virtualenv_remove("r-sparklyr-pyspark-3.3", confirm = FALSE)
 })
 
 test_that("DB Connect installation works", {
-  expect_output(install_databricks("13.0", python = Sys.which("python")))
+  expect_output(install_databricks("13.0", as_job = FALSE, python = Sys.which("python")))
   reticulate::virtualenv_remove("r-sparklyr-databricks-13.0", confirm = FALSE)
 })

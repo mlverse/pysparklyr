@@ -174,17 +174,18 @@ catalog_sql <- function(
     catalog = NULL,
     schema = NULL,
     name = NULL,
-    type = NULL) {
+    type = NULL,
+    catalog_tbl = in_catalog("system", "information_schema", "catalogs"),
+    schema_tbl = in_catalog("system", "information_schema", "schemata"),
+    tables_tbl = in_catalog("system", "information_schema", "tables")
+    ) {
 
   limit <- as.numeric(
     Sys.getenv("SPARKLYR_CONNECTION_OBJECT_LIMIT", unset = 100)
   )
 
   if(is.null(catalog)) {
-    all_catalogs <- tbl(
-      src = con,
-      in_catalog("system", "information_schema", "catalogs")
-      )
+    all_catalogs <- tbl(src = con, catalog_tbl)
 
     get_catalogs <- all_catalogs %>%
       select(catalog_name, comment) %>%
@@ -203,10 +204,7 @@ catalog_sql <- function(
   }
 
   if(is.null(schema) && !is.null(catalog)) {
-    all_schema <- tbl(
-      src = con,
-      in_catalog("system", "information_schema", "schemata")
-      )
+    all_schema <- tbl(src = con, schema_tbl)
 
     get_schema <- all_schema %>%
       filter(catalog_name == catalog) %>%
@@ -226,10 +224,7 @@ catalog_sql <- function(
   }
 
   if(!is.null(schema) && !is.null(catalog)) {
-    all_tables <- tbl(
-      src = con,
-      in_catalog("system", "information_schema", "tables")
-      )
+    all_tables <- tbl(src = con, tables_tbl)
 
     get_tables <- all_tables %>%
       filter(

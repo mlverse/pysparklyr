@@ -1,7 +1,7 @@
 # Logistic Regression works with Spark Connection
 
     Code
-      class(ml_logistic_regression(sc))
+      class(ml_logistic_regression(sc, max_iter = 10))
     Output
       [1] "ml_connect_estimator"        "ml_logistic_regression"     
       [3] "ml_probabilistic_classifier" "ml_classifier"              
@@ -56,7 +56,7 @@
 # Print method works
 
     Code
-      ml_logistic_regression(sc)
+      ml_logistic_regression(sc, max_iter = 10)
     Message <rlang_message>
       <LogisticRegression>
 

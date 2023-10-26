@@ -63,9 +63,7 @@ ml_prep_dataset <- function(
 ) {
   lf <- match.arg(lf)
 
-  pyspark <- x %>%
-    spark_connection() %>%
-    import_main_library()
+  pyspark <- import("pyspark")
 
   if (!is.null(formula)) {
     f <- ml_formula(formula, x)

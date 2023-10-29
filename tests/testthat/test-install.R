@@ -34,3 +34,7 @@ test_that("DB Connect installation works", {
   expect_output(install_databricks("13.0", as_job = FALSE, python = Sys.which("python")))
   reticulate::virtualenv_remove("r-sparklyr-databricks-13.0", confirm = FALSE)
 })
+
+test_that("Install code is correctly created", {
+  expect_snapshot(build_job_code(list(a = 1)))
+})

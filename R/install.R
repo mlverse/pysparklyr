@@ -101,33 +101,12 @@ install_as_job <- function(
     in_rstudio <- TRUE
   }
   if (as_job && in_rstudio) {
-    args$as_job <- NULL
-    args$method <- args$method[[1]]
-
+    install_code <- build_job_code(args)
     job_name <- paste0("Installing '", libs, "' version '", version, "'")
-
-    arg_list <- args %>%
-      imap(~ {
-        if (inherits(.x, "character")) {
-          x <- paste0("\"", .x, "\"")
-        } else {
-          x <- .x
-        }
-        paste0(.y, " = ", x)
-      }) %>%
-      as.character() %>%
-      paste0(collapse = ", ")
-
-    install_code <- paste0(
-      "pysparklyr:::install_environment(", arg_list, ")"
-    )
     temp_file <- tempfile()
     writeLines(install_code, temp_file)
     invisible(
-      jobRunScript(
-        path = temp_file,
-        name = job_name
-      )
+      jobRunScript(path = temp_file, name = job_name)
     )
     cli_div(theme = cli_colors())
     cli_alert_success("{.header Running installation as an RStudio job }")
@@ -143,6 +122,26 @@ install_as_job <- function(
       ... = ...
     )
   }
+}
+
+build_job_code <- function(args) {
+  args$as_job <- NULL
+  args$method <- args$method[[1]]
+  arg_list <- args %>%
+    imap(~ {
+      if (inherits(.x, "character")) {
+        x <- paste0("\"", .x, "\"")
+      } else {
+        x <- .x
+      }
+      paste0(.y, " = ", x)
+    }) %>%
+    as.character() %>%
+    paste0(collapse = ", ")
+
+  paste0(
+    "pysparklyr:::install_environment(", arg_list, ")"
+  )
 }
 
 install_environment <- function(

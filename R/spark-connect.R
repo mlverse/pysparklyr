@@ -2,12 +2,12 @@
 spark_connect_method.spark_method_spark_connect <- function(
     x,
     method,
-    master = NULL,
+    master,
     spark_home,
     config,
     app_name,
     version,
-    packages,
+    hadoop_version,
     extensions,
     scala_version,
     ...) {
@@ -29,7 +29,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     config,
     app_name,
     version,
-    packages,
+    hadoop_version,
     extensions,
     scala_version,
     ...) {
@@ -59,7 +59,7 @@ py_spark_connect <- function(master,
             "{.header  no environment was automatically identified.}"
           ),
           "Run {.run pysparklyr::install_pyspark()} to install."
-        ), call = NULL)
+        ))
       } else {
         if (!is.null(spark_version)) {
           sp_version <- version_prep(spark_version)

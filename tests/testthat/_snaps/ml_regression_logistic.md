@@ -11,6 +11,13 @@
 # Logistic Regression works with `tbl_spark`
 
     Code
+      print(model)
+    Message <rlang_message>
+      <LogisticRegressionModel>
+
+---
+
+    Code
       model$features
     Output
        [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "gear" "carb"

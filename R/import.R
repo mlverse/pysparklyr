@@ -1,28 +1,3 @@
-import_main_library <- function(sc, check = FALSE, envname = NULL) {
-  UseMethod("import_main_library")
-}
-
-import_main_library.connect_spark <- function(sc, check = FALSE,
-                                              envname = NULL
-                                              ) {
-  import_library("pyspark")
-}
-
-import_main_library.connect_databricks <- function(sc, check = FALSE,
-                                              envname = NULL
-) {
-  import_library("databricks.connect")
-}
-
-import_library <- function(lib, check = FALSE, envname = NULL) {
-  if(check) {
-    ret <- import_check(lib, envname)
-  } else {
-    ret <- import(lib)
-  }
-  ret
-}
-
 import_check <- function(x, envname) {
   env_found <- !is.na(envname)
   env_loaded <- NA

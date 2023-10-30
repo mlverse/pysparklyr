@@ -2,12 +2,12 @@
 spark_connect_method.spark_method_spark_connect <- function(
     x,
     method,
-    master = NULL,
+    master,
     spark_home,
     config,
     app_name,
     version,
-    packages,
+    hadoop_version,
     extensions,
     scala_version,
     ...) {
@@ -29,7 +29,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     config,
     app_name,
     version,
-    packages,
+    hadoop_version,
     extensions,
     scala_version,
     ...) {
@@ -53,15 +53,13 @@ py_spark_connect <- function(master,
       env_base <- "r-sparklyr-pyspark-"
       envs <- find_environments(env_base)
       if (length(envs) == 0) {
-        cli_div(theme = cli_colors())
-        cli_abort(c(
+        cli_internal_abort(c(
           paste0(
             "{.header No environment name provided, and }",
             "{.header  no environment was automatically identified.}"
           ),
           "Run {.run pysparklyr::install_pyspark()} to install."
-        ), call = NULL)
-        cli_end()
+        ))
       } else {
         if (!is.null(spark_version)) {
           sp_version <- version_prep(spark_version)
@@ -69,8 +67,7 @@ py_spark_connect <- function(master,
           matched <- envs[envs == envname]
           if (length(matched) == 0) {
             envname <- envs[[1]]
-            cli_div(theme = cli_colors())
-            cli_alert_warning(paste(
+            cli_internal_alert_warning(paste(
               "{.header A Python environment with a matching version was not found}",
               "* {.header Will attempt connecting using }{.emph '{envname}'}",
               paste0(
@@ -79,7 +76,6 @@ py_spark_connect <- function(master,
               ),
               sep = "\n"
             ))
-            cli_end()
           } else {
             envname <- matched
           }
@@ -118,8 +114,7 @@ py_spark_connect <- function(master,
       matched <- envs[envs == envname]
       if (length(matched) == 0) {
         envname <- envs[[1]]
-        cli_div(theme = cli_colors())
-        cli_alert_warning(paste(
+        cli_internal_alert_warning(paste(
           "{.header A Python environment with a matching version was not found}",
           "* {.header Will attempt connecting using }{.emph '{envname}'}",
           paste0(
@@ -128,7 +123,6 @@ py_spark_connect <- function(master,
           ),
           sep = "\n"
         ))
-        cli_end()
       }
     } else {
       if (!is.na(reticulate_python)) {
@@ -137,9 +131,7 @@ py_spark_connect <- function(master,
           "{.emph 'RETICULATE_PYTHON' }{.header environment variable}",
           "{.class ({py_exe()})}"
         )
-        cli_div(theme = cli_colors())
-        cli_alert_warning(msg)
-        cli_end()
+        cli_internal_alert_warning(msg)
         envname <- reticulate_python
       }
     }
@@ -266,8 +258,7 @@ build_user_agent <- function() {
 cluster_dbr_version <- function(cluster_id,
                                 host = Sys.getenv("DATABRICKS_HOST"),
                                 token = Sys.getenv("DATABRICKS_TOKEN")) {
-  cli_div(theme = cli_colors())
-  cli_alert_warning(
+  cli_internal_alert_warning(
     "{.header Retrieving version from cluster }{.emph '{cluster_id}'}"
   )
 

@@ -191,16 +191,19 @@ python_sdf <- function(x) {
 }
 
 python_obj_get <- function(x) {
+  UseMethod("python_obj_get")
+}
+
+python_obj_get.default <- function(x) {
   sc <- spark_connection(x)
   py_object <- "python.builtin.object"
-
   if(inherits(x, "character")) return(x)
   if(inherits(x, py_object)) return(x)
-  if(inherits(sc$session, py_object)) return(sc$session)
+  if(inherits(x[[".jobj"]], py_object)) return(x[[".jobj"]])
+  if(inherits(x[[".jobj"]][["pyspark_obj"]], py_object)) return(x[[".jobj"]][["pyspark_obj"]])
   if(inherits(x[["pyspark_obj"]], py_object)) return(x[["pyspark_obj"]])
-  if(inherits(x$pipeline$pyspark_obj, py_object)) return(x$pipeline$pyspark_obj)
-  if(inherits(x$.jobj, py_object)) return(x$.jobj)
-  if(inherits(x$.jobj$pyspark_obj, py_object)) return(x$.jobj$pyspark_obj)
+  if(inherits(x[["pipeline"]][["pyspark_obj"]], py_object)) return(x[["pipeline"]][["pyspark_obj"]])
+  if(inherits(sc$session, py_object)) return(sc$session)
 }
 
 python_obj_con_set <- function(sc, obj) {

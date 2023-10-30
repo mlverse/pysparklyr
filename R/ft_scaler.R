@@ -107,7 +107,8 @@ ft_execute_scaler <- function(x, input_col = NULL, output_col = NULL, .fn = "", 
     dataset = tbl_prep,
     prep = FALSE,
     remove = FALSE,
-    conn = conn
+    conn = conn,
+    as_df = FALSE
   )
   if (.remove_input) {
     ret <- invoke(ret, "drop", input_col)

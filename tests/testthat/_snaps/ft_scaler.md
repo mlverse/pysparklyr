@@ -5,15 +5,6 @@
     Output
       [1] "ml_connect_estimator" "ml_estimator"         "ml_pipeline_stage"   
 
-# Standard Scaler works with `tbl_spark`
-
-    Code
-      colnames(scale)
-    Output
-       [1] "mpg"             "cyl"             "disp"            "hp"             
-       [5] "drat"            "wt"              "qsec"            "vs"             
-       [9] "am"              "gear"            "carb"            "scaled_features"
-
 # Standard Scaler works with Pipeline
 
     Code

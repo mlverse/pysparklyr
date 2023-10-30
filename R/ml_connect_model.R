@@ -25,7 +25,9 @@ ml_get_last_item <- function(x) {
   classes[length(classes)]
 }
 
-transform_impl <- function(x, dataset, prep = TRUE, remove = FALSE, conn = NULL) {
+transform_impl <- function(x, dataset, prep = TRUE,
+                           remove = FALSE, conn = NULL,
+                           as_df = TRUE) {
   if (prep) {
     ml_df <- ml_prep_dataset(
       x = dataset,
@@ -66,8 +68,11 @@ transform_impl <- function(x, dataset, prep = TRUE, remove = FALSE, conn = NULL)
   if(is.null(conn)) {
     conn <- spark_connection(dataset)
   }
-  tbl_pyspark_temp(
-    x = ret,
-    conn = conn
-  )
+  if(as_df) {
+    ret <- tbl_pyspark_temp(
+      x = ret,
+      conn = conn
+    )
+  }
+  ret
 }

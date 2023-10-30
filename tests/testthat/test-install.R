@@ -25,8 +25,6 @@ skip_if(
   message = "Reserved for coverage only"
   )
 
-skip("temporarily skipping")
-
 test_that("PySpark installation works", {
   expect_output(install_pyspark("3.3", as_job = FALSE, python = Sys.which("python")))
   reticulate::virtualenv_remove("r-sparklyr-pyspark-3.3", confirm = FALSE)

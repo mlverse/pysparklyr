@@ -195,15 +195,31 @@ python_obj_get <- function(x) {
 }
 
 python_obj_get.default <- function(x) {
-  sc <- spark_connection(x)
-  py_object <- "python.builtin.object"
   if(inherits(x, "character")) return(x)
-  if(inherits(x, py_object)) return(x)
-  if(inherits(x[[".jobj"]], py_object)) return(x[[".jobj"]])
-  if(inherits(x[[".jobj"]][["pyspark_obj"]], py_object)) return(x[[".jobj"]][["pyspark_obj"]])
-  if(inherits(x[["pyspark_obj"]], py_object)) return(x[["pyspark_obj"]])
-  if(inherits(x[["pipeline"]][["pyspark_obj"]], py_object)) return(x[["pipeline"]][["pyspark_obj"]])
-  if(inherits(sc$session, py_object)) return(sc$session)
+  sc <- spark_connection(x)
+  if(inherits(sc$session, "python.builtin.object")) {
+    return(sc$session)
+  }
+}
+
+python_obj_get.python.builtin.object <- function(x) {
+  x
+}
+
+python_obj_get.spark_pyobj <- function(x) {
+  x[["pyspark_obj"]]
+}
+
+python_obj_get.ml_connect_model <- function(x) {
+  x[["pipeline"]][["pyspark_obj"]]
+}
+
+python_obj_get.ml_connect_estimator <- function(x) {
+  x[[".jobj"]]
+}
+
+python_obj_get.ml_connect_pipeline_model <- function(x) {
+  x[[".jobj"]]
 }
 
 python_obj_con_set <- function(sc, obj) {

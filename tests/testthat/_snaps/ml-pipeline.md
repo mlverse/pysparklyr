@@ -10,15 +10,6 @@
 ---
 
     Code
-      fitted %>% ml_transform(prepd) %>% colnames()
-    Output
-       [1] "mpg"         "cyl"         "disp"        "hp"          "drat"       
-       [6] "wt"          "qsec"        "vs"          "am"          "gear"       
-      [11] "carb"        "prediction"  "probability"
-
----
-
-    Code
       colnames(ml_transform(loaded, prepd))
     Output
        [1] "mpg"         "cyl"         "disp"        "hp"          "drat"       

@@ -10,7 +10,7 @@ test_that("build_user_agent() outputs work", {
 
   Sys.setenv("SPARK_CONNECT_USER_AGENT" = "testagent")
   expect_equal(build_user_agent(), "testagent")
-
+  Sys.unsetenv("SPARK_CONNECT_USER_AGENT")
 })
 
 test_that("DBR error code returns as expected", {

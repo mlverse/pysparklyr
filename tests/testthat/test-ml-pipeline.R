@@ -18,4 +18,15 @@ test_that("Pipeline fits and predicts", {
       ml_transform(prepd) %>%
       colnames()
   )
+
+  pipeline_folder <- path(tempdir(), random_table_name("ml_"))
+  expect_silent(ml_save(new_pipeline, pipeline_folder))
+  expect_s3_class(ml_connect_load(sc, pipeline_folder), "ml_connect_pipeline")
+
+  fitted_folder <- path(tempdir(), random_table_name("ml_"))
+  expect_silent(ml_save(fitted, fitted_folder))
+  loaded <- ml_connect_load(sc, fitted_folder)
+  expect_s3_class(loaded, "ml_connect_pipeline_model")
+  expect_snapshot(colnames(ml_transform(loaded, prepd)))
+
 })

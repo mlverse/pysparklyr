@@ -208,7 +208,7 @@ install_environment <- function(
   )
 
   if (add_torch) {
-    packages <- c(packages, "torch", "torcheval")
+    packages <- c(packages, "torch", "torcheval", "scikit-learn")
   }
 
   method <- match.arg(method)

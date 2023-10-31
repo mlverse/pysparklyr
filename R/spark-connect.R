@@ -67,7 +67,8 @@ py_spark_connect <- function(master,
           matched <- envs[envs == envname]
           if (length(matched) == 0) {
             envname <- envs[[1]]
-            cli_internal_alert_warning(paste(
+            cli_div(theme = cli_colors())
+            cli_alert_warning(paste(
               "{.header A Python environment with a matching version was not found}",
               "* {.header Will attempt connecting using }{.emph '{envname}'}",
               paste0(
@@ -76,6 +77,7 @@ py_spark_connect <- function(master,
               ),
               sep = "\n"
             ))
+            cli_end()
           } else {
             envname <- matched
           }
@@ -114,7 +116,8 @@ py_spark_connect <- function(master,
       matched <- envs[envs == envname]
       if (length(matched) == 0) {
         envname <- envs[[1]]
-        cli_internal_alert_warning(paste(
+        cli_div(theme = cli_colors())
+        cli_alert_warning(paste(
           "{.header A Python environment with a matching version was not found}",
           "* {.header Will attempt connecting using }{.emph '{envname}'}",
           paste0(
@@ -123,6 +126,7 @@ py_spark_connect <- function(master,
           ),
           sep = "\n"
         ))
+        cli_end()
       }
     } else {
       if (!is.na(reticulate_python)) {
@@ -131,7 +135,9 @@ py_spark_connect <- function(master,
           "{.emph 'RETICULATE_PYTHON' }{.header environment variable}",
           "{.class ({py_exe()})}"
         )
-        cli_internal_alert_warning(msg)
+        cli_div(theme = cli_colors())
+        cli_alert_warning(msg)
+        cli_end()
         envname <- reticulate_python
       }
     }
@@ -245,13 +251,14 @@ build_user_agent <- function() {
   )
 }
 
-
 cluster_dbr_version <- function(cluster_id,
                                 host = Sys.getenv("DATABRICKS_HOST"),
                                 token = Sys.getenv("DATABRICKS_TOKEN")) {
-  cli_internal_alert_warning(
+  cli_div(theme = cli_colors())
+  cli_alert_warning(
     "{.header Retrieving version from cluster }{.emph '{cluster_id}'}"
   )
+  cli_end()
 
   cluster_info <- cluster_dbr_info(
     cluster_id = cluster_id,

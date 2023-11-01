@@ -30,3 +30,11 @@ test_that("DBR error code returns as expected", {
 test_that("Cluster info runs as expected", {
   expect_error(cluster_dbr_version(""))
 })
+
+test_that("Host sanitation works", {
+  clean_url <- "https://cloud.databricks.com"
+  expect_equal(sanitize_host("cloud.databricks.com"), clean_url)
+  expect_equal(sanitize_host("https://cloud.databricks.com"), clean_url)
+  expect_equal(sanitize_host("https://cloud.databricks.com/"), clean_url)
+  expect_equal(sanitize_host("https://cloud.databricks.com/?o=123#"), clean_url)
+})

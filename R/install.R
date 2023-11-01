@@ -69,8 +69,10 @@ install_databricks <- function(
     cli_end()
   }
 
-  if (is.null(version) && !is.null(cluster_id)) {
-    version <- cluster_dbr_version(cluster_id)
+  if(is.null(envname)) {
+    if (is.null(version) && !is.null(cluster_id)) {
+      version <- cluster_dbr_version(cluster_id)
+    }
   }
 
   install_as_job(
@@ -179,25 +181,24 @@ install_environment <- function(
     version <- paste0(version, ".*")
   }
 
-  add_torch <- FALSE
+  add_torch <- TRUE
   if (is.null(envname)) {
     if (libs == "databricks-connect") {
-      if (compareVersion(as.character(ver_name), "14.1") >= 0) {
-        add_torch <- TRUE
+      if (compareVersion(as.character(ver_name), "14.1") < 0) {
+        add_torch <- FALSE
       }
       ln <- "databricks"
+      envname <- use_envname(method = "databricks_connect", version = ver_name)
     } else {
-      if (compareVersion(as.character(ver_name), "3.5") >= 0) {
-        add_torch <- TRUE
+      if (compareVersion(as.character(ver_name), "3.5") < 0) {
+        add_torch <- FALSE
       }
-      ln <- libs
+      envname <- use_envname(method = "spark_connect", version = ver_name)
     }
-    envname <- glue("r-sparklyr-{ln}-{ver_name}")
     cli_alert_success(
       "Automatically naming the environment:{.emph '{envname}'}"
     )
   }
-
   packages <- c(
     paste0(libs, "==", version),
     "pandas!=2.1.0", # deprecation warnings

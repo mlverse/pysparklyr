@@ -36,14 +36,17 @@ spark_connect_method.spark_method_databricks_connect <- function(
   py_spark_connect(master = master, method = method, config = config, ...)
 }
 
-py_spark_connect <- function(master,
-                             token = Sys.getenv("DATABRICKS_TOKEN"),
-                             cluster_id = NULL,
-                             method = "",
-                             envname = NULL,
-                             spark_version = NULL,
-                             dbr_version = NULL,
-                             config = list()) {
+py_spark_connect <- function(
+    master,
+    token = Sys.getenv("DATABRICKS_TOKEN"),
+    cluster_id = NULL,
+    method = "",
+    envname = NULL,
+    spark_version = NULL,
+    dbr_version = NULL,
+    config = list(),
+    host_sanitize = TRUE
+    ) {
   method <- method[[1]]
 
   conn <- NULL
@@ -98,6 +101,10 @@ py_spark_connect <- function(master,
     reticulate_python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
     cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
     master <- master %||% Sys.getenv("DATABRICKS_HOST")
+
+    if(host_sanitize) {
+      master <- sanitize_host(master)
+    }
 
     if (is.na(reticulate_python)) {
       if (is.null(dbr_version)) {
@@ -372,4 +379,34 @@ cluster_dbr_error <- function(error) {
       status_details
     )
   )
+}
+
+sanitize_host <-  function(url) {
+  parsed_url <- url_parse(url)
+  new_url <- url_parse("http://localhost")
+  if(is.null(parsed_url$scheme)) {
+    new_url$scheme <- "https"
+    if(!is.null(parsed_url$path) && is.null(parsed_url$hostname)) {
+      new_url$hostname <- parsed_url$path
+    }
+  } else {
+    new_url$scheme <- parsed_url$scheme
+    new_url$hostname <- parsed_url$hostname
+  }
+  ret <- url_build(new_url)
+  if(ret != url) {
+    cli_div(theme = cli_colors())
+    cli_alert_warning(
+      c("Sanitizing {.code Host} value:\n",
+        "|- Original: {.emph {url}}\n",
+        "|- Using:    {.emph {ret}}\n",
+        "|- {.header ",
+        "To prevent {.code sparklyr} from changing the Host, set ",
+        "{.code host_sanitize = FALSE} in {.code spark_connect()}",
+        "}"
+      )
+    )
+    cli_end()
+  }
+  ret
 }

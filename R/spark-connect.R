@@ -55,7 +55,8 @@ py_spark_connect <- function(
     method = method,
     version = spark_version %||% dbr_version,
     envname = envname,
-    messages = TRUE
+    messages = TRUE,
+    match_first = TRUE
   )
 
   if (method == "spark_connect") {
@@ -340,7 +341,8 @@ use_envname <- function(
     envname = NULL,
     method = "spark_connect",
     version = "1.1",
-    messages = FALSE
+    messages = FALSE,
+    match_first = FALSE
     ) {
 
   reticulate_python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
@@ -386,20 +388,22 @@ use_envname <- function(
         sp_version <- version_prep(version)
         envname <- glue("{env_base}{sp_version}")
         matched <- envs[envs == envname]
-        if (length(matched) == 0) {
-          envname <- envs[[1]]
-          if(messages) {
-            cli_div(theme = cli_colors())
-            cli_alert_warning(paste(
-              "{.header A Python environment with a matching version was not found}",
-              "* {.header Will attempt connecting using }{.emph '{envname}'}",
-              "* {.header To install the proper Python environment use: {.run {run_code}}}",
-              sep = "\n"
-            ))
-            cli_end()
+        if(match_first) {
+          if (length(matched) == 0) {
+            envname <- envs[[1]]
+            if(messages) {
+              cli_div(theme = cli_colors())
+              cli_alert_warning(paste(
+                "{.header A Python environment with a matching version was not found}",
+                "* {.header Will attempt connecting using }{.emph '{envname}'}",
+                "* {.header To install the proper Python environment use: {.run {run_code}}}",
+                sep = "\n"
+              ))
+              cli_end()
+            }
+          } else {
+            envname <- matched
           }
-        } else {
-          envname <- matched
         }
       } else {
         envname <- envs[[1]]

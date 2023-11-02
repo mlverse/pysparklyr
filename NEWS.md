@@ -2,6 +2,14 @@
 
 ### Improvements
 
+* Adds URL sanitation routine for the Databricks Host. It will remove trailing
+forward slashes, and add scheme (https) if missing. The Host sanitation can be 
+skipped by passing `host_sanitize = FALSE` to `spark_connect()`.
+
+* Suppresses targeted warning messages coming from Python. Specifically, 
+deprecation warnings given to PySpark by Pandas for two variable types:
+`is_datetime64tz_dtype`, and `is_categorical_dtype`
+
 * Defaults Python environment creation and installation to run as an RStudio
 job if the user is within the RStudio IDE. This feature can be overriden
 using the new `as_job` argument inside `install_databricks()`, and 
@@ -20,7 +28,6 @@ the R session
 * Fixes `Error: Unable to find conda binary. Is Anaconda installed?` error (#48)
 
 * Improves error messages when installing, and connecting to Databricks (#44 #45)
-
 
 
 # pysparklyr 0.1.0

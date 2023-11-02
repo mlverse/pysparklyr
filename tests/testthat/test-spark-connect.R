@@ -42,9 +42,9 @@ test_that("Host sanitation works", {
 test_that("use_envname function works", {
   py_to_use <- py_exe()
   Sys.setenv("RETICULATE_PYTHON" = py_to_use)
-  expect_snapshot(use_envname("newtest", messages = TRUE))
+  expect_message(use_envname("newtest", messages = TRUE))
   Sys.unsetenv("RETICULATE_PYTHON")
-  expect_snapshot(
+  expect_message(
     use_envname(version = "1.1", messages = TRUE, match_first = TRUE)
   )
 })

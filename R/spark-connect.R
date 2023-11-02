@@ -95,7 +95,16 @@ py_spark_connect <- function(
   }
 
   warnings <- import("warnings")
-  warnings$simplefilter("ignore")
+  warnings$filterwarnings(
+    "ignore",
+    message = "is_datetime64tz_dtype is deprecated",
+    module = "pyspark"
+  )
+  warnings$filterwarnings(
+    "ignore",
+    message = "is_categorical_dtype is deprecated",
+    module = "pyspark"
+  )
 
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)

@@ -30,3 +30,21 @@ test_that("DBR error code returns as expected", {
 test_that("Cluster info runs as expected", {
   expect_error(cluster_dbr_version(""))
 })
+
+test_that("Host sanitation works", {
+  clean_url <- "https://cloud.databricks.com"
+  expect_equal(sanitize_host("cloud.databricks.com"), clean_url)
+  expect_equal(sanitize_host("https://cloud.databricks.com"), clean_url)
+  expect_equal(sanitize_host("https://cloud.databricks.com/"), clean_url)
+  expect_equal(sanitize_host("https://cloud.databricks.com/?o=123#"), clean_url)
+})
+
+test_that("use_envname function works", {
+  py_to_use <- py_exe()
+  Sys.setenv("RETICULATE_PYTHON" = py_to_use)
+  expect_message(use_envname("newtest", messages = TRUE))
+  Sys.unsetenv("RETICULATE_PYTHON")
+  expect_message(
+    use_envname(version = "1.1", messages = TRUE, match_first = TRUE)
+  )
+})

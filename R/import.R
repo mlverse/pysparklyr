@@ -46,26 +46,7 @@ import_check <- function(x, envname) {
 
   out <- try(import(x), silent = TRUE)
 
-  msg_install <- NULL
-  msg_restart <- NULL
-
   if (inherits(out, "try-error")) {
-    inst <- NULL
-
-    if (substr(envname, 1, 22) == "r-sparklyr-databricks-") {
-      inst <- paste0(
-        " {.run pysparklyr::install_databricks(",
-        "envname = \"{envname}\")}"
-      )
-    }
-
-    if (substr(envname, 1, 19) == "r-sparklyr-pyspark-") {
-      inst <- paste0(
-        " {.run pysparklyr::install_pyspark(",
-        "envname = \"{envname}\")}"
-      )
-    }
-
     if (env_found) {
       if (env_loaded) {
         # found & loaded
@@ -73,8 +54,7 @@ import_check <- function(x, envname) {
           paste(
             "{.emph '{x}' }{.header is not available in the }",
             "{.emph '{envname}' }{.header Python environment.}"
-          ),
-          msg_install
+          )
         ), call = NULL)
       } else {
         cli_abort(c(
@@ -92,8 +72,7 @@ import_check <- function(x, envname) {
     } else {
       cli_abort(c(
         "{.emph '{x}' }{.header is not available current Python environment.}",
-        paste("- The {.emph '{envname}'} Python environment is not installed."),
-        msg_restart
+        paste("- The {.emph '{envname}'} Python environment is not installed.")
       ), call = NULL)
     }
     cli_alert_danger(glue("`reticulate` error:\n {out[[1]]}"))

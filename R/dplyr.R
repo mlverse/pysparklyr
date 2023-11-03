@@ -130,7 +130,7 @@ tbl.pyspark_connection <- function(src, from, ...) {
   out <- tbl_sql(
     subclass = "pyspark",
     src = src,
-    from = sql_from,
+    from = from,
     vars = vars
   )
   out_class <- class(out)

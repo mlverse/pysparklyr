@@ -108,18 +108,7 @@ spark_ide_preview.pyspark_connection <- function(
 }
 
 rs_get_table <- function(con, catalog, schema, table) {
-  context <- python_conn(con)
-  if (is.null(catalog)) {
-    catalog <- context$catalog$currentCatalog()
-  }
-  if (is.null(schema)) {
-    schema <- context$catalog$currentDatabase()
-  }
-  x <- in_catalog(catalog, schema, table)
-  if (!context$catalog$tableExists(as.sql(x, con$con))) {
-    x <- table
-  }
-  tbl(con, x)
+  tbl(con, in_catalog(catalog, schema, table))
 }
 
 rs_type <- function(x) {

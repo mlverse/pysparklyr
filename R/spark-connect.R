@@ -94,6 +94,18 @@ py_spark_connect <- function(
     master_label <- glue("{cluster_name} ({cluster_id})")
   }
 
+  warnings <- import("warnings")
+  warnings$filterwarnings(
+    "ignore",
+    message = "is_datetime64tz_dtype is deprecated",
+    module = "pyspark"
+  )
+  warnings$filterwarnings(
+    "ignore",
+    message = "is_categorical_dtype is deprecated",
+    module = "pyspark"
+  )
+
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) cluster_dbr_error(get_version)

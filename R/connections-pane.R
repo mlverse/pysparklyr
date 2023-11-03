@@ -50,11 +50,7 @@ catalog_python <- function(
   if (is.null(catalog)) {
     catalogs <- dbGetQuery(sc, "show catalogs")
     if (nrow(catalogs) > 0) {
-      catalog_names <- catalogs$catalog
-      if (sc$method == "databricks_connect") {
-        catalog_names <- c(catalog_names, "spark_catalog")
-      }
-      df_catalogs <- data.frame(name = catalog_names, type = "catalog")
+      df_catalogs <- data.frame(name = catalogs$catalog, type = "catalog")
     }
     comb <- rbind(df_tables, df_catalogs)
     out <- head(comb, limit)

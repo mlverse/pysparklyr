@@ -48,7 +48,7 @@ catalog_python <- function(
 
   sc_catalog <- python_conn(con)$catalog
   if (is.null(catalog)) {
-    catalogs <- dbGetQuery(sc, "show catalogs")
+    catalogs <- dbGetQuery(con,  "show catalogs")
     if (nrow(catalogs) > 0) {
       df_catalogs <- data.frame(name = catalogs$catalog, type = "catalog")
     }
@@ -56,11 +56,11 @@ catalog_python <- function(
     out <- head(comb, limit)
   } else {
     if (is.null(schema)) {
-      databases <- dbGetQuery(sc, glue("show databases in {catalog}"))
+      databases <- dbGetQuery(con,  glue("show databases in {catalog}"))
       df_databases <- data.frame(name = databases$databaseName, type = "schema")
       out <- head(df_databases, limit)
     } else {
-      tables <- dbGetQuery(sc, glue("show tables in {catalog}.{schema}"))
+      tables <- dbGetQuery(con,  glue("show tables in {catalog}.{schema}"))
       if (length(tables) > 0) {
         df_tables <- data.frame(
           name = tables$tableName,
@@ -108,7 +108,17 @@ spark_ide_preview.pyspark_connection <- function(
 }
 
 rs_get_table <- function(con, catalog, schema, table) {
-  tbl(con, in_catalog(catalog, schema, table))
+  from <- NULL
+  if(!is.null(catalog)) {
+    from <- in_catalog(catalog, schema, table)
+  }
+  if(!is.null(schema) && is.null(from)) {
+    from <- in_schema(schema, table)
+  }
+  if(is.null(from)) {
+    from <- table
+  }
+  tbl(con, from)
 }
 
 rs_type <- function(x) {

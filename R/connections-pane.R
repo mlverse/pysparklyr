@@ -5,10 +5,9 @@ spark_ide_objects.pyspark_connection <- function(
     schema = NULL,
     name = NULL,
     type = NULL) {
-
   env_var_sel <- Sys.getenv("SPARKLYR_RSTUDIO_CP_VIEW", unset = NA)
 
-  if(is.na(env_var_sel)) {
+  if (is.na(env_var_sel)) {
     ret <- catalog_python(
       con = con,
       catalog = catalog,
@@ -17,7 +16,7 @@ spark_ide_objects.pyspark_connection <- function(
       type = type
     )
   } else {
-    if(env_var_sel == "uc_only") {
+    if (env_var_sel == "uc_only") {
       # Sys.setenv("SPARKLYR_RSTUDIO_CP_VIEW" = "uc_only")
       ret <- catalog_sql(
         con = con,
@@ -48,47 +47,36 @@ catalog_python <- function(
   )
 
   sc_catalog <- python_conn(con)$catalog
-  current_catalog <- sc_catalog$currentCatalog()
   if (is.null(catalog)) {
-    sc_catalog$setCurrentCatalog("spark_catalog")
-    tables <- sc_catalog$listTables(dbName = "default")
-    if (length(tables) > 0) {
-      temps <- tables[map_lgl(tables, ~ .x$isTemporary)]
-      df_tables <- temps %>%
-        rs_tables()
-    }
-
-    catalogs <- sc_catalog$listCatalogs()
-    if (length(catalogs) > 0) {
-      df_catalogs <- data.frame(name = map_chr(catalogs, ~ .x$name))
-      df_catalogs$type <- "catalog"
+    catalogs <- dbGetQuery(sc, "show catalogs")
+    if (nrow(catalogs) > 0) {
+      catalog_names <- catalogs$catalog
+      if (sc$method == "databricks_connect") {
+        catalog_names <- c(catalog_names, "spark_catalog")
+      }
+      df_catalogs <- data.frame(name = catalog_names, type = "catalog")
     }
     comb <- rbind(df_tables, df_catalogs)
     out <- head(comb, limit)
   } else {
-    sc_catalog$setCurrentCatalog(catalog)
     if (is.null(schema)) {
-      databases <- sc_catalog$listDatabases()
-      df_databases <- data.frame(name = map_chr(databases, ~ .x$name))
-      df_databases$type <- "schema"
+      databases <- dbGetQuery(sc, glue("show databases in {catalog}"))
+      df_databases <- data.frame(name = databases$databaseName, type = "schema")
       out <- head(df_databases, limit)
     } else {
-      tables <- sc_catalog$listTables(dbName = schema)
+      tables <- dbGetQuery(sc, glue("show tables in {catalog}.{schema}"))
       if (length(tables) > 0) {
-        catalogs <- map(tables, ~ .x$catalog == catalog)
-        catalogs <- map_lgl(catalogs, ~ ifelse(length(.x), .x, FALSE))
-        tables <- tables[catalogs]
-
-        schemas <- map(tables, ~ .x$namespace == schema)
-        schemas <- map_lgl(schemas, ~ ifelse(length(.x), .x, FALSE))
-        tables <- tables[schemas]
-        df_tables <- rs_tables(tables)
+        df_tables <- data.frame(
+          name = tables$tableName,
+          catalog = catalog,
+          schema = schema,
+          type = "table"
+        )
       }
+
       out <- head(df_tables, limit)
     }
   }
-
-  sc_catalog$setCurrentCatalog(current_catalog)
   out
 }
 
@@ -177,14 +165,12 @@ catalog_sql <- function(
     type = NULL,
     catalog_tbl = in_catalog("system", "information_schema", "catalogs"),
     schema_tbl = in_catalog("system", "information_schema", "schemata"),
-    tables_tbl = in_catalog("system", "information_schema", "tables")
-    ) {
-
+    tables_tbl = in_catalog("system", "information_schema", "tables")) {
   limit <- as.numeric(
     Sys.getenv("SPARKLYR_CONNECTION_OBJECT_LIMIT", unset = 100)
   )
 
-  if(is.null(catalog)) {
+  if (is.null(catalog)) {
     all_catalogs <- tbl(src = con, catalog_tbl)
 
     get_catalogs <- all_catalogs %>%
@@ -203,7 +189,7 @@ catalog_sql <- function(
     out <- df_catalogs
   }
 
-  if(is.null(schema) && !is.null(catalog)) {
+  if (is.null(schema) && !is.null(catalog)) {
     all_schema <- tbl(src = con, schema_tbl)
 
     get_schema <- all_schema %>%
@@ -223,7 +209,7 @@ catalog_sql <- function(
     out <- df_schema
   }
 
-  if(!is.null(schema) && !is.null(catalog)) {
+  if (!is.null(schema) && !is.null(catalog)) {
     all_tables <- tbl(src = con, tables_tbl)
 
     get_tables <- all_tables %>%
@@ -252,5 +238,5 @@ catalog_sql <- function(
 
 globalVariables(c(
   "catalog_name", "schema_name", "table_catalog",
-  "table_name", "table_schema")
-  )
+  "table_name", "table_schema"
+))

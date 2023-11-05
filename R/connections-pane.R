@@ -27,53 +27,7 @@ spark_ide_objects.pyspark_connection <- function(
       )
     }
   }
-
   ret
-}
-
-catalog_python <- function(
-    con,
-    catalog = NULL,
-    schema = NULL,
-    name = NULL,
-    type = NULL) {
-  df_catalogs <- data.frame()
-  df_databases <- data.frame()
-  df_tables <- data.frame()
-  df_cat <- data.frame()
-
-  limit <- as.numeric(
-    Sys.getenv("SPARKLYR_CONNECTION_OBJECT_LIMIT", unset = 100)
-  )
-
-  sc_catalog <- python_conn(con)$catalog
-  if (is.null(catalog)) {
-    catalogs <- dbGetQuery(con,  "show catalogs")
-    if (nrow(catalogs) > 0) {
-      df_catalogs <- data.frame(name = catalogs$catalog, type = "catalog")
-    }
-    comb <- rbind(df_tables, df_catalogs)
-    out <- head(comb, limit)
-  } else {
-    if (is.null(schema)) {
-      databases <- dbGetQuery(con,  glue("show databases in {catalog}"))
-      df_databases <- data.frame(name = databases$databaseName, type = "schema")
-      out <- head(df_databases, limit)
-    } else {
-      tables <- dbGetQuery(con,  glue("show tables in {catalog}.{schema}"))
-      if (length(tables) > 0) {
-        df_tables <- data.frame(
-          name = tables$tableName,
-          catalog = catalog,
-          schema = schema,
-          type = "table"
-        )
-      }
-
-      out <- head(df_tables, limit)
-    }
-  }
-  out
 }
 
 #' @export
@@ -107,50 +61,51 @@ spark_ide_preview.pyspark_connection <- function(
   collect(head(tbl_df, rowLimit))
 }
 
-rs_get_table <- function(con, catalog, schema, table) {
-  from <- NULL
-  if(!is.null(catalog)) {
-    from <- in_catalog(catalog, schema, table)
-  }
-  if(!is.null(schema) && is.null(from)) {
-    from <- in_schema(schema, table)
-  }
-  if(is.null(from)) {
-    from <- table
-  }
-  tbl(con, from)
-}
+catalog_python <- function(
+    con,
+    catalog = NULL,
+    schema = NULL,
+    name = NULL,
+    type = NULL) {
+  df_catalogs <- data.frame()
+  df_databases <- data.frame()
+  df_tables <- data.frame()
 
-rs_type <- function(x) {
-  class <- class(x)[[1]]
-  if (class == "integer") class <- "int"
-  if (class == "numeric") class <- "num"
-  if (class == "POSIXct") class <- "dttm"
-  if (class == "character") class <- "chr"
-  class
-}
+  limit <- as.numeric(
+    Sys.getenv("SPARKLYR_CONNECTION_OBJECT_LIMIT", unset = 100)
+  )
 
-rs_vals <- function(x) {
-  ln <- 30
-  x <- paste0(x, collapse = " ")
-  if (nchar(x) > ln) {
-    x <- substr(x, 1, (ln - 3))
-    x <- paste0(x, "...")
-  }
-  x
-}
-
-rs_tables <- function(x) {
-  out <- data.frame()
-  if (length(x) > 0) {
-    table_names <- map_chr(x, ~ .x$name)
-    final_names <- table_names[!grepl(temp_prefix(), table_names)]
-    out <- data.frame(name = final_names)
-    out$type <- "table"
+  sc_catalog <- python_conn(con)$catalog
+  if (is.null(catalog)) {
+    catalogs <- dbGetQuery(con,  "show catalogs")
+    if (nrow(catalogs) > 0) {
+      df_catalogs <- data.frame(name = catalogs$catalog, type = "catalog")
+    }
+    comb <- rbind(df_tables, df_catalogs)
+    out <- head(comb, limit)
+  } else {
+    if (is.null(schema)) {
+      databases <- dbGetQuery(con,  glue("show databases in {catalog}"))
+      df_databases <- data.frame(name = databases$databaseName, type = "schema")
+      out <- head(df_databases, limit)
+    } else {
+      tables <- dbGetQuery(con,  glue("show tables in {catalog}.{schema}"))
+      if(nrow(tables) > 0) {
+        tables <- tables[!tables$isTemporary, ]
+        if (nrow(tables) > 0) {
+          df_tables <- data.frame(
+            name = tables$tableName,
+            catalog = catalog,
+            schema = schema,
+            type = "table"
+          )
+        }
+      }
+      out <- head(df_tables, limit)
+    }
   }
   out
 }
-
 
 catalog_sql <- function(
     con,
@@ -235,3 +190,36 @@ globalVariables(c(
   "catalog_name", "schema_name", "table_catalog",
   "table_name", "table_schema"
 ))
+
+rs_get_table <- function(con, catalog, schema, table) {
+  from <- NULL
+  if(!is.null(catalog)) {
+    from <- in_catalog(catalog, schema, table)
+  }
+  if(!is.null(schema) && is.null(from)) {
+    from <- in_schema(schema, table)
+  }
+  if(is.null(from)) {
+    from <- table
+  }
+  tbl(con, from)
+}
+
+rs_type <- function(x) {
+  class <- class(x)[[1]]
+  if (class == "integer") class <- "int"
+  if (class == "numeric") class <- "num"
+  if (class == "POSIXct") class <- "dttm"
+  if (class == "character") class <- "chr"
+  class
+}
+
+rs_vals <- function(x) {
+  ln <- 30
+  x <- paste0(x, collapse = " ")
+  if (nchar(x) > ln) {
+    x <- substr(x, 1, (ln - 3))
+    x <- paste0(x, "...")
+  }
+  x
+}

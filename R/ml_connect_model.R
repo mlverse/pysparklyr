@@ -2,9 +2,59 @@
 print.ml_connect_model <- function(x, ...) {
   pyobj <- python_obj_get(x)
   msg <- ml_get_last_item(class(pyobj)[[1]])
-  cli_div(theme = cli_colors())
-  cli_inform("<{.header {msg}}>")
-  cli_end()
+  cat(
+    cli::style_bold("ML Connect model:"),
+    cli::style_underline(msg)
+    )
+  cli_h3("Parameters")
+  p <- get_params(x)
+  p_descriptions <- p %>%
+    map_chr(~.x$description) %>%
+    as.character() %>%
+    strsplit("\\.") %>%
+    map(~.x[[1]])
+
+  p_names <- map_chr(p, ~.x$name)
+  p_values <- p %>%
+    map(~{
+      cl <- class(.x$value)
+      out <- .x$value
+      #if(cl == "character") out <- paste0("'", out, "'")
+      out
+    }) %>%
+    as.character()
+  p_bullet <- cli::col_blue(cli::symbol$square_small_filled)
+  p_paste <- paste0(
+    p_bullet,
+    " ",
+    cli::ansi_align(
+      text = cli::style_hyperlink(paste0(p_names, ":"), p_descriptions),
+      width = max(cli::ansi_nchar(p_names)) + 2
+    ),
+    cli::ansi_align(
+      text = cli::col_silver(p_values),
+      width = max(cli::ansi_nchar(p_values))
+    )
+  )
+  p_length <- length(p_names)
+  is_odd <-  p_length / 2 != floor(p_length / 2)
+  if(is_odd) {
+    p_paste <- c(p_paste, "")
+    p_length <- p_length + 1
+  }
+
+  #p_sel <- rep(c(TRUE, FALSE), p_length)
+  p_sel <- rep(c(TRUE, FALSE), 1, each = (p_length / 2))
+
+  p_left <- p_paste[p_sel]
+  p_left <- p_left[!is.na(p_left)]
+  p_right <- p_paste[!p_sel]
+  p_right <- p_right[!is.na(p_right)]
+
+  p_two <- paste0(p_left, "   ", p_right)
+
+  cat(paste0(p_two, collapse = "\n"))
+
 }
 
 #' @export

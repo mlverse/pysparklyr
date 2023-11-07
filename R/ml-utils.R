@@ -111,7 +111,8 @@ get_params <- function(x) {
     names() %>%
     strsplit("__") %>%
     map(~.x[[2]]) %>%
-    as.character()
+    as.character() %>%
+    sort()
 
   m_param_names <- m_params %>%
     map(~.x$name) %>%

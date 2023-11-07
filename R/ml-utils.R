@@ -102,3 +102,29 @@ ml_execute <- function(args, python_library, fn) {
 
   jobj
 }
+
+get_params <- function(model) {
+  py_model <- model$pipeline$pyspark_obj
+  m_params <- py_model$params
+  m_map <- py_model$extractParamMap()
+  m_map_names <- m_map %>%
+    names() %>%
+    strsplit("__") %>%
+    map(~.x[[2]]) %>%
+    as.character()
+
+  m_param_names <- m_params %>%
+    map(~.x$name) %>%
+    as.character()
+
+  m_map_names %>%
+    map(~{
+      c_param_name <- m_params[which(.x == m_param_names)]
+      c_map_name <- m_map[which(.x == m_map_names)]
+      list(
+        name = .x,
+        value = c_map_name[[1]],
+        description = c_param_name[[1]]$doc
+      )
+    })
+}

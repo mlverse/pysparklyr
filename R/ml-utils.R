@@ -103,8 +103,8 @@ ml_execute <- function(args, python_library, fn) {
   jobj
 }
 
-get_params <- function(model) {
-  py_model <- model$pipeline$pyspark_obj
+get_params <- function(x) {
+  py_model <- python_obj_get(x)
   m_params <- py_model$params
   m_map <- py_model$extractParamMap()
   m_map_names <- m_map %>%

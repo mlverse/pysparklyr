@@ -194,6 +194,10 @@ python_obj_get <- function(x) {
   UseMethod("python_obj_get")
 }
 
+python_obj_get.ml_connect_model <- function(x) {
+  x$pipeline$pyspark_obj
+}
+
 python_obj_get.default <- function(x) {
   if(inherits(x, "character")) return(x)
   sc <- spark_connection(x)

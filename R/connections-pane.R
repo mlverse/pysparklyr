@@ -61,14 +61,8 @@ catalog_python <- function(
   if (is.null(catalog) && is.null(schema)) {
     catalogs <- dbGetQuery(con, "show catalogs")
     if (nrow(catalogs) > 0) {
-      df_catalogs <- data.frame(name = catalogs$catalog, type = "catalog")
+      out <- data.frame(name = catalogs$catalog, type = "catalog")
     }
-    if (con$method == "databricks_connect") {
-      df_databases <- rs_get_databases(con, limit)
-    } else {
-      df_databases <- data.frame()
-    }
-    out <- rbind(df_databases, df_catalogs)
     if (!is.na(limit)) {
       out <- head(out, limit)
     }

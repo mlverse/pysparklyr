@@ -5,29 +5,13 @@ spark_ide_objects.pyspark_connection <- function(
     schema = NULL,
     name = NULL,
     type = NULL) {
-  env_var_sel <- Sys.getenv("SPARKLYR_RSTUDIO_CP_VIEW", unset = NA)
-
-  if (is.na(env_var_sel)) {
-    ret <- catalog_python(
-      con = con,
-      catalog = catalog,
-      schema = schema,
-      name = name,
-      type = type
-    )
-  } else {
-    if (env_var_sel == "uc_only") {
-      # Sys.setenv("SPARKLYR_RSTUDIO_CP_VIEW" = "uc_only")
-      ret <- catalog_sql(
-        con = con,
-        catalog = catalog,
-        schema = schema,
-        name = name,
-        type = type
-      )
-    }
-  }
-  ret
+  catalog_python(
+    con = con,
+    catalog = catalog,
+    schema = schema,
+    name = name,
+    type = type
+  )
 }
 
 #' @export
@@ -68,138 +52,76 @@ catalog_python <- function(
     name = NULL,
     type = NULL) {
   df_catalogs <- data.frame()
-  df_databases <- data.frame()
   df_tables <- data.frame()
 
   limit <- as.numeric(
-    Sys.getenv("SPARKLYR_CONNECTION_OBJECT_LIMIT", unset = 100)
+    Sys.getenv("SPARKLYR_CONNECTION_OBJECT_LIMIT", unset = NA)
   )
-
   sc_catalog <- python_conn(con)$catalog
-  if (is.null(catalog)) {
-    catalogs <- dbGetQuery(con,  "show catalogs")
+  if (is.null(catalog) && is.null(schema)) {
+    catalogs <- dbGetQuery(con, "show catalogs")
     if (nrow(catalogs) > 0) {
-      df_catalogs <- data.frame(name = catalogs$catalog, type = "catalog")
+      out <- data.frame(name = catalogs$catalog, type = "catalog")
     }
-    comb <- rbind(df_tables, df_catalogs)
-    out <- head(comb, limit)
+    if (!is.na(limit)) {
+      out <- head(out, limit)
+    }
   } else {
     if (is.null(schema)) {
-      databases <- dbGetQuery(con,  glue("show databases in {catalog}"))
-      df_databases <- data.frame(name = databases$databaseName, type = "schema")
-      out <- head(df_databases, limit)
+      out <- rs_get_databases(con, limit, catalog)
     } else {
-      tables <- dbGetQuery(con,  glue("show tables in {catalog}.{schema}"))
-      if(nrow(tables) > 0) {
+      if (is.null(catalog)) {
+        sql_schema <- "show tables in {schema}"
+      } else {
+        sql_schema <- "show tables in {catalog}.{schema}"
+      }
+      tables <- dbGetQuery(con, glue(sql_schema))
+      out <- df_tables
+      if (nrow(tables) > 0) {
         tables <- tables[!tables$isTemporary, ]
         if (nrow(tables) > 0) {
-          df_tables <- data.frame(
+          out <- data.frame(
             name = tables$tableName,
-            catalog = catalog,
             schema = schema,
             type = "table"
           )
+          out$catalog <- catalog
         }
       }
-      out <- head(df_tables, limit)
+      if (!is.na(limit)) {
+        out <- head(out, limit)
+      }
     }
   }
   out
 }
 
-catalog_sql <- function(
-    con,
-    catalog = NULL,
-    schema = NULL,
-    name = NULL,
-    type = NULL,
-    catalog_tbl = in_catalog("system", "information_schema", "catalogs"),
-    schema_tbl = in_catalog("system", "information_schema", "schemata"),
-    tables_tbl = in_catalog("system", "information_schema", "tables")) {
-  limit <- as.numeric(
-    Sys.getenv("SPARKLYR_CONNECTION_OBJECT_LIMIT", unset = 100)
-  )
-
-  if (is.null(catalog)) {
-    all_catalogs <- tbl(src = con, catalog_tbl)
-
-    get_catalogs <- all_catalogs %>%
-      select(catalog_name, comment) %>%
-      head(limit) %>%
-      collect()
-
-    df_catalogs <- get_catalogs %>%
-      mutate(
-        name = catalog_name,
-        type = "catalog"
-      ) %>%
-      select(name, type) %>%
-      as.data.frame()
-
-    out <- df_catalogs
+rs_get_databases <- function(con, limit = NA, catalog = NULL) {
+  out <- data.frame()
+  if (!is.null(catalog)) {
+    databases <- dbGetQuery(con, glue("show databases in {catalog}"))
+  } else {
+    databases <- dbGetQuery(con, glue("show databases"))
   }
-
-  if (is.null(schema) && !is.null(catalog)) {
-    all_schema <- tbl(src = con, schema_tbl)
-
-    get_schema <- all_schema %>%
-      filter(catalog_name == catalog) %>%
-      select(schema_name, comment) %>%
-      head(limit) %>%
-      collect()
-
-    df_schema <- get_schema %>%
-      mutate(
-        name = schema_name,
-        type = "schema"
-      ) %>%
-      select(name, type) %>%
-      as.data.frame()
-
-    out <- df_schema
+  if (nrow(databases) > 0) {
+    db_names <- databases$databaseName %||% databases$namespace
+    out <- data.frame(name = db_names, type = "schema")
+    if (!is.na(limit)) {
+      out <- head(out, limit)
+    }
   }
-
-  if (!is.null(schema) && !is.null(catalog)) {
-    all_tables <- tbl(src = con, tables_tbl)
-
-    get_tables <- all_tables %>%
-      filter(
-        table_catalog == catalog,
-        table_schema == schema
-      ) %>%
-      select(table_name) %>%
-      head(limit) %>%
-      collect()
-
-    df_tables <- get_tables %>%
-      mutate(
-        name = table_name,
-        type = "table"
-      ) %>%
-      select(name, type) %>%
-      as.data.frame()
-
-    out <- df_tables
-  }
-
-
   out
 }
 
-globalVariables(c(
-  "catalog_name", "schema_name", "table_catalog",
-  "table_name", "table_schema"
-))
-
 rs_get_table <- function(con, catalog, schema, table) {
   from <- NULL
-  if(!is.null(catalog)) {
+  if (!is.null(catalog)) {
     from <- in_catalog(catalog, schema, table)
   }
-  if(!is.null(schema) && is.null(from)) {
+  if (!is.null(schema) && is.null(from)) {
     from <- in_schema(schema, table)
   }
-  if(is.null(from)) {
+  if (is.null(from)) {
     from <- table
   }
   tbl(con, from)

@@ -18,7 +18,7 @@ using the new `as_job` argument inside `install_databricks()`, and
 * Uses SQL to pull the tree structure that populates the RStudio Connections
 Pane. This avoids fixing the current catalog and database multiple times,
 which causes delays. With SQL, we can just pass the Catalog and/or Database
-direclty in the query. 
+directly in the query. 
 
 ### Diagnostics 
 

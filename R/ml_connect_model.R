@@ -1,12 +1,8 @@
 #' @export
 print.ml_connect_model <- function(x, ...) {
-  pyobj <- python_obj_get(x)
-  msg <- ml_get_last_item(class(pyobj)[[1]])
-  cat(
-    cli::style_bold("ML Connect model:"),
-    cli::style_underline(msg)
-    )
-  cli_h3("Parameters")
+  cli_h3("ML Connect model:")
+  cat(cli::style_reset(ml_title(x)))
+  cli_h3("Parameters:")
   p <- get_params(x)
   p_descriptions <- p %>%
     map_chr(~.x$description) %>%
@@ -55,6 +51,14 @@ print.ml_connect_model <- function(x, ...) {
 
   cat(paste0(p_two, collapse = "\n"))
 
+}
+
+ml_title <- function(x) {
+  UseMethod("ml_title")
+}
+
+ml_title.ml_model_logistic_regression <- function(x) {
+  "Logistic Regression"
 }
 
 #' @export

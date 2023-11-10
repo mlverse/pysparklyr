@@ -114,6 +114,7 @@ jobs:
             Sys.setenv("PYTHON_VERSION_MISMATCH" = loc)
             Sys.setenv("PYSPARK_DRIVER_PYTHON" = loc)
           }
+        shell: Rscript {0}
 
       - name: R Tests
         run: |

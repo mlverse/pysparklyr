@@ -17,7 +17,7 @@ jobs:
       matrix:
         config:
           - {spark: '3.5.0', pyspark: '3.5', hadoop: '3', name: 'PySpark 3.5'}
-          - {spark: '3.4.1', pyspark: '3.4', hadoop: '3', name: 'PySpark 3.4'}
+          #- {spark: '3.4.1', pyspark: '3.4', hadoop: '3', name: 'PySpark 3.4'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -49,11 +49,11 @@ jobs:
           sudo apt-get install python3-venv
 
       - name: Cache Spark
-        id: cache-spark-1
+        id: cache-spark
         uses: actions/cache@v3
         with:
           path: /home/runner/spark/spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
-          key: sparklyr-spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}-1
+          key: sparklyr-spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
 
       - name: Install Spark (via sparklyr)
         if: steps.cache-spark.outputs.cache-hit != 'true'
@@ -97,7 +97,7 @@ jobs:
           key: sparklyr-virtualenv-${{ matrix.config.pyspark }}
 
       - name: Virtual Environment
-        if: steps.cache-venv.outputs.cache-hit != 'true'
+        #if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
           devtools::load_all()
           install_pyspark(

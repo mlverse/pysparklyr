@@ -17,7 +17,7 @@ jobs:
       matrix:
         config:
           - {spark: '3.5.0', pyspark: '3.5', hadoop: '3', name: 'PySpark 3.5'}
-          #- {spark: '3.4.1', pyspark: '3.4', hadoop: '3', name: 'PySpark 3.4'}
+          - {spark: '3.4.1', pyspark: '3.4', hadoop: '3', name: 'PySpark 3.4'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -97,7 +97,7 @@ jobs:
           key: sparklyr-virtualenv-${{ matrix.config.pyspark }}
 
       - name: Virtual Environment
-        #if: steps.cache-venv.outputs.cache-hit != 'true'
+        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
           devtools::load_all()
           install_pyspark(

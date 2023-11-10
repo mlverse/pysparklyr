@@ -113,6 +113,7 @@ jobs:
             loc <- paste0("/home/runner/.virtualenvs/r-sparklyr-pyspark-", sv,"/bin/python")
             Sys.setenv("PYTHON_VERSION_MISMATCH" = loc)
             Sys.setenv("PYSPARK_DRIVER_PYTHON" = loc)
+            print(paste("Using:", loc))
           }
         shell: Rscript {0}
 
@@ -121,6 +122,8 @@ jobs:
           devtools::load_all()
           library(sparklyr)
           Sys.getenv("JAVA_HOME")
+          Sys.getenv("PYTHON_VERSION_MISMATCH")
+          Sys.getenv("PYSPARK_DRIVER_PYTHON")
           devtools::test(reporter = sparklyr_reporter())
         shell: Rscript {0}
 

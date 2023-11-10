@@ -1,5 +1,20 @@
 # pysparklyr (Development)
 
+### Machine Learning
+
+* Adds support for: 
+  - `ft_standard_scaler()`
+  - `ft_max_abs_scaler()`
+  - `ml_logistic_regression()`
+  - `ml_pipeline()`
+  - `ml_save()`
+  - `ml_predict()`
+  - `ml_transform()`
+
+- Adds `ml_prepare_dataset()` in lieu of a Vector Assembler transformer
+
+# pysparklyr 0.1.1
+
 ### Improvements
 
 * Adds URL sanitation routine for the Databricks Host. It will remove trailing

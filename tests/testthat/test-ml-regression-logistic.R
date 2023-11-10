@@ -12,9 +12,8 @@ test_that("Logistic Regression works with Spark Connection", {
 })
 
 test_that("Logistic Regression works with `tbl_spark`", {
-  sc <- test_spark_connect()
   tbl_mtcars <- test_table_mtcars()
-  expect_silent(model <- ml_logistic_regression(tbl_mtcars, am ~ ., max_iter = 10))
+  expect_silent(model <- test_lr_model())
   expect_equal(
     print(model),
     NULL

@@ -1,11 +1,8 @@
 skip_spark_min_version(3.5)
 
 test_that("Functions work", {
-  sc <- test_spark_connect()
   tbl_mtcars <- test_table_mtcars()
-
-  model <- ml_logistic_regression(tbl_mtcars, am ~ ., max_iter = 10)
-
+  model <-test_lr_model()
   expect_equal(
     print(model),
     NULL

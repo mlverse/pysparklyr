@@ -1,5 +1,6 @@
 .test_env <- new.env()
 .test_env$sc <- NULL
+.test_env$lr_model <- NULL
 
 test_version_spark <- function() {
   version <- Sys.getenv("SPARK_VERSION", unset = NA)
@@ -33,6 +34,14 @@ test_table_mtcars <- function() {
     ret <- dplyr::tbl(sc, "mtcars")
   }
   ret
+}
+
+test_lr_model <- function() {
+  if(is.null(.test_env$lr_model)) {
+    tbl_mtcars <- test_table_mtcars()
+    .test_env$lr_model <- ml_logistic_regression(tbl_mtcars, am ~ ., max_iter = 10)
+  }
+  .test_env$lr_model
 }
 
 test_coverage_enable <-  function() {

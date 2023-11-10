@@ -1,4 +1,8 @@
-## Package submission
+## Package re-submission
+
+Addresses NOTE from original submission
+
+### Original package submission info
 
 * Adds URL sanitation routine for the Databricks Host. It will remove trailing
 forward slashes, and add scheme (https) if missing. The Host sanitation can be 

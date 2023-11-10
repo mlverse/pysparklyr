@@ -191,8 +191,39 @@ python_sdf <- function(x) {
 }
 
 python_obj_get <- function(x) {
+  UseMethod("python_obj_get")
+}
+
+python_obj_get.ml_connect_model <- function(x) {
+  x$pipeline$pyspark_obj
+}
+
+python_obj_get.default <- function(x) {
+  if(inherits(x, "character")) return(x)
   sc <- spark_connection(x)
-  sc$session
+  if(inherits(sc$session, "python.builtin.object")) {
+    return(sc$session)
+  }
+}
+
+python_obj_get.python.builtin.object <- function(x) {
+  x
+}
+
+python_obj_get.spark_pyobj <- function(x) {
+  x[["pyspark_obj"]]
+}
+
+python_obj_get.ml_connect_model <- function(x) {
+  x[["pipeline"]][["pyspark_obj"]]
+}
+
+python_obj_get.ml_connect_estimator <- function(x) {
+  x[[".jobj"]]
+}
+
+python_obj_get.ml_connect_pipeline_model <- function(x) {
+  x[[".jobj"]]
 }
 
 python_obj_con_set <- function(sc, obj) {
@@ -212,7 +243,8 @@ tbl_pyspark_temp <- function(x, conn, tmp_name = NULL) {
   if (is.null(tmp_name)) {
     tmp_name <- tbl_temp_name()
   }
-  x$createOrReplaceTempView(tmp_name)
+  py_x <- python_obj_get(x)
+  py_x$createOrReplaceTempView(tmp_name)
   tbl(sc, tmp_name)
 }
 

@@ -6,3 +6,4 @@
 .quarto
 .databrickscfg
 .Renviron
+.saved_model

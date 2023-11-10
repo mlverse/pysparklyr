@@ -32,16 +32,16 @@ jobs:
           needs: coverage
 
       - name: Cache Spark
-        id: cache-spark
+        id: cache-spark-2
         uses: actions/cache@v2
         with:
-          path: /home/runner/spark/spark-3.4.1-bin-hadoop3
-          key: sparklyr-spark-3.4.1-bin-hadoop3-1
+          path: /home/runner/spark/spark-3.5.0-bin-hadoop3
+          key: sparklyr-spark-3.5.0-bin-hadoop3-2
 
       - name: Install Spark (via sparklyr)
         if: steps.cache-spark.outputs.cache-hit != 'true'
         run: |
-          sparklyr::spark_install(version = "3.4.1")
+          sparklyr::spark_install(version = "3.5.0")
         shell: Rscript {0}
 
       - name: Cache Scala
@@ -61,19 +61,33 @@ jobs:
         id: cache-venv
         uses: actions/cache@v3
         with:
-          path: /home/runner/.virtualenvs/r-sparklyr-pyspark-3.4
-          key: sparklyr-virtualenv-3.4
+          path: /home/runner/.virtualenvs/r-sparklyr-pyspark-3.5
+          key: sparklyr-virtualenv-3.5
 
       - name: Virtual Environment
-        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
           devtools::load_all()
-          install_pyspark("3.4", python = Sys.which("python"))
+          install_pyspark("3.5", python = Sys.which("python"))
         shell: Rscript {0}
 
       - name: Test coverage
         run: |
+          devtools::load_all()
+
+          env_name <- use_envname(version = 3.5)
+          loc <- paste0("/home/runner/.virtualenvs/", env_name,"/bin/python")
+
+          Sys.setenv("PYTHON_VERSION_MISMATCH" = loc)
+          Sys.setenv("PYSPARK_DRIVER_PYTHON" = loc)
+          Sys.setenv("SPARK_VERSION" = 3.5)
+          Sys.setenv("SCALA_VERSION" = 2.12)
           Sys.setenv("CODE_COVERAGE" = "true")
+
+          Sys.getenv("JAVA_HOME")
+          Sys.getenv("SPARK_VERSION")
+          Sys.getenv("PYTHON_VERSION_MISMATCH")
+          Sys.getenv("PYSPARK_DRIVER_PYTHON")
+
           covr::codecov(
             quiet = FALSE,
             clean = FALSE,

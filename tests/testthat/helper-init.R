@@ -1,5 +1,6 @@
 .test_env <- new.env()
 .test_env$sc <- NULL
+.test_env$lr_model <- NULL
 
 test_version_spark <- function() {
   version <- Sys.getenv("SPARK_VERSION", unset = NA)
@@ -33,6 +34,14 @@ test_table_mtcars <- function() {
     ret <- dplyr::tbl(sc, "mtcars")
   }
   ret
+}
+
+test_lr_model <- function() {
+  if(is.null(.test_env$lr_model)) {
+    tbl_mtcars <- test_table_mtcars()
+    .test_env$lr_model <- ml_logistic_regression(tbl_mtcars, am ~ ., max_iter = 10)
+  }
+  .test_env$lr_model
 }
 
 test_coverage_enable <-  function() {
@@ -75,4 +84,14 @@ testthat_tbl <- function(name, data = NULL, repartition = 0L) {
 
 random_table_name <- function(prefix) {
   paste0(prefix, paste0(floor(runif(10, 0, 10)), collapse = ""))
+}
+
+
+skip_spark_min_version <- function(version) {
+  sc <- test_spark_connect()
+  sp_version <- spark_version(sc)
+  comp_ver <- compareVersion(as.character(version), sp_version)
+  if(comp_ver != -1) {
+    skip(glue("Skips on Spark version {version}"))
+  }
 }

@@ -97,7 +97,7 @@ jobs:
           key: sparklyr-virtualenv-${{ matrix.config.pyspark }}
 
       - name: Virtual Environment
-        if: steps.cache-venv.outputs.cache-hit != 'true'
+        #if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
           devtools::load_all()
           install_pyspark(
@@ -110,7 +110,16 @@ jobs:
         run: |
           devtools::load_all()
           library(sparklyr)
+          sv <- Sys.getenv("SPARK_VERSION")
+          if( sv >="3.5") {
+            env_name <- use_envname(version = sv)
+            loc <- paste0("/home/runner/.virtualenvs/", env_name,"/bin/python")
+            Sys.setenv("PYTHON_VERSION_MISMATCH" = loc)
+            Sys.setenv("PYSPARK_DRIVER_PYTHON" = loc)
+          }
           Sys.getenv("JAVA_HOME")
+          Sys.getenv("PYTHON_VERSION_MISMATCH")
+          Sys.getenv("PYSPARK_DRIVER_PYTHON")
           devtools::test(reporter = sparklyr_reporter())
         shell: Rscript {0}
 

@@ -144,7 +144,16 @@ setOldClass(
 )
 
 python_conn <- function(x) {
-  x$state$spark_context
+  py_object <- "python.builtin.object"
+  ret <- NULL
+  if(inherits(x$state$spark_context, py_object)) ret <- x$state$spark_context
+  if(is.null(ret) && inherits(x[[1]]$session$sparkSession, py_object)) {
+    ret <- x[[1]]$session$sparkSession
+  }
+  if(is.null(ret)) {
+    cli_abort("Could not match Python Connection to: {class(x)}")
+  }
+  ret
 }
 
 build_user_agent <- function() {
@@ -317,6 +326,16 @@ cluster_dbr_error <- function(error) {
       status_details
     )
   )
+}
+
+connection_label <- function(x) {
+  ret <- "Connection"
+  con <- spark_connection(x)
+  if(!is.null(con)) {
+    if(con$method == "spark_connect") ret <- "Spark Connect"
+    if(con$method == "databricks_connect") ret <- "Databricks Connect"
+  }
+  ret
 }
 
 sanitize_host <-  function(url) {

@@ -34,11 +34,11 @@ jobs:
           needs: coverage
 
       - name: Cache Spark
-        id: cache-spark
+        id: cache-spark-2
         uses: actions/cache@v2
         with:
           path: /home/runner/spark/spark-3.5.0-bin-hadoop3
-          key: sparklyr-spark-3.5.0-bin-hadoop3-1
+          key: sparklyr-spark-3.5.0-bin-hadoop3-2
 
       - name: Install Spark (via sparklyr)
         if: steps.cache-spark.outputs.cache-hit != 'true'
@@ -67,7 +67,6 @@ jobs:
           key: sparklyr-virtualenv-3.5
 
       - name: Virtual Environment
-        if: steps.cache-venv.outputs.cache-hit != 'true'
         run: |
           devtools::load_all()
           install_pyspark("3.5", python = Sys.which("python"))

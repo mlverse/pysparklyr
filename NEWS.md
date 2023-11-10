@@ -15,8 +15,10 @@ job if the user is within the RStudio IDE. This feature can be overriden
 using the new `as_job` argument inside `install_databricks()`, and 
 `install_pyspark()` functions
 
-* Adds a way to switch to using SQL to get catalog/schema/tables. It gets
-turned on via 'SPARKLYR_RSTUDIO_CP_VIEW' being set to "uc_only" (#32)
+* Uses SQL to pull the tree structure that populates the RStudio Connections
+Pane. This avoids fixing the current catalog and database multiple times,
+which causes delays. With SQL, we can just pass the Catalog and/or Database
+directly in the query. 
 
 ### Diagnostics 
 

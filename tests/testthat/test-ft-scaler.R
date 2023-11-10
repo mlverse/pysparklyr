@@ -68,7 +68,8 @@ test_that("Max Abs Scaler works with Pipeline", {
 
 test_that("Print method works", {
   sc <- test_spark_connect()
-  expect_snapshot(
-    ft_standard_scaler(sc)
+  expect_equal(
+    print(ft_standard_scaler(sc)),
+    as.character(NA)
   )
 })

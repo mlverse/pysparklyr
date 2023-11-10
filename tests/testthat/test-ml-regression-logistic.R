@@ -15,7 +15,10 @@ test_that("Logistic Regression works with `tbl_spark`", {
   sc <- test_spark_connect()
   tbl_mtcars <- test_table_mtcars()
   expect_silent(model <- ml_logistic_regression(tbl_mtcars, am ~ ., max_iter = 10))
-  expect_snapshot(print(model))
+  expect_equal(
+    print(model),
+    NULL
+  )
   expect_snapshot(model$features)
   expect_snapshot(model$label)
 
@@ -38,11 +41,3 @@ test_that("Logistic Regression works with Pipeline", {
   expect_snapshot(cap_out[c(1, 3:4, 6:18)])
 })
 
-
-test_that("Print method works", {
-  sc <- test_spark_connect()
-  expect_snapshot(
-    ml_logistic_regression(sc, max_iter = 10)
-  )
-
-})

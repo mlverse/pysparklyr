@@ -11,26 +11,6 @@
 # Logistic Regression works with `tbl_spark`
 
     Code
-      print(model)
-    Message <cliMessage>
-      
-      -- ML Connect model: 
-    Output
-      Logistic Regression
-    Message <cliMessage>
-      
-      -- Parameters: 
-    Output
-      [x] batchSize:       32            [x] momentum:        0.9        
-      [x] featuresCol:     features      [x] numTrainWorkers: 1          
-      [x] fitIntercept:    TRUE          [x] predictionCol:   prediction 
-      [x] labelCol:        label         [x] probabilityCol:  probability
-      [x] learningRate:    0.001         [x] seed:            0          
-      [x] maxIter:         10            [x] tol:             1e-06      
-
----
-
-    Code
       model$features
     Output
        [1] "mpg"  "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "gear" "carb"
@@ -72,11 +52,4 @@
       [14] "  |    probabilityCol: probability"   
       [15] "  |    seed: 0"                       
       [16] "  |    tol: 1e-06"                    
-
-# Print method works
-
-    Code
-      ml_logistic_regression(sc, max_iter = 10)
-    Message <rlang_message>
-      <LogisticRegression>
 

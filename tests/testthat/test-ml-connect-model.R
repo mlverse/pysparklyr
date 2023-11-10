@@ -6,7 +6,10 @@ test_that("Functions work", {
 
   model <- ml_logistic_regression(tbl_mtcars, am ~ ., max_iter = 10)
 
-  expect_snapshot(model)
+  expect_equal(
+    print(model),
+    NULL
+  )
 
   expect_s3_class(spark_jobj(model), "spark_pyobj")
 

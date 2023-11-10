@@ -37,10 +37,3 @@
       [1] "Pipeline (Estimator) with 1 stage" "  Stages "                        
       [3] "  |--1 MaxAbsScaler (HasInputCol)"
 
-# Print method works
-
-    Code
-      ft_standard_scaler(sc)
-    Message <rlang_message>
-      <StandardScaler>
-

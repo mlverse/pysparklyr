@@ -3,6 +3,10 @@ print.ml_connect_model <- function(x, ...) {
   cli_h3("ML Connect model:")
   cat(cli::style_reset(ml_title(x)))
   cli_h3("Parameters:")
+  print_parameters(x)
+}
+
+print_parameters <- function(x) {
   p <- get_params(x)
   p_descriptions <- p %>%
     map_chr(~.x$description) %>%
@@ -50,7 +54,6 @@ print.ml_connect_model <- function(x, ...) {
   p_two <- paste0(p_left, "   ", p_right)
 
   cat(paste0(p_two, collapse = "\n"))
-
 }
 
 ml_title <- function(x) {

@@ -1,3 +1,5 @@
+skip_spark_min_version(3.5)
+
 test_that("Pipeline fits and predicts", {
   sc <- test_spark_connect()
   tbl_mtcars <- test_table_mtcars()

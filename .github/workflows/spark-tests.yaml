@@ -106,6 +106,15 @@ jobs:
           )
         shell: Rscript {0}
 
+      - name: Spark setup
+        run: |
+          sv <- Sys.getenv("SPARK_VERSION")
+          if( sv >="3.5") {
+            loc <- paste0("/home/runner/.virtualenvs/r-sparklyr-pyspark-", sv,"/bin/python")
+            Sys.setenv("PYTHON_VERSION_MISMATCH" = loc)
+            Sys.setenv("PYSPARK_DRIVER_PYTHON" = loc)
+          }
+
       - name: R Tests
         run: |
           devtools::load_all()

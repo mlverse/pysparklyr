@@ -17,6 +17,12 @@ connection_databricks_shinyapp <- function() {
     }
   }
 
+  local_dir <- "inst/rstudio/shinycon"
+  if(file.exists(local_dir)) {
+    app_dir <- local_dir
+    } else {
+      app_dir <- system.file("rstudio/shinycon", package = "pysparklyr")
+    }
   shinyAppDir <- get("shinyAppDir", envir = asNamespace("shiny"))
-  shinyAppDir(system.file("rstudio/shinycon", package = "sparklyr"))
+  shinyAppDir(app_dir)
 }

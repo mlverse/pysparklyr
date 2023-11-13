@@ -107,13 +107,6 @@ spark_ui_hadoop_choices <- function(sparkVersion) {
   choiceValues
 }
 
-spark_ui_default_connections <- function() {
-  getOption(
-    "sparklyr.ui.connections",
-    getOption("rstudio.spark.connections")
-  )
-}
-
 #' @import rstudioapi
 connection_spark_ui <- function() {
   elementSpacing <- if (.Platform$OS.type == "windows") 2 else 7
@@ -146,7 +139,6 @@ connection_spark_ui <- function() {
           }
 
           .shiny-input-container > .control-label {
-            display: table-cell;
             width: 195px;
           }
 
@@ -162,63 +154,40 @@ connection_spark_ui <- function() {
       )
     ),
     div(style = "table-row",
-        selectInput(
-          "master",
-          "Master:",
-          choices = c(
-            list("local" = "local"),
-            spark_ui_default_connections(),
-            list("Cluster..." = "cluster")
-          ),
-          selectize = FALSE
-        ),
-        selectInput(
-          "dbinterface",
-          "DB Interface:",
-          choices = c(
-            "dplyr" = "dplyr",
-            "(None)" = "none"
-          ),
-          selectize = FALSE,
-          selected = rsApiReadPreference("sparklyr_dbinterface", "dplyr")
+        textInput(
+          inputId = "cluster_id",
+          label = "Cluster ID:",
+          value = "",
+          width = "600px"
         )
     ),
     div(
       style = paste("display: table-row; height: 10px")
     ),
     conditionalPanel(
-      condition = "!output.notShowVersionsUi",
+      condition = "output.env_var_host",
       div(style = "table-row",
-          selectInput(
-            "sparkversion",
-            "Spark version:",
-            choices = spark_ui_spark_choices(),
-            selected = spark_default_version()$spark,
-            selectize = FALSE
-          ),
-          selectInput(
-            "hadoopversion",
-            "Hadoop version:",
-            choices = spark_ui_hadoop_choices(spark_default_version()$spark),
-            selected = spark_default_version()$hadoop,
-            selectize = FALSE
+          textInput(
+            inputId = "host_url",
+            label = "Host URL:",
+            value = "",
+            width = "800px"
           )
+      )
+    ),
+    conditionalPanel(
+      condition = "!output.env_var_host",
+      div(style = "table-row",
+          p(paste("Host URL:", Sys.getenv("DATABRICKS_HOST")))
       )
     )
   )
 }
 
 connection_spark_server <- function(input, output, session) {
-  hasDefaultSparkVersion <- reactive({
-    input$sparkversion == spark_default_version()$spark
-  })
 
-  hasDefaultHadoopVersion <- reactive({
-    input$hadoopversion == spark_default_version()$hadoop
-  })
-
-  output$notShowVersionsUi <- reactive({
-    !identical(spark_home(), NULL)
+  output$env_var_host <- reactive({
+    is.na(Sys.getenv("DATABRICKS_HOST", unset = NA))
   })
 
   userInstallPreference <- NULL
@@ -308,17 +277,17 @@ connection_spark_server <- function(input, output, session) {
 
   stateValuesReactive <- reactiveValues(codeInvalidated = 1)
 
-  codeReactive <- reactive({
-    master <- input$master
-    dbInterface <- input$dbinterface
-    sparkVersion <- input$sparkversion
-    hadoopVersion <- input$hadoopversion
-    codeInvalidated <- stateValuesReactive$codeInvalidated
-
-    installSpark <- checkUserInstallPreference(master, sparkVersion, hadoopVersion, FALSE)
-
-    generateCode(master, dbInterface, sparkVersion, hadoopVersion, installSpark)
-  })
+  # codeReactive <- reactive({
+  #   master <- input$master
+  #   dbInterface <- input$dbinterface
+  #   sparkVersion <- input$sparkversion
+  #   hadoopVersion <- input$hadoopversion
+  #   codeInvalidated <- stateValuesReactive$codeInvalidated
+  #
+  #   installSpark <- checkUserInstallPreference(master, sparkVersion, hadoopVersion, FALSE)
+  #
+  #   generateCode(master, dbInterface, sparkVersion, hadoopVersion, installSpark)
+  # })
 
   installLater <- reactive({
     master <- input$master
@@ -338,9 +307,9 @@ connection_spark_server <- function(input, output, session) {
     })
   })
 
-  observe({
-    rsApiUpdateDialog(codeReactive())
-  })
+  # observe({
+  #   rsApiUpdateDialog(codeReactive())
+  # })
 
   observe({
     if (identical(input$master, "cluster")) {
@@ -471,11 +440,7 @@ connection_spark_server <- function(input, output, session) {
     }
   })
 
-  observe({
-    rsApiWritePreference("sparklyr_dbinterface", input$dbinterface)
-  })
-
-  outputOptions(output, "notShowVersionsUi", suspendWhenHidden = FALSE)
+  outputOptions(output, "env_var_host", suspendWhenHidden = FALSE)
 }
 
 shinyApp(connection_spark_ui, connection_spark_server)

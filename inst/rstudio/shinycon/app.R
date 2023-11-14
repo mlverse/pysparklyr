@@ -300,31 +300,37 @@ connection_spark_server <- function(input, output, session) {
     })
   })
 
-  create_code <- reactive({
+  code_create <- function(cluster_id, host_url){
     host <- NULL
     env_host <- env_var_host()
-    if(env_host != "" && env_host != input$host_url) {
-      host <- paste0("    host = \"", env_var_host(), "\",")
+    if(env_host != "" && env_host != host_url) {
+      host <- paste0("    host = \"", host_url, "\",")
     }
 
     code_lines <- c(
       "library(sparklyr)",
       "sc <- spark_connect(",
-      paste0("    cluster_id = \"", input$cluster_id, "\","),
+      paste0("    cluster_id = \"", cluster_id, "\","),
       host,
       "    method = \"databricks_connect\"",
       ")"
     )
     code_lines <- code_lines[!is.null(code_lines)]
     ret <- ""
-    if(input$cluster_id != "") {
+    if(cluster_id != "") {
       ret <- paste0(code_lines, collapse = "\n")
     }
     ret
+  }
+
+  code_reactive <- reactive({
+    cluster_id <- input$cluster_id
+    host_url <- input$host_url
+    code_create(cluster_id, host_url)
   })
 
   observe({
-    rsApiUpdateDialog(create_code())
+    rsApiUpdateDialog(code_reactive())
   })
 
   observe({

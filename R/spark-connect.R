@@ -382,21 +382,26 @@ use_envname <- function(
     method = "spark_connect",
     version = "1.1",
     messages = FALSE,
-    match_first = FALSE) {
-  reticulate_python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
-  if (!is.na(reticulate_python)) {
-    if (messages) {
-      msg <- c(
-        "{.header Using the Python environment defined in the}",
-        "{.emph 'RETICULATE_PYTHON' }{.header environment variable}",
-        "{.class ({py_exe()})}"
-      )
-      cli_div(theme = cli_colors())
-      cli_alert_warning(msg)
-      cli_end()
+    match_first = FALSE,
+    ignore_reticulate_python = FALSE) {
+
+  if(!ignore_reticulate_python) {
+    reticulate_python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
+    if (!is.na(reticulate_python)) {
+      if (messages) {
+        msg <- c(
+          "{.header Using the Python environment defined in the}",
+          "{.emph 'RETICULATE_PYTHON' }{.header environment variable}",
+          "{.class ({py_exe()})}"
+        )
+        cli_div(theme = cli_colors())
+        cli_alert_warning(msg)
+        cli_end()
+      }
+      envname <- reticulate_python
     }
-    envname <- reticulate_python
   }
+
 
   if (is.null(envname)) {
     if (method == "spark_connect") {

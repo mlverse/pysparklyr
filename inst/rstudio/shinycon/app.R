@@ -155,7 +155,10 @@ connection_spark_ui <- function() {
       ),
       tags$tr(
         tags$td("Python Env:"),
-        tags$td(textOutput("get_env"))
+        tags$td(
+          textOutput("reticulate"),
+          textOutput("get_env")
+          )
       ),
       tags$tr(
         tags$td(style = paste("height: 5px"))
@@ -205,6 +208,18 @@ connection_spark_server <- function(input, output, session) {
 
   dbr_version <- reactiveVal("")
   dbr_env_name <- reactiveVal("")
+  local_reticulate <- reactiveVal("")
+
+  output$reticulate <- reactive({
+    ret <- ""
+    python_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
+    python_env <- ifelse(is.na(python_env), "", python_env)
+    if(python_env != "") {
+      local_reticulate(python_env)
+      ret <- "! Clearing 'RETICULATE_PYTHON' in the code"
+    }
+    ret
+  })
 
   output$auth <- reactive({
     t_source <- token_source()
@@ -254,18 +269,20 @@ connection_spark_server <- function(input, output, session) {
       if(!inherits(version, "try-error")) {
         not_verified <- pysparklyr:::use_envname(
           version = version,
-          method = "databricks_connect"
+          method = "databricks_connect",
+          ignore_reticulate_python = TRUE
         )
         verified <- pysparklyr:::use_envname(
           version = version,
           method = "databricks_connect",
-          match_first = TRUE
+          match_first = TRUE,
+          ignore_reticulate_python = TRUE
         )
         if(not_verified == verified) {
           env <- paste0("✓ Found - Using '", verified, "'")
         } else {
           dbr_env_name(not_verified)
-          env <- "✘ Not found - Adding installation step to code"
+          env <- " !  Not found - Adding installation step to code"
         }
       }
     } else {
@@ -405,7 +422,14 @@ connection_spark_server <- function(input, output, session) {
       inst <- NULL
     }
 
+    if(local_reticulate() != "") {
+      reticulate <- c("Sys.unsetenv(\"RETICULATE_PYTHON\")", "")
+    } else {
+      reticulate <- NULL
+    }
+
     code_lines <- c(
+      reticulate,
       inst,
       "library(sparklyr)",
       "sc <- spark_connect(",

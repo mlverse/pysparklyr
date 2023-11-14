@@ -47,6 +47,12 @@ rsApiWritePreference <- function(name, value) {
   }
 }
 
+env_var_host <- function() {
+  ret <- Sys.getenv("DATABRICKS_HOST", unset = NA)
+  if(is.na(ret)) ret <- ""
+  ret
+}
+
 rsApiVersionInfo <- function() {
   if (exists(".rs.api.versionInfo")) {
     versionInfo <- get(".rs.api.versionInfo")
@@ -60,18 +66,22 @@ is_java_available <- function() {
 
 spark_home <- function() {
   home <- Sys.getenv("SPARK_HOME", unset = NA)
-  if (is.na(home))
+  if (is.na(home)) {
     home <- NULL
+  }
   home
 }
 
 spark_ui_avaliable_versions <- function() {
-  tryCatch({
-    spark_available_versions(show_hadoop = TRUE, show_minor = TRUE)
-  }, error = function(e) {
-    warning(e)
-    spark_installed_versions()[,c("spark","hadoop")]
-  })
+  tryCatch(
+    {
+      spark_available_versions(show_hadoop = TRUE, show_minor = TRUE)
+    },
+    error = function(e) {
+      warning(e)
+      spark_installed_versions()[, c("spark", "hadoop")]
+    }
+  )
 }
 
 spark_ui_spark_choices <- function() {
@@ -95,7 +105,7 @@ spark_ui_hadoop_choices <- function(sparkVersion) {
 
   selected <- spark_install_find(version = sparkVersion, installed_only = FALSE)$hadoopVersion
 
-  choiceValues <- unique(availableVersions[availableVersions$spark == sparkVersion,][["hadoop"]])
+  choiceValues <- unique(availableVersions[availableVersions$spark == sparkVersion, ][["hadoop"]])
   choiceNames <- choiceValues
   choiceNames <- lapply(
     choiceNames,
@@ -117,14 +127,12 @@ connection_spark_ui <- function() {
         HTML(paste("
           body {
             background: none;
-
             font-family : \"Lucida Sans\", \"DejaVu Sans\", \"Lucida Grande\", \"Segoe UI\", Verdana, Helvetica, sans-serif;
             font-size : 12px;
             -ms-user-select : none;
             -moz-user-select : none;
             -webkit-user-select : none;
             user-select : none;
-
             margin: 0;
             margin-top: 7px;
           }
@@ -133,69 +141,55 @@ connection_spark_ui <- function() {
             background: #FFF;
           }
 
-          .shiny-input-container {
-            min-width: 100%;
-            margin-bottom: ", elementSpacing, "px;
-          }
-
-          .shiny-input-container > .control-label {
-            width: 195px;
-          }
-
-          .shiny-input-container > div {
-            display: table-cell;
-            width: 300px;
-          }
-
-          #shiny-disconnected-overlay {
-            display: none;
-          }
         ", sep = ""))
       )
     ),
-    div(style = "table-row",
-        textInput(
-          inputId = "cluster_id",
-          label = "Cluster ID:",
-          value = "",
-          width = "600px"
-        )
-    ),
-    div(
-      style = paste("display: table-row; height: 10px")
-    ),
-    conditionalPanel(
-      condition = "output.env_var_host",
-      div(style = "table-row",
+    tags$table(
+      tags$tr(
+        tags$td("Cluster ID:"),
+        tags$td(
           textInput(
-            inputId = "host_url",
-            label = "Host URL:",
-            value = "",
-            width = "800px"
+            inputId = "cluster_id",
+            label = "",
+            value = ""
           )
-      )
-    ),
-    conditionalPanel(
-      condition = "!output.env_var_host",
-      div(style = "table-row",
-          p(paste("Host URL:", Sys.getenv("DATABRICKS_HOST")))
+        )
+      ),
+      tags$tr(
+        tags$td(style = paste("display: table-row; height: 20px"))
+      ),
+      tags$tr(
+        tags$td("Host URL:"),
+        tags$td(
+            textInput(
+              inputId = "host_url",
+              label = "",
+              value = env_var_host()
+            )
+          ),
+        tags$td(
+          textOutput("matches_host")
+        )
       )
     )
   )
 }
 
 connection_spark_server <- function(input, output, session) {
-
-  output$env_var_host <- reactive({
-    is.na(Sys.getenv("DATABRICKS_HOST", unset = NA))
+  output$matches_host <- reactive({
+    ret <- ""
+    if(input$host_url == env_var_host()) {
+      ret <- "From 'DATABRICKS_HOST'"
+    }
+    if(env_var_host() == "") ret <- ""
+    ret
   })
 
   userInstallPreference <- NULL
   checkUserInstallPreference <- function(master, sparkSelection, hadoopSelection, prompt) {
     if (identical(master, "local") &&
-        identical(rsApiVersionInfo()$mode, "desktop") &&
-        identical(spark_home(), NULL)) {
-
+      identical(rsApiVersionInfo()$mode, "desktop") &&
+      identical(spark_home(), NULL)) {
       installed <- spark_installed_versions()
       isInstalled <- nrow(installed[installed$spark == sparkSelection & installed$hadoop == hadoopSelection, ])
 
@@ -218,19 +212,15 @@ connection_spark_server <- function(input, output, session) {
           )
 
           userInstallPreference
-        }
-        else if (identical(userInstallPreference, NULL)) {
+        } else if (identical(userInstallPreference, NULL)) {
           FALSE
-        }
-        else {
+        } else {
           userInstallPreference
         }
-      }
-      else {
+      } else {
         FALSE
       }
-    }
-    else {
+    } else {
       FALSE
     }
   }
@@ -238,8 +228,8 @@ connection_spark_server <- function(input, output, session) {
   generateCode <- function(master, dbInterface, sparkVersion, hadoopVersion, installSpark) {
     paste(
       "library(sparklyr)\n",
-      if(dbInterface == "dplyr") "library(dplyr)\n" else "",
-      if(installSpark)
+      if (dbInterface == "dplyr") "library(dplyr)\n" else "",
+      if (installSpark) {
         paste(
           "spark_install(version = \"",
           sparkVersion,
@@ -248,28 +238,34 @@ connection_spark_server <- function(input, output, session) {
           "\")\n",
           sep = ""
         )
-      else "",
+      } else {
+        ""
+      },
       "sc ",
       "<- ",
       "spark_connect(master = \"",
       master,
       "\"",
-      if (!hasDefaultSparkVersion())
+      if (!hasDefaultSparkVersion()) {
         paste(
           ", version = \"",
           sparkVersion,
           "\"",
           sep = ""
         )
-      else "",
-      if (!hasDefaultHadoopVersion())
+      } else {
+        ""
+      },
+      if (!hasDefaultHadoopVersion()) {
         paste(
           ", hadoop_version = \"",
           hadoopVersion,
           "\"",
           sep = ""
         )
-      else "",
+      } else {
+        ""
+      },
       ")",
       sep = ""
     )
@@ -307,9 +303,21 @@ connection_spark_server <- function(input, output, session) {
     })
   })
 
-  # observe({
-  #   rsApiUpdateDialog(codeReactive())
-  # })
+  create_code <- reactive({
+    ret <- ""
+    if(input$cluster_id != "") {
+      ret <- paste(
+        "library(sparklyr)",
+        paste0("spark_connect(cluster_id = ", input$cluster_id, ")"),
+        sep = "\n"
+      )
+    }
+    ret
+  })
+
+  observe({
+    rsApiUpdateDialog(create_code())
+  })
 
   observe({
     if (identical(input$master, "cluster")) {
@@ -331,8 +339,7 @@ connection_spark_server <- function(input, output, session) {
           "master",
           selected = "local"
         )
-      }
-      else if (identical(spark_home(), NULL)) {
+      } else if (identical(spark_home(), NULL)) {
         rsApiShowDialog(
           "Connect to Spark",
           paste(
@@ -354,8 +361,7 @@ connection_spark_server <- function(input, output, session) {
           "master",
           selected = "local"
         )
-      }
-      else {
+      } else {
         master <- rsApiShowPrompt(
           "Connect to Cluster",
           "Spark master:",
@@ -395,7 +401,8 @@ connection_spark_server <- function(input, output, session) {
           message,
           "<p>Please contact your server administrator to request the ",
           "installation of Java on this system.</p>",
-          sep = "")
+          sep = ""
+        )
 
         url <- java_install_url()
       } else {
@@ -403,7 +410,8 @@ connection_spark_server <- function(input, output, session) {
           message,
           "<p>Please contact your server administrator to request the ",
           "installation of Java on this system.</p>",
-          sep = "")
+          sep = ""
+        )
       }
 
       rsApiShowDialog(
@@ -440,7 +448,7 @@ connection_spark_server <- function(input, output, session) {
     }
   })
 
-  outputOptions(output, "env_var_host", suspendWhenHidden = FALSE)
+  #outputOptions(output, "env_var_host", suspendWhenHidden = FALSE)
 }
 
 shinyApp(connection_spark_ui, connection_spark_server)

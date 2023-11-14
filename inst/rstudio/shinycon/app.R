@@ -62,7 +62,7 @@ rsApiVersionInfo <- function() {
 
 is_java_available <- function() {
   #nzchar(spark_get_java())
-  FALSE
+  TRUE
 }
 
 spark_home <- function() {
@@ -164,12 +164,47 @@ connection_spark_ui <- function() {
       tags$tr(
         tags$td(style = paste("height: 20px")),
         tags$td(textOutput("matches_host"))
+      ),
+      tags$tr(
+        tags$td(style = paste("height: 10px"))
+      ),
+      tags$tr(
+        tags$td("Auth:"),
+        tags$td(textOutput("auth"))
       )
     )
   )
 }
 
+token_source <- function() {
+  t_source <- ""
+  if (exists(".rs.api.getDatabricksToken")) {
+    getDatabricksToken <- get(".rs.api.getDatabricksToken")
+    if(!is.null(getDatabricksToken(workspace))) {
+      t_source <- "oauth"
+    }
+  }
+  if(t_source == "" && !is.na(Sys.getenv("DATABRICKS_TOKEN", unset = NA))) {
+    t_source <- "token"
+  }
+  t_source
+}
+
 connection_spark_server <- function(input, output, session) {
+  output$auth <- reactive({
+    t_source <- token_source()
+    if(t_source == "token") {
+      ret <- "✓ Found - Will use 'DATABRICKS_TOKEN'"
+    }
+    if(t_source == "oauth") {
+      ret <- "✓ Found - Will use Posit Workbench OAuth"
+    }
+    if(t_source == "") {
+      ret <- "✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable"
+    }
+    ret
+  })
+
   output$matches_host <- reactive({
     ret <- ""
     if(input$host_url == env_var_host()) {
@@ -197,12 +232,12 @@ connection_spark_server <- function(input, output, session) {
           match_first = TRUE
           )
         if(not_verified == verified) {
-          env <- paste0("| ✓ Environment '", verified,"' found")
+          env <- "| ✓ Matching Python env found"
         } else {
-          env <- ""
+          env <- "| ✘ Matching Python env NOT found"
         }
 
-        ret <- paste0("✓ Cluster DBR: ", version, "| ✓ Matching Python env found")
+        ret <- paste0("✓ Cluster DBR: ", version, env)
       } else {
         ret <- "✘ Could not verify cluster version"
       }

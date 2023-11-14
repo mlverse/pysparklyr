@@ -136,11 +136,9 @@ connection_spark_ui <- function() {
             margin: 0;
             margin-top: 7px;
           }
-
           select {
             background: #FFF;
           }
-
         ", sep = ""))
       )
     ),
@@ -148,11 +146,7 @@ connection_spark_ui <- function() {
       tags$tr(
         tags$td("Cluster ID:"),
         tags$td(
-          textInput(
-            inputId = "cluster_id",
-            label = "",
-            value = ""
-          )
+          textInput(inputId = "cluster_id", label = "", value = "")
         )
       ),
       tags$tr(
@@ -166,7 +160,10 @@ connection_spark_ui <- function() {
               label = "",
               value = env_var_host()
             )
-          ),
+          )
+      ),
+      tags$tr(
+        tags$td(style = paste("display: table-row; height: 20px")),
         tags$td(
           textOutput("matches_host")
         )
@@ -179,7 +176,7 @@ connection_spark_server <- function(input, output, session) {
   output$matches_host <- reactive({
     ret <- ""
     if(input$host_url == env_var_host()) {
-      ret <- "From 'DATABRICKS_HOST'"
+      ret <- "Matches 'DATABRICKS_HOST' environment variable"
     }
     if(env_var_host() == "") ret <- ""
     ret
@@ -225,51 +222,51 @@ connection_spark_server <- function(input, output, session) {
     }
   }
 
-  generateCode <- function(master, dbInterface, sparkVersion, hadoopVersion, installSpark) {
-    paste(
-      "library(sparklyr)\n",
-      if (dbInterface == "dplyr") "library(dplyr)\n" else "",
-      if (installSpark) {
-        paste(
-          "spark_install(version = \"",
-          sparkVersion,
-          "\", hadoop_version = \"",
-          hadoopVersion,
-          "\")\n",
-          sep = ""
-        )
-      } else {
-        ""
-      },
-      "sc ",
-      "<- ",
-      "spark_connect(master = \"",
-      master,
-      "\"",
-      if (!hasDefaultSparkVersion()) {
-        paste(
-          ", version = \"",
-          sparkVersion,
-          "\"",
-          sep = ""
-        )
-      } else {
-        ""
-      },
-      if (!hasDefaultHadoopVersion()) {
-        paste(
-          ", hadoop_version = \"",
-          hadoopVersion,
-          "\"",
-          sep = ""
-        )
-      } else {
-        ""
-      },
-      ")",
-      sep = ""
-    )
-  }
+  # generateCode <- function(master, dbInterface, sparkVersion, hadoopVersion, installSpark) {
+  #   paste(
+  #     "library(sparklyr)\n",
+  #     if (dbInterface == "dplyr") "library(dplyr)\n" else "",
+  #     if (installSpark) {
+  #       paste(
+  #         "spark_install(version = \"",
+  #         sparkVersion,
+  #         "\", hadoop_version = \"",
+  #         hadoopVersion,
+  #         "\")\n",
+  #         sep = ""
+  #       )
+  #     } else {
+  #       ""
+  #     },
+  #     "sc ",
+  #     "<- ",
+  #     "spark_connect(master = \"",
+  #     master,
+  #     "\"",
+  #     if (!hasDefaultSparkVersion()) {
+  #       paste(
+  #         ", version = \"",
+  #         sparkVersion,
+  #         "\"",
+  #         sep = ""
+  #       )
+  #     } else {
+  #       ""
+  #     },
+  #     if (!hasDefaultHadoopVersion()) {
+  #       paste(
+  #         ", hadoop_version = \"",
+  #         hadoopVersion,
+  #         "\"",
+  #         sep = ""
+  #       )
+  #     } else {
+  #       ""
+  #     },
+  #     ")",
+  #     sep = ""
+  #   )
+  # }
 
   stateValuesReactive <- reactiveValues(codeInvalidated = 1)
 
@@ -304,13 +301,24 @@ connection_spark_server <- function(input, output, session) {
   })
 
   create_code <- reactive({
+    host <- NULL
+    env_host <- env_var_host()
+    if(env_host != "" && env_host != input$host_url) {
+      host <- paste0("    host = \"", env_var_host(), "\",")
+    }
+
+    code_lines <- c(
+      "library(sparklyr)",
+      "sc <- spark_connect(",
+      paste0("    cluster_id = \"", input$cluster_id, "\","),
+      host,
+      "    method = \"databricks_connect\"",
+      ")"
+    )
+    code_lines <- code_lines[!is.null(code_lines)]
     ret <- ""
     if(input$cluster_id != "") {
-      ret <- paste(
-        "library(sparklyr)",
-        paste0("spark_connect(cluster_id = ", input$cluster_id, ")"),
-        sep = "\n"
-      )
+      ret <- paste0(code_lines, collapse = "\n")
     }
     ret
   })

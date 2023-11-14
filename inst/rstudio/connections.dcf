@@ -1,3 +1,4 @@
-Name: Databricks
+Name: Databricks Connect (DBR 13+)
 ShinyApp: connection_databricks_shinyapp
 HelpUrl: https://spark.rstudio.com/deployment/databricks-spark-connect.html#databricks-connect-ml-13
+Icon: icons/databricks.png

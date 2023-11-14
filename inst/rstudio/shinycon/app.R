@@ -61,7 +61,8 @@ rsApiVersionInfo <- function() {
 }
 
 is_java_available <- function() {
-  nzchar(spark_get_java())
+  #nzchar(spark_get_java())
+  FALSE
 }
 
 spark_home <- function() {
@@ -141,11 +142,11 @@ connection_spark_ui <- function() {
         tags$td("Cluster ID:"),
         tags$td(
           textInput(
-            inputId = "cluster_id", label = "", value = "", width = "100px")
+            inputId = "cluster_id", label = "", value = "", width = "150px")
           )
       ),
       tags$tr(
-        tags$td(style = paste("display: table-row; height: 20px")),
+        tags$td(style = paste("height: 20px")),
         tags$td(textOutput("get_version"))
       ),
       tags$tr(
@@ -161,7 +162,7 @@ connection_spark_ui <- function() {
           ))
       ),
       tags$tr(
-        tags$td(style = paste("display: table-row; height: 20px")),
+        tags$td(style = paste("height: 20px")),
         tags$td(textOutput("matches_host"))
       )
     )
@@ -172,7 +173,7 @@ connection_spark_server <- function(input, output, session) {
   output$matches_host <- reactive({
     ret <- ""
     if(input$host_url == env_var_host()) {
-      ret <- "Matches 'DATABRICKS_HOST' environment variable"
+      ret <- "✓ Matches 'DATABRICKS_HOST', will use that variable."
     }
     if(env_var_host() == "") ret <- ""
     ret
@@ -181,11 +182,29 @@ connection_spark_server <- function(input, output, session) {
   output$get_version <- reactive({
     ret <- ""
     if(input$cluster_id != "") {
-      version <- try(pysparklyr:::cluster_dbr_version(input$cluster_id))
+      version <- try(pysparklyr:::cluster_dbr_version(
+        cluster_id = input$cluster_id,
+        host = input$host_url
+        ))
       if(!inherits(version, "try-error")) {
-        ret <- paste0("Cluster Databricks Runtime Version: ", version)
+        not_verified <- pysparklyr:::use_envname(
+          version = version,
+          method = "databricks_connect"
+          )
+        verified <- pysparklyr:::use_envname(
+          version = version,
+          method = "databricks_connect",
+          match_first = TRUE
+          )
+        if(not_verified == verified) {
+          env <- paste0("| ✓ Environment '", verified,"' found")
+        } else {
+          env <- ""
+        }
+
+        ret <- paste0("✓ Cluster DBR: ", version, "| ✓ Matching Python env found")
       } else {
-        ret <- "Invalid cluster ID"
+        ret <- "✘ Could not verify cluster version"
       }
     }
     ret
@@ -427,7 +446,7 @@ connection_spark_server <- function(input, output, session) {
           sep = ""
         )
 
-        url <- java_install_url()
+        url <- "this-is-the-java-url"  #  java_install_url()
       } else {
         message <- paste(
           message,

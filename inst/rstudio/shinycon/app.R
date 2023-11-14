@@ -140,11 +140,13 @@ connection_spark_ui <- function() {
       tags$tr(
         tags$td("Cluster ID:"),
         tags$td(
-          textInput(inputId = "cluster_id", label = "", value = "", width = "100px")
-        )
+          textInput(
+            inputId = "cluster_id", label = "", value = "", width = "100px")
+          )
       ),
       tags$tr(
-        tags$td(style = paste("display: table-row; height: 20px"))
+        tags$td(style = paste("display: table-row; height: 20px")),
+        tags$td(textOutput("get_version"))
       ),
       tags$tr(
         tags$td("Master:"),
@@ -173,6 +175,19 @@ connection_spark_server <- function(input, output, session) {
       ret <- "Matches 'DATABRICKS_HOST' environment variable"
     }
     if(env_var_host() == "") ret <- ""
+    ret
+  })
+
+  output$get_version <- reactive({
+    ret <- ""
+    if(input$cluster_id != "") {
+      version <- try(pysparklyr:::cluster_dbr_version(input$cluster_id))
+      if(!inherits(version, "try-error")) {
+        ret <- paste0("Cluster Databricks Runtime Version: ", version)
+      } else {
+        ret <- "Invalid cluster ID"
+      }
+    }
     ret
   })
 

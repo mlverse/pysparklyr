@@ -122,51 +122,45 @@ connection_spark_ui <- function() {
   elementSpacing <- if (.Platform$OS.type == "windows") 2 else 7
 
   tags$div(
-    tags$head(
-      tags$style(
-        HTML(paste("
-          body {
-            background: none;
-            font-family : \"Lucida Sans\", \"DejaVu Sans\", \"Lucida Grande\", \"Segoe UI\", Verdana, Helvetica, sans-serif;
-            font-size : 12px;
-            -ms-user-select : none;
-            -moz-user-select : none;
-            -webkit-user-select : none;
-            user-select : none;
-            margin: 0;
-            margin-top: 7px;
-          }
-          select {
-            background: #FFF;
-          }
-        ", sep = ""))
+    tags$style(
+      type = "text/css",
+      paste0(
+        "table {
+          font-family: 'Verdana', 'Helvetica';
+          font-size: 12px;
+        }",
+        ".shiny-input-text {
+          font-family: 'Verdana', 'Helvetica';
+          font-size: 12px;
+          width: 100%;
+        }"
       )
     ),
     tags$table(
       tags$tr(
         tags$td("Cluster ID:"),
         tags$td(
-          textInput(inputId = "cluster_id", label = "", value = "")
+          textInput(inputId = "cluster_id", label = "", value = "", width = "100px")
         )
       ),
       tags$tr(
         tags$td(style = paste("display: table-row; height: 20px"))
       ),
       tags$tr(
-        tags$td("Host URL:"),
+        tags$td("Master:"),
+        div(
         tags$td(
             textInput(
               inputId = "host_url",
               label = "",
-              value = env_var_host()
+              value = env_var_host(),
+              width = "400px"
             )
-          )
+          ))
       ),
       tags$tr(
         tags$td(style = paste("display: table-row; height: 20px")),
-        tags$td(
-          textOutput("matches_host")
-        )
+        tags$td(textOutput("matches_host"))
       )
     )
   )
@@ -304,7 +298,7 @@ connection_spark_server <- function(input, output, session) {
     host <- NULL
     env_host <- env_var_host()
     if(env_host != "" && env_host != host_url) {
-      host <- paste0("    host = \"", host_url, "\",")
+      host <- paste0("    master = \"", host_url, "\",")
     }
 
     code_lines <- c(

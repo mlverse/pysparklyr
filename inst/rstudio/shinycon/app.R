@@ -331,65 +331,7 @@ connection_spark_server <- function(input, output, session) {
     }
   }
 
-  # generateCode <- function(master, dbInterface, sparkVersion, hadoopVersion, installSpark) {
-  #   paste(
-  #     "library(sparklyr)\n",
-  #     if (dbInterface == "dplyr") "library(dplyr)\n" else "",
-  #     if (installSpark) {
-  #       paste(
-  #         "spark_install(version = \"",
-  #         sparkVersion,
-  #         "\", hadoop_version = \"",
-  #         hadoopVersion,
-  #         "\")\n",
-  #         sep = ""
-  #       )
-  #     } else {
-  #       ""
-  #     },
-  #     "sc ",
-  #     "<- ",
-  #     "spark_connect(master = \"",
-  #     master,
-  #     "\"",
-  #     if (!hasDefaultSparkVersion()) {
-  #       paste(
-  #         ", version = \"",
-  #         sparkVersion,
-  #         "\"",
-  #         sep = ""
-  #       )
-  #     } else {
-  #       ""
-  #     },
-  #     if (!hasDefaultHadoopVersion()) {
-  #       paste(
-  #         ", hadoop_version = \"",
-  #         hadoopVersion,
-  #         "\"",
-  #         sep = ""
-  #       )
-  #     } else {
-  #       ""
-  #     },
-  #     ")",
-  #     sep = ""
-  #   )
-  # }
-
   stateValuesReactive <- reactiveValues(codeInvalidated = 1)
-
-  # codeReactive <- reactive({
-  #   master <- input$master
-  #   dbInterface <- input$dbinterface
-  #   sparkVersion <- input$sparkversion
-  #   hadoopVersion <- input$hadoopversion
-  #   codeInvalidated <- stateValuesReactive$codeInvalidated
-  #
-  #   installSpark <- checkUserInstallPreference(master, sparkVersion, hadoopVersion, FALSE)
-  #
-  #   generateCode(master, dbInterface, sparkVersion, hadoopVersion, installSpark)
-  # })
 
   installLater <- reactive({
     master <- input$master

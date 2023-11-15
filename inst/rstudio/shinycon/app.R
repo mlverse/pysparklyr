@@ -88,12 +88,12 @@ connection_spark_ui <- function() {
 
 token_source <- function() {
   t_source <- ""
-  if (exists(".rs.api.getDatabricksToken")) {
-    getDatabricksToken <- get(".rs.api.getDatabricksToken")
-    if (!is.null(getDatabricksToken(workspace))) {
-      t_source <- "oauth"
-    }
-  }
+  # if (exists(".rs.api.getDatabricksToken")) {
+  #   getDatabricksToken <- get(".rs.api.getDatabricksToken")
+  #   if (!is.null(getDatabricksToken(workspace))) {
+  #     t_source <- "oauth"
+  #   }
+  # }
   if (t_source == "" && !is.na(Sys.getenv("DATABRICKS_TOKEN", unset = NA))) {
     t_source <- "token"
   }

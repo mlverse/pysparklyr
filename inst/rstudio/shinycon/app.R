@@ -359,7 +359,10 @@ connection_spark_server <- function(input, output, session) {
     }
 
     if(envname != "") {
-      inst <- c(paste0("pysparklyr::install_databricks(\"", dbr_version(),"\")"), "")
+      inst <- c(
+        paste0("pysparklyr::install_databricks(\"", dbr_version(),"\", as_job = FALSE)"),
+        ""
+        )
     } else {
       inst <- NULL
     }
@@ -399,110 +402,7 @@ connection_spark_server <- function(input, output, session) {
     rsApiUpdateDialog(code_reactive())
   })
 
-  observe({
-    if (identical(input$master, "cluster")) {
-      if (identical(rsApiVersionInfo()$mode, "desktop")) {
-        rsApiShowDialog(
-          "Connect to Spark",
-          paste(
-            "Connecting with a remote Spark cluster requires ",
-            "an RStudio Server instance that is either within the cluster ",
-            "or has a high bandwidth connection to the cluster.</p>",
-            "<p>Please see the <strong>Using Spark with RStudio</strong> help ",
-            "link below for additional details.</p>",
-            sep = ""
-          )
-        )
-
-        updateSelectInput(
-          session,
-          "master",
-          selected = "local"
-        )
-      } else if (identical(spark_home(), NULL)) {
-        rsApiShowDialog(
-          "Connect to Spark",
-          paste(
-            "Connecting with a Spark cluster requires that you are on a system ",
-            "able to communicate with the cluster in both directions, and ",
-            "requires that the SPARK_HOME environment variable refers to a  ",
-            "locally installed version of Spark that is configured to ",
-            "communicate with the cluster.",
-            "<p>Your system doesn't currently have the SPARK_HOME environment ",
-            "variable defined. Please contact your system administrator to ",
-            "ensure that the server is properly configured to connect with ",
-            "the cluster.<p>",
-            sep = ""
-          )
-        )
-
-        updateSelectInput(
-          session,
-          "master",
-          selected = "local"
-        )
-      } else {
-        master <- rsApiShowPrompt(
-          "Connect to Cluster",
-          "Spark master:",
-          "spark://local:7077"
-        )
-
-        updateSelectInput(
-          session,
-          "master",
-          choices = c(
-            list(master = "master"),
-            master,
-            spark_ui_default_connections(),
-            list("Cluster..." = "cluster")
-          ),
-          selected = master
-        )
-      }
-    }
-  })
-
   currentSparkSelection <- NULL
-  session$onFlushed(function() {
-    if (!is_java_available()) {
-      url <- ""
-
-      message <- paste(
-        "In order to connect to Spark ",
-        "your system needs to have Java installed (",
-        "no version of Java was detected or installation ",
-        "is invalid).",
-        sep = ""
-      )
-
-      if (identical(rsApiVersionInfo()$mode, "desktop")) {
-        message <- paste(
-          message,
-          "<p>Please contact your server administrator to request the ",
-          "installation of Java on this system.</p>",
-          sep = ""
-        )
-
-        url <- "this-is-the-java-url"  #  java_install_url()
-      } else {
-        message <- paste(
-          message,
-          "<p>Please contact your server administrator to request the ",
-          "installation of Java on this system.</p>",
-          sep = ""
-        )
-      }
-
-      rsApiShowDialog(
-        "Java Required for Spark Connections",
-        message,
-        url
-      )
-    }
-
-    currentSparkSelection <<- spark_default_version()$spark
-  })
 
   observe({
     # Scope this reactive to only changes to spark version

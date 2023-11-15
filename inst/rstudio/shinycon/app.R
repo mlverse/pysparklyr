@@ -8,94 +8,10 @@ rsApiUpdateDialog <- function(code) {
 }
 
 
-rsApiReadPreference <- function(name, default) {
-  if (exists(".rs.api.readPreference")) {
-    readPreference <- get(".rs.api.readPreference")
-    value <- readPreference(name)
-    if (is.null(value)) default else value
-  }
-}
-
-rsApiWritePreference <- function(name, value) {
-  if (!is.character(value)) {
-    stop("Only character preferences are supported")
-  }
-
-  if (exists(".rs.api.writePreference")) {
-    writePreference <- get(".rs.api.writePreference")
-    writePreference(name, value)
-  }
-}
-
 env_var_host <- function() {
   ret <- Sys.getenv("DATABRICKS_HOST", unset = NA)
   if(is.na(ret)) ret <- ""
   ret
-}
-
-rsApiVersionInfo <- function() {
-  if (exists(".rs.api.versionInfo")) {
-    versionInfo <- get(".rs.api.versionInfo")
-    versionInfo()
-  }
-}
-
-is_java_available <- function() {
-  #nzchar(spark_get_java())
-  TRUE
-}
-
-spark_home <- function() {
-  home <- Sys.getenv("SPARK_HOME", unset = NA)
-  if (is.na(home)) {
-    home <- NULL
-  }
-  home
-}
-
-spark_ui_avaliable_versions <- function() {
-  tryCatch(
-    {
-      spark_available_versions(show_hadoop = TRUE, show_minor = TRUE)
-    },
-    error = function(e) {
-      warning(e)
-      spark_installed_versions()[, c("spark", "hadoop")]
-    }
-  )
-}
-
-spark_ui_spark_choices <- function() {
-  availableVersions <- spark_ui_avaliable_versions()
-  selected <- spark_default_version()[["spark"]]
-  choiceValues <- unique(availableVersions[["spark"]])
-
-  choiceNames <- choiceValues
-  choiceNames <- lapply(
-    choiceNames,
-    function(e) if (e == selected) paste(e, "(Default)") else e
-  )
-
-  names(choiceValues) <- choiceNames
-
-  choiceValues
-}
-
-spark_ui_hadoop_choices <- function(sparkVersion) {
-  availableVersions <- spark_ui_avaliable_versions()
-
-  selected <- spark_install_find(version = sparkVersion, installed_only = FALSE)$hadoopVersion
-
-  choiceValues <- unique(availableVersions[availableVersions$spark == sparkVersion, ][["hadoop"]])
-  choiceNames <- choiceValues
-  choiceNames <- lapply(
-    choiceNames,
-    function(e) if (length(selected) > 0 && e == selected) paste(e, "(Default)") else e
-  )
-
-  names(choiceValues) <- choiceNames
-
-  choiceValues
 }
 
 #' @import rstudioapi
@@ -271,10 +187,6 @@ connection_spark_server <- function(input, output, session) {
     env
   })
 
-  userInstallPreference <- NULL
-
-  stateValuesReactive <- reactiveValues(codeInvalidated = 1)
-
   code_create <- function(cluster_id, host_url, envname){
     host <- NULL
     env_host <- env_var_host()
@@ -326,33 +238,6 @@ connection_spark_server <- function(input, output, session) {
     rsApiUpdateDialog(code_reactive())
   })
 
-  currentSparkSelection <- NULL
-
-  observe({
-    # Scope this reactive to only changes to spark version
-    sparkVersion <- input$sparkversion
-    master <- input$master
-
-    # Don't change anything while initializing
-    if (!identical(currentSparkSelection, NULL)) {
-      currentSparkSelection <<- sparkVersion
-
-      hadoopDefault <- spark_install_find(version = currentSparkSelection, installed_only = FALSE)$hadoopVersion
-
-      updateSelectInput(
-        session,
-        "hadoopversion",
-        choices = spark_ui_hadoop_choices(currentSparkSelection),
-        selected = hadoopDefault
-      )
-
-      stateValuesReactive$codeInvalidated <<- isolate({
-        stateValuesReactive$codeInvalidated + 1
-      })
-    }
-  })
-
-  #outputOptions(output, "env_var_host", suspendWhenHidden = FALSE)
 }
 
 shinyApp(connection_spark_ui, connection_spark_server)

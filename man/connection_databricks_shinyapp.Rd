@@ -6,6 +6,9 @@
 \usage{
 connection_databricks_shinyapp()
 }
+\value{
+A Shiny app
+}
 \description{
 A Shiny app that can be used to construct a \code{spark_connect} statement
 }

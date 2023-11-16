@@ -168,7 +168,6 @@ tbl_pyspark_sdf <- function(x) {
 
 tbl_temp_name <- function() glue("{temp_prefix()}{random_string()}")
 
-#' @importFrom sparklyr sdf_register
 #' @export
 sdf_register.spark_pyobj <- function(x, name = NULL) {
   sc <- spark_connection(x)
@@ -249,3 +248,24 @@ tbl_pyspark_temp <- function(x, conn, tmp_name = NULL) {
 }
 
 setOldClass(c("tbl_pyspark", "tbl_spark"))
+
+#' @export
+`[.tbl_pyspark` <- function(x, i) {
+  # this is defined to match the interface to sparklyr::`[.tbl_spark`. But it really
+  # should be more flexible, taking row specs, multiple args, etc. matching
+  # semantics of R dataframes and take advantage of
+  # reticulate::`[.python.builtin.object` for constructing slices, etc.
+  if (is.null(i)) {
+    # special case, since pyspark has no "emptyDataFrame" method to invoke
+    sc <- spark_connection(x)
+
+    pyspark.sql.types <- reticulate::import("pyspark.sql.types")
+    ss <- x$src$state$spark_context # SparkSession obj
+    edf <- ss$createDataFrame(list(), pyspark.sql.types$StructType(list()))
+
+    tmp_name <- tbl_temp_name()
+    edf$createOrReplaceTempView(tmp_name)
+    return(tbl(sc, tmp_name))
+  }
+  NextMethod()
+}

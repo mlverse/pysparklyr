@@ -151,7 +151,7 @@ connection_spark_server <- function(input, output, session) {
   output$get_version <- reactive({
     ret <- ""
     if (input$cluster_id != "") {
-      version <- try(pysparklyr:::cluster_dbr_version(
+      version <- try(pysparklyr:::databricks_dbr_version(
         cluster_id = input$cluster_id,
         host = input$host_url
       ))

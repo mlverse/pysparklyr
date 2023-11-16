@@ -1,6 +1,5 @@
 #' A Shiny app that can be used to construct a \code{spark_connect} statement
 #'
-#' @importFrom rstudioapi showQuestion
 #'
 #' @export
 #' @keywords internal

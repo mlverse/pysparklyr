@@ -15,6 +15,14 @@ env_var_host <- function() {
 
 #' @import rstudioapi
 connection_spark_ui <- function() {
+  env_var_name <- "DATABRICKS_SELECTED_CLUSTER_ID"
+  if(Sys.getenv(env_var_name) != "") {
+    cluster_label <- Sys.getenv(env_var_name)
+    Sys.unsetenv(env_var_name)
+  } else {
+    cluster_label <- ""
+  }
+
   elementSpacing <- if (.Platform$OS.type == "windows") 2 else 7
 
   tags$div(
@@ -38,7 +46,8 @@ connection_spark_ui <- function() {
         tags$td(
           textInput(
             inputId = "cluster_id",
-            label = "", value = "",
+            label = "",
+            value = cluster_label,
             width = "200px"
           ),
           textOutput("get_version"),

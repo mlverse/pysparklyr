@@ -12,6 +12,7 @@ install_pyspark(
   new_env = TRUE,
   method = c("auto", "virtualenv", "conda"),
   as_job = TRUE,
+  install_ml = TRUE,
   ...
 )
 
@@ -46,6 +47,10 @@ specified by \code{envname}.}
 
 \item{as_job}{Runs the installation if using this function within the
 RStudio IDE.}
+
+\item{install_ml}{Installs ML related Python libraries. Defaults to TRUE. This
+is mainly a way to avoid installing the rather large 'torch' library if the
+ML features are not going to be used.}
 
 \item{...}{Passed on to \code{\link[reticulate:py_install]{reticulate::py_install()}}}
 

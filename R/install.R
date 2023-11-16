@@ -15,8 +15,9 @@
 #' @param as_job Runs the installation if using this function within the
 #' RStudio IDE.
 #' @param install_ml Installs ML related Python libraries. Defaults to TRUE. This
-#' is mainly a way to avoid installing the rather large 'torch' library if the
-#' ML features are not going to be used.
+#' is mainly for machines with limited storage to avoid installing the rather
+#' large 'torch' library if the ML features are not going to be used. This will
+#' apply to any environment backed by 'Spark' version 3.5 or above.
 #' @returns It returns no value to the R session. This function purpose is to
 #' create the 'Python' environment, and install the appropriate set of 'Python'
 #' libraries inside the new environment. During runtime, this function will send
@@ -62,7 +63,7 @@ install_databricks <- function(
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     as_job = TRUE,
-    install_ml = install_ml,
+    install_ml = TRUE,
     ...) {
   if (!is.null(version) && !is.null(cluster_id)) {
     cli_div(theme = cli_colors())
@@ -129,6 +130,7 @@ install_as_job <- function(
       python_version = python_version,
       new_env = new_env,
       method = method,
+      install_ml = install_ml,
       ... = ...
     )
   }
@@ -161,6 +163,7 @@ install_environment <- function(
     python_version = NULL,
     new_env = NULL,
     method = c("auto", "virtualenv", "conda"),
+    install_ml = TRUE,
     ...) {
   if (is.null(version)) {
     cli_div(theme = cli_colors())
@@ -216,7 +219,7 @@ install_environment <- function(
     "grpcio_status"
   )
 
-  if (add_torch) {
+  if (add_torch && install_ml) {
     packages <- c(packages, "torch", "torcheval", "scikit-learn")
   }
 

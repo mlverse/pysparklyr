@@ -1,5 +1,13 @@
 # pysparklyr (Development)
 
+### Improvements
+
+* Adds `install_ml` argument to `install_databricks()` and `install_pyspark(). 
+This will allow the R user to avoid installing the large Python libraries 
+required for ML operations. This will be specially helpful for machines with
+scant storage. 
+
+
 ### Machine Learning
 
 * Adds support for: 
@@ -11,7 +19,7 @@
   - `ml_predict()`
   - `ml_transform()`
 
-- Adds `ml_prepare_dataset()` in lieu of a Vector Assembler transformer
+* Adds `ml_prepare_dataset()` in lieu of a Vector Assembler transformer
 
 # pysparklyr 0.1.1
 

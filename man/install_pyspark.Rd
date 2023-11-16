@@ -24,7 +24,7 @@ install_databricks(
   new_env = TRUE,
   method = c("auto", "virtualenv", "conda"),
   as_job = TRUE,
-  install_ml = install_ml,
+  install_ml = TRUE,
   ...
 )
 }

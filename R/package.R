@@ -28,7 +28,7 @@
 #' @importFrom processx process
 #' @importFrom rstudioapi jobRunScript
 #' @importFrom stats terms
-#' @importFrom utils capture.output
+#' @importFrom utils capture.output installed.packages
 #' @import reticulate
 #' @import dbplyr
 #' @import httr2

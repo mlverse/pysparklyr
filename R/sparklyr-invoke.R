@@ -49,6 +49,16 @@ invoke.python.builtin.object <- function(jobj, method, ...) {
   )
 }
 
+#' @export
+invoke.spark_pyobj <- function(jobj, method, ...) {
+  invoke_conn(
+    jobj = jobj,
+    context = jobj,
+    method = method,
+    ...
+  )
+}
+
 invoke_conn <- function(jobj, context, method, ...) {
   py_jobj <- python_obj_get(jobj)
   py_method <- python_obj_get(method)

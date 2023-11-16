@@ -45,8 +45,7 @@ py_spark_connect <- function(
     spark_version = NULL,
     dbr_version = NULL,
     config = list(),
-    host_sanitize = TRUE
-    ) {
+    host_sanitize = TRUE) {
   method <- method[[1]]
 
   conn <- NULL
@@ -71,7 +70,7 @@ py_spark_connect <- function(
     cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
     master <- master %||% Sys.getenv("DATABRICKS_HOST")
 
-    if(host_sanitize) {
+    if (host_sanitize) {
       master <- sanitize_host(master)
     }
 
@@ -146,11 +145,11 @@ setOldClass(
 python_conn <- function(x) {
   py_object <- "python.builtin.object"
   ret <- NULL
-  if(inherits(x$state$spark_context, py_object)) ret <- x$state$spark_context
-  if(is.null(ret) && inherits(x[[1]]$session$sparkSession, py_object)) {
+  if (inherits(x$state$spark_context, py_object)) ret <- x$state$spark_context
+  if (is.null(ret) && inherits(x[[1]]$session$sparkSession, py_object)) {
     ret <- x[[1]]$session$sparkSession
   }
-  if(is.null(ret)) {
+  if (is.null(ret)) {
     cli_abort("Could not match Python Connection to: {class(x)}")
   }
   ret
@@ -236,18 +235,11 @@ cluster_dbr_version <- function(cluster_id,
 cluster_dbr_info <- function(cluster_id,
                              host = Sys.getenv("DATABRICKS_HOST"),
                              token = Sys.getenv("DATABRICKS_TOKEN")) {
-  out <- try(
-    paste0(
-      host,
-      "/api/2.0/clusters/get"
-    ) %>%
-      request() %>%
-      req_auth_bearer_token(token) %>%
-      req_body_json(list(cluster_id = cluster_id)) %>%
-      req_perform() %>%
-      resp_body_json(),
-    silent = TRUE
-  )
+  out <- cluster_try(cluster_id, host, token)
+  if(inherits(out, "try-error")) {
+    out <- cluster_try(cluster_id, sanitize_host(host), token)
+  }
+
   if (inherits(out, "try-error")) {
     cli_div(theme = cli_colors())
     invalid_host <- NULL
@@ -282,6 +274,22 @@ cluster_dbr_info <- function(cluster_id,
   out
 }
 
+cluster_try <- function(cluster_id,
+                        host = Sys.getenv("DATABRICKS_HOST"),
+                        token = Sys.getenv("DATABRICKS_TOKEN")) {
+  try(
+    paste0(
+      host,
+      "/api/2.0/clusters/get"
+    ) %>%
+      request() %>%
+      req_auth_bearer_token(token) %>%
+      req_body_json(list(cluster_id = cluster_id)) %>%
+      req_perform() %>%
+      resp_body_json(),
+    silent = TRUE
+  )
+}
 
 find_environments <- function(x) {
   conda_names <- tryCatch(conda_list()$name, error = function(e) character())
@@ -331,19 +339,19 @@ cluster_dbr_error <- function(error) {
 connection_label <- function(x) {
   ret <- "Connection"
   con <- spark_connection(x)
-  if(!is.null(con)) {
-    if(con$method == "spark_connect") ret <- "Spark Connect"
-    if(con$method == "databricks_connect") ret <- "Databricks Connect"
+  if (!is.null(con)) {
+    if (con$method == "spark_connect") ret <- "Spark Connect"
+    if (con$method == "databricks_connect") ret <- "Databricks Connect"
   }
   ret
 }
 
-sanitize_host <-  function(url) {
+sanitize_host <- function(url) {
   parsed_url <- url_parse(url)
   new_url <- url_parse("http://localhost")
-  if(is.null(parsed_url$scheme)) {
+  if (is.null(parsed_url$scheme)) {
     new_url$scheme <- "https"
-    if(!is.null(parsed_url$path) && is.null(parsed_url$hostname)) {
+    if (!is.null(parsed_url$path) && is.null(parsed_url$hostname)) {
       new_url$hostname <- parsed_url$path
     }
   } else {
@@ -351,10 +359,11 @@ sanitize_host <-  function(url) {
     new_url$hostname <- parsed_url$hostname
   }
   ret <- url_build(new_url)
-  if(ret != url) {
+  if (ret != url) {
     cli_div(theme = cli_colors())
     cli_alert_warning(
-      c("{.header Sanitizing {.code Host} value:}\n",
+      c(
+        "{.header Sanitizing {.code Host} value:}\n",
         "{.header * Original:} {.emph {url}}\n",
         "{.header * Using:}    {.emph {ret}}\n",
         "* {.header ",
@@ -373,30 +382,33 @@ use_envname <- function(
     method = "spark_connect",
     version = "1.1",
     messages = FALSE,
-    match_first = FALSE
-    ) {
+    match_first = FALSE,
+    ignore_reticulate_python = FALSE) {
 
-  reticulate_python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
-  if (!is.na(reticulate_python)) {
-    if(messages) {
-      msg <- c(
-        "{.header Using the Python environment defined in the}",
-        "{.emph 'RETICULATE_PYTHON' }{.header environment variable}",
-        "{.class ({py_exe()})}"
-      )
-      cli_div(theme = cli_colors())
-      cli_alert_warning(msg)
-      cli_end()
+  if(!ignore_reticulate_python) {
+    reticulate_python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
+    if (!is.na(reticulate_python)) {
+      if (messages) {
+        msg <- c(
+          "{.header Using the Python environment defined in the}",
+          "{.emph 'RETICULATE_PYTHON' }{.header environment variable}",
+          "{.class ({py_exe()})}"
+        )
+        cli_div(theme = cli_colors())
+        cli_alert_warning(msg)
+        cli_end()
+      }
+      envname <- reticulate_python
     }
-    envname <- reticulate_python
   }
 
+
   if (is.null(envname)) {
-    if(method == "spark_connect") {
+    if (method == "spark_connect") {
       env_base <- "r-sparklyr-pyspark-"
       run_code <- glue(
         "pysparklyr::install_pyspark(version = \"{version}\")"
-        )
+      )
     } else {
       env_base <- "r-sparklyr-databricks-"
       run_code <- glue(
@@ -405,13 +417,14 @@ use_envname <- function(
     }
     envs <- find_environments(env_base)
     if (length(envs) == 0) {
-      if(messages) {
+      if (messages) {
         cli_div(theme = cli_colors())
         cli_abort(
           c(
             "{.header No environment name provided, and no environment was automatically identified.}",
             "* {.header Run: {.run {run_code}} to install.}"
-            ))
+          )
+        )
         cli_end()
       }
     } else {
@@ -419,10 +432,10 @@ use_envname <- function(
         sp_version <- version_prep(version)
         envname <- glue("{env_base}{sp_version}")
         matched <- envs[envs == envname]
-        if(match_first) {
+        if (match_first) {
           if (length(matched) == 0) {
             envname <- envs[[1]]
-            if(messages) {
+            if (messages) {
               cli_div(theme = cli_colors())
               cli_alert_warning(paste(
                 "{.header A Python environment with a matching version was not found}",

@@ -23,12 +23,12 @@ test_that("DBR error code returns as expected", {
     " created_time:'2023-10-02T12:14:52.379226-05:00'}'\n>')"
   )
 
-  expect_error(cluster_dbr_error(error))
+  expect_error(databricks_dbr_error(error))
 })
 
 
 test_that("Cluster info runs as expected", {
-  expect_error(cluster_dbr_version(""))
+  expect_error(databricks_dbr_version(""))
 })
 
 test_that("Host sanitation works", {

@@ -28,7 +28,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     spark_home,
     config,
     app_name,
-    version,
+    version = NULL,
     hadoop_version,
     extensions,
     scala_version,
@@ -95,6 +95,24 @@ py_spark_connect <- function(
     master_label <- glue("{cluster_name} ({cluster_id})")
   }
 
+  initialize_connection(
+    conn = conn,
+    master_label = master_label,
+    con_class = con_class,
+    cluster_id = cluster_id,
+    method = method,
+    config = config
+    )
+}
+
+initialize_connection <- function(
+    conn,
+    master_label,
+    con_class,
+    cluster_id = NULL,
+    method = NULL,
+    config = NULL
+    ) {
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",

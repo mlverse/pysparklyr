@@ -45,7 +45,7 @@ databricks_token <- function(token = NULL, fail = FALSE) {
       token <- ""
     }
   }
-  setNames(token, name)
+  set_names(token, name)
 }
 
 databricks_dbr_version <- function(cluster_id,

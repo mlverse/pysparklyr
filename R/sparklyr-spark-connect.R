@@ -50,6 +50,8 @@ py_spark_connect <- function(
 
   conn <- NULL
 
+  token <- databricks_token(token, fail = TRUE)
+
   envname <- use_envname(
     method = method,
     version = spark_version %||% dbr_version,
@@ -77,7 +79,7 @@ py_spark_connect <- function(
     db <- import_check("databricks.connect", envname)
     remote <- db$DatabricksSession$builder$remote(
       host = master,
-      token = databricks_token(token),
+      token = token,
       cluster_id = cluster_id
     )
 

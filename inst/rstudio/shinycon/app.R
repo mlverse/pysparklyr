@@ -93,6 +93,7 @@ connection_spark_server <- function(input, output, session) {
   dbr_version <- reactiveVal("")
   dbr_env_name <- reactiveVal("")
   local_reticulate <- reactiveVal("")
+  token <- pysparklyr:::databricks_token()
 
   output$reticulate <- reactive({
     ret <- ""
@@ -106,7 +107,6 @@ connection_spark_server <- function(input, output, session) {
   })
 
   output$auth <- reactive({
-    token <- pysparklyr:::databricks_token()
     t_source <- names(token)
     if (t_source == "environment") {
       ret <- "✓ Found - Using value from 'DATABRICKS_TOKEN'"
@@ -135,7 +135,8 @@ connection_spark_server <- function(input, output, session) {
     if (input$cluster_id != "") {
       version <- try(pysparklyr:::databricks_dbr_version(
         cluster_id = input$cluster_id,
-        host = input$host_url
+        host = input$host_url,
+        token = token
       ))
       if (!inherits(version, "try-error")) {
         dbr_version(version)

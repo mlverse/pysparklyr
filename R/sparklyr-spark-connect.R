@@ -4,19 +4,43 @@ spark_connect_method.spark_method_spark_connect <- function(
     method,
     master,
     spark_home,
-    config,
+    config = NULL,
     app_name,
-    version,
+    version = NULL,
     hadoop_version,
     extensions,
     scala_version,
     ...) {
-  py_spark_connect(
-    master = master,
+  if (is.null(version)) {
+    cli_abort("Spark `version` is required, please provide")
+  }
+
+  args <- list(...)
+  envname <- args$envname
+
+  envname <- use_envname(
     method = method,
-    config = config,
-    spark_version = version,
-    ... = ...
+    version = version,
+    envname = envname,
+    messages = TRUE,
+    match_first = TRUE
+  )
+
+  if (method == "spark_connect") {
+    pyspark <- import_check("pyspark", envname)
+    pyspark_sql <- pyspark$sql
+    conn <- pyspark_sql$SparkSession$builder$remote(master)
+    con_class <- "connect_spark"
+    master_label <- glue("Spark Connect - {master}")
+  }
+
+  initialize_connection(
+    conn = conn,
+    master_label = master_label,
+    con_class = con_class,
+    cluster_id = NULL,
+    method = method,
+    config = config
   )
 }
 
@@ -33,8 +57,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     extensions,
     scala_version,
     ...) {
-
-  args <-  list(...)
+  args <- list(...)
   cluster_id <- args$cluster_id
   token <- args$token
   envname <- args$envname
@@ -47,7 +70,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
   if (host_sanitize) {
     master <- sanitize_host(master)
   }
-  if(is.null(version) && !is.null(cluster_id)) {
+  if (is.null(version) && !is.null(cluster_id)) {
     version <- databricks_dbr_version(
       cluster_id = cluster_id,
       host = master,
@@ -85,54 +108,13 @@ spark_connect_method.spark_method_databricks_connect <- function(
   )
 }
 
-py_spark_connect <- function(
-    master,
-    token = NULL,
-    cluster_id = NULL,
-    method = "",
-    envname = NULL,
-    spark_version = NULL,
-    dbr_version = NULL,
-    config = list(),
-    host_sanitize = TRUE) {
-  method <- method[[1]]
-
-  conn <- NULL
-
-  envname <- use_envname(
-    method = method,
-    version = spark_version %||% dbr_version,
-    envname = envname,
-    messages = TRUE,
-    match_first = TRUE
-  )
-
-  if (method == "spark_connect") {
-    pyspark <- import_check("pyspark", envname)
-    pyspark_sql <- pyspark$sql
-    conn <- pyspark_sql$SparkSession$builder$remote(master)
-    con_class <- "connect_spark"
-    master_label <- glue("Spark Connect - {master}")
-  }
-
-  initialize_connection(
-    conn = conn,
-    master_label = master_label,
-    con_class = con_class,
-    cluster_id = cluster_id,
-    method = method,
-    config = config
-    )
-}
-
 initialize_connection <- function(
     conn,
     master_label,
     con_class,
     cluster_id = NULL,
     method = NULL,
-    config = NULL
-    ) {
+    config = NULL) {
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",

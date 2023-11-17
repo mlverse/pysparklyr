@@ -33,7 +33,56 @@ spark_connect_method.spark_method_databricks_connect <- function(
     extensions,
     scala_version,
     ...) {
-  py_spark_connect(master = master, method = method, config = config, ...)
+
+  args <-  list(...)
+  cluster_id <- args$cluster_id
+  token <- args$token
+  envname <- args$envname
+  host_sanitize <- args$host_sanitize %||% TRUE
+
+  method <- method[[1]]
+  token <- databricks_token(token, fail = TRUE)
+  cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
+  master <- databricks_host(master)
+  if (host_sanitize) {
+    master <- sanitize_host(master)
+  }
+  if(is.null(version) && !is.null(cluster_id)) {
+    version <- databricks_dbr_version(
+      cluster_id = cluster_id,
+      host = master,
+      token = token
+    )
+  }
+
+  envname <- use_envname(
+    method = method,
+    version = version,
+    envname = envname,
+    messages = TRUE,
+    match_first = TRUE
+  )
+
+  db <- import_check("databricks.connect", envname)
+  remote <- db$DatabricksSession$builder$remote(
+    host = master,
+    token = token,
+    cluster_id = cluster_id
+  )
+  user_agent <- build_user_agent()
+  conn <- remote$userAgent(user_agent)
+  con_class <- "connect_databricks"
+  cluster_info <- databricks_dbr_info(cluster_id, master, token)
+  cluster_name <- substr(cluster_info$cluster_name, 1, 100)
+  master_label <- glue("{cluster_name} ({cluster_id})")
+  initialize_connection(
+    conn = conn,
+    master_label = master_label,
+    con_class = con_class,
+    cluster_id = cluster_id,
+    method = method,
+    config = config
+  )
 }
 
 py_spark_connect <- function(
@@ -50,8 +99,6 @@ py_spark_connect <- function(
 
   conn <- NULL
 
-  token <- databricks_token(token, fail = TRUE)
-
   envname <- use_envname(
     method = method,
     version = spark_version %||% dbr_version,
@@ -66,33 +113,6 @@ py_spark_connect <- function(
     conn <- pyspark_sql$SparkSession$builder$remote(master)
     con_class <- "connect_spark"
     master_label <- glue("Spark Connect - {master}")
-  }
-
-  if (method == "databricks_connect") {
-    cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
-    master <- databricks_host(master)
-
-    if (host_sanitize) {
-      master <- sanitize_host(master)
-    }
-
-    db <- import_check("databricks.connect", envname)
-    remote <- db$DatabricksSession$builder$remote(
-      host = master,
-      token = token,
-      cluster_id = cluster_id
-    )
-
-    user_agent <- build_user_agent()
-
-    conn <- remote$userAgent(user_agent)
-    con_class <- "connect_databricks"
-
-    cluster_info <- databricks_dbr_info(cluster_id, master, token)
-
-    cluster_name <- substr(cluster_info$cluster_name, 1, 100)
-
-    master_label <- glue("{cluster_name} ({cluster_id})")
   }
 
   initialize_connection(

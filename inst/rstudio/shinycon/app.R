@@ -89,20 +89,6 @@ connection_spark_ui <- function() {
   )
 }
 
-token_source <- function() {
-  t_source <- ""
-  # if (exists(".rs.api.getDatabricksToken")) {
-  #   getDatabricksToken <- get(".rs.api.getDatabricksToken")
-  #   if (!is.null(getDatabricksToken(workspace))) {
-  #     t_source <- "oauth"
-  #   }
-  # }
-  if (t_source == "" && !is.na(Sys.getenv("DATABRICKS_TOKEN", unset = NA))) {
-    t_source <- "token"
-  }
-  t_source
-}
-
 connection_spark_server <- function(input, output, session) {
   dbr_version <- reactiveVal("")
   dbr_env_name <- reactiveVal("")
@@ -120,8 +106,9 @@ connection_spark_server <- function(input, output, session) {
   })
 
   output$auth <- reactive({
-    t_source <- token_source()
-    if (t_source == "token") {
+    token <- pysparklyr:::databricks_token()
+    t_source <- names(token)
+    if (t_source == "environment") {
       ret <- "✓ Found - Using value from 'DATABRICKS_TOKEN'"
     }
     if (t_source == "oauth") {

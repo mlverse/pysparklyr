@@ -198,9 +198,11 @@ python_obj_get.ml_connect_model <- function(x) {
 }
 
 python_obj_get.default <- function(x) {
-  if(inherits(x, "character")) return(x)
+  if (inherits(x, "character")) {
+    return(x)
+  }
   sc <- spark_connection(x)
-  if(inherits(sc$session, "python.builtin.object")) {
+  if (inherits(sc$session, "python.builtin.object")) {
     return(sc$session)
   }
 }

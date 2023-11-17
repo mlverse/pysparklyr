@@ -33,7 +33,7 @@ ml_fit_impl <- function(x, dataset) {
 }
 
 
-as_pipeline_model <- function(jobj, stages){
+as_pipeline_model <- function(jobj, stages) {
   structure(
     list(
       uid = invoke(jobj, "uid"),
@@ -57,7 +57,7 @@ ml_transform.ml_connect_pipeline_model <- function(x, dataset, ...) {
   transform_impl(x, dataset, prep = FALSE, remove = TRUE)
 }
 
-ml_print_params <-  function(x) {
+ml_print_params <- function(x) {
   class_1 <- ml_get_last_item(class(x)[[1]])
   class_2 <- ml_get_last_item(class(x)[[3]])
   x_params <- x$params %>%
@@ -66,7 +66,7 @@ ml_print_params <-  function(x) {
       nm <- paste0(toupper(substr(nm, 1, 1)), substr(nm, 2, nchar(nm)))
       fn <- paste0("get", nm)
       tr <- try(x[fn](), silent = TRUE)
-      if(inherits(tr, "try-error")) {
+      if (inherits(tr, "try-error")) {
         tr <- ""
       } else {
         tr <- glue("{.x$name}: {tr}")
@@ -87,28 +87,27 @@ ml_print_params <-  function(x) {
 }
 
 #' @export
-print.ml_output_params <- function(x,...) {
+print.ml_output_params <- function(x, ...) {
   cat(x)
 }
 
 ml_connect_add_stage <- function(x, stage) {
   pipeline_class <- "pyspark.ml.connect.pipeline.Pipeline"
   pipeline <- python_obj_get(x)
-  if(!inherits(pipeline, pipeline_class)) {
+  if (!inherits(pipeline, pipeline_class)) {
     pipeline <- invoke(pipeline, "Pipeline")
   }
   stage_print <- ml_print_params(stage)
-  if(inherits(pipeline, pipeline_class)) {
+  if (inherits(pipeline, pipeline_class)) {
     # Not using invoke() here because it's returning a list
     # and we need a vector
     stages <- pipeline$getStages()
     outputs <- c(x$stages, list(stage_print))
-    if(length(stages) > 0) {
+    if (length(stages) > 0) {
       jobj <- invoke(pipeline, "setStages", c(stages, stage))
     } else {
       jobj <- invoke(pipeline, "stages", c(stages, stage))
     }
-
   } else {
     outputs <- list(stage_print)
     jobj <- pipeline(stages = c(stage))
@@ -117,9 +116,9 @@ ml_connect_add_stage <- function(x, stage) {
 }
 
 as_pipeline <- function(jobj, outputs = NULL, get_uid = FALSE) {
-  if(get_uid) {
+  if (get_uid) {
     uid <- invoke(jobj, "uid")
-  }else {
+  } else {
     uid <- "[Not initialized]"
   }
   structure(
@@ -136,6 +135,6 @@ as_pipeline <- function(jobj, outputs = NULL, get_uid = FALSE) {
       "ml_estimator",
       "ml_connect_pipeline_stage",
       "ml_pipeline_stage"
-      )
+    )
   )
 }

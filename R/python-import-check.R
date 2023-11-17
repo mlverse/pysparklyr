@@ -3,7 +3,7 @@ import_check <- function(x, envname) {
   env_loaded <- NA
   look_for_env <- TRUE
 
-  if(file.exists(envname)) {
+  if (file.exists(envname)) {
     env_is_file <- TRUE
     env_path <- envname
   } else {

@@ -9,17 +9,17 @@ print.ml_connect_model <- function(x, ...) {
 print_parameters <- function(x) {
   p <- get_params(x)
   p_descriptions <- p %>%
-    map_chr(~.x$description) %>%
+    map_chr(~ .x$description) %>%
     as.character() %>%
     strsplit("\\.") %>%
-    map(~.x[[1]])
+    map(~ .x[[1]])
 
-  p_names <- map_chr(p, ~.x$name)
+  p_names <- map_chr(p, ~ .x$name)
   p_values <- p %>%
-    map(~{
+    map(~ {
       cl <- class(.x$value)
       out <- .x$value
-      #if(cl == "character") out <- paste0("'", out, "'")
+      # if(cl == "character") out <- paste0("'", out, "'")
       out
     }) %>%
     as.character()
@@ -37,13 +37,13 @@ print_parameters <- function(x) {
     )
   )
   p_length <- length(p_names)
-  is_odd <-  p_length / 2 != floor(p_length / 2)
-  if(is_odd) {
+  is_odd <- p_length / 2 != floor(p_length / 2)
+  if (is_odd) {
     p_paste <- c(p_paste, "")
     p_length <- p_length + 1
   }
 
-  #p_sel <- rep(c(TRUE, FALSE), p_length)
+  # p_sel <- rep(c(TRUE, FALSE), p_length)
   p_sel <- rep(c(TRUE, FALSE), 1, each = (p_length / 2))
 
   p_left <- p_paste[p_sel]
@@ -101,15 +101,15 @@ transform_impl <- function(x, dataset, prep = TRUE,
   ret <- invoke(x, "transform", ml_df)
 
   if (remove) {
-    if(inherits(x, "ml_connect_model")) {
+    if (inherits(x, "ml_connect_model")) {
       label_col <- invoke(x, "getLabelCol")
       features_col <- invoke(x, "getFeaturesCol")
       ret <- invoke(ret, "drop", label_col)
       ret <- invoke(ret, "drop", features_col)
     } else {
       stages <- invoke(py_object, "stages")
-      for(i in stages) {
-        if(invoke(i, "hasParam", "inputCol")) {
+      for (i in stages) {
+        if (invoke(i, "hasParam", "inputCol")) {
           input_col <- invoke(i, "getInputCol")
           ret <- invoke(ret, "drop", input_col)
         } else {
@@ -122,10 +122,10 @@ transform_impl <- function(x, dataset, prep = TRUE,
     }
   }
 
-  if(is.null(conn)) {
+  if (is.null(conn)) {
     conn <- spark_connection(dataset)
   }
-  if(as_df) {
+  if (as_df) {
     ret <- tbl_pyspark_temp(
       x = ret,
       conn = conn

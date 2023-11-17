@@ -1,6 +1,6 @@
 databricks_dbr_version <- function(cluster_id,
-                                host = Sys.getenv("DATABRICKS_HOST"),
-                                token = Sys.getenv("DATABRICKS_TOKEN")) {
+                                   host = Sys.getenv("DATABRICKS_HOST"),
+                                   token = Sys.getenv("DATABRICKS_TOKEN")) {
   cli_div(theme = cli_colors())
   cli_alert_warning(
     "{.header Retrieving version from cluster }{.emph '{cluster_id}'}"
@@ -27,10 +27,10 @@ databricks_dbr_version <- function(cluster_id,
 }
 
 databricks_dbr_info <- function(cluster_id,
-                             host = Sys.getenv("DATABRICKS_HOST"),
-                             token = Sys.getenv("DATABRICKS_TOKEN")) {
+                                host = Sys.getenv("DATABRICKS_HOST"),
+                                token = Sys.getenv("DATABRICKS_TOKEN")) {
   out <- databricks_cluster_get(cluster_id, host, token)
-  if(inherits(out, "try-error")) {
+  if (inherits(out, "try-error")) {
     out <- databricks_cluster_get(cluster_id, sanitize_host(host), token)
   }
 
@@ -69,8 +69,8 @@ databricks_dbr_info <- function(cluster_id,
 }
 
 databricks_cluster_get <- function(cluster_id,
-                        host = Sys.getenv("DATABRICKS_HOST"),
-                        token = Sys.getenv("DATABRICKS_TOKEN")) {
+                                   host = Sys.getenv("DATABRICKS_HOST"),
+                                   token = Sys.getenv("DATABRICKS_TOKEN")) {
   try(
     paste0(
       host,

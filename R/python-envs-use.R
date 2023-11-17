@@ -5,8 +5,7 @@ use_envname <- function(
     messages = FALSE,
     match_first = FALSE,
     ignore_reticulate_python = FALSE) {
-
-  if(!ignore_reticulate_python) {
+  if (!ignore_reticulate_python) {
     reticulate_python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
     if (!is.na(reticulate_python)) {
       if (messages) {

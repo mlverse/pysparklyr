@@ -30,10 +30,8 @@ ml_prepare_dataset <- function(
     label_col = "label",
     features_col = "features",
     keep_original = TRUE,
-    ...
-) {
-
-  if(keep_original) {
+    ...) {
+  if (keep_original) {
     lf <- "all"
   } else {
     lf <- "only"
@@ -59,8 +57,7 @@ ml_prep_dataset <- function(
     features = NULL,
     label_col = "label",
     features_col = "features",
-    lf = c("only", "all")
-) {
+    lf = c("only", "all")) {
   lf <- match.arg(lf)
 
   pyspark <- import("pyspark")
@@ -70,23 +67,23 @@ ml_prep_dataset <- function(
     features <- f$features
     label <- f$label
   } else {
-    if(is.null(features) && is.null(label)) {
+    if (is.null(features) && is.null(label)) {
       return(x)
     }
   }
 
   ret <- python_obj_get(x)
-  if(!is.null(label)) {
+  if (!is.null(label)) {
     ret <- ret$withColumn(label_col, ret[label])
   }
   features_array <- pyspark$sql$functions$array(features)
   ret <- ret$withColumn(features_col, features_array)
 
-  if(lf == "only") {
+  if (lf == "only") {
     ret <- ret$select(c(label_col, features_col))
-    attr(ret, "features")  <- features
-    if(!is.null(label)) {
-      attr(ret, "label")  <- label
+    attr(ret, "features") <- features
+    if (!is.null(label)) {
+      attr(ret, "label") <- label
     }
   }
   ret

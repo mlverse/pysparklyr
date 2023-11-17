@@ -4,7 +4,6 @@ test_that("installed_components() output properly", {
 })
 
 test_that("Can get pypy.org info", {
-
   info <- py_library_info("databricks.connect", "13.0")
   expect_type(info, "list")
   expect_equal(info$summary, "Databricks Connect Client")
@@ -23,7 +22,7 @@ test_that("version_prep() outputs what's expected", {
 skip_if(
   !identical(Sys.getenv("CODE_COVERAGE"), "true"),
   message = "Reserved for coverage only"
-  )
+)
 
 test_that("PySpark installation works", {
   expect_output(install_pyspark("3.3", as_job = FALSE, python = Sys.which("python")))

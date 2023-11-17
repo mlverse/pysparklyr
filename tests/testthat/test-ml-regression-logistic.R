@@ -39,4 +39,3 @@ test_that("Logistic Regression works with Pipeline", {
   cap_out <- capture.output(out)
   expect_snapshot(cap_out[c(1, 3:4, 6:18)])
 })
-

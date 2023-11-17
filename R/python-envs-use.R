@@ -5,22 +5,8 @@ use_envname <- function(
     messages = FALSE,
     match_first = FALSE,
     ignore_reticulate_python = FALSE) {
-  if (!ignore_reticulate_python) {
-    reticulate_python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
-    if (!is.na(reticulate_python)) {
-      if (messages) {
-        msg <- c(
-          "{.header Using the Python environment defined in the}",
-          "{.emph 'RETICULATE_PYTHON' }{.header environment variable}",
-          "{.class ({py_exe()})}"
-        )
-        cli_div(theme = cli_colors())
-        cli_alert_warning(msg)
-        cli_end()
-      }
-      envname <- reticulate_python
-    }
-  }
+
+  reticulate_python_check(ignore_reticulate_python)
 
   if (is.null(envname)) {
     if (method == "spark_connect") {

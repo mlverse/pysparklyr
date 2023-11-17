@@ -53,10 +53,7 @@ connection_spark_ui <- function() {
       ),
       tags$tr(
         tags$td("Python Env:"),
-        tags$td(
-          textOutput("reticulate"),
-          textOutput("get_env")
-        )
+        tags$td(textOutput("get_env"))
       ),
       tags$tr(
         tags$td(style = paste("height: 5px"))
@@ -92,19 +89,7 @@ connection_spark_ui <- function() {
 connection_spark_server <- function(input, output, session) {
   dbr_version <- reactiveVal("")
   dbr_env_name <- reactiveVal("")
-  local_reticulate <- reactiveVal("")
   token <- pysparklyr:::databricks_token()
-
-  output$reticulate <- reactive({
-    ret <- ""
-    python_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
-    python_env <- ifelse(is.na(python_env), "", python_env)
-    if (python_env != "") {
-      local_reticulate(python_env)
-      ret <- "! Clearing 'RETICULATE_PYTHON' in the code"
-    }
-    ret
-  })
 
   output$auth <- reactive({
     t_source <- names(token)
@@ -192,12 +177,6 @@ connection_spark_server <- function(input, output, session) {
       )
     } else {
       inst <- NULL
-    }
-
-    if (local_reticulate() != "") {
-      reticulate <- c("Sys.unsetenv(\"RETICULATE_PYTHON\")", "")
-    } else {
-      reticulate <- NULL
     }
 
     code_lines <- c(

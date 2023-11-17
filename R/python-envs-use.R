@@ -20,9 +20,15 @@ use_envname <- function(
         "pysparklyr::install_databricks(version = \"{version}\")"
       )
     }
+
+    if(!is.null(version)) {
+      sp_version <- version_prep(version)
+      envname <- glue("{env_base}{sp_version}")
+    }
+
     envs <- find_environments(env_base)
     if (length(envs) == 0) {
-      if (messages) {
+      if (messages | match_first) {
         cli_div(theme = cli_colors())
         cli_abort(
           c(
@@ -34,20 +40,19 @@ use_envname <- function(
       }
     } else {
       if (!is.null(version)) {
-        sp_version <- version_prep(version)
-        envname <- glue("{env_base}{sp_version}")
         matched <- envs[envs == envname]
         if (match_first) {
           if (length(matched) == 0) {
             envname <- envs[[1]]
             if (messages) {
-              cli_div(theme = cli_colors())
-              cli_alert_warning(paste(
+              msg <- paste(
                 "{.header A Python environment with a matching version was not found}",
                 "* {.header Will attempt connecting using }{.emph '{envname}'}",
                 "* {.header To install the proper Python environment use: {.run {run_code}}}",
                 sep = "\n"
-              ))
+              )
+              cli_div(theme = cli_colors())
+              cli_alert_warning(msg)
               cli_end()
             }
           } else {

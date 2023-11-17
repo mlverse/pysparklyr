@@ -7,12 +7,6 @@ rsApiUpdateDialog <- function(code) {
   }
 }
 
-env_var_host <- function() {
-  ret <- Sys.getenv("DATABRICKS_HOST", unset = NA)
-  if (is.na(ret)) ret <- ""
-  ret
-}
-
 #' @import rstudioapi
 connection_spark_ui <- function() {
   env_var_name <- "DATABRICKS_SELECTED_CLUSTER_ID"
@@ -74,7 +68,7 @@ connection_spark_ui <- function() {
             textInput(
               inputId = "host_url",
               label = "",
-              value = env_var_host(),
+              value = pysparklyr:::databricks_host(fail = FALSE),
               width = "400px"
             )
           )
@@ -140,11 +134,12 @@ connection_spark_server <- function(input, output, session) {
   })
 
   output$matches_host <- reactive({
+    host <- pysparklyr:::databricks_host(fail = FALSE)
     ret <- ""
-    if (input$host_url != env_var_host()) {
+    if (input$host_url != host) {
       ret <- "✓ Using supplied custom Host URL in code"
     }
-    if (env_var_host() == "") ret <- ""
+    if (host == "") ret <- ""
     ret
   })
 
@@ -197,7 +192,7 @@ connection_spark_server <- function(input, output, session) {
 
   code_create <- function(cluster_id, host_url, envname) {
     host <- NULL
-    env_host <- env_var_host()
+    env_host <- pysparklyr:::databricks_host(fail = FALSE)
     if (env_host != "" && env_host != host_url) {
       host <- paste0("    master = \"", host_url, "\",")
     }
@@ -238,7 +233,6 @@ connection_spark_server <- function(input, output, session) {
   code_reactive <- reactive({
     cluster_id <- input$cluster_id
     host_url <- input$host_url
-    print(dbr_env_name())
     code_create(cluster_id, host_url, dbr_env_name())
   })
 

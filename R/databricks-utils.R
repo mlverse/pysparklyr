@@ -1,5 +1,20 @@
+databricks_host <- function(host = NULL, fail = TRUE) {
+  host <- host %||% Sys.getenv("DATABRICKS_HOST", unset = NA)
+  if(is.null(host) | is.na(host)) {
+    if(fail) {
+      cli_abort(c(
+        "No Host URL was provided, and the environment variable 'DATABRICKS_HOST' is not set.",
+        "Please add your Host to 'DATABRICKS_HOST' inside your .Renviron file."
+      ))
+    } else {
+      host <- ""
+    }
+  }
+  host
+}
+
 databricks_dbr_version <- function(cluster_id,
-                                   host = Sys.getenv("DATABRICKS_HOST"),
+                                   host = NULL,
                                    token = Sys.getenv("DATABRICKS_TOKEN")) {
   cli_div(theme = cli_colors())
   cli_alert_warning(
@@ -27,7 +42,7 @@ databricks_dbr_version <- function(cluster_id,
 }
 
 databricks_dbr_info <- function(cluster_id,
-                                host = Sys.getenv("DATABRICKS_HOST"),
+                                host = NULL,
                                 token = Sys.getenv("DATABRICKS_TOKEN")) {
   out <- databricks_cluster_get(cluster_id, host, token)
   if (inherits(out, "try-error")) {
@@ -69,7 +84,7 @@ databricks_dbr_info <- function(cluster_id,
 }
 
 databricks_cluster_get <- function(cluster_id,
-                                   host = Sys.getenv("DATABRICKS_HOST"),
+                                   host = NULL,
                                    token = Sys.getenv("DATABRICKS_TOKEN")) {
   try(
     paste0(

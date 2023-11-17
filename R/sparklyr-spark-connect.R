@@ -24,7 +24,7 @@ spark_connect_method.spark_method_spark_connect <- function(
 spark_connect_method.spark_method_databricks_connect <- function(
     x,
     method,
-    master = Sys.getenv("DATABRICKS_HOST"),
+    master,
     spark_home,
     config,
     app_name,
@@ -68,7 +68,7 @@ py_spark_connect <- function(
 
   if (method == "databricks_connect") {
     cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
-    master <- master %||% Sys.getenv("DATABRICKS_HOST")
+    master <- databricks_host(master)
 
     if (host_sanitize) {
       master <- sanitize_host(master)

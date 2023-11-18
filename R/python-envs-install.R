@@ -80,7 +80,7 @@ install_databricks <- function(
     if (is.null(version) && !is.null(cluster_id)) {
       version <- databricks_dbr_version(
         cluster_id = cluster_id,
-        host = databricks_host,
+        host = databricks_host(),
         token = databricks_token()
         )
     }

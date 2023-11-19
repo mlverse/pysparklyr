@@ -14,9 +14,9 @@ test_that("Standard Scaler works with `tbl_spark`", {
       tbl_mtcars,
       input_col = c("wt", "mpg", "qsec"),
       output_col = "scaled_features"
-      ),
+    ),
     "tbl_pyspark"
-    )
+  )
 })
 
 test_that("Standard Scaler works with Pipeline", {

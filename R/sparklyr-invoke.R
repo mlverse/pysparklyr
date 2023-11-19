@@ -70,9 +70,9 @@ invoke_conn <- function(jobj, context, method, ...) {
     run_x <- py_call(x, ...)
 
     if (inherits(run_x, "numpy.number") |
-        inherits(run_x, "python.builtin.str") |
-        inherits(run_x, "python.builtin.bool") |
-        inherits(run_x, "python.builtin.int")
+      inherits(run_x, "python.builtin.str") |
+      inherits(run_x, "python.builtin.bool") |
+      inherits(run_x, "python.builtin.int")
     ) {
       out <- py_to_r(run_x)
     }

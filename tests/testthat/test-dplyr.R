@@ -8,7 +8,6 @@ test_that("copy_to() works", {
 })
 
 test_that("Sampling functions works", {
-
   tbl_n <- test_table_mtcars() %>%
     sample_n(5) %>%
     collect() %>%
@@ -27,7 +26,6 @@ test_that("Sampling functions works", {
 })
 
 test_that("Misc functions", {
-
   tbl_am <- test_table_mtcars() %>%
     group_by(am) %>%
     filter(mpg == max(mpg, na.rm = TRUE)) %>%

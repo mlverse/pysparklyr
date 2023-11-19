@@ -76,7 +76,6 @@ ml_connect_not_supported <- function(args, not_supported = c()) {
 }
 
 ml_execute <- function(args, python_library, fn) {
-
   py_lib <- import(python_library)
 
   # Removes any variable with a "." prefix
@@ -110,16 +109,16 @@ get_params <- function(x) {
   m_map_names <- m_map %>%
     names() %>%
     strsplit("__") %>%
-    map(~.x[[2]]) %>%
+    map(~ .x[[2]]) %>%
     as.character() %>%
     sort()
 
   m_param_names <- m_params %>%
-    map(~.x$name) %>%
+    map(~ .x$name) %>%
     as.character()
 
   m_map_names %>%
-    map(~{
+    map(~ {
       c_param_name <- m_params[which(.x == m_param_names)]
       c_map_name <- m_map[which(.x == m_map_names)]
       list(

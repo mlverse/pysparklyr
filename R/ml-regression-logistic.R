@@ -87,9 +87,9 @@ ml_logistic_regression_prep <- function(x, args) {
 
   jobj <- ml_execute(
     args = args,
-    python_library =  "pyspark.ml.connect.classification",
+    python_library = "pyspark.ml.connect.classification",
     fn = "LogisticRegression"
-    )
+  )
 
   structure(
     list(

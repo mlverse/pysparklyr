@@ -7,7 +7,7 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 # Sys.setenv("CODE_COVERAGE" = "true")
-if(identical(Sys.getenv("CODE_COVERAGE"), "true")) {
+if (identical(Sys.getenv("CODE_COVERAGE"), "true")) {
   library(testthat)
   library(pysparklyr)
 

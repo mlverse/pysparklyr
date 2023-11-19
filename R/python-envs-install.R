@@ -76,9 +76,13 @@ install_databricks <- function(
     cli_end()
   }
 
-  if(is.null(envname)) {
+  if (is.null(envname)) {
     if (is.null(version) && !is.null(cluster_id)) {
-      version <- databricks_dbr_version(cluster_id)
+      version <- databricks_dbr_version(
+        cluster_id = cluster_id,
+        host = databricks_host(),
+        token = databricks_token()
+        )
     }
   }
 

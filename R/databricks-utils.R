@@ -1,6 +1,56 @@
+databricks_host <- function(host = NULL, fail = TRUE) {
+  host <- host %||% Sys.getenv("DATABRICKS_HOST", unset = NA)
+  if(is.null(host) | is.na(host)) {
+    if(fail) {
+      cli_abort(c(
+        paste0("No Host URL was provided, and",
+               "the environment variable 'DATABRICKS_HOST' is not set."
+               ),
+        "Please add your Host to 'DATABRICKS_HOST' inside your .Renviron file."
+      ))
+    } else {
+      host <- ""
+    }
+  }
+  host
+}
+
+databricks_token <- function(token = NULL, fail = FALSE) {
+  name <- "argument"
+  # Checks for OAuth Databricks token inside the RStudio API
+  if (is.null(token) && exists(".rs.api.getDatabricksToken")) {
+    getDatabricksToken <- get(".rs.api.getDatabricksToken")
+    name <- "oauth"
+    token <- getDatabricksToken(databricks_host())
+  }
+  # Checks the Environment Variable
+  if(is.null(token)) {
+    env_token <- Sys.getenv("DATABRICKS_TOKEN", unset = NA)
+    if(!is.na(env_token)) {
+      name <- "environment"
+      token <- env_token
+    }
+  }
+  if(is.null(token)) {
+    if(fail) {
+      cli_abort(c(
+        paste0("No personal token was provided, ",
+               "the environment variable 'DATABRICKS_TOKEN' is not set, ",
+               "nor a Databricks OAuth token was detected"
+               ),
+        "Please add your Host to 'DATABRICKS_TOKEN' inside your .Renviron file."
+      ))
+    } else {
+      name <- NULL
+      token <- ""
+    }
+  }
+  set_names(token, name)
+}
+
 databricks_dbr_version <- function(cluster_id,
-                                host = Sys.getenv("DATABRICKS_HOST"),
-                                token = Sys.getenv("DATABRICKS_TOKEN")) {
+                                   host = NULL,
+                                   token = NULL) {
   cli_div(theme = cli_colors())
   cli_alert_warning(
     "{.header Retrieving version from cluster }{.emph '{cluster_id}'}"
@@ -27,10 +77,10 @@ databricks_dbr_version <- function(cluster_id,
 }
 
 databricks_dbr_info <- function(cluster_id,
-                             host = Sys.getenv("DATABRICKS_HOST"),
-                             token = Sys.getenv("DATABRICKS_TOKEN")) {
+                                host = NULL,
+                                token = NULL) {
   out <- databricks_cluster_get(cluster_id, host, token)
-  if(inherits(out, "try-error")) {
+  if (inherits(out, "try-error")) {
     out <- databricks_cluster_get(cluster_id, sanitize_host(host), token)
   }
 
@@ -69,8 +119,8 @@ databricks_dbr_info <- function(cluster_id,
 }
 
 databricks_cluster_get <- function(cluster_id,
-                        host = Sys.getenv("DATABRICKS_HOST"),
-                        token = Sys.getenv("DATABRICKS_TOKEN")) {
+                                   host = NULL,
+                                   token = NULL) {
   try(
     paste0(
       host,

@@ -12,6 +12,39 @@
 #' @return The result of calling `rhs(lhs)`.
 NULL
 
+reticulate_python_check <- function(ignore = FALSE, unset = TRUE, message = TRUE) {
+  if (ignore) {
+    return(invisible)
+  }
+  env_var <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
+  if (!is.na(env_var)) {
+    if (unset) {
+      Sys.unsetenv("RETICULATE_PYTHON")
+      if (message) {
+        cli_alert_warning(paste(
+          "Your {.emph 'RETICULATE_PYTHON'} environment variable was unset.",
+          "To recover, restart R after you complete your Spark session",
+          sep = "\n"
+        ))
+      }
+    } else {
+      if (message) {
+        cli_alert_warning(paste(
+          paste0(
+            "Your {.emph 'RETICULATE_PYTHON'} environment is set, ",
+            "which may cause connectivity issues"
+          ),
+          paste0(
+            "Use {.code Sys.unsetenv(\"RETICULATE_PYTHON\")} to clear for the",
+            "duration of your current R session."
+          ),
+          sep = "\n"
+        ))
+      }
+    }
+  }
+  invisible()
+}
 
 check_arg_supported <- function(x, msg = NULL) {
   arg <- enquo(x)

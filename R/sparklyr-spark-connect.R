@@ -4,55 +4,23 @@ spark_connect_method.spark_method_spark_connect <- function(
     method,
     master,
     spark_home,
-    config,
+    config = NULL,
     app_name,
-    version,
+    version = NULL,
     hadoop_version,
     extensions,
     scala_version,
     ...) {
-  py_spark_connect(
-    master = master,
-    method = method,
-    config = config,
-    spark_version = version,
-    ... = ...
-  )
-}
+  if (is.null(version)) {
+    cli_abort("Spark `version` is required, please provide")
+  }
 
-#' @export
-spark_connect_method.spark_method_databricks_connect <- function(
-    x,
-    method,
-    master = Sys.getenv("DATABRICKS_HOST"),
-    spark_home,
-    config,
-    app_name,
-    version,
-    hadoop_version,
-    extensions,
-    scala_version,
-    ...) {
-  py_spark_connect(master = master, method = method, config = config, ...)
-}
-
-py_spark_connect <- function(
-    master,
-    token = Sys.getenv("DATABRICKS_TOKEN"),
-    cluster_id = NULL,
-    method = "",
-    envname = NULL,
-    spark_version = NULL,
-    dbr_version = NULL,
-    config = list(),
-    host_sanitize = TRUE) {
-  method <- method[[1]]
-
-  conn <- NULL
+  args <- list(...)
+  envname <- args$envname
 
   envname <- use_envname(
     method = method,
-    version = spark_version %||% dbr_version,
+    version = version,
     envname = envname,
     messages = TRUE,
     match_first = TRUE
@@ -66,33 +34,87 @@ py_spark_connect <- function(
     master_label <- glue("Spark Connect - {master}")
   }
 
-  if (method == "databricks_connect") {
-    cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
-    master <- master %||% Sys.getenv("DATABRICKS_HOST")
+  initialize_connection(
+    conn = conn,
+    master_label = master_label,
+    con_class = con_class,
+    cluster_id = NULL,
+    method = method,
+    config = config
+  )
+}
 
-    if (host_sanitize) {
-      master <- sanitize_host(master)
-    }
+#' @export
+spark_connect_method.spark_method_databricks_connect <- function(
+    x,
+    method,
+    master,
+    spark_home,
+    config,
+    app_name,
+    version = NULL,
+    hadoop_version,
+    extensions,
+    scala_version,
+    ...) {
+  args <- list(...)
+  cluster_id <- args$cluster_id
+  token <- args$token
+  envname <- args$envname
+  host_sanitize <- args$host_sanitize %||% TRUE
 
-    db <- import_check("databricks.connect", envname)
-    remote <- db$DatabricksSession$builder$remote(
+  method <- method[[1]]
+  token <- databricks_token(token, fail = TRUE)
+  cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
+  master <- databricks_host(master)
+  if (host_sanitize) {
+    master <- sanitize_host(master)
+  }
+  if (is.null(version) && !is.null(cluster_id)) {
+    version <- databricks_dbr_version(
+      cluster_id = cluster_id,
       host = master,
-      token = token,
-      cluster_id = cluster_id
+      token = token
     )
-
-    user_agent <- build_user_agent()
-
-    conn <- remote$userAgent(user_agent)
-    con_class <- "connect_databricks"
-
-    cluster_info <- databricks_dbr_info(cluster_id, master, token)
-
-    cluster_name <- substr(cluster_info$cluster_name, 1, 100)
-
-    master_label <- glue("{cluster_name} ({cluster_id})")
   }
 
+  envname <- use_envname(
+    method = method,
+    version = version,
+    envname = envname,
+    messages = TRUE,
+    match_first = TRUE
+  )
+
+  db <- import_check("databricks.connect", envname)
+  remote <- db$DatabricksSession$builder$remote(
+    host = master,
+    token = token,
+    cluster_id = cluster_id
+  )
+  user_agent <- build_user_agent()
+  conn <- remote$userAgent(user_agent)
+  con_class <- "connect_databricks"
+  cluster_info <- databricks_dbr_info(cluster_id, master, token)
+  cluster_name <- substr(cluster_info$cluster_name, 1, 100)
+  master_label <- glue("{cluster_name} ({cluster_id})")
+  initialize_connection(
+    conn = conn,
+    master_label = master_label,
+    con_class = con_class,
+    cluster_id = cluster_id,
+    method = method,
+    config = config
+  )
+}
+
+initialize_connection <- function(
+    conn,
+    master_label,
+    con_class,
+    cluster_id = NULL,
+    method = NULL,
+    config = NULL) {
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",

@@ -139,21 +139,18 @@ connection_spark_server <- function(input, output, session) {
     version <- dbr_version()
     if (version != "") {
       if (!inherits(version, "try-error")) {
-        not_verified <- pysparklyr:::use_envname(
-          version = version,
-          method = "databricks_connect",
-          ignore_reticulate_python = TRUE
-        )
         verified <- pysparklyr:::use_envname(
           version = version,
           method = "databricks_connect",
-          match_first = TRUE,
+          messages = FALSE,
+          match_first = FALSE,
           ignore_reticulate_python = TRUE
         )
-        if (not_verified == verified) {
+        verified_name <- names(verified)
+        if (verified_name != "unavailable") {
           env <- paste0("✓ Found - Using '", verified, "'")
         } else {
-          dbr_env_name(not_verified)
+          dbr_env_name(verified)
           env <- " !  Not found - Adding installation step to code"
         }
       }
@@ -180,7 +177,6 @@ connection_spark_server <- function(input, output, session) {
     }
 
     code_lines <- c(
-      reticulate,
       inst,
       "library(sparklyr)",
       "sc <- spark_connect(",

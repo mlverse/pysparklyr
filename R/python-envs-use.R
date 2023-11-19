@@ -4,11 +4,14 @@ use_envname <- function(
     version = "1.1",
     messages = FALSE,
     match_first = FALSE,
-    ignore_reticulate_python = FALSE) {
+    ignore_reticulate_python = FALSE,
+    ask_if_not_installed = TRUE
+    ) {
 
   reticulate_python_check(ignore_reticulate_python)
   label <- "argument"
   if (is.null(envname)) {
+    envname_null <- TRUE
     if (method == "spark_connect") {
       env_base <- "r-sparklyr-pyspark-"
       run_code <- glue(
@@ -50,14 +53,12 @@ use_envname <- function(
           label <- "approximate"
           envname <- envs[[1]]
           if (messages) {
-            msg <- paste(
-              "{.header A Python environment with a matching version was not found}",
-              "* {.header Will attempt connecting using }{.emph '{envname}'}",
-              "* {.header To install the proper Python environment use: {.run {run_code}}}",
-              sep = "\n"
-            )
+            msg_1 <- "{.header A Python environment with a matching version was not found}"
+            msg_2 <- "{.header Will attempt connecting using }{.emph '{envname}'}"
+            msg_3 <- "{.header To install the exact Python environment use: {.run {run_code}}}"
             cli_div(theme = cli_colors())
-            cli_alert_warning(msg)
+            cli_alert_warning(msg_1)
+            cli_bullets(c(" " = msg_2, " " = msg_3))
             cli_end()
           }
         }
@@ -66,7 +67,19 @@ use_envname <- function(
         envname <- envs[[1]]
       }
     }
+  } else {
+    envname_null <- FALSE
   }
+  if(ask_if_not_installed &&
+     interactive() &&
+     envname_null &&
+     label == "unavailable"
+     ) {
+    cli_alert_warning("No viable Python Environment was found.")
+    cli_bullets(c(" " = "Do you wish to create one?"))
+    utils::menu(choices = c("Yes", "No", "Cancel"))
+  }
+
   envname <- set_names(as.character(envname), label)
   envname
 }

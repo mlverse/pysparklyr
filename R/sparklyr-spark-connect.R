@@ -228,10 +228,16 @@ build_user_agent <- function() {
 
 connection_label <- function(x) {
   ret <- "Connection"
+  method <- NULL
   con <- spark_connection(x)
-  if (!is.null(con)) {
-    if (con$method == "spark_connect") ret <- "Spark Connect"
-    if (con$method == "databricks_connect") ret <- "Databricks Connect"
+  if(is.null(con)) {
+    method = x
+  } else {
+    method <- con$method
+  }
+  if (!is.null(method)) {
+    if (method == "spark_connect") ret <- "Spark Connect"
+    if (method == "databricks_connect") ret <- "Databricks Connect"
   }
   ret
 }

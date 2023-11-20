@@ -90,12 +90,16 @@ use_envname <- function(
         ))
       choice <- utils::menu(choices = c("Yes", "No", "Cancel"))
       if(choice == 1) {
+        ret <- set_names(envname, "prompt")
         if(method == "databricks_connect") {
-          install_databricks(version = version)
+          install_databricks(version = version, as_job = FALSE)
         }
         if(method == "spark_connect") {
-          install_pyspark(version = version)
+          install_pyspark(version = version, as_job = FALSE)
         }
+      }
+      if(choice == 2) {
+        ret <- set_names(ret, "prompt")
       }
       if(choice == 3) {
         cli_abort("Operation cancelled by user")

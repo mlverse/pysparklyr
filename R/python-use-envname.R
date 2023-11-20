@@ -26,7 +26,8 @@ use_envname <- function(
     run_code <- glue("pysparklyr::install_databricks(version = \"{version}\")")
   }
 
-  run_full <- "* {.header Run: {.run {run_code}} to install.}"
+  con_label <- connection_label(method)
+  run_full <- "{.header Run: {.run {run_code}} to install.}"
 
   sp_version <- version_prep(version)
   envname <- as.character(glue("{env_base}{sp_version}"))
@@ -37,40 +38,44 @@ use_envname <- function(
 
   # There were 0 environments found
   if(!match_one && !match_exact) {
-    msg <- paste0(
-      "No {.emph viable} Python Environment was found for ",
-      "{.emph {connection_label(method)}} version {.emph {version}}"
-    )
     ret <- set_names(envname, "unavailable")
+    msg_1 <- paste0(
+      "No {.emph viable} Python Environment was identified for ",
+      "{.emph {con_label}} version {.emph {version}}"
+    )
+    msg_2 <- NULL
   }
 
   # Found an exact match
   if(match_one && match_exact) {
-    msg <- paste0(
-      "No {.emph viable} Python Environment was found for ",
-      "{.emph {connection_label(method)}} version {.emph {version}}"
-    )
     ret <- set_names(envname, "exact")
+    msg_1 <- paste0(
+      "No {.emph matching} Python Environment was found for ",
+      "{.emph {con_label}} version {.emph {version}}"
+    )
+    msg_2 <- NULL
   }
 
   # There are environments, but no exact match, and argument says
   # to choose the most recent environment
   if(match_one && !match_exact && match_first) {
-    msg <- paste0(
-      "No {.emph exact} Python Environment was found for ",
-      "{.emph {connection_label(method)}} version {.emph {version}}",
-      "If the exact version is not installed, {.code sparklyr} will ",
-      "use {.code{envname}}"
-    )
     ret <- set_names(envs[1], "first")
+    msg_1 <- paste0(
+      "No {.emph exact} Python Environment was found for ",
+      "{.emph {con_label}} version {.emph {version}}. \n")
+    msg_2 <- paste0(
+      "{.header If the exact version is not installed, {.code sparklyr} will ",
+      "use {.code {ret}}}"
+    )
   }
 
   # There are environments, but no exact match
   if(match_one && !match_exact && !match_first) {
-    msg <- paste0(
+    msg_1 <- paste0(
       "No {.emph exact} Python Environment was found for ",
-      "{.emph {connection_label(method)}} version {.emph {version}}"
+      "{.emph {con_label}} version {.emph {version}}"
     )
+    msg_2 <- "{.header The default Python environment may not work correctly}"
     ret <-  set_names(envname, "unavailable")
   }
 
@@ -78,8 +83,11 @@ use_envname <- function(
   if(messages && ret_name != "exact") {
     cli_div(theme = cli_colors())
     if(ask_if_not_installed) {
-      cli_alert_warning(msg)
-      cli_bullets(c(" " = "Do you wish to create one?"))
+      cli_alert_warning(msg_1)
+      cli_bullets(c(
+        " " = msg_2,
+        " " = "Do you wish to install {con_label} version {version}?"
+        ))
       choice <- utils::menu(choices = c("Yes", "No", "Cancel"))
       if(choice == 1) {
         if(method == "databricks_connect") {
@@ -94,10 +102,14 @@ use_envname <- function(
       }
     } else{
       if(ret_name == "unavailable") {
-        cli_abort(c(msg, run_full))
+        cli_abort(c(msg_1, msg_2, run_full))
       }
       if(ret_name == "first") {
-        #cli_warn(c(msg, run_full))
+        cli_alert_warning(msg_1)
+        cli_bullets(c(
+          " " = msg_2,
+          " " = run_full
+        ))
       }
     }
     cli_end()

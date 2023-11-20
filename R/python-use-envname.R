@@ -32,9 +32,10 @@ use_envname <- function(
   envname <- as.character(glue("{env_base}{sp_version}"))
   envs <- find_environments(env_base)
 
-  match_one <- length(envs) > 1
+  match_one <- length(envs) > 0
   match_exact <- length(envs[envs == envname]) > 0
 
+  # There were 0 environments found
   if(!match_one && !match_exact) {
     msg <- paste0(
       "No {.emph viable} Python Environment was found for ",
@@ -43,6 +44,7 @@ use_envname <- function(
     ret <- set_names(envname, "unavailable")
   }
 
+  # Found an exact match
   if(match_one && match_exact) {
     msg <- paste0(
       "No {.emph viable} Python Environment was found for ",
@@ -51,6 +53,8 @@ use_envname <- function(
     ret <- set_names(envname, "exact")
   }
 
+  # There are environments, but no exact match, and argument says
+  # to choose the most recent environment
   if(match_one && !match_exact && match_first) {
     msg <- paste0(
       "No {.emph exact} Python Environment was found for ",
@@ -58,9 +62,10 @@ use_envname <- function(
       "If the exact version is not installed, {.code sparklyr} will ",
       "use {.code{envname}}"
     )
-    ret <- set_names(env[1], "first")
+    ret <- set_names(envs[1], "first")
   }
 
+  # There are environments, but no exact match
   if(match_one && !match_exact && !match_first) {
     msg <- paste0(
       "No {.emph exact} Python Environment was found for ",
@@ -70,17 +75,30 @@ use_envname <- function(
   }
 
   ret_name <- names(ret)
-  if(messages && ret != "exact") {
+  if(messages && ret_name != "exact") {
     cli_div(theme = cli_colors())
-    if(ret_name == "unavailable") {
-      cli_abort(c(msg, run_full))
-    }
     if(ask_if_not_installed) {
-      if(msg_prompt == "unavailable") {
-        cli_alert_warning(msg)
-      }
+      cli_alert_warning(msg)
       cli_bullets(c(" " = "Do you wish to create one?"))
-      utils::menu(choices = c("Yes", "No", "Cancel"))
+      choice <- utils::menu(choices = c("Yes", "No", "Cancel"))
+      if(choice == 1) {
+        if(method == "databricks_connect") {
+          install_databricks(version = version)
+        }
+        if(method == "spark_connect") {
+          install_pyspark(version = version)
+        }
+      }
+      if(choice == 3) {
+        cli_abort("Operation cancelled by user")
+      }
+    } else{
+      if(ret_name == "unavailable") {
+        cli_abort(c(msg, run_full))
+      }
+      if(ret_name == "first") {
+        #cli_warn(c(msg, run_full))
+      }
     }
     cli_end()
   }

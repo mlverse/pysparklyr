@@ -26,6 +26,8 @@ use_envname <- function(
     run_code <- glue("pysparklyr::install_databricks(version = \"{version}\")")
   }
 
+  run_full <- "* {.header Run: {.run {run_code}} to install.}"
+
   sp_version <- version_prep(version)
   envname <- as.character(glue("{env_base}{sp_version}"))
   envs <- find_environments(env_base)
@@ -34,28 +36,49 @@ use_envname <- function(
   match_exact <- length(envs[envs == envname]) > 0
 
   if(!match_one && !match_exact) {
+    msg <- paste0(
+      "No {.emph viable} Python Environment was found for ",
+      "{.emph {connection_label(method)}} version {.emph {version}}"
+    )
     ret <- set_names(envname, "unavailable")
   }
 
   if(match_one && match_exact) {
+    msg <- paste0(
+      "No {.emph viable} Python Environment was found for ",
+      "{.emph {connection_label(method)}} version {.emph {version}}"
+    )
     ret <- set_names(envname, "exact")
   }
 
   if(match_one && !match_exact && match_first) {
+    msg <- paste0(
+      "No {.emph exact} Python Environment was found for ",
+      "{.emph {connection_label(method)}} version {.emph {version}}",
+      "If the exact version is not installed, {.code sparklyr} will ",
+      "use {.code{envname}}"
+    )
     ret <- set_names(env[1], "first")
   }
 
   if(match_one && !match_exact && !match_first) {
+    msg <- paste0(
+      "No {.emph exact} Python Environment was found for ",
+      "{.emph {connection_label(method)}} version {.emph {version}}"
+    )
     ret <-  set_names(envname, "unavailable")
   }
 
-  if(messages) {
+  ret_name <- names(ret)
+  if(messages && ret != "exact") {
     cli_div(theme = cli_colors())
-    cli_alert_warning("No viable Python Environment was found")
-    cli_bullets(c(
-      " " = "for {.emph {connection_label(method)}} version {.emph {version}}"
-    ))
+    if(ret_name == "unavailable") {
+      cli_abort(c(msg, run_full))
+    }
     if(ask_if_not_installed) {
+      if(msg_prompt == "unavailable") {
+        cli_alert_warning(msg)
+      }
       cli_bullets(c(" " = "Do you wish to create one?"))
       utils::menu(choices = c("Yes", "No", "Cancel"))
     }
@@ -63,47 +86,6 @@ use_envname <- function(
   }
 
   ret
-}
-old_function <- function() {
-
-  if (length(envs) == 0) {
-    if (messages | match_first) {
-      cli_div(theme = cli_colors())
-      cli_abort(
-        c(
-          "{.header No environment name provided, and no environment was automatically identified.}",
-          "* {.header Run: {.run {run_code}} to install.}"
-        )
-      )
-      cli_end()
-    }
-  } else {
-    if (!is.null(version)) {
-      matched <- envs[envs == envname]
-      if(length(matched) == 1) {
-        label <- "exact"
-        envname <- matched
-      }
-      if (length(matched) == 0 && match_first) {
-        label <- "approximate"
-        envname <- envs[[1]]
-        if (messages) {
-          msg_1 <- "{.header A Python environment with a matching version was not found}"
-          msg_2 <- "{.header Will attempt connecting using }{.emph '{envname}'}"
-          msg_3 <- "{.header To install the exact Python environment use: {.run {run_code}}}"
-          cli_div(theme = cli_colors())
-          cli_alert_warning(msg_1)
-          cli_bullets(c(" " = msg_2, " " = msg_3))
-          cli_end()
-        }
-      }
-    } else {
-      label <- "first"
-      envname <- envs[[1]]
-    }
-  }
-
-
 }
 
 find_environments <- function(x) {

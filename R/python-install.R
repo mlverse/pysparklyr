@@ -203,12 +203,20 @@ install_environment <- function(
         add_torch <- FALSE
       }
       ln <- "databricks"
-      envname <- use_envname(method = "databricks_connect", version = ver_name)
+      envname <- use_envname(
+        method = "databricks_connect",
+        version = ver_name,
+        ask_if_not_installed = FALSE
+        )
     } else {
       if (compareVersion(as.character(ver_name), "3.5") < 0) {
         add_torch <- FALSE
       }
-      envname <- use_envname(method = "spark_connect", version = ver_name)
+      envname <- use_envname(
+        method = "spark_connect",
+        version = ver_name,
+        ask_if_not_installed = FALSE
+        )
     }
     cli_alert_success(
       "Automatically naming the environment:{.emph '{envname}'}"

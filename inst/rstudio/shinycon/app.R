@@ -88,7 +88,6 @@ connection_spark_ui <- function() {
 
 connection_spark_server <- function(input, output, session) {
   dbr_version <- reactiveVal("")
-  dbr_env_name <- reactiveVal("")
   token <- pysparklyr:::databricks_token()
 
   output$auth <- reactive({
@@ -147,37 +146,25 @@ connection_spark_server <- function(input, output, session) {
           ignore_reticulate_python = TRUE
         )
         verified_name <- names(verified)
-        if (verified_name != "unavailable") {
+        if (verified_name == "exact") {
           env <- paste0("✓ Found - Using '", verified, "'")
         } else {
-          dbr_env_name(verified)
-          env <- " !  Not found - Adding installation step to code"
+          env <- " !  Not found - You will be prompted to install"
         }
       }
-    } else {
-      dbr_env_name("")
     }
+
     env
   })
 
-  code_create <- function(cluster_id, host_url, envname) {
+  code_create <- function(cluster_id, host_url) {
     host <- NULL
     env_host <- pysparklyr:::databricks_host(fail = FALSE)
     if (env_host != "" && env_host != host_url) {
       host <- paste0("    master = \"", host_url, "\",")
     }
 
-    if (envname != "") {
-      inst <- c(
-        paste0("pysparklyr::install_databricks(\"", dbr_version(), "\", as_job = FALSE)"),
-        ""
-      )
-    } else {
-      inst <- NULL
-    }
-
     code_lines <- c(
-      inst,
       "library(sparklyr)",
       "sc <- spark_connect(",
       paste0("    cluster_id = \"", cluster_id, "\","),
@@ -196,7 +183,7 @@ connection_spark_server <- function(input, output, session) {
   code_reactive <- reactive({
     cluster_id <- input$cluster_id
     host_url <- input$host_url
-    code_create(cluster_id, host_url, dbr_env_name())
+    code_create(cluster_id, host_url)
   })
 
   observe({

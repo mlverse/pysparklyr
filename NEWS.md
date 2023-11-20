@@ -25,6 +25,11 @@ scant storage.
 
 ### Improvements
 
+* When connecting (`spark_connect()`), it will automatically prompt the
+R user to install a Python Environment if one with the expected name is
+not found. This way, the R user will not have to run `install_databricks()`/
+`install_pyspark()` manually when using the package for the first time.
+
 * Adds URL sanitation routine for the Databricks Host. It will remove trailing
 forward slashes, and add scheme (https) if missing. The Host sanitation can be 
 skipped by passing `host_sanitize = FALSE` to `spark_connect()`.

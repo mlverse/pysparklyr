@@ -8,6 +8,8 @@ use_envname <- function(
     ask_if_not_installed = interactive()
     ) {
 
+  reticulate_python_check(ignore_reticulate_python)
+
   if(!is.null(envname)) {
     return(set_names(envname, "argument"))
   }
@@ -15,8 +17,6 @@ use_envname <- function(
   if(is.null(version)) {
     cli_abort("A cluster {.code version} is required, please provide one")
   }
-
-  reticulate_python_check(ignore_reticulate_python)
 
   if (method == "spark_connect") {
     env_base <- "r-sparklyr-pyspark-"

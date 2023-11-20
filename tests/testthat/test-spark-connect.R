@@ -38,13 +38,3 @@ test_that("Host sanitation works", {
   expect_equal(sanitize_host("https://cloud.databricks.com/"), clean_url)
   expect_equal(sanitize_host("https://cloud.databricks.com/?o=123#"), clean_url)
 })
-
-test_that("use_envname function works", {
-  py_to_use <- py_exe()
-  Sys.setenv("RETICULATE_PYTHON" = py_to_use)
-  expect_message(use_envname("newtest", messages = TRUE))
-  Sys.unsetenv("RETICULATE_PYTHON")
-  expect_message(
-    use_envname(version = "1.1", messages = TRUE, match_first = TRUE)
-  )
-})

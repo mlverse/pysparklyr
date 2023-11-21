@@ -106,14 +106,17 @@ databricks_dbr_info <- function(cluster_id,
     if (grepl("HTTP 400 Bad Request", out)) {
       invalid_cluster <- invalid_msg
     }
+
+    if(as.character(substr(out, 1, 26)) == "Error in req_perform(.) : ") {
+      out <- substr(out, 27, nchar(out))
+    }
     cli_abort(c(
-      invalid_host,
-      "{.header Issues connecting to Databricks. Currently using: }",
-      "{.header |-- Host: }{.emph '{host}' {invalid_host}}",
-      "{.header |-- Cluster ID: }{.emph '{cluster_id}' {invalid_cluster}}",
-      "{.header |-- Token: }{.emph '<REDACTED>' {invalid_token}}",
-      "{.header Error message:} {.class \"{out}\"}"
-    ))
+      "{.header Connection with Databricks failed: }\"{trimws(out)}\"",
+      "{.class  - Host: {.emph '{host}'}} {invalid_host}",
+      "{.class  - Cluster ID: {.emph '{cluster_id}'}} {invalid_cluster}",
+      "{.class  - Token: {.emph '<REDACTED>'}} {invalid_token}"
+    ),
+    call = NULL)
     out <- list()
   }
   out

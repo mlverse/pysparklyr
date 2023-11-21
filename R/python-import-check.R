@@ -81,10 +81,11 @@ import_check <- function(x, envname) {
       if (look_for_env) {
         msg <- paste(
           "{.header Using the }{.emph '{envname}' }{.header Python}",
-          "{.header environment }{.class ({py_exe()})}"
+          "{.header environment }"
         )
         cli_div(theme = cli_colors())
         cli_alert_success(msg)
+        cli_bullets(c(" " = "{.class Path: {py_exe()}}"))
         cli_end()
       }
     } else {

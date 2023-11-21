@@ -187,7 +187,7 @@ sanitize_host <- function(url) {
       "{.header Sanitizing Databricks Host ({.code master}) entry:}"
       )
     cli_bullets(c(
-      " " = "{.header Original:} {.emph {url}}",
+      " " = "{.header Original: {.emph {url}}}",
       " " = "{.header Using:}    {.emph {ret}}",
       " " = paste0(
         "{.class Set {.code host_sanitize = FALSE} ",

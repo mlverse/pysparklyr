@@ -55,24 +55,22 @@ databricks_dbr_version <- function(cluster_id,
   cli_alert_warning(
     "{.header Retrieving version from cluster }{.emph '{cluster_id}'}"
   )
-  cli_end()
-
   cluster_info <- databricks_dbr_info(
     cluster_id = cluster_id,
     host = host,
     token = token
   )
-
   sp_version <- cluster_info$spark_version
-
   if (!is.null(sp_version)) {
     sp_sep <- unlist(strsplit(sp_version, "\\."))
     version <- paste0(sp_sep[1], ".", sp_sep[2])
-    cli_alert_success("{.header Cluster version: }{.emph '{version}'}")
-    cli_end()
+    cli_bullets(c(
+      " " = "{.class Cluster version: }{.emph '{version}'}"
+      ))
   } else {
     version <- ""
   }
+  cli_end()
   version
 }
 

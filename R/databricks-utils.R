@@ -33,11 +33,14 @@ databricks_token <- function(token = NULL, fail = FALSE) {
   }
   if(is.null(token)) {
     if(fail) {
-      cli_abort(c(
-        paste0("No personal token was provided, ",
-               "the environment variable 'DATABRICKS_TOKEN' is not set, ",
-               "nor a Databricks OAuth token was detected"
-               ),
+
+      rlang::abort(c(
+        paste0(
+          "No authentication token was identified: \n",
+          " - No 'DATABRICKS_TOKEN' environment variable found \n",
+          " - No Databricks OAuth token found \n",
+          " - Not passed as a function argument"
+          ),
         "Please add your Host to 'DATABRICKS_TOKEN' inside your .Renviron file."
       ))
     } else {

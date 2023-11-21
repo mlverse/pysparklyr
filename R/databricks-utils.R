@@ -186,16 +186,17 @@ sanitize_host <- function(url) {
   if (ret != url) {
     cli_div(theme = cli_colors())
     cli_alert_warning(
-      c(
-        "{.header Sanitizing {.code Host} value:}\n",
-        "{.header * Original:} {.emph {url}}\n",
-        "{.header * Using:}    {.emph {ret}}\n",
-        "* {.header ",
-        "To prevent {.code sparklyr} from changing the Host, set ",
-        "{.code host_sanitize = FALSE} in {.code spark_connect()}",
-        "}"
+      "{.header Sanitizing Databricks Host ({.code master}) entry:}"
       )
-    )
+    cli_bullets(c(
+      " " = "{.header Original:} {.emph {url}}",
+      " " = "{.header Using:}    {.emph {ret}}",
+      " " = paste0(
+        "{.class Set {.code host_sanitize = FALSE} ",
+        "in {.code spark_connect()} to avoid this change}"
+        )
+    ))
+
     cli_end()
   }
   ret

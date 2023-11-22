@@ -21,12 +21,16 @@ reticulate_python_check <- function(ignore = FALSE, unset = TRUE, message = TRUE
     if (unset) {
       Sys.unsetenv("RETICULATE_PYTHON")
       if (message) {
-        cli_alert_warning(paste(
-          "Your {.emph 'RETICULATE_PYTHON'} environment variable was unset.",
-          "To recover, restart R after you complete your Spark session",
-          sep = "\n"
+        cli_div(theme = cli_colors())
+        cli_alert_warning(paste0(
+          "{.header Your }{.emph 'RETICULATE_PYTHON'}",
+          " {.header environment variable was unset.}"
+          ))
+        cli_bullets(c(
+         " " = "{.class To recover, restart R after you closing your Spark session}"
         ))
-      }
+        cli_end()
+        }
     } else {
       if (message) {
         cli_alert_warning(paste(

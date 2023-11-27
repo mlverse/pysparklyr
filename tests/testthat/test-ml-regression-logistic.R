@@ -1,7 +1,7 @@
 skip_spark_min_version(3.5)
 
 test_that("Logistic Regression works with Spark Connection", {
-  sc <- test_spark_connect()
+  sc <- use_test_spark_connect()
   expect_s3_class(
     ml_logistic_regression(sc),
     "ml_connect_estimator"
@@ -12,8 +12,8 @@ test_that("Logistic Regression works with Spark Connection", {
 })
 
 test_that("Logistic Regression works with `tbl_spark`", {
-  tbl_mtcars <- test_table_mtcars()
-  expect_silent(model <- test_lr_model())
+  tbl_mtcars <- use_test_table_mtcars()
+  expect_silent(model <- use_test_lr_model())
   expect_equal(
     print(model),
     NULL
@@ -29,7 +29,7 @@ test_that("Logistic Regression works with `tbl_spark`", {
 })
 
 test_that("Logistic Regression works with Pipeline", {
-  sc <- test_spark_connect()
+  sc <- use_test_spark_connect()
 
   expect_silent(
     out <- sc %>%

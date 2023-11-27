@@ -1,5 +1,5 @@
 test_that("Pivot longer", {
-  sc <- test_spark_connect()
+  sc <- use_test_spark_connect()
   local_pivot <- tibble::tribble(
     ~id, ~z_1, ~y_1, ~x_1, ~z_2, ~y_2, ~x_2,
     "A", 1, 2, 3, 4, 5, 6,
@@ -95,7 +95,7 @@ test_that("can pivot duplicated names to .value", {
 })
 
 test_that(".value can be at any position in `names_to`", {
-  sc <- test_spark_connect()
+  sc <- use_test_spark_connect()
   samp_sdf <- copy_to(
     sc,
     tibble::tibble(
@@ -132,7 +132,7 @@ test_that(".value can be at any position in `names_to`", {
 })
 
 test_that("reporting data type mismatch", {
-  sc <- test_spark_connect()
+  sc <- use_test_spark_connect()
   sdf <- copy_to(sc, tibble::tibble(abc = 1, xyz = "b"))
   err <- capture_error(tidyr::pivot_longer(sdf, tidyr::everything()))
 

@@ -1,5 +1,5 @@
 test_that("installed_components() output properly", {
-  sc <- test_spark_connect()
+  sc <- use_test_spark_connect()
   expect_message(installed_components())
 })
 

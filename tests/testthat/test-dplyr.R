@@ -1,5 +1,5 @@
 test_that("copy_to() works", {
-  tbl_ordered <- test_table_mtcars() %>%
+  tbl_ordered <- use_test_table_mtcars() %>%
     arrange(mpg, qsec, hp)
 
   expect_snapshot(tbl_ordered)
@@ -8,7 +8,7 @@ test_that("copy_to() works", {
 })
 
 test_that("Sampling functions works", {
-  tbl_n <- test_table_mtcars() %>%
+  tbl_n <- use_test_table_mtcars() %>%
     sample_n(5) %>%
     collect() %>%
     count() %>%
@@ -16,7 +16,7 @@ test_that("Sampling functions works", {
 
   expect_equal(tbl_n, 5)
 
-  tbl_frac <- test_table_mtcars() %>%
+  tbl_frac <- use_test_table_mtcars() %>%
     sample_frac(0.2) %>%
     collect() %>%
     count() %>%
@@ -26,14 +26,14 @@ test_that("Sampling functions works", {
 })
 
 test_that("Misc functions", {
-  tbl_am <- test_table_mtcars() %>%
+  tbl_am <- use_test_table_mtcars() %>%
     group_by(am) %>%
     filter(mpg == max(mpg, na.rm = TRUE)) %>%
     select(am)
 
   expect_silent(compute(tbl_am, name = "am"))
 
-  tbl_join <- test_table_mtcars() %>%
+  tbl_join <- use_test_table_mtcars() %>%
     left_join(tbl_am, by = "am") %>%
     arrange(mpg, qsec, hp)
 

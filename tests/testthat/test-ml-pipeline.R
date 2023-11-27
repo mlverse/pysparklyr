@@ -1,8 +1,8 @@
 skip_spark_min_version(3.5)
 
 test_that("Pipeline fits and predicts", {
-  sc <- test_spark_connect()
-  tbl_mtcars <- test_table_mtcars()
+  sc <- use_test_spark_connect()
+  tbl_mtcars <- use_test_table_mtcars()
 
   new_pipeline <- sc %>%
     ml_pipeline() %>%

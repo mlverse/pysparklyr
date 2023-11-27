@@ -3,7 +3,7 @@ test_coverage_enable <- function() {
 }
 
 expect_same_remote_result <- function(.data, pipeline) {
-  sc <- test_spark_connect()
+  sc <- use_test_spark_connect()
   temp_name <- random_table_name("test_")
   spark_data <- copy_to(sc, .data, temp_name)
 
@@ -25,7 +25,7 @@ expect_same_remote_result <- function(.data, pipeline) {
 }
 
 testthat_tbl <- function(name, data = NULL, repartition = 0L) {
-  sc <- test_spark_connect()
+  sc <- use_test_spark_connect()
 
   tbl <- tryCatch(dplyr::tbl(sc, name), error = identity)
   if (inherits(tbl, "error")) {
@@ -42,7 +42,7 @@ random_table_name <- function(prefix) {
 
 
 skip_spark_min_version <- function(version) {
-  sc <- test_spark_connect()
+  sc <- use_test_spark_connect()
   sp_version <- spark_version(sc)
   comp_ver <- compareVersion(as.character(version), sp_version)
   if (comp_ver != -1) {

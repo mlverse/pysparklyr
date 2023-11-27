@@ -7,7 +7,6 @@ test_that("Standard Scaler works with Spark Connection", {
   )
 })
 test_that("Standard Scaler works with `tbl_spark`", {
-  sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()
   expect_s3_class(
     ft_standard_scaler(
@@ -40,7 +39,6 @@ test_that("Max Abs Scaler works with Spark Connection", {
 })
 
 test_that("Max Abs Scaler works with `tbl_spark`", {
-  sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()
   expect_silent(
     scale <- ft_max_abs_scaler(

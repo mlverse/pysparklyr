@@ -4,7 +4,7 @@
 
 use_test_version_spark <- function() {
   version <- Sys.getenv("SPARK_VERSION", unset = NA)
-  if (is.na(version)) version <- "3.4"
+  if (is.na(version)) version <- "3.5"
   version
 }
 
@@ -16,6 +16,18 @@ use_test_scala_spark <- function() {
 
 use_test_spark_connect <- function() {
   if (is.null(.test_env$sc)) {
+
+    env_name <- use_envname(version = use_test_version_spark())
+    use_virtualenv(env_name)
+    Sys.setenv("PYTHON_VERSION_MISMATCH" = py_exe())
+    Sys.setenv("PYSPARK_DRIVER_PYTHON" = py_exe())
+
+    cli_h2("Starting Spark Connect service")
+    spark_connect_service_start(
+      version = use_test_version_spark(),
+      scala_version = use_test_scala_spark()
+    )
+
     cli_h2("Connecting to Spark cluster")
     .test_env$sc <- sparklyr::spark_connect(
       master = "sc://localhost",

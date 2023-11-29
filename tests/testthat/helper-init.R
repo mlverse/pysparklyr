@@ -73,7 +73,7 @@ use_test_python_environment <- function() {
       env_avail <- names(env)
       if(env_avail != "exact") {
         cli_h1("Creating Python environment")
-        install_pyspark(version = spark_version, as_job = FALSE, install_ml = FALSE)
+        install_pyspark(version = spark_version, as_job = FALSE)
         env <- use_envname(method = "spark_connect", version = spark_version)
       }
     })

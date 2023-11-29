@@ -43,7 +43,7 @@ spark_connect_service_stop <- function(version = "3.4",
   get_version <- spark_install_find(version = version)
   cmd <- path(get_version$sparkVersionDir, "sbin", "stop-connect-server.sh")
   cli_div(theme = cli_colors())
-  cli_text("{.header Stopping {.emph Spark Connect}}")
+  cli_h3("{.header Stopping {.emph Spark Connect}}")
   prs <- process$new(
     command = cmd,
     stdout = "|",

@@ -1,6 +1,14 @@
 .test_env <- new.env()
 .test_env$sc <- NULL
 .test_env$lr_model <- NULL
+.test_env$env <- NULL
+
+use_test_env <-function() {
+  if(is.null(.test_env$env)) {
+    .test_env$env <- fs::path(tempdir(), random_table_name("env"))
+  }
+  .test_env$env
+}
 
 use_test_version_spark <- function() {
   version <- Sys.getenv("SPARK_VERSION", unset = NA)
@@ -17,18 +25,18 @@ use_test_scala_spark <- function() {
 use_test_spark_connect <- function() {
   if (is.null(.test_env$sc)) {
 
-    env_name <- use_envname(version = use_test_version_spark())
-    use_virtualenv(env_name)
+    env_name <- use_test_python_environment()
+
     Sys.setenv("PYTHON_VERSION_MISMATCH" = py_exe())
     Sys.setenv("PYSPARK_DRIVER_PYTHON" = py_exe())
 
-    cli_h2("Starting Spark Connect service")
+    cli_h1("Starting Spark Connect service")
     spark_connect_service_start(
       version = use_test_version_spark(),
       scala_version = use_test_scala_spark()
     )
 
-    cli_h2("Connecting to Spark cluster")
+    cli_h1("Connecting to Spark cluster")
     .test_env$sc <- sparklyr::spark_connect(
       master = "sc://localhost",
       method = "spark_connect",
@@ -54,4 +62,20 @@ use_test_lr_model <- function() {
     .test_env$lr_model <- ml_logistic_regression(tbl_mtcars, am ~ ., max_iter = 10)
   }
   .test_env$lr_model
+}
+
+use_test_python_environment <- function() {
+  spark_version <- use_test_version_spark()
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      env <- use_envname(method = "spark_connect", version = spark_version)
+      env_avail <- names(env)
+      if(env_avail != "exact") {
+        cli_h1("Creating Python environment")
+        install_pyspark(version = spark_version, as_job = FALSE, install_ml = FALSE)
+        env <- use_envname(method = "spark_connect", version = spark_version)
+      }
+    })
+  env
 }

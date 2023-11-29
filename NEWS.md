@@ -2,11 +2,34 @@
 
 ### Improvements
 
+* When connecting,`spark_connect()`, it will automatically prompt the
+user to install a Python Environment a viable one is not  not found. 
+This way, the R user will not have to run `install_databricks()`/
+`install_pyspark()` manually when using the package for the first time. (#69)
+
+* Instead of simply warning that `RETICULATE_PYTHON` is set, it will now un-set
+the variable. This allows `pysparklyr` to select the correct Python environment.
+It will output a console message to the user when the variable is un-set. (#65)
+
+* Adds enhanced RStudio Snippet for Databricks connections. It will automatically 
+check the cluster's version by pooling the Databricks REST API with the cluster's
+ID. This to check if there is a pre-installed Python environment that will
+suport the cluster's version. All these generate notifications in the snippet's
+UI. It also adds integration with Posit Workbench's new 'Databricks' pane. The
+snippet looks for a specific environment variable that Posit Workbench temporarily
+sets with the value of the cluster ID, and initializes the snippet with that
+value. (#53)
+
 * Adds `install_ml` argument to `install_databricks()` and `install_pyspark(). 
 This will allow the R user to avoid installing the large Python libraries 
 required for ML operations. This will be specially helpful for machines with
-scant storage. 
+scant storage. (#63)
 
+* Adds support for Databricks OAuth by adding a handler to the Posit Connect 
+integration. Internally, it centralizes the authentication processing into
+one un-exported function. (#68)
+
+* General improvements to all of console outputs
 
 ### Machine Learning
 
@@ -21,14 +44,14 @@ scant storage.
 
 * Adds `ml_prepare_dataset()` in lieu of a Vector Assembler transformer
 
+### Fixes
+
+* Fixes error in use_envname() - No environment name provided, and no 
+environment was automatically identified (#71)
+
 # pysparklyr 0.1.1
 
 ### Improvements
-
-* When connecting (`spark_connect()`), it will automatically prompt the
-R user to install a Python Environment if one with the expected name is
-not found. This way, the R user will not have to run `install_databricks()`/
-`install_pyspark()` manually when using the package for the first time.
 
 * Adds URL sanitation routine for the Databricks Host. It will remove trailing
 forward slashes, and add scheme (https) if missing. The Host sanitation can be 

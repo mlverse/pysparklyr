@@ -13,9 +13,13 @@
 NULL
 
 reticulate_python_check <- function(ignore = FALSE, unset = TRUE, message = TRUE) {
-  if (ignore) {
+
+  in_connect <- Sys.getenv("R_CONFIG_ACTIVE") == "rsconnect"
+
+  if (ignore | in_connect) {
     return(invisible)
   }
+
   env_var <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
   if (!is.na(env_var)) {
     if (unset) {

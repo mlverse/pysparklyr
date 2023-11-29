@@ -41,7 +41,7 @@ databricks_token <- function(token = NULL, fail = FALSE) {
           " - No Databricks OAuth token found \n",
           " - Not passed as a function argument"
           ),
-        "Please add your Host to 'DATABRICKS_TOKEN' inside your .Renviron file."
+        "Please add your Token to 'DATABRICKS_TOKEN' inside your .Renviron file."
       ))
     } else {
       name <- NULL

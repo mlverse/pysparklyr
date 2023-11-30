@@ -2,7 +2,6 @@ test_that("Version mismatch works", {
   alternate_version <- "3.4"
   version <- use_test_version_spark()
   if (alternate_version != version) {
-    use_test_python_environment()
     use_test_connect_start()
     expect_message(
       spark_connect(

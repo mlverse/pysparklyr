@@ -6,7 +6,9 @@
 
 use_test_env <- function() {
   if (is.null(.test_env$env)) {
-    .test_env$env <- fs::path(tempdir(), random_table_name("env"))
+    base <- fs::path_expand("~/test-spark")
+    .test_env$env <- fs::path(base, random_table_name("env"))
+    fs::dir_create(.test_env$env)
   }
   .test_env$env
 }
@@ -25,9 +27,8 @@ use_test_scala_spark <- function() {
 
 use_test_connect_start <- function() {
   if (is.null(.test_env$started)) {
-    use_test_python_environment()
+    env_path <- path(use_test_python_environment(), "bin", "python")
     version <- use_test_version_spark()
-    env_path <- use_test_python_environment()
     Sys.setenv("PYTHON_VERSION_MISMATCH" = env_path)
     Sys.setenv("PYSPARK_DRIVER_PYTHON" = env_path)
     cli_h1("Starting Spark Connect service version {version}")
@@ -45,7 +46,6 @@ use_test_connect_start <- function() {
 
 use_test_spark_connect <- function() {
   if (is.null(.test_env$sc)) {
-    use_test_python_environment()
     use_test_connect_start()
     cli_h1("Connecting to Spark cluster")
     withr::with_envvar(

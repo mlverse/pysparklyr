@@ -91,6 +91,7 @@ jobs:
 
       - name: R Tests
         run: |
+          devtools::load_all()
           devtools::test(reporter = sparklyr_reporter())
         shell: Rscript {0}
 

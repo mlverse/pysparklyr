@@ -93,7 +93,8 @@ use_test_python_environment <- function() {
           cli_h1("Creating Python environment")
           install_pyspark(
             version = version,
-            as_job = FALSE
+            as_job = FALSE,
+            python = Sys.which("python")
           )
           env <- use_envname(method = "spark_connect", version = version)
         }

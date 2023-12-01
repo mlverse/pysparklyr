@@ -16,7 +16,7 @@ test_that("Install environment", {
     new = c("WORKON_HOME" = env_path),
     {
       expect_output(
-        install_pyspark("3.4", as_job = FALSE),
+        install_pyspark("3.4", as_job = FALSE, python = Sys.which("python")),
         as_job = FALSE,
         python = Sys.which("python")
       )

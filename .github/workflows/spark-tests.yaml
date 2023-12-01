@@ -25,6 +25,9 @@ jobs:
       SPARK_VERSION:  ${{ matrix.config.pyspark }}
       HADOOP_VERSION: ${{ matrix.config.hadoop }}
       PYSPARK_VERSION:  ${{ matrix.config.pyspark }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      DATABRICKS_HOST: "https:\\rstudio-partner-posit-default.cloud.databricks.com"
+      DATABRICKS_CLUSTER: "1026-175310-7cpsh3g8"
 
     steps:
       - uses: actions/checkout@v3

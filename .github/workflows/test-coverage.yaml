@@ -1,5 +1,3 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: main
@@ -10,7 +8,11 @@ jobs:
   test-coverage:
     runs-on: ubuntu-latest
     env:
+      SPARK_VERSION: "3.5"
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      DATABRICKS_HOST: "https://rstudio-partner-posit-default.cloud.databricks.com"
+      DATABRICKS_CLUSTER_ID: "1026-175310-7cpsh3g8"
 
     steps:
       - uses: actions/checkout@v3
@@ -57,37 +59,10 @@ jobs:
           sparklyr::download_scalac()
         shell: Rscript {0}
 
-      - name: Cache Environment
-        id: cache-venv
-        uses: actions/cache@v3
-        with:
-          path: /home/runner/.virtualenvs/r-sparklyr-pyspark-3.5
-          key: sparklyr-virtualenv-3.5
-
-      - name: Virtual Environment
-        run: |
-          devtools::load_all()
-          install_pyspark("3.5", python = Sys.which("python"))
-        shell: Rscript {0}
-
       - name: Test coverage
         run: |
-          devtools::load_all()
-
-          env_name <- use_envname(version = 3.5)
-          loc <- paste0("/home/runner/.virtualenvs/", env_name,"/bin/python")
-
-          Sys.setenv("PYTHON_VERSION_MISMATCH" = loc)
-          Sys.setenv("PYSPARK_DRIVER_PYTHON" = loc)
-          Sys.setenv("SPARK_VERSION" = 3.5)
-          Sys.setenv("SCALA_VERSION" = 2.12)
           Sys.setenv("CODE_COVERAGE" = "true")
-
-          Sys.getenv("JAVA_HOME")
-          Sys.getenv("SPARK_VERSION")
-          Sys.getenv("PYTHON_VERSION_MISMATCH")
-          Sys.getenv("PYSPARK_DRIVER_PYTHON")
-
+          devtools::load_all()
           covr::codecov(
             quiet = FALSE,
             clean = FALSE,

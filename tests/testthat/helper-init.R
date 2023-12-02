@@ -1,33 +1,69 @@
 .test_env <- new.env()
 .test_env$sc <- NULL
 .test_env$lr_model <- NULL
+.test_env$env <- NULL
+.test_env$started <- NULL
 
-test_version_spark <- function() {
+use_test_env <- function() {
+  if (is.null(.test_env$env)) {
+    base <- fs::path_expand("~/test-spark")
+    .test_env$env <- fs::path(base, random_table_name("env"))
+    fs::dir_create(.test_env$env)
+  }
+  .test_env$env
+}
+
+use_test_version_spark <- function() {
   version <- Sys.getenv("SPARK_VERSION", unset = NA)
-  if (is.na(version)) version <- "3.4"
+  if (is.na(version)) version <- "3.5"
   version
 }
 
-test_scala_spark <- function() {
+use_test_scala_spark <- function() {
   version <- Sys.getenv("SCALA_VERSION", unset = NA)
   if (is.na(version)) version <- "2.12"
   version
 }
 
-test_spark_connect <- function() {
+use_test_connect_start <- function() {
+  if (is.null(.test_env$started)) {
+    env_path <- path(use_test_python_environment(), "bin", "python")
+    version <- use_test_version_spark()
+    Sys.setenv("PYTHON_VERSION_MISMATCH" = env_path)
+    Sys.setenv("PYSPARK_DRIVER_PYTHON" = env_path)
+    cli_h1("Starting Spark Connect service version {version}")
+    cli_h3("PYTHON_VERSION_MISMATCH: {Sys.getenv('PYTHON_VERSION_MISMATCH')}")
+    cli_h3("PYSPARK_DRIVER_PYTHON: {Sys.getenv('PYSPARK_DRIVER_PYTHON')}")
+    spark_connect_service_start(
+      version = version,
+      scala_version = use_test_scala_spark()
+    )
+    .test_env$started <- 0
+  } else {
+    invisible()
+  }
+}
+
+use_test_spark_connect <- function() {
   if (is.null(.test_env$sc)) {
-    cli_h2("Connecting to Spark cluster")
-    .test_env$sc <- sparklyr::spark_connect(
-      master = "sc://localhost",
-      method = "spark_connect",
-      version = test_version_spark()
+    use_test_connect_start()
+    cli_h1("Connecting to Spark cluster")
+    withr::with_envvar(
+      new = c("WORKON_HOME" = use_test_env()),
+      {
+        .test_env$sc <- sparklyr::spark_connect(
+          master = "sc://localhost",
+          method = "spark_connect",
+          version = use_test_version_spark()
+        )
+      }
     )
   }
   .test_env$sc
 }
 
-test_table_mtcars <- function() {
-  sc <- test_spark_connect()
+use_test_table_mtcars <- function() {
+  sc <- use_test_spark_connect()
   if (!"mtcars" %in% dbListTables(sc)) {
     ret <- dplyr::copy_to(sc, mtcars, overwrite = TRUE)
   } else {
@@ -36,82 +72,34 @@ test_table_mtcars <- function() {
   ret
 }
 
-test_lr_model <- function() {
+use_test_lr_model <- function() {
   if (is.null(.test_env$lr_model)) {
-    tbl_mtcars <- test_table_mtcars()
+    tbl_mtcars <- use_test_table_mtcars()
     .test_env$lr_model <- ml_logistic_regression(tbl_mtcars, am ~ ., max_iter = 10)
   }
   .test_env$lr_model
 }
 
-test_coverage_enable <- function() {
-  Sys.setenv("CODE_COVERAGE" = "true")
-}
-
-expect_same_remote_result <- function(.data, pipeline) {
-  sc <- test_spark_connect()
-  temp_name <- random_table_name("test_")
-  spark_data <- copy_to(sc, .data, temp_name)
-
-  local <- pipeline(.data)
-
-  remote <- try(
-    spark_data %>%
-      pipeline() %>%
-      collect()
+use_test_python_environment <- function() {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      version <- use_test_version_spark()
+      env <- use_envname(method = "spark_connect", version = version)
+      env_avail <- names(env)
+      target <- path(use_test_env(), env)
+      if (!dir_exists(target)) {
+        if (env_avail != "exact") {
+          cli_h1("Creating Python environment")
+          install_pyspark(
+            version = version,
+            as_job = FALSE,
+            python = Sys.which("python")
+          )
+          env <- use_envname(method = "spark_connect", version = version)
+        }
+      }
+    }
   )
-
-  if (inherits(remote, "try-error")) {
-    expect_equal(remote[[1]], "")
-  } else {
-    expect_equal(local, remote, ignore_attr = TRUE)
-  }
-
-  DBI::dbRemoveTable(sc, temp_name)
-}
-
-testthat_tbl <- function(name, data = NULL, repartition = 0L) {
-  sc <- test_spark_connect()
-
-  tbl <- tryCatch(dplyr::tbl(sc, name), error = identity)
-  if (inherits(tbl, "error")) {
-    if (is.null(data)) data <- eval(as.name(name), envir = parent.frame())
-    tbl <- dplyr::copy_to(sc, data, name = name, repartition = repartition)
-  }
-
-  tbl
-}
-
-random_table_name <- function(prefix) {
-  paste0(prefix, paste0(floor(runif(10, 0, 10)), collapse = ""))
-}
-
-
-skip_spark_min_version <- function(version) {
-  sc <- test_spark_connect()
-  sp_version <- spark_version(sc)
-  comp_ver <- compareVersion(as.character(version), sp_version)
-  if (comp_ver != -1) {
-    skip(glue("Skips on Spark version {version}"))
-  }
-}
-
-
-test_remove_python_envs <- function(x = "") {
-  found <- find_environments(x)
-  cli_inform("Environments found: {length(found)}")
-
-  invisible(
-    lapply(found,
-           function(x)
-             try(virtualenv_remove(x, confirm = FALSE), silent = TRUE)
-           )
-    )
-
-  invisible(
-    lapply(found,
-           function(x)
-             try(conda_remove(x), silent = TRUE)
-    )
-  )
+  target
 }

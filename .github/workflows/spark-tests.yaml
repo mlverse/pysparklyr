@@ -22,9 +22,12 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      SPARK_VERSION:  ${{ matrix.config.spark }}
+      SPARK_VERSION:  ${{ matrix.config.pyspark }}
       HADOOP_VERSION: ${{ matrix.config.hadoop }}
       PYSPARK_VERSION:  ${{ matrix.config.pyspark }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      DATABRICKS_HOST: "https://rstudio-partner-posit-default.cloud.databricks.com"
+      DATABRICKS_CLUSTER_ID: "1026-175310-7cpsh3g8"
 
     steps:
       - uses: actions/checkout@v3
@@ -89,37 +92,9 @@ jobs:
           print(t_pkgs[, c("Package", "Version")])
         shell: Rscript {0}
 
-      - name: Cache Environment
-        id: cache-venv
-        uses: actions/cache@v3
-        with:
-          path: /home/runner/.virtualenvs/r-sparklyr-pyspark-${{ matrix.config.pyspark }}
-          key: sparklyr-virtualenv-${{ matrix.config.pyspark }}
-
-      - name: Virtual Environment
-        #if: steps.cache-venv.outputs.cache-hit != 'true'
-        run: |
-          devtools::load_all()
-          install_pyspark(
-            Sys.getenv("SPARK_VERSION"),
-            python = Sys.which("python")
-          )
-        shell: Rscript {0}
-
       - name: R Tests
         run: |
           devtools::load_all()
-          library(sparklyr)
-          sv <- Sys.getenv("SPARK_VERSION")
-          if( sv >="3.5") {
-            env_name <- use_envname(version = sv)
-            loc <- paste0("/home/runner/.virtualenvs/", env_name,"/bin/python")
-            Sys.setenv("PYTHON_VERSION_MISMATCH" = loc)
-            Sys.setenv("PYSPARK_DRIVER_PYTHON" = loc)
-          }
-          Sys.getenv("JAVA_HOME")
-          Sys.getenv("PYTHON_VERSION_MISMATCH")
-          Sys.getenv("PYSPARK_DRIVER_PYTHON")
           devtools::test(reporter = sparklyr_reporter())
         shell: Rscript {0}
 

@@ -1,6 +1,6 @@
 test_that("Object retrieval function work", {
-  sc <- test_spark_connect()
-  tbl_mtcars <- test_table_mtcars()
+  sc <- use_test_spark_connect()
+  tbl_mtcars <- use_test_table_mtcars()
   expect_s3_class(spark_ide_objects(sc), "data.frame")
 
   expect_snapshot(

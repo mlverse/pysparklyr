@@ -227,6 +227,7 @@ build_user_agent <- function() {
 }
 
 connection_label <- function(x) {
+  x <- x[[1]]
   ret <- "Connection"
   method <- NULL
   con <- spark_connection(x)

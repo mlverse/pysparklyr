@@ -59,7 +59,7 @@ connection_spark_ui <- function() {
         tags$td(style = paste("height: 5px"))
       ),
       tags$tr(
-        tags$td("Master:"),
+        tags$td("Host URL:"),
         div(
           tags$td(
             textInput(
@@ -79,7 +79,7 @@ connection_spark_ui <- function() {
         tags$td(style = paste("height: 5px"))
       ),
       tags$tr(
-        tags$td("Auth:"),
+        tags$td("Password:"),
         tags$td(textOutput("auth"))
       )
     )
@@ -93,10 +93,10 @@ connection_spark_server <- function(input, output, session) {
   output$auth <- reactive({
     t_source <- names(token)
     if (t_source == "environment") {
-      ret <- "✓ Found - Using value from 'DATABRICKS_TOKEN'"
+      ret <- "✓ Found - Using 'DATABRICKS_TOKEN'"
     }
     if (t_source == "oauth") {
-      ret <- "✓ Found - Using value from Posit Workbench OAuth"
+      ret <- "✓ Found - Managed by Posit Workbench OAuth"
     }
     if (t_source == "") {
       ret <- "✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable"

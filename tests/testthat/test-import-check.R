@@ -1,5 +1,5 @@
 test_that("import_check() exception tests", {
-  sc <- test_spark_connect()
+  sc <- use_test_spark_connect()
 
   exe_location <- reticulate::py_exe()
   exe_folders <- unlist(strsplit(exe_location, "/"))

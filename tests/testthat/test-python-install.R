@@ -26,7 +26,6 @@ test_that("Install code is correctly created", {
 skip_on_ci()
 
 test_that("Databricks installations work", {
-
   env_paths <- map(1:3, ~ fs::path(tempdir(), random_table_name("env")))
   baseenv <- "r-sparklyr-databricks"
   version_1 <- "14.0"
@@ -42,9 +41,10 @@ test_that("Databricks installations work", {
         install_ml = FALSE,
         as_job = FALSE,
         python = python_path
-        )
+      )
       expect_equal(length(find_environments(baseenv)), 1)
-    })
+    }
+  )
 
   withr::with_envvar(
     new = c("WORKON_HOME" = env_paths[[2]]),
@@ -54,9 +54,10 @@ test_that("Databricks installations work", {
         install_ml = FALSE,
         as_job = FALSE,
         python = python_path
-        )
+      )
       expect_equal(length(find_environments(baseenv)), 1)
-    })
+    }
+  )
 
   withr::with_envvar(
     new = c("WORKON_HOME" = env_paths[[3]]),
@@ -66,21 +67,22 @@ test_that("Databricks installations work", {
         install_ml = FALSE,
         as_job = FALSE,
         python = python_path
-        )
+      )
       install_databricks(
         version_2,
         install_ml = FALSE,
         as_job = FALSE,
         python = python_path
-        )
+      )
       install_databricks(
         cluster_id = cluster_id,
         install_ml = FALSE,
         as_job = FALSE,
         python = python_path
-        )
+      )
       expect_equal(length(find_environments(baseenv)), 3)
-    })
+    }
+  )
 
   map(env_paths, fs::dir_delete)
 })

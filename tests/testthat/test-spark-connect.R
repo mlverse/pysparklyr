@@ -12,4 +12,3 @@ test_that("build_user_agent() outputs work", {
   expect_equal(build_user_agent(), "testagent")
   Sys.unsetenv("SPARK_CONNECT_USER_AGENT")
 })
-

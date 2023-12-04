@@ -1,6 +1,7 @@
 skip_spark_min_version(3.5)
 
 test_that("Standard Scaler works with Spark Connection", {
+  use_test_install_ml()
   sc <- use_test_spark_connect()
   expect_snapshot(
     class(ft_standard_scaler(sc))

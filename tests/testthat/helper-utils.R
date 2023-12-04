@@ -56,16 +56,20 @@ test_remove_python_envs <- function(x = "") {
   cli_inform("Environments found: {length(found)}")
 
   invisible(
-    lapply(found,
-           function(x)
-             try(virtualenv_remove(x, confirm = FALSE), silent = TRUE)
+    lapply(
+      found,
+      function(x) {
+        try(virtualenv_remove(x, confirm = FALSE), silent = TRUE)
+      }
     )
   )
 
   invisible(
-    lapply(found,
-           function(x)
-             try(conda_remove(x), silent = TRUE)
+    lapply(
+      found,
+      function(x) {
+        try(conda_remove(x), silent = TRUE)
+      }
     )
   )
 }

@@ -1,5 +1,6 @@
 #' @export
 ml_pipeline.pyspark_connection <- function(x, ..., uid = NULL) {
+  ml_installed()
   connect_pipeline <- import("pyspark.ml.connect.pipeline")
   jobj <- as_spark_pyobj(connect_pipeline, x)
   as_pipeline(jobj)
@@ -13,6 +14,7 @@ ml_fit.ml_connect_pipeline <- function(x, dataset, ...) {
 }
 
 ml_fit_impl <- function(x, dataset) {
+  ml_installed()
   py_dataset <- python_obj_get(dataset)
   py_x <- python_obj_get(x)
 

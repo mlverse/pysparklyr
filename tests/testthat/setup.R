@@ -11,4 +11,3 @@ withr::defer({
   # Deleting main Python environment
   withr::defer(fs::dir_delete(use_test_env()), envir = rlang::global_env())
 })
-

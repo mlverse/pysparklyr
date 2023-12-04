@@ -23,10 +23,15 @@ snippet looks for a specific environment variable that Posit Workbench temporari
 sets with the value of the cluster ID, and initializes the snippet with that
 value. (#53)
 
-* Adds `install_ml` argument to `install_databricks()` and `install_pyspark(). 
-This will allow the R user to avoid installing the large Python libraries 
-required for ML operations. This will be specially helpful for machines with
-scant storage. (#63)
+* Adds `install_ml` argument to `install_databricks()` and `install_pyspark()`. 
+The ML related Python libraries are very large, and take a long time to install.
+In most cases, the user will not need these to interact with the cluster. The 
+`install_ml` argument is a flag that will control if the ML libraries will
+be installed. It defaults to `FALSE`. The first time the R user runs an ML 
+related function, then `pysparklyr` will prompt them to install the needed
+libraries at that time.
+
+(#63, #78)
 
 * Adds support for Databricks OAuth by adding a handler to the Posit Connect 
 integration. Internally, it centralizes the authentication processing into

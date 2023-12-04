@@ -50,12 +50,13 @@ import_check <- function(x, envname) {
     if (env_found) {
       if (env_loaded) {
         # found & loaded
-        rlang::abort(paste0(
-          "Issue loading Python library '", x,"'\n",
-          as.character(out)
+        rlang::abort(
+          paste0(
+            "Issue loading Python library '", x, "'\n",
+            as.character(out)
           ),
           call = NULL
-          )
+        )
       } else {
         cli_abort(c(
           "{.emph '{x}' }{.header is not available current Python environment.}",

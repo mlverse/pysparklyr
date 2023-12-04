@@ -5,20 +5,18 @@ use_envname <- function(
     messages = FALSE,
     match_first = FALSE,
     ignore_reticulate_python = FALSE,
-    ask_if_not_installed = interactive()
-    ) {
-
+    ask_if_not_installed = interactive()) {
   ret_python <- reticulate_python_check(ignore_reticulate_python)
 
-  if(ret_python != "") {
+  if (ret_python != "") {
     return(set_names(ret_python, "env_var"))
   }
 
-  if(!is.null(envname)) {
+  if (!is.null(envname)) {
     return(set_names(envname, "argument"))
   }
 
-  if(is.null(version)) {
+  if (is.null(version)) {
     cli_abort("A cluster {.code version} is required, please provide one")
   }
 
@@ -41,7 +39,7 @@ use_envname <- function(
   match_exact <- length(envs[envs == envname]) > 0
 
   # There were 0 environments found
-  if(!match_one && !match_exact) {
+  if (!match_one && !match_exact) {
     ret <- set_names(envname, "unavailable")
     msg_1 <- paste0(
       "No {.emph viable} Python Environment was identified for ",
@@ -51,7 +49,7 @@ use_envname <- function(
   }
 
   # Found an exact match
-  if(match_one && match_exact) {
+  if (match_one && match_exact) {
     ret <- set_names(envname, "exact")
     msg_1 <- paste0(
       "No {.emph matching} Python Environment was found for ",
@@ -62,11 +60,12 @@ use_envname <- function(
 
   # There are environments, but no exact match, and argument says
   # to choose the most recent environment
-  if(match_one && !match_exact && match_first) {
+  if (match_one && !match_exact && match_first) {
     ret <- set_names(envs[1], "first")
     msg_1 <- paste0(
       "No {.emph exact} Python Environment was found for ",
-      "{.emph {con_label}} version {.emph {version}}. \n")
+      "{.emph {con_label}} version {.emph {version}}. \n"
+    )
     msg_2 <- paste0(
       "{.header If the exact version is not installed, {.code sparklyr} will ",
       "use {.code {ret}}}"
@@ -74,45 +73,45 @@ use_envname <- function(
   }
 
   # There are environments, but no exact match
-  if(match_one && !match_exact && !match_first) {
+  if (match_one && !match_exact && !match_first) {
     msg_1 <- paste0(
       "No {.emph exact} Python Environment was found for ",
       "{.emph {con_label}} version {.emph {version}}"
     )
     msg_2 <- "{.header The default Python environment may not work correctly}"
-    ret <-  set_names(envname, "unavailable")
+    ret <- set_names(envname, "unavailable")
   }
 
   ret_name <- names(ret)
-  if(messages && ret_name != "exact") {
+  if (messages && ret_name != "exact") {
     cli_div(theme = cli_colors())
-    if(ask_if_not_installed) {
+    if (ask_if_not_installed) {
       cli_alert_warning(msg_1)
       cli_bullets(c(
         " " = msg_2,
         " " = "Do you wish to install {con_label} version {version}?"
-        ))
+      ))
       choice <- utils::menu(choices = c("Yes", "No", "Cancel"))
-      if(choice == 1) {
+      if (choice == 1) {
         ret <- set_names(envname, "prompt")
-        if(method == "databricks_connect") {
+        if (method == "databricks_connect") {
           install_databricks(version = version, as_job = FALSE)
         }
-        if(method == "spark_connect") {
+        if (method == "spark_connect") {
           install_pyspark(version = version, as_job = FALSE)
         }
       }
-      if(choice == 2) {
+      if (choice == 2) {
         ret <- set_names(ret, "prompt")
       }
-      if(choice == 3) {
+      if (choice == 3) {
         cli_abort("Operation cancelled by user")
       }
-    } else{
-      if(ret_name == "unavailable") {
+    } else {
+      if (ret_name == "unavailable") {
         cli_abort(c(msg_1, msg_2, run_full))
       }
-      if(ret_name == "first") {
+      if (ret_name == "first") {
         cli_alert_warning(msg_1)
         cli_bullets(c(
           " " = msg_2,

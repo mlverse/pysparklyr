@@ -94,7 +94,8 @@ use_test_python_environment <- function() {
           install_pyspark(
             version = version,
             as_job = FALSE,
-            python = Sys.which("python")
+            python = Sys.which("python"),
+            install_ml = FALSE
           )
           env <- use_envname(method = "spark_connect", version = version)
         }
@@ -102,4 +103,25 @@ use_test_python_environment <- function() {
     }
   )
   target
+}
+
+use_test_ml_installed <- function() {
+  ml_libraries <- pysparklyr_env$ml_libraries
+  installed_libraries <- py_list_packages()$package
+  find_ml <- map_lgl(ml_libraries, ~ .x %in% installed_libraries)
+  all(find_ml)
+}
+
+use_test_install_ml <- function() {
+  if(!use_test_ml_installed()) {
+    py_install(pysparklyr_env$ml_libraries)
+  }
+}
+
+skip_ml_missing <- function() {
+  skip_if(!use_test_ml_installed(), "ML Python libraries not installed")
+}
+
+skip_ml_not_missing <- function() {
+  skip_if(use_test_ml_installed(), "ML Python libraries installed")
 }

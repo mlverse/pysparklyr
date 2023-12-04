@@ -14,14 +14,19 @@ NULL
 
 reticulate_python_check <- function(ignore = FALSE, unset = TRUE, message = TRUE) {
 
-  in_connect <- Sys.getenv("R_CONFIG_ACTIVE") == "rsconnect"
-
-  if (ignore | in_connect) {
-    return(invisible)
+  if (ignore) {
+    return("")
   }
 
+  out <- ""
+
   env_var <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
-  if (!is.na(env_var)) {
+
+  if(current_product_connect() && !is.na(env_var)){
+    out <- env_var
+  }
+
+  if (!is.na(env_var) && out == "") {
     if (unset) {
       Sys.unsetenv("RETICULATE_PYTHON")
       if (message) {
@@ -51,7 +56,7 @@ reticulate_python_check <- function(ignore = FALSE, unset = TRUE, message = TRUE
       }
     }
   }
-  invisible()
+  out
 }
 
 check_arg_supported <- function(x, msg = NULL) {
@@ -84,4 +89,12 @@ cli_internal_abort <- function(msg) {
   cli_div(theme = cli_colors())
   cli_abort(msg, call = NULL)
   cli_end()
+}
+
+current_product_connect <- function() {
+  out <- FALSE
+  if (Sys.getenv("RSTUDIO_PRODUCT") == "CONNECT") {
+    out <- TRUE
+  }
+  out
 }

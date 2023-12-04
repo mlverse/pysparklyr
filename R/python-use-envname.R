@@ -8,7 +8,11 @@ use_envname <- function(
     ask_if_not_installed = interactive()
     ) {
 
-  reticulate_python_check(ignore_reticulate_python)
+  ret_python <- reticulate_python_check(ignore_reticulate_python)
+
+  if(ret_python != "") {
+    return(set_names(ret_python, "env_var"))
+  }
 
   if(!is.null(envname)) {
     return(set_names(envname, "argument"))

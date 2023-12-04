@@ -9,7 +9,10 @@ This way, the R user will not have to run `install_databricks()`/
 
 * Instead of simply warning that `RETICULATE_PYTHON` is set, it will now un-set
 the variable. This allows `pysparklyr` to select the correct Python environment.
-It will output a console message to the user when the variable is un-set. (#65)
+It will output a console message to the user when the variable is un-set. (#65).
+Because of how Posit Connect manages `reticulate` Python environments, `pysparklyr`
+will force the use of the Python environment under that particular published
+content's `RETICULATE_PYTHON`.
 
 * Adds enhanced RStudio Snippet for Databricks connections. It will automatically 
 check the cluster's version by pooling the Databricks REST API with the cluster's

@@ -1,11 +1,12 @@
 databricks_host <- function(host = NULL, fail = TRUE) {
   host <- host %||% Sys.getenv("DATABRICKS_HOST", unset = NA)
-  if(is.null(host) | is.na(host)) {
-    if(fail) {
+  if (is.null(host) | is.na(host)) {
+    if (fail) {
       cli_abort(c(
-        paste0("No Host URL was provided, and",
-               "the environment variable 'DATABRICKS_HOST' is not set."
-               ),
+        paste0(
+          "No Host URL was provided, and",
+          "the environment variable 'DATABRICKS_HOST' is not set."
+        ),
         "Please add your Host to 'DATABRICKS_HOST' inside your .Renviron file."
       ))
     } else {
@@ -24,23 +25,22 @@ databricks_token <- function(token = NULL, fail = FALSE) {
     token <- getDatabricksToken(databricks_host())
   }
   # Checks the Environment Variable
-  if(is.null(token)) {
+  if (is.null(token)) {
     env_token <- Sys.getenv("DATABRICKS_TOKEN", unset = NA)
-    if(!is.na(env_token)) {
+    if (!is.na(env_token)) {
       name <- "environment"
       token <- env_token
     }
   }
-  if(is.null(token)) {
-    if(fail) {
-
+  if (is.null(token)) {
+    if (fail) {
       rlang::abort(c(
         paste0(
           "No authentication token was identified: \n",
           " - No 'DATABRICKS_TOKEN' environment variable found \n",
           " - No Databricks OAuth token found \n",
           " - Not passed as a function argument"
-          ),
+        ),
         "Please add your Token to 'DATABRICKS_TOKEN' inside your .Renviron file."
       ))
     } else {
@@ -69,7 +69,7 @@ databricks_dbr_version <- function(cluster_id,
     version <- paste0(sp_sep[1], ".", sp_sep[2])
     cli_bullets(c(
       " " = "{.class Cluster version: }{.emph '{version}'}"
-      ))
+    ))
   } else {
     version <- ""
   }
@@ -107,16 +107,18 @@ databricks_dbr_info <- function(cluster_id,
       invalid_cluster <- invalid_msg
     }
 
-    if(as.character(substr(out, 1, 26)) == "Error in req_perform(.) : ") {
+    if (as.character(substr(out, 1, 26)) == "Error in req_perform(.) : ") {
       out <- substr(out, 27, nchar(out))
     }
-    cli_abort(c(
-      "{.header Connection with Databricks failed: }\"{trimws(out)}\"",
-      "{.class  - Host: {.emph '{host}'}} {invalid_host}",
-      "{.class  - Cluster ID: {.emph '{cluster_id}'}} {invalid_cluster}",
-      "{.class  - Token: {.emph '<REDACTED>'}} {invalid_token}"
-    ),
-    call = NULL)
+    cli_abort(
+      c(
+        "{.header Connection with Databricks failed: }\"{trimws(out)}\"",
+        "{.class  - Host: {.emph '{host}'}} {invalid_host}",
+        "{.class  - Cluster ID: {.emph '{cluster_id}'}} {invalid_cluster}",
+        "{.class  - Token: {.emph '<REDACTED>'}} {invalid_token}"
+      ),
+      call = NULL
+    )
     out <- list()
   }
   out
@@ -191,14 +193,14 @@ sanitize_host <- function(url) {
     cli_div(theme = cli_colors())
     cli_alert_warning(
       "{.header Sanitizing Databricks Host ({.code master}) entry:}"
-      )
+    )
     cli_bullets(c(
       " " = "{.header Original: {.emph {url}}}",
       " " = "{.header Using:}    {.emph {ret}}",
       " " = paste0(
         "{.class Set {.code host_sanitize = FALSE} ",
         "in {.code spark_connect()} to avoid this change}"
-        )
+      )
     ))
 
     cli_end()

@@ -113,7 +113,7 @@ use_test_ml_installed <- function() {
 }
 
 use_test_install_ml <- function() {
-  if(!use_test_ml_installed()) {
+  if (!use_test_ml_installed()) {
     py_install(pysparklyr_env$ml_libraries)
   }
 }

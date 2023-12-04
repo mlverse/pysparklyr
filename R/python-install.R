@@ -82,7 +82,7 @@ install_databricks <- function(
         cluster_id = cluster_id,
         host = databricks_host(),
         token = databricks_token()
-        )
+      )
     }
   }
 
@@ -207,7 +207,7 @@ install_environment <- function(
         method = "databricks_connect",
         version = ver_name,
         ask_if_not_installed = FALSE
-        )
+      )
     } else {
       if (compareVersion(as.character(ver_name), "3.5") < 0) {
         add_torch <- FALSE
@@ -216,7 +216,7 @@ install_environment <- function(
         method = "spark_connect",
         version = ver_name,
         ask_if_not_installed = FALSE
-        )
+      )
     }
     cli_alert_success(
       "Automatically naming the environment:{.emph '{envname}'}"

@@ -133,10 +133,10 @@ ml_installed <- function() {
   ml_libraries <- pysparklyr_env$ml_libraries
   installed_libraries <- py_list_packages()$package
   find_ml <- map_lgl(ml_libraries, ~ .x %in% installed_libraries)
-  if(!all(find_ml)) {
+  if (!all(find_ml)) {
     cli_div(theme = cli_colors())
     msg1 <- "Required Python libraries to run ML functions are missing"
-    if(interactive()) {
+    if (interactive()) {
       missing_ml <- ml_libraries[!find_ml]
       cli_alert_warning(msg1)
       cli_bullets(c(
@@ -144,10 +144,10 @@ ml_installed <- function() {
         " " = "Do you wish to install? {.class (This will be a one time operation)}"
       ))
       choice <- utils::menu(choices = c("Yes", "Cancel"))
-      if(choice == 1) {
+      if (choice == 1) {
         py_install(missing_ml)
       }
-      if(choice == 2) {
+      if (choice == 2) {
         cli_abort("Operation cancelled by user")
       }
     } else {
@@ -155,7 +155,4 @@ ml_installed <- function() {
     }
     cli_end()
   }
-
 }
-
-

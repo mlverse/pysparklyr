@@ -231,8 +231,8 @@ connection_label <- function(x) {
   ret <- "Connection"
   method <- NULL
   con <- spark_connection(x)
-  if(is.null(con)) {
-    method = x
+  if (is.null(con)) {
+    method <- x
   } else {
     method <- con$method
   }

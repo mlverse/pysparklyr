@@ -187,7 +187,7 @@ build_user_agent <- function() {
     return(env_var)
   }
 
-  if (Sys.getenv("RSTUDIO_PRODUCT") == "CONNECT") {
+  if (current_product_connect()) {
     product <- "posit-connect"
   }
 

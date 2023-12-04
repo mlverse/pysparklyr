@@ -232,7 +232,7 @@ install_environment <- function(
   )
 
   if (add_torch && install_ml) {
-    packages <- c(packages, "torch", "torcheval", "scikit-learn")
+    packages <- c(packages, pysparklyr_env$ml_libraries)
   }
 
   method <- match.arg(method)

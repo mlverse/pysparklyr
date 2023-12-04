@@ -1,5 +1,6 @@
 #' @export
 ml_save.ml_connect_pipeline_stage <- function(x, path, overwrite = FALSE, ...) {
+  ml_installed()
   path <- path_abs(path)
   invisible(
     x %>%
@@ -14,6 +15,7 @@ ml_save.ml_connect_pipeline_stage <- function(x, path, overwrite = FALSE, ...) {
 
 # TODO: export ml_load() in sparklyr as S3 method
 ml_connect_load <- function(sc, path) {
+  ml_installed()
   path <- path_abs(path)
   conn <- python_obj_get(sc)
   connect_pipeline <- import("pyspark.ml.connect.pipeline")

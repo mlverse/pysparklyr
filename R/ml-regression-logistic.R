@@ -76,6 +76,7 @@ ml_logistic_regression.tbl_pyspark <- function(
 }
 
 ml_logistic_regression_prep <- function(x, args) {
+  ml_installed()
   ml_connect_not_supported(
     args = args,
     not_supported = c(

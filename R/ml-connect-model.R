@@ -85,6 +85,7 @@ ml_get_last_item <- function(x) {
 transform_impl <- function(x, dataset, prep = TRUE,
                            remove = FALSE, conn = NULL,
                            as_df = TRUE) {
+  ml_installed()
   if (prep) {
     ml_df <- ml_prep_dataset(
       x = dataset,

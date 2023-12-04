@@ -86,7 +86,6 @@ ft_execute_scaler <- function(x, input_col = NULL, output_col = NULL, .fn = "", 
     .remove_input <- TRUE
     input_col <- random_string("ft_")
   }
-
   args <- c(as.list(environment()), list(...))
 
   model <- ft_scaler_prep(args, .fn)
@@ -118,6 +117,7 @@ ft_execute_scaler <- function(x, input_col = NULL, output_col = NULL, .fn = "", 
 }
 
 ft_scaler_prep <- function(args, fn) {
+  ml_installed()
   ml_connect_not_supported(
     args = args,
     not_supported = c(

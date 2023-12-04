@@ -12,7 +12,7 @@ install_pyspark(
   new_env = TRUE,
   method = c("auto", "virtualenv", "conda"),
   as_job = TRUE,
-  install_ml = TRUE,
+  install_ml = FALSE,
   ...
 )
 
@@ -24,7 +24,7 @@ install_databricks(
   new_env = TRUE,
   method = c("auto", "virtualenv", "conda"),
   as_job = TRUE,
-  install_ml = TRUE,
+  install_ml = FALSE,
   ...
 )
 }

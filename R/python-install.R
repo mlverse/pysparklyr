@@ -33,7 +33,7 @@ install_pyspark <- function(
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     as_job = TRUE,
-    install_ml = TRUE,
+    install_ml = FALSE,
     ...) {
   install_as_job(
     libs = "pyspark",
@@ -63,7 +63,7 @@ install_databricks <- function(
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     as_job = TRUE,
-    install_ml = TRUE,
+    install_ml = FALSE,
     ...) {
   if (!is.null(version) && !is.null(cluster_id)) {
     cli_div(theme = cli_colors())
@@ -167,7 +167,7 @@ install_environment <- function(
     python_version = NULL,
     new_env = NULL,
     method = c("auto", "virtualenv", "conda"),
-    install_ml = TRUE,
+    install_ml = FALSE,
     ...) {
   if (is.null(version)) {
     cli_div(theme = cli_colors())

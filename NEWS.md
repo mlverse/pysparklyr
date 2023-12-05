@@ -1,4 +1,4 @@
-# pysparklyr (Development)
+# pysparklyr 0.1.2
 
 ### Improvements
 
@@ -29,9 +29,7 @@ In most cases, the user will not need these to interact with the cluster. The
 `install_ml` argument is a flag that will control if the ML libraries will
 be installed. It defaults to `FALSE`. The first time the R user runs an ML 
 related function, then `pysparklyr` will prompt them to install the needed
-libraries at that time.
-
-(#63, #78)
+libraries at that time.(#63, #78)
 
 * Adds support for Databricks OAuth by adding a handler to the Posit Connect 
 integration. Internally, it centralizes the authentication processing into

@@ -11,7 +11,10 @@ spark_connect_method.spark_method_spark_connect <- function(
     extensions,
     scala_version,
     ...) {
-  if (is.null(version)) {
+
+  version <-  version %||% Sys.getenv("SPARK_VERSION")
+
+  if (version == "") {
     cli_abort("Spark `version` is required, please provide")
   }
 

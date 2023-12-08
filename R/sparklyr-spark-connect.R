@@ -79,14 +79,15 @@ spark_connect_method.spark_method_databricks_connect <- function(
     if (is.null(version)) {
       version <- cluster_info$version
     }
-    envname <- use_envname(
-      method = method,
-      version = version,
-      envname = envname,
-      messages = TRUE,
-      match_first = TRUE
-    )
   }
+
+  envname <- use_envname(
+    method = method,
+    version = version,
+    envname = envname,
+    messages = TRUE,
+    match_first = TRUE
+  )
 
   db <- import_check("databricks.connect", envname)
 
@@ -98,7 +99,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     cli_end()
     master_label <- glue("{cluster_info$name} ({cluster_id})")
   } else {
-    master_label <- glue("Databricks {cluster_id}")
+    master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
   }
 
   remote_args <- NULL
@@ -111,10 +112,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     db$DatabricksSession$builder$remote(...)$userAgent(user_agent)
   }
 
-  conn <- rlang::exec(
-    databricks_session,
-    !!!remote_args
-  )
+  conn <- exec(databricks_session, !!!remote_args)
 
   initialize_connection(
     conn = conn,

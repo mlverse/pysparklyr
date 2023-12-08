@@ -92,15 +92,16 @@ spark_connect_method.spark_method_databricks_connect <- function(
   db <- import_check("databricks.connect", envname)
 
   if(!is.null(cluster_info)) {
-    cli_div(theme = cli_colors())
-    cli_progress_step(
-      "{.header Connecting to} '{.emph {cluster_info$name}}' {.header (DBR '{.emph {version}}')}"
-    )
-    cli_end()
+    msg <- "{.header Connecting to} '{.emph {cluster_info$name}}' {.header (DBR '{.emph {version}}')}"
     master_label <- glue("{cluster_info$name} ({cluster_id})")
   } else {
+    msg <- "{.header Connecting to} '{.emph {cluster_id}}'"
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
   }
+
+  cli_div(theme = cli_colors())
+  cli_progress_step(msg)
+  cli_end()
 
   remote_args <- NULL
   if(master != "") remote_args <- c(remote_args, host = master)

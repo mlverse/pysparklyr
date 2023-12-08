@@ -11,8 +11,7 @@ spark_connect_method.spark_method_spark_connect <- function(
     extensions,
     scala_version,
     ...) {
-
-  version <-  version %||% Sys.getenv("SPARK_VERSION")
+  version <- version %||% Sys.getenv("SPARK_VERSION")
 
   if (version == "") {
     cli_abort("Spark `version` is required, please provide")
@@ -73,12 +72,11 @@ spark_connect_method.spark_method_databricks_connect <- function(
   if (host_sanitize) {
     master <- sanitize_host(master)
   }
-  if (is.null(version) && !is.null(cluster_id)) {
-    version <- databricks_dbr_version(
-      cluster_id = cluster_id,
-      host = master,
-      token = token
-    )
+
+  cluster_info <- databricks_dbr_version_name(cluster_id, master, token)
+
+  if (is.null(version)) {
+    version <- cluster_info$version
   }
 
   envname <- use_envname(
@@ -88,8 +86,11 @@ spark_connect_method.spark_method_databricks_connect <- function(
     messages = TRUE,
     match_first = TRUE
   )
-
   db <- import_check("databricks.connect", envname)
+  cli_div(theme = cli_colors())
+  cli_progress_step(
+    "{.header Connecting to} '{.emph {cluster_info$name}}' {.header (DBR '{.emph {version}}')}"
+  )
   remote <- db$DatabricksSession$builder$remote(
     host = master,
     token = token,
@@ -98,9 +99,8 @@ spark_connect_method.spark_method_databricks_connect <- function(
   user_agent <- build_user_agent()
   conn <- remote$userAgent(user_agent)
   con_class <- "connect_databricks"
-  cluster_info <- databricks_dbr_info(cluster_id, master, token)
-  cluster_name <- substr(cluster_info$cluster_name, 1, 100)
-  master_label <- glue("{cluster_name} ({cluster_id})")
+  master_label <- glue("{cluster_info$name} ({cluster_id})")
+  cli_end()
   initialize_connection(
     conn = conn,
     master_label = master_label,

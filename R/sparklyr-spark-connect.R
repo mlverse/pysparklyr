@@ -66,45 +66,60 @@ spark_connect_method.spark_method_databricks_connect <- function(
   host_sanitize <- args$host_sanitize %||% TRUE
 
   method <- method[[1]]
-  token <- databricks_token(token, fail = TRUE)
-  cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
-  master <- databricks_host(master)
-  if (host_sanitize) {
+  token <- databricks_token(token, fail = FALSE)
+  #cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
+  master <- databricks_host(master, fail = FALSE)
+  if (host_sanitize && master != "") {
     master <- sanitize_host(master)
   }
 
-  cluster_info <- databricks_dbr_version_name(cluster_id, master, token)
-
-  if (is.null(version)) {
-    version <- cluster_info$version
+  cluster_info <- NULL
+  if(cluster_id != "" && master != "" && token != "") {
+    cluster_info <- databricks_dbr_version_name(cluster_id, master, token)
+    if (is.null(version)) {
+      version <- cluster_info$version
+    }
+    envname <- use_envname(
+      method = method,
+      version = version,
+      envname = envname,
+      messages = TRUE,
+      match_first = TRUE
+    )
   }
 
-  envname <- use_envname(
-    method = method,
-    version = version,
-    envname = envname,
-    messages = TRUE,
-    match_first = TRUE
-  )
   db <- import_check("databricks.connect", envname)
-  cli_div(theme = cli_colors())
-  cli_progress_step(
-    "{.header Connecting to} '{.emph {cluster_info$name}}' {.header (DBR '{.emph {version}}')}"
+
+  if(!is.null(cluster_info)) {
+    cli_div(theme = cli_colors())
+    cli_progress_step(
+      "{.header Connecting to} '{.emph {cluster_info$name}}' {.header (DBR '{.emph {version}}')}"
+    )
+    cli_end()
+    master_label <- glue("{cluster_info$name} ({cluster_id})")
+  } else {
+    master_label <- glue("Databricks {cluster_id}")
+  }
+
+  remote_args <- NULL
+  if(master != "") remote_args <- c(remote_args, host = master)
+  if(token != "") remote_args <- c(remote_args, token = token)
+  if(cluster_id != "") remote_args <- c(remote_args, cluster_id = cluster_id)
+
+  databricks_session <- function(...) {
+    user_agent <- build_user_agent()
+    db$DatabricksSession$builder$remote(...)$userAgent(user_agent)
+  }
+
+  conn <- rlang::exec(
+    databricks_session,
+    !!!remote_args
   )
-  remote <- db$DatabricksSession$builder$remote(
-    host = master,
-    token = token,
-    cluster_id = cluster_id
-  )
-  user_agent <- build_user_agent()
-  conn <- remote$userAgent(user_agent)
-  con_class <- "connect_databricks"
-  master_label <- glue("{cluster_info$name} ({cluster_id})")
-  cli_end()
+
   initialize_connection(
     conn = conn,
     master_label = master_label,
-    con_class = con_class,
+    con_class = "connect_databricks",
     cluster_id = cluster_id,
     method = method,
     config = config

@@ -103,10 +103,10 @@ spark_connect_method.spark_method_databricks_connect <- function(
   cli_progress_step(msg)
   cli_end()
 
-  remote_args <- NULL
-  if (master != "") remote_args <- c(remote_args, host = master)
-  if (token != "") remote_args <- c(remote_args, token = token)
-  if (cluster_id != "") remote_args <- c(remote_args, cluster_id = cluster_id)
+  remote_args <- list()
+  if (master != "") remote_args$host <- master
+  if (token != "") remote_args$token <- token
+  if (cluster_id != "") remote_args$cluster_id <- cluster_id
 
   databricks_session <- function(...) {
     user_agent <- build_user_agent()

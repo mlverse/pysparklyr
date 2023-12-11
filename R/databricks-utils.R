@@ -123,6 +123,17 @@ databricks_dbr_info <- function(cluster_id,
   out
 }
 
+databricks_dbr_version <- function(cluster_id,
+                                   host = NULL,
+                                   token = NULL) {
+  vn <- databricks_dbr_version_name(
+    cluster_id = cluster_id,
+    host = host,
+    token = token
+    )
+  vn$version
+}
+
 databricks_cluster_get <- function(cluster_id,
                                    host = NULL,
                                    token = NULL) {

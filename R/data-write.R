@@ -1,4 +1,26 @@
 #' @export
+spark_write_table.tbl_pyspark <- function(x,
+                                        name,
+                                        mode = NULL,
+                                        options = list(),
+                                        partition_by = NULL,
+                                        ...) {
+  args <- list(...)
+  save_action <- ifelse(identical(mode, "append"), "insertInto", "saveAsTable")
+  pyspark_write_generic(
+    x = x,
+    path = name,
+    format = args$format,
+    mode = mode,
+    partition_by = partition_by,
+    options = options,
+    args = list(),
+    save_action = save_action,
+    expand_path = FALSE
+  )
+}
+
+#' @export
 spark_write_csv.tbl_pyspark <- function(
     x,
     path,
@@ -104,7 +126,18 @@ spark_write_json.tbl_pyspark <- function(
   )
 }
 
-pyspark_write_generic <- function(x, path, format, mode, partition_by, options, args) {
+pyspark_write_generic <- function(
+    x,
+    path,
+    format = NULL,
+    mode,
+    partition_by,
+    options,
+    args,
+    save_action = "save",
+    expand_path = TRUE
+    ) {
+
   query <- tbl_pyspark_sdf(x)
 
   if (is.null(partition_by)) {
@@ -115,11 +148,22 @@ pyspark_write_generic <- function(x, path, format, mode, partition_by, options, 
 
   opts <- c(args, options)
 
+  path <- ifelse(expand_path, path_expand(path), path)
+
+  if(!is.null(format)) {
+    x <- py_invoke(query_prep, "format", format)
+  } else {
+    x <- query_prep
+  }
+
+  if(!is.null(mode)) {
+    x <- py_invoke(x, "mode", mode)
+  }
+
   invisible(
-    query_prep %>%
-      py_invoke("format", format) %>%
+    x %>%
       py_invoke_options(options = opts) %>%
-      py_invoke("save", path_expand(path))
+      py_invoke(save_action, path)
   )
 }
 

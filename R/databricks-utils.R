@@ -51,30 +51,29 @@ databricks_token <- function(token = NULL, fail = FALSE) {
   set_names(token, name)
 }
 
-databricks_dbr_version <- function(cluster_id,
-                                   host = NULL,
-                                   token = NULL) {
+databricks_dbr_version_name <- function(cluster_id,
+                                        host = NULL,
+                                        token = NULL) {
+  bullets <- NULL
   cli_div(theme = cli_colors())
-  cli_alert_warning(
-    "{.header Retrieving version from cluster }{.emph '{cluster_id}'}"
+  cli_progress_step(
+    "{.header Retrieving info for cluster:}{.emph '{cluster_id}'}"
   )
   cluster_info <- databricks_dbr_info(
     cluster_id = cluster_id,
     host = host,
     token = token
   )
+  cluster_name <- substr(cluster_info$cluster_name, 1, 100)
   sp_version <- cluster_info$spark_version
   if (!is.null(sp_version)) {
     sp_sep <- unlist(strsplit(sp_version, "\\."))
     version <- paste0(sp_sep[1], ".", sp_sep[2])
-    cli_bullets(c(
-      " " = "{.class Cluster version: }{.emph '{version}'}"
-    ))
   } else {
     version <- ""
   }
   cli_end()
-  version
+  list(version = version, name = cluster_name)
 }
 
 databricks_dbr_info <- function(cluster_id,
@@ -122,6 +121,17 @@ databricks_dbr_info <- function(cluster_id,
     out <- list()
   }
   out
+}
+
+databricks_dbr_version <- function(cluster_id,
+                                   host = NULL,
+                                   token = NULL) {
+  vn <- databricks_dbr_version_name(
+    cluster_id = cluster_id,
+    host = host,
+    token = token
+    )
+  vn$version
 }
 
 databricks_cluster_get <- function(cluster_id,
@@ -192,14 +202,14 @@ sanitize_host <- function(url) {
   if (ret != url) {
     cli_div(theme = cli_colors())
     cli_alert_warning(
-      "{.header Sanitizing Databricks Host ({.code master}) entry:}"
+      "{.header Changing host URL to:} {.emph {ret}}"
     )
     cli_bullets(c(
-      " " = "{.header Original: {.emph {url}}}",
-      " " = "{.header Using:}    {.emph {ret}}",
+      # " " = "{.header Original: {.emph {url}}}",
+      # " " = "{.header Using:}    {.emph {ret}}",
       " " = paste0(
         "{.class Set {.code host_sanitize = FALSE} ",
-        "in {.code spark_connect()} to avoid this change}"
+        "in {.code spark_connect()} to avoid changing it}"
       )
     ))
 

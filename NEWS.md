@@ -1,3 +1,16 @@
+# pysparklyr (development)
+
+### Improvements
+
+* Adds support for `spark_write_table()`
+
+* Simplifies to `spark_connect()` connection output.
+
+* Improves how it process host, token and cluster ID. If it doesn't find a
+token, it no longer fails. It will pass nothing for that argument, letting
+databricks.connect find the token. This allows for Databricks configurations
+files to work.
+
 # pysparklyr 0.1.2
 
 ### Improvements

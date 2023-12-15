@@ -30,7 +30,8 @@ Imports:
     vctrs,
     processx,
     httr2,
-    rstudioapi
+    rstudioapi,
+    rsconnect
 URL: https://github.com/mlverse/pysparklyr
 BugReports: https://github.com/mlverse/pysparklyr/issues
 Suggests: 
@@ -40,4 +41,3 @@ Suggests:
     tibble,
     withr
 Config/testthat/edition: 3
-

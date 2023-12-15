@@ -28,7 +28,7 @@
 #' @importFrom tidyr pivot_longer
 #' @importFrom vctrs vec_as_names
 #' @importFrom processx process
-#' @importFrom rstudioapi jobRunScript showQuestion
+#' @importFrom rstudioapi jobRunScript showQuestion getSourceEditorContext
 #' @importFrom stats terms
 #' @importFrom utils capture.output installed.packages
 #' @importFrom magrittr %>%

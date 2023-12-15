@@ -143,7 +143,11 @@ initialize_connection <- function(
     message = "is_categorical_dtype is deprecated",
     module = "pyspark"
   )
-
+  warnings$filterwarnings(
+    "ignore",
+    message = "'SparkSession' object has no attribute 'setLocalProperty'",
+    module = "pyspark"
+  )
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) databricks_dbr_error(get_version)

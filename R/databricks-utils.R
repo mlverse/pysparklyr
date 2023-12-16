@@ -130,7 +130,7 @@ databricks_dbr_version <- function(cluster_id,
     cluster_id = cluster_id,
     host = host,
     token = token
-    )
+  )
   vn$version
 }
 

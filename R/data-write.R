@@ -1,10 +1,10 @@
 #' @export
 spark_write_table.tbl_pyspark <- function(x,
-                                        name,
-                                        mode = NULL,
-                                        options = list(),
-                                        partition_by = NULL,
-                                        ...) {
+                                          name,
+                                          mode = NULL,
+                                          options = list(),
+                                          partition_by = NULL,
+                                          ...) {
   args <- list(...)
   save_action <- ifelse(identical(mode, "append"), "insertInto", "saveAsTable")
   pyspark_write_generic(
@@ -135,9 +135,7 @@ pyspark_write_generic <- function(
     options,
     args,
     save_action = "save",
-    expand_path = TRUE
-    ) {
-
+    expand_path = TRUE) {
   query <- tbl_pyspark_sdf(x)
 
   if (is.null(partition_by)) {
@@ -150,13 +148,13 @@ pyspark_write_generic <- function(
 
   path <- ifelse(expand_path, path_expand(path), path)
 
-  if(!is.null(format)) {
+  if (!is.null(format)) {
     x <- py_invoke(query_prep, "format", format)
   } else {
     x <- query_prep
   }
 
-  if(!is.null(mode)) {
+  if (!is.null(mode)) {
     x <- py_invoke(x, "mode", mode)
   }
 

@@ -1,6 +1,7 @@
 #' @export
 deploy <- function(
     appDir = NULL,
+    lint = FALSE,
     python = NULL,
     version = NULL,
     cluster_id = NULL,
@@ -14,10 +15,9 @@ deploy <- function(
     if (interactive() && in_rstudio) {
       editor_doc <- getSourceEditorContext()
       appDir <- dirname(editor_doc$path)
-      cli_alert_info("{.header Source:{.emph '{appDir}'}}")
+      cli_alert_info("{.header Source: {.emph '{appDir}'}}")
     }
   }
-
   python <- deploy_find_environment(
     python = python,
     cluster_id = cluster_id,
@@ -28,8 +28,6 @@ deploy <- function(
   # CONNECT_DB_HOST
   # CONNECT_DB_TOKEN
   # Use them if user pases host and token as arguments
-
-
 
   # deployApp(
   #   appDir = here::here("doc-subfolder"),
@@ -44,7 +42,7 @@ deploy_find_environment <- function(
     version = NULL,
     python = NULL,
     cluster_id = NULL,
-    method) {
+    method = "databricks_connect") {
   ret <- NULL
   failed <- NULL
   cli_progress_step(
@@ -53,6 +51,7 @@ deploy_find_environment <- function(
     msg_failed = "Environment not found: {.emph '{failed}'}"
   )
   if (is.null(python)) {
+    # TODO: Move to deploy_databricks() when is created
     if (is.null(version) && !is.null(cluster_id)) {
       version <- databricks_dbr_version(
         cluster_id = cluster_id,
@@ -60,15 +59,22 @@ deploy_find_environment <- function(
         token = databricks_token()
       )
     }
-    env_name <- use_envname(
-      version = version,
-      method = method
+    if(!is.null(version)) {
+      env_name <- use_envname(
+        version = version,
+        method = method
       )
-    if (names(env_name) == "exact") {
-      check_conda <- try(conda_python(env_name), silent = TRUE)
-      check_virtualenv <- try(virtualenv_python(env_name), silent = TRUE)
-      if (!inherits(check_conda, "try-error")) ret <- check_conda
-      if (!inherits(check_virtualenv, "try-error")) ret <- check_virtualenv
+      if (names(env_name) == "exact") {
+        check_conda <- try(conda_python(env_name), silent = TRUE)
+        check_virtualenv <- try(virtualenv_python(env_name), silent = TRUE)
+        if (!inherits(check_conda, "try-error")) ret <- check_conda
+        if (!inherits(check_virtualenv, "try-error")) ret <- check_virtualenv
+      }
+    } else {
+      py_exe_path <- py_exe()
+      if(grepl("r-sparklyr-", py_exe_path)) {
+        ret <- py_exe_path
+      }
     }
     if (is.null(ret)) failed <- env_name
   } else {

@@ -3,6 +3,7 @@ deploy <- function(
     appDir = NULL,
     python = NULL,
     version = NULL,
+    cluster_id = NULL,
     method = "databricks_connect",
     ...) {
   cli_div(theme = cli_colors())
@@ -19,11 +20,16 @@ deploy <- function(
 
   python <- deploy_find_environment(
     python = python,
+    cluster_id = cluster_id,
     version = version,
     method = method
   )
 
-  print(python)
+  # CONNECT_DB_HOST
+  # CONNECT_DB_TOKEN
+  # Use them if user pases host and token as arguments
+
+
 
   # deployApp(
   #   appDir = here::here("doc-subfolder"),
@@ -37,6 +43,7 @@ deploy <- function(
 deploy_find_environment <- function(
     version = NULL,
     python = NULL,
+    cluster_id = NULL,
     method) {
   ret <- NULL
   failed <- NULL
@@ -46,7 +53,17 @@ deploy_find_environment <- function(
     msg_failed = "Environment not found: {.emph '{failed}'}"
   )
   if (is.null(python)) {
-    env_name <- use_envname(version = version, method = method)
+    if (is.null(version) && !is.null(cluster_id)) {
+      version <- databricks_dbr_version(
+        cluster_id = cluster_id,
+        host = databricks_host(),
+        token = databricks_token()
+      )
+    }
+    env_name <- use_envname(
+      version = version,
+      method = method
+      )
     if (names(env_name) == "exact") {
       check_conda <- try(conda_python(env_name), silent = TRUE)
       check_virtualenv <- try(virtualenv_python(env_name), silent = TRUE)

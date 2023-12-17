@@ -1,6 +1,16 @@
 databricks_host <- function(host = NULL, fail = TRUE) {
-  host <- host %||% Sys.getenv("DATABRICKS_HOST", unset = NA)
-  if (is.null(host) | is.na(host)) {
+  if(!is.null(host)) {
+    return(set_names(host, "argument"))
+  }
+  env_host <-  Sys.getenv("DATABRICKS_HOST", unset = NA)
+  connect_host <- Sys.getenv("CONNECT_DATABRICKS_HOST", unset = NA)
+  if(!is.na(env_host)) {
+    host <- set_names(env_host, "environment")
+  }
+  if(!is.na(connect_host)) {
+    host <- set_names(connect_host, "environment")
+  }
+  if (is.null(host)) {
     if (fail) {
       cli_abort(c(
         paste0(
@@ -17,19 +27,24 @@ databricks_host <- function(host = NULL, fail = TRUE) {
 }
 
 databricks_token <- function(token = NULL, fail = FALSE) {
-  name <- "argument"
+  if(!is.null(token)) {
+    return(set_names(token, "argument"))
+  }
   # Checks for OAuth Databricks token inside the RStudio API
   if (is.null(token) && exists(".rs.api.getDatabricksToken")) {
     getDatabricksToken <- get(".rs.api.getDatabricksToken")
-    name <- "oauth"
-    token <- getDatabricksToken(databricks_host())
+    token <- set_names(getDatabricksToken(databricks_host()), "oauth")
   }
   # Checks the Environment Variable
   if (is.null(token)) {
     env_token <- Sys.getenv("DATABRICKS_TOKEN", unset = NA)
+    connect_token <- Sys.getenv("CONNECT_DATABRICKS_TOKEN", unset = NA)
     if (!is.na(env_token)) {
-      name <- "environment"
-      token <- env_token
+      token <- set_names(env_token, "environment")
+    } else {
+      if(!is.na(connect_token)) {
+        token <- set_names(connect_token, "environment_connect")
+      }
     }
   }
   if (is.null(token)) {
@@ -44,11 +59,10 @@ databricks_token <- function(token = NULL, fail = FALSE) {
         "Please add your Token to 'DATABRICKS_TOKEN' inside your .Renviron file."
       ))
     } else {
-      name <- NULL
       token <- ""
     }
   }
-  set_names(token, name)
+  token
 }
 
 databricks_dbr_version_name <- function(cluster_id,

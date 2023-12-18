@@ -1,9 +1,38 @@
-#' @@export
+#' Deploys Databricks backed content to publishing server
+#'
+#' @description
+#'  This is a convenience function that is meant to make it easier for
+#' you to publish your Databricks backed content to a publishing server. It is
+#' meant to be primarily used with Posit Connect.
+#'
+#' @param appDir A directory containing an application (e.g. a Shiny app or plumber API)
+#' Defaults to NULL. If left NULL, and if called within RStudio, it will attempt
+#' to use the folder of the currently opened document within the IDE.
+#' @param python Full path to a python binary for use by `reticulate.` It defaults to NULL.
+#' If left NULL, this function will attempt to find a viable local Python
+#' environment to replicate using the following hierarchy:
+#' 1. `version` - Cluster's DBR version
+#' 2. `cluster_id` - Query the cluster to obtain its DBR version
+#' 3. If one is loaded in the current R session, it will verify that the Python
+#' environment is suited to be used as the one to use
+#' @param account The name of the account to use to publish
+#' @param server The name of the target server to publish
+#' @param lint Lint the project before initiating the project? Default to FALSE.
+#' It has been causing issues for this type of content.
+#' @param version The Databricks Runtime (DBR) version. Use if `python` is NULL.
+#' @param cluster_id The Databricks cluster ID. Use if `python`, and `version` are
+#' NULL
+#' @param host The Databricks host URL. Defaults to NULL. If left NULL, it will
+#' use the environment variable `DATABRICKS_HOST`
+#' @param token The Databricks authentication token. Defaults to NULL. If left NULL, it will
+#' use the environment variable `DATABRICKS_TOKEN`
+#' @param ... Additional named arguments passed to `rsconnect::deployApp()` function
+#' @export
 deploy_databricks <- function(
     appDir = NULL,
+    python = NULL,
     account = NULL,
     server = NULL,
-    python = NULL,
     lint = FALSE,
     version = NULL,
     cluster_id = NULL,
@@ -60,7 +89,6 @@ deploy_databricks <- function(
   )
 }
 
-#' @export
 deploy <- function(
     appDir = NULL,
     account = NULL,

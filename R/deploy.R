@@ -1,12 +1,61 @@
-#' @export
-deploy <- function(
+#' @@export
+deploy_databricks <- function(
     appDir = NULL,
     lint = FALSE,
     python = NULL,
     version = NULL,
     cluster_id = NULL,
+    host = NULL,
+    token = NULL,
+    ...
+  ) {
+  if (is.null(version) && !is.null(cluster_id)) {
+    version <- databricks_dbr_version(
+      cluster_id = cluster_id,
+      host = databricks_host(),
+      token = databricks_token()
+    )
+  }
+  env_vars <- NULL
+  if(!is.null(host)) {
+    Sys.setenv("CONNECT_DATABRICKS_HOST" = host)
+    env_vars <- "CONNECT_DATABRICKS_HOST"
+  } else {
+    host <- databricks_host()
+    if(names(host) == "environment") {
+      env_vars <- "DATABRICKS_HOST"
+    }
+  }
+  if(!is.null(token)) {
+    Sys.setenv("CONNECT_DATABRICKS_TOKEN" = token)
+    env_vars <- c(env_vars, "CONNECT_DATABRICKS_TOKEN")
+  } else {
+    token <- databricks_token()
+    if(names(token) == "environment") {
+      env_vars <-  c(env_vars, "DATABRICKS_TOKEN")
+    }
+  }
+  deploy(
+    appDir = appDir, lint = lint,
+    python = python,
+    version = version,
     method = "databricks_connect",
+    envVars = env_vars
+  )
+}
+
+#' @export
+deploy <- function(
+    appDir = NULL,
+    lint = FALSE,
+    envVars = NULL,
+    python = NULL,
+    version = NULL,
+    method = NULL,
     ...) {
+  if(is.null(method)) {
+    abort("'method' is empty, please provide one")
+  }
   cli_div(theme = cli_colors())
   check_rstudio <- try(RStudio.Version(), silent = TRUE)
   in_rstudio <- !inherits(check_rstudio, "try-error")
@@ -20,13 +69,13 @@ deploy <- function(
   }
   python <- deploy_find_environment(
     python = python,
-    cluster_id = cluster_id,
     version = version,
     method = method
   )
 
-  # CONNECT_DB_HOST
-  # CONNECT_DB_TOKEN
+  print(envVars)
+  # CONNECT_DATABRICKS_HOST
+  # CONNECT_DATABRICKS_TOKEN
   # Use them if user pases host and token as arguments
 
   # deployApp(
@@ -41,7 +90,6 @@ deploy <- function(
 deploy_find_environment <- function(
     version = NULL,
     python = NULL,
-    cluster_id = NULL,
     method = "databricks_connect") {
   ret <- NULL
   failed <- NULL
@@ -51,14 +99,6 @@ deploy_find_environment <- function(
     msg_failed = "Environment not found: {.emph '{failed}'}"
   )
   if (is.null(python)) {
-    # TODO: Move to deploy_databricks() when is created
-    if (is.null(version) && !is.null(cluster_id)) {
-      version <- databricks_dbr_version(
-        cluster_id = cluster_id,
-        host = databricks_host(),
-        token = databricks_token()
-      )
-    }
     if(!is.null(version)) {
       env_name <- use_envname(
         version = version,

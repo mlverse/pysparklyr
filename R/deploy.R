@@ -142,7 +142,8 @@ deploy <- function(
   if(!is.null(env_var_message)) {
     cli_bullets(c("i" = "{.header Environment variables:}", env_var_message))
   }
-  cli_inform("Proceed?")
+  cli_inform("")
+  cli_inform("Does everything look correct?")
   cli_end()
   choice <- utils::menu(choices = c("Yes", "No", accts_msg))
   if(choice == 2) {
@@ -154,7 +155,6 @@ deploy <- function(
       map_chr(~ glue("Server: {.x$server} | Account: {.x$name}"))
     choice <- utils::menu(title = "Select publishing target:", chr_accounts)
   }
-  return(print("temp stop"))
   deployApp(
     appDir = appDir,
     python = python,

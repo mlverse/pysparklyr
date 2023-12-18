@@ -6,8 +6,10 @@
 \usage{
 deploy_databricks(
   appDir = NULL,
-  lint = FALSE,
+  account = NULL,
+  server = NULL,
   python = NULL,
+  lint = FALSE,
   version = NULL,
   cluster_id = NULL,
   host = NULL,

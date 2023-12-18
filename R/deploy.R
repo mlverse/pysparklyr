@@ -73,17 +73,13 @@ deploy <- function(
     method = method
   )
 
-  print(envVars)
-  # CONNECT_DATABRICKS_HOST
-  # CONNECT_DATABRICKS_TOKEN
-  # Use them if user pases host and token as arguments
-
-  # deployApp(
-  #   appDir = here::here("doc-subfolder"),
-  #   python = "/Users/user/.virtualenvs/r-sparklyr-databricks-14.1/bin/python",
-  #   envVars = c("DATABRICKS_HOST", "DATABRICKS_TOKEN"),
-  #   lint = FALSE
-  # )
+  x <- list(
+    appDir = appDir,
+    python = python,
+    envVars = envVars,
+    lint = FALSE,
+    ...
+  )
   cli_end()
 }
 
@@ -93,10 +89,11 @@ deploy_find_environment <- function(
     method = "databricks_connect") {
   ret <- NULL
   failed <- NULL
+  env_name <- ""
   cli_progress_step(
     msg = "Searching and validating Python path",
     msg_done = "{.header Python:{.emph '{ret}'}}",
-    msg_failed = "Environment not found: {.emph '{failed}'}"
+    msg_failed = "Environment not found: {.emph {failed}}"
   )
   if (is.null(python)) {
     if(!is.null(version)) {
@@ -110,13 +107,15 @@ deploy_find_environment <- function(
         if (!inherits(check_conda, "try-error")) ret <- check_conda
         if (!inherits(check_virtualenv, "try-error")) ret <- check_virtualenv
       }
+      if (is.null(ret)) failed <- env_name
     } else {
       py_exe_path <- py_exe()
       if(grepl("r-sparklyr-", py_exe_path)) {
         ret <- py_exe_path
+      } else {
+        failed <- "Please pass a 'version' or a 'cluster_id'"
       }
     }
-    if (is.null(ret)) failed <- env_name
   } else {
     validate_python <- file_exists(python)
     if (validate_python) {
@@ -125,6 +124,10 @@ deploy_find_environment <- function(
       failed <- python
     }
   }
-  if (is.null(ret)) cli_progress_done(result = "failed")
-  path_expand(ret)
+  if (is.null(ret)) {
+    cli_progress_done(result = "failed")
+  } else {
+    ret <- path_expand(ret)
+  }
+  ret
 }

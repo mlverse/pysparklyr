@@ -14,11 +14,12 @@ deploy_databricks <- function(
   if (is.null(version) && !is.null(cluster_id)) {
     version <- databricks_dbr_version(
       cluster_id = cluster_id,
-      host = databricks_host(),
-      token = databricks_token()
+      host = databricks_host(host),
+      token = databricks_token(token)
     )
   }
   env_vars <- NULL
+  env_var_message <- NULL
   if(!is.null(host)) {
     Sys.setenv("CONNECT_DATABRICKS_HOST" = host)
     env_vars <- "CONNECT_DATABRICKS_HOST"
@@ -27,6 +28,9 @@ deploy_databricks <- function(
     if(names(host) == "environment") {
       env_vars <- "DATABRICKS_HOST"
     }
+  }
+  if(!is.null(host)) {
+    env_var_message <- c(" " = glue("|- Host: {host}"))
   }
   if(!is.null(token)) {
     Sys.setenv("CONNECT_DATABRICKS_TOKEN" = token)
@@ -37,12 +41,19 @@ deploy_databricks <- function(
       env_vars <-  c(env_vars, "DATABRICKS_TOKEN")
     }
   }
+  if(!is.null(token)) {
+    env_var_message <- c(
+      env_var_message,
+      " " = glue("|- Token: '<REDACTED>'")
+      )
+  }
   deploy(
     appDir = appDir, lint = lint,
     python = python,
     version = version,
     method = "databricks_connect",
     envVars = env_vars,
+    env_var_message = env_var_message,
     account = account,
     server = server,
     ...
@@ -59,11 +70,13 @@ deploy <- function(
     python = NULL,
     version = NULL,
     method = NULL,
+    env_var_message = NULL,
     ...) {
   if(is.null(method)) {
     abort("'method' is empty, please provide one")
   }
   rs_accounts <- accounts()
+  accts_msg <- NULL
   if(nrow(rs_accounts) == 0) {
     abort("There are no server accounts setup")
   } else {
@@ -73,26 +86,37 @@ deploy <- function(
     if(is.null(server)) {
       server <- rs_accounts$server[1]
     }
+    if(nrow(rs_accounts > 1)) {
+      accts_msg <- "Change Publishing Target (Posit Connect server)"
+    }
   }
   cli_div(theme = cli_colors())
   cli_h1("Starting deployment")
   check_rstudio <- try(RStudio.Version(), silent = TRUE)
   in_rstudio <- !inherits(check_rstudio, "try-error")
   editor_doc <- NULL
-  cli_alert_info("{.header Server:} {server} | {.header Account:} {account}")
   if (is.null(appDir)) {
     if (interactive() && in_rstudio) {
       editor_doc <- getSourceEditorContext()
       appDir <- dirname(editor_doc$path)
-      cli_alert_info("{.header Source: {.emph '{appDir}'}}")
+
     }
   }
+  cli_inform("{.class - App and Spark -}")
+  cli_alert_info("{.header Source: {.emph '{appDir}'}}")
   python <- deploy_find_environment(
     python = python,
     version = version,
     method = method
   )
+  cli_inform("{.class - Publishing target -}")
+  cli_alert_info("{.header Server:} {server} | {.header Account:} {account}")
+  if(!is.null(env_var_message)) {
+    cli_bullets(c("i" = "{.header Environment variables:}", env_var_message))
+  }
+  cli_inform("Proceed?")
   cli_end()
+  choice <- utils::menu(title = "Proceed",  choices = c("Yes", "No", accts_msg))
   deployApp(
     appDir = appDir,
     python = python,

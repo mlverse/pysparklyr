@@ -8,7 +8,7 @@ databricks_host <- function(host = NULL, fail = TRUE) {
     host <- set_names(env_host, "environment")
   }
   if(!is.na(connect_host)) {
-    host <- set_names(connect_host, "environment")
+    host <- set_names(connect_host, "environment_connect")
   }
   if (is.null(host)) {
     if (fail) {

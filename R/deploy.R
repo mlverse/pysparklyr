@@ -1,8 +1,10 @@
 #' @@export
 deploy_databricks <- function(
     appDir = NULL,
-    lint = FALSE,
+    account = NULL,
+    server = NULL,
     python = NULL,
+    lint = FALSE,
     version = NULL,
     cluster_id = NULL,
     host = NULL,
@@ -40,13 +42,18 @@ deploy_databricks <- function(
     python = python,
     version = version,
     method = "databricks_connect",
-    envVars = env_vars
+    envVars = env_vars,
+    account = account,
+    server = server,
+    ...
   )
 }
 
 #' @export
 deploy <- function(
     appDir = NULL,
+    account = NULL,
+    server = NULL,
     lint = FALSE,
     envVars = NULL,
     python = NULL,
@@ -56,10 +63,23 @@ deploy <- function(
   if(is.null(method)) {
     abort("'method' is empty, please provide one")
   }
+  rs_accounts <- accounts()
+  if(nrow(rs_accounts) == 0) {
+    abort("There are no server accounts setup")
+  } else {
+    if(is.null(account)) {
+      account <- rs_accounts$name[1]
+    }
+    if(is.null(server)) {
+      server <- rs_accounts$server[1]
+    }
+  }
   cli_div(theme = cli_colors())
+  cli_h1("Starting deployment")
   check_rstudio <- try(RStudio.Version(), silent = TRUE)
   in_rstudio <- !inherits(check_rstudio, "try-error")
   editor_doc <- NULL
+  cli_alert_info("{.header Server:} {server} | {.header Account:} {account}")
   if (is.null(appDir)) {
     if (interactive() && in_rstudio) {
       editor_doc <- getSourceEditorContext()
@@ -72,15 +92,16 @@ deploy <- function(
     version = version,
     method = method
   )
-
-  x <- list(
+  cli_end()
+  deployApp(
     appDir = appDir,
     python = python,
     envVars = envVars,
+    server = server,
+    account = account,
     lint = FALSE,
     ...
   )
-  cli_end()
 }
 
 deploy_find_environment <- function(
@@ -126,6 +147,7 @@ deploy_find_environment <- function(
   }
   if (is.null(ret)) {
     cli_progress_done(result = "failed")
+    cli_abort("No Python environment could be found")
   } else {
     ret <- path_expand(ret)
   }

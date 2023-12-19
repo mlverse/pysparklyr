@@ -8,7 +8,7 @@ sdf_schema.tbl_pyspark <- function(
   check_arg_supported(expand_nested_cols)
   check_arg_supported(expand_struct_cols)
 
-  x_sdf <- pysparklyr:::python_sdf(x)
+  x_sdf <- python_sdf(x)
   x_schema <- x_sdf$schema
   x_schema$fields %>%
     map(~ {

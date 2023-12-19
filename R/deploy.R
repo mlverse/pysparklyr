@@ -136,6 +136,7 @@ deploy <- function(
   if(is.null(appDir)) {
     appDir <- getwd()
   }
+  appDir <- path(appDir)
   cli_inform("{.class - App and Spark -}")
   cli_alert_info("{.header Source: {.emph '{appDir}'}}")
   python <- deploy_find_environment(

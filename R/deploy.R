@@ -149,17 +149,19 @@ deploy <- function(
     cli_bullets(c("i" = "{.header Environment variables:}", env_var_message))
   }
   cli_inform("")
-  cli_inform("Does everything look correct?")
-  cli_end()
-  choice <- utils::menu(choices = c("Yes", "No", accts_msg))
-  if(choice == 2) {
-    return(invisible())
-  }
-  if(choice == 3) {
-    chr_accounts <- rs_accounts %>%
-      transpose() %>%
-      map_chr(~ glue("Server: {.x$server} | Account: {.x$name}"))
-    choice <- utils::menu(title = "Select publishing target:", chr_accounts)
+  if(interactive()) {
+    cli_inform("Does everything look correct?")
+    cli_end()
+    choice <- utils::menu(choices = c("Yes", "No", accts_msg))
+    if(choice == 2) {
+      return(invisible())
+    }
+    if(choice == 3) {
+      chr_accounts <- rs_accounts %>%
+        transpose() %>%
+        map_chr(~ glue("Server: {.x$server} | Account: {.x$name}"))
+      choice <- utils::menu(title = "Select publishing target:", chr_accounts)
+    }
   }
   deployApp(
     appDir = appDir,

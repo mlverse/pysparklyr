@@ -92,17 +92,20 @@ connection_spark_server <- function(input, output, session) {
 
   output$auth <- reactive({
     t_source <- names(token)
-    if (t_source == "environment") {
-      ret <- "✓ Found - Using 'DATABRICKS_TOKEN'"
-    }
-    if (t_source == "oauth") {
-      ret <- "✓ Found - Managed by Posit Workbench OAuth"
-    }
-    if (t_source == "") {
-      ret <- "✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable"
-    }
+    if (is.null(t_source)) {
+      ret <- "ℹ︎ Not determined yet"
+      } else {
+        if (t_source == "environment") {
+          ret <- "✓ Found - Using 'DATABRICKS_TOKEN'"
+          }
+        if (t_source == "oauth") {
+          ret <- "✓ Found - Managed by Posit Workbench OAuth"
+          }
+        if (t_source == "") {
+          ret <- "✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable"
+        }}
     ret
-  })
+ })
 
   output$matches_host <- reactive({
     host <- pysparklyr:::databricks_host(fail = FALSE)

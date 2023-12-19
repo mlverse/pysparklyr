@@ -16,18 +16,19 @@
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by
 #' @importFrom dplyr filter mutate
-#' @importFrom purrr map_lgl map_chr map pmap_chr imap discard
 #' @importFrom purrr map_lgl map_chr map pmap_chr imap
+#' @importFrom purrr map_chr discard transpose
 #' @importFrom rlang enquo `!!` `!!!` quo_is_null sym warn abort `%||%`
 #' @importFrom rlang is_string is_character parse_exprs set_names
 #' @importFrom rlang exec arg_match as_utf8_character
+#' @importFrom rsconnect accounts deployApp
 #' @importFrom methods new is setOldClass
 #' @importFrom tidyselect matches
 #' @importFrom utils head type.convert compareVersion
 #' @importFrom tidyr pivot_longer
 #' @importFrom vctrs vec_as_names
 #' @importFrom processx process
-#' @importFrom rstudioapi jobRunScript showQuestion
+#' @importFrom rstudioapi jobRunScript showQuestion getSourceEditorContext
 #' @importFrom stats terms
 #' @importFrom utils capture.output installed.packages
 #' @importFrom magrittr %>%

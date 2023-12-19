@@ -2,6 +2,8 @@
 
 ### Improvements
 
+* Adds support for `sdf_schema()`
+
 * Adds `deploy_databricks()` function. It will simplify publishing to Posit
 Connect by automating much of the needed setup, and triggers the publication.
 

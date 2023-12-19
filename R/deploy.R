@@ -7,7 +7,9 @@
 #'
 #' @param appDir A directory containing an application (e.g. a Shiny app or plumber API)
 #' Defaults to NULL. If left NULL, and if called within RStudio, it will attempt
-#' to use the folder of the currently opened document within the IDE.
+#' to use the folder of the currently opened document within the IDE. If there are
+#' no opened documents, or not working in the RStudio IDE, then it will use
+#' `getwd()` as the default value.
 #' @param python Full path to a python binary for use by `reticulate.` It defaults to NULL.
 #' If left NULL, this function will attempt to find a viable local Python
 #' environment to replicate using the following hierarchy:
@@ -126,9 +128,13 @@ deploy <- function(
   if (is.null(appDir)) {
     if (interactive() && in_rstudio) {
       editor_doc <- getSourceEditorContext()
-      appDir <- dirname(editor_doc$path)
-
+      if(!is.null(editor_doc)) {
+        appDir <- dirname(editor_doc$path)
+      }
     }
+  }
+  if(is.null(appDir)) {
+    appDir <- getwd()
   }
   cli_inform("{.class - App and Spark -}")
   cli_alert_info("{.header Source: {.emph '{appDir}'}}")

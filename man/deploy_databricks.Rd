@@ -20,7 +20,9 @@ deploy_databricks(
 \arguments{
 \item{appDir}{A directory containing an application (e.g. a Shiny app or plumber API)
 Defaults to NULL. If left NULL, and if called within RStudio, it will attempt
-to use the folder of the currently opened document within the IDE.}
+to use the folder of the currently opened document within the IDE. If there are
+no opened documents, or not working in the RStudio IDE, then it will use
+\code{getwd()} as the default value.}
 
 \item{python}{Full path to a python binary for use by \code{reticulate.} It defaults to NULL.
 If left NULL, this function will attempt to find a viable local Python

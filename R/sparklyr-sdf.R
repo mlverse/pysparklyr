@@ -1,5 +1,5 @@
 #' @export
-sdf_schema.tbl_spark <- function(
+sdf_schema.tbl_pyspark <- function(
     x,
     expand_nested_cols = NULL,
     expand_struct_cols = NULL

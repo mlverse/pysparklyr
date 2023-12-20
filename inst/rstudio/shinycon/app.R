@@ -85,7 +85,6 @@ connection_spark_server <- function(input, output, session) {
   dbr_version <- reactiveVal("")
   token <- pysparklyr:::databricks_token()
   host <- pysparklyr:::databricks_host(fail = FALSE)
-
   output$auth_label <- reactive({
     ret <- ""
     if (!is.null(names(token))) {
@@ -214,6 +213,9 @@ connection_spark_server <- function(input, output, session) {
   code_create <- function(cluster_id, host_url, dbr) {
     host_label <- NULL
     dbr_label <- NULL
+    if(is.null(host_url)) {
+      host_url <- ""
+    }
 
     if (host != "" && host != host_url) {
       host <- paste0("    master = \"", host_url, "\",")
@@ -236,7 +238,7 @@ connection_spark_server <- function(input, output, session) {
     )
     code_lines <- code_lines[!is.null(code_lines)]
     ret <- ""
-    if (cluster_id != "") {
+    if (cluster_id != "" && host_url != "") {
       ret <- paste0(code_lines, collapse = "\n")
     }
     ret
@@ -246,7 +248,7 @@ connection_spark_server <- function(input, output, session) {
     code_create(
       cluster_id = input$cluster_id,
       host_url = input$host_url,
-      dbr_version = dbr_version()
+      dbr = input$dbr_ver %||% dbr_version()
       )
   })
 

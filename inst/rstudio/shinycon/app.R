@@ -64,11 +64,7 @@ connection_spark_ui <- function() {
       ),
       tags$tr(
         tags$td(textOutput("host_label")),
-        div(
-          tags$td(
-            uiOutput("host_ui")
-          )
-        )
+        tags$td(uiOutput("host_ui"))
       ),
       tags$tr(
         tags$td(style = paste("height: 0px")),
@@ -114,7 +110,7 @@ connection_spark_server <- function(input, output, session) {
           ret <- "✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable"
         }}
     ret
- })
+    })
 
   output$host_label <- reactive({
     ret <- ""
@@ -139,19 +135,24 @@ connection_spark_server <- function(input, output, session) {
 
   output$dbr_label <- reactive({
     ret <- ""
-    if(is.null(names(token))) {
+    if(token == "") {
       ret <- "DBR Version:"
     }
     ret
   })
 
   output$dbr_ui <- renderUI({
-    textInput(
-      inputId = "dbr_version",
-      label = "",
-      value = "",
-      width = "50px"
-    )
+    if(token != "") {
+      ret <- tags$p("")
+    } else {
+      ret <- textInput(
+        inputId = "dbr_version",
+        label = "",
+        value = "",
+        width = "50px"
+      )
+    }
+    ret
   })
 
   output$matches_host <- reactive({

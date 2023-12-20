@@ -172,9 +172,9 @@ initialize_connection <- function(
 
   sc
 }
-setOldClass(
-  c("Hive", "spark_connection")
-)
+# setOldClass(
+#   c("Hive", "spark_connection")
+# )
 
 
 setOldClass(

@@ -146,7 +146,7 @@ connection_spark_server <- function(input, output, session) {
       ret <- tags$p("")
     } else {
       ret <- textInput(
-        inputId = "dbr_version",
+        inputId = "dbr_ver",
         label = "",
         value = "",
         width = "50px"
@@ -168,7 +168,7 @@ connection_spark_server <- function(input, output, session) {
 
   output$get_version <- reactive({
     ret <- ""
-    if (input$cluster_id != "") {
+    if (input$cluster_id != "" && host != "") {
       version <- try(pysparklyr:::databricks_dbr_version(
         cluster_id = input$cluster_id,
         host = input$host_url,
@@ -179,7 +179,9 @@ connection_spark_server <- function(input, output, session) {
         ret <- paste0("✓ Found - Cluster's DBR is ", version)
       } else {
         dbr_version("")
-        ret <- "✘ Could not verify cluster version"
+        if(token != "") {
+          ret <- "✘ Could not verify cluster version"
+        }
       }
     }
     ret
@@ -209,16 +211,25 @@ connection_spark_server <- function(input, output, session) {
     env
   })
 
-  code_create <- function(cluster_id, host_url) {
+  code_create <- function(cluster_id, host_url, dbr_version) {
     host_label <- NULL
+    dbr_label <- NULL
+
     if (host != "" && host != host_url) {
       host <- paste0("    master = \"", host_url, "\",")
+    }
+
+    if (!is.null(dbr_version)) {
+      if(dbr_version != "") {
+        dbr_label <- paste0("    version = \"", dbr_version, "\",")
+      }
     }
 
     code_lines <- c(
       "library(sparklyr)",
       "sc <- spark_connect(",
       paste0("    cluster_id = \"", cluster_id, "\","),
+      dbr_label,
       host_label,
       "    method = \"databricks_connect\"",
       ")"
@@ -232,9 +243,11 @@ connection_spark_server <- function(input, output, session) {
   }
 
   code_reactive <- reactive({
-    cluster_id <- input$cluster_id
-    host_url <- input$host_url
-    code_create(cluster_id, host_url)
+    code_create(
+      cluster_id = input$cluster_id,
+      host_url = input$host_url,
+      dbr_version = input$dbr_ver
+      )
   })
 
   observe({

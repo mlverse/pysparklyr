@@ -188,8 +188,12 @@ connection_spark_server <- function(input, output, session) {
 
   output$get_env <- reactive({
     env <- ""
-    version <- dbr_version()
-    if (version != "") {
+    version <- input$dbr_ver %||% dbr_version()
+
+    try_version <- try(pysparklyr:::version_prep(version), silent = TRUE)
+    err_version <- inherits(try_version, "try-error")
+
+    if (version != "" && !err_version) {
       if (!inherits(version, "try-error")) {
         verified <- pysparklyr:::use_envname(
           version = version,
@@ -213,6 +217,7 @@ connection_spark_server <- function(input, output, session) {
   code_create <- function(cluster_id, host_url, dbr) {
     host_label <- NULL
     dbr_label <- NULL
+
     if(is.null(host_url)) {
       host_url <- ""
     }
@@ -238,7 +243,7 @@ connection_spark_server <- function(input, output, session) {
     )
     code_lines <- code_lines[!is.null(code_lines)]
     ret <- ""
-    if (cluster_id != "" && host_url != "") {
+    if (cluster_id != "") {
       ret <- paste0(code_lines, collapse = "\n")
     }
     ret

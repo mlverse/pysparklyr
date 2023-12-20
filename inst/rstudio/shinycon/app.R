@@ -10,7 +10,7 @@ rsApiUpdateDialog <- function(code) {
 #' @import rstudioapi
 connection_spark_ui <- function() {
   env_var_name <- "DATABRICKS_SELECTED_CLUSTER_ID"
-  if(Sys.getenv(env_var_name) != "") {
+  if (Sys.getenv(env_var_name) != "") {
     cluster_label <- Sys.getenv(env_var_name)
     Sys.unsetenv(env_var_name)
   } else {
@@ -79,7 +79,6 @@ connection_spark_ui <- function() {
       )
     )
   )
-
 }
 
 connection_spark_server <- function(input, output, session) {
@@ -89,7 +88,7 @@ connection_spark_server <- function(input, output, session) {
 
   output$auth_label <- reactive({
     ret <- ""
-    if(!is.null(names(token))) {
+    if (!is.null(names(token))) {
       ret <- "Password:"
     }
     ret
@@ -99,29 +98,30 @@ connection_spark_server <- function(input, output, session) {
     t_source <- names(token)
     if (is.null(t_source)) {
       ret <- ""
-      } else {
-        if (t_source == "environment") {
-          ret <- "✓ Found - Using 'DATABRICKS_TOKEN'"
-          }
-        if (t_source == "oauth") {
-          ret <- "✓ Found - Managed by Posit Workbench OAuth"
-          }
-        if (t_source == "") {
-          ret <- "✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable"
-        }}
+    } else {
+      if (t_source == "environment") {
+        ret <- "✓ Found - Using 'DATABRICKS_TOKEN'"
+      }
+      if (t_source == "oauth") {
+        ret <- "✓ Found - Managed by Posit Workbench OAuth"
+      }
+      if (t_source == "") {
+        ret <- "✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable"
+      }
+    }
     ret
-    })
+  })
 
   output$host_label <- reactive({
     ret <- ""
-    if(host != "") {
+    if (host != "") {
       ret <- "Host URL:"
     }
     ret
   })
 
   output$host_ui <- renderUI({
-    if(host == "") {
+    if (host == "") {
       tags$p("")
     } else {
       textInput(
@@ -135,14 +135,14 @@ connection_spark_server <- function(input, output, session) {
 
   output$dbr_label <- reactive({
     ret <- ""
-    if(token == "") {
+    if (token == "") {
       ret <- "DBR Version:"
     }
     ret
   })
 
   output$dbr_ui <- renderUI({
-    if(token != "") {
+    if (token != "") {
       ret <- tags$p("")
     } else {
       ret <- textInput(
@@ -157,7 +157,7 @@ connection_spark_server <- function(input, output, session) {
 
   output$matches_host <- reactive({
     ret <- ""
-    if(!is.null(input$host)) {
+    if (!is.null(input$host)) {
       if (input$host != host) {
         ret <- "✓ Using supplied custom Host URL in code"
       }

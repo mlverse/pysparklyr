@@ -125,7 +125,7 @@ connection_spark_server <- function(input, output, session) {
       tags$p("")
     } else {
       textInput(
-        inputId = "host",
+        inputId = "host_url",
         label = "",
         value = host,
         width = "400px"
@@ -211,7 +211,7 @@ connection_spark_server <- function(input, output, session) {
     env
   })
 
-  code_create <- function(cluster_id, host_url, dbr_version) {
+  code_create <- function(cluster_id, host_url, dbr) {
     host_label <- NULL
     dbr_label <- NULL
 
@@ -219,9 +219,9 @@ connection_spark_server <- function(input, output, session) {
       host <- paste0("    master = \"", host_url, "\",")
     }
 
-    if (!is.null(dbr_version)) {
-      if(dbr_version != "") {
-        dbr_label <- paste0("    version = \"", dbr_version, "\",")
+    if (!is.null(dbr)) {
+      if(dbr != "") {
+        dbr_label <- paste0("    version = \"", dbr, "\",")
       }
     }
 
@@ -246,7 +246,7 @@ connection_spark_server <- function(input, output, session) {
     code_create(
       cluster_id = input$cluster_id,
       host_url = input$host_url,
-      dbr_version = input$dbr_ver
+      dbr_version = dbr_version()
       )
   })
 

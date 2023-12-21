@@ -1,4 +1,9 @@
 import_check <- function(x, envname) {
+  cli_div(theme = cli_colors())
+  cli_progress_step(
+    msg = "Attempting to load {.emph '{envname}'}",
+    msg_done = "{.header Python environment:} {.emph '{envname}'}"
+    )
   env_found <- !is.na(envname)
   env_loaded <- NA
   look_for_env <- TRUE
@@ -79,16 +84,16 @@ import_check <- function(x, envname) {
     cli_alert_danger(glue("`reticulate` error:\n {out[[1]]}"))
   } else {
     if (env_loaded) {
-      if (look_for_env) {
-        msg <- paste(
-          "{.header Using the }{.emph '{envname}' }{.header Python}",
-          "{.header environment }"
-        )
-        cli_div(theme = cli_colors())
-        cli_alert_success(msg)
-        cli_bullets(c(" " = "{.class Path: {py_exe()}}"))
-        cli_end()
-      }
+      # if (look_for_env) {
+      #   msg <- paste(
+      #     "{.header Using the }{.emph '{envname}' }{.header Python}",
+      #     "{.header environment }"
+      #   )
+      #   cli_div(theme = cli_colors())
+      #   cli_alert_success(msg)
+      #   cli_bullets(c(" " = "{.class Path: {py_exe()}}"))
+      #   cli_end()
+      # }
     } else {
       msg <- paste(
         "{.header Not using the} {.emph '{envname}'} ",

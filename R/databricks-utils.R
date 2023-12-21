@@ -69,9 +69,11 @@ databricks_dbr_version_name <- function(cluster_id,
                                         host = NULL,
                                         token = NULL) {
   bullets <- NULL
+  version <- NULL
   cli_div(theme = cli_colors())
   cli_progress_step(
-    "{.header Retrieving info for cluster:}{.emph '{cluster_id}'}"
+    msg = "Retrieving info for cluster:}{.emph '{cluster_id}'",
+    msg_done = "{.header Cluster:} {.emph '{cluster_id}'} | {.header DBR: }{.emph '{version}'}}"
   )
   cluster_info <- databricks_dbr_info(
     cluster_id = cluster_id,
@@ -86,6 +88,7 @@ databricks_dbr_version_name <- function(cluster_id,
   } else {
     version <- ""
   }
+  cli_progress_done()
   cli_end()
   list(version = version, name = cluster_name)
 }
@@ -218,15 +221,6 @@ sanitize_host <- function(url) {
     cli_alert_warning(
       "{.header Changing host URL to:} {.emph {ret}}"
     )
-    cli_bullets(c(
-      # " " = "{.header Original: {.emph {url}}}",
-      # " " = "{.header Using:}    {.emph {ret}}",
-      " " = paste0(
-        "{.class Set {.code host_sanitize = FALSE} ",
-        "in {.code spark_connect()} to avoid changing it}"
-      )
-    ))
-
     cli_end()
   }
   ret

@@ -1,5 +1,14 @@
 # pysparklyr (development)
 
+### New
+
+* Adds support for `sdf_schema()`
+
+* Adds support for `spark_write_table()`
+
+* Adds `deploy_databricks()` function. It will simplify publishing to Posit
+Connect by automating much of the needed setup, and triggers the publication.
+
 ### Improvements
 
 * Improvements to the RStudio connections snippet. It now adapts for when the
@@ -8,19 +17,16 @@ If missing, then the snippet will hide the host and token sections, and display
 a cluster DBR section so that the user can enter it manually. After entering,
 the snippet will verify the installed environment.
 
-* Adds support for `sdf_schema()`
-
-* Adds `deploy_databricks()` function. It will simplify publishing to Posit
-Connect by automating much of the needed setup, and triggers the publication.
-
-* Adds support for `spark_write_table()`
-
-* Simplifies to `spark_connect()` connection output.
-
 * Improves how it process host, token and cluster ID. If it doesn't find a
 token, it no longer fails. It will pass nothing for that argument, letting
 'databricks.connect' find the token. This allows for Databricks configurations
 files to work.
+
+* Prevents failure when the latest 'databricks.connect' version is lower than
+the DBR version of the cluster. It will not prompt to install, but rather
+alert the user that they will be on a lower version of the library.
+
+* Simplifies to `spark_connect()` connection output.
 
 # pysparklyr 0.1.2
 

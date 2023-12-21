@@ -14,7 +14,7 @@ test_that("deploy works", {
     )
 
   if(names(env_name) != "exact") {
-    reticulate::py_install("numpy", envname, pip = TRUE)
+    reticulate::py_install("numpy", env_name, pip = TRUE)
   }
 
   local_mocked_bindings(

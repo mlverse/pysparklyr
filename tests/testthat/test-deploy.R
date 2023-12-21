@@ -16,15 +16,7 @@ test_that("deploy works", {
       )
 
       if (names(env_name) != "exact") {
-        install_environment(
-          libs = "databricks.connect",
-          version = dbr_version,
-          envname = env_name,
-          python_version = ">=3.9",
-          new_env = TRUE,
-          python = Sys.which("python"),
-          install_packages = c("numpy")
-        )
+        py_install("numpy", env_name, pip = TRUE, python = Sys.which("python"))
       }
 
       local_mocked_bindings(

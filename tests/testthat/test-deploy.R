@@ -22,6 +22,7 @@ test_that("deploy works", {
           envname = env_name,
           python_version = ">=3.9",
           new_env = TRUE,
+          python = Sys.which("python"),
           install_packages = c("numpy")
         )
       }

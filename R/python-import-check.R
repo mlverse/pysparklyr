@@ -2,7 +2,8 @@ import_check <- function(x, envname) {
   cli_div(theme = cli_colors())
   cli_progress_step(
     msg = "Attempting to load {.emph '{envname}'}",
-    msg_done = "{.header Python environment:} {.emph '{envname}'}"
+    msg_done = "{.header Python environment:} {.emph '{envname}'}",
+    msg_failed = "Problem using {.emph '{envname}'}"
     )
   env_found <- !is.na(envname)
   env_loaded <- NA
@@ -26,7 +27,11 @@ import_check <- function(x, envname) {
     if (py_available()) {
       # If there is a Python environment already loaded
       if (env_found) {
-        if (env_python(envname) == py_exe()) {
+        find_env <- env_python(envname)
+        if(is.na(find_env)) {
+          find_env <- ""
+        }
+        if (find_env == py_exe()) {
           env_loaded <- TRUE
         } else {
           env_loaded <- FALSE
@@ -36,7 +41,11 @@ import_check <- function(x, envname) {
       # If there is NO Python environment already loaded
       if (env_found) {
         # If the envname is found, we try to use it
-        if (env_type(envname) == "virtualenv") {
+        envir_type <- env_type(envname)
+        if(is.na(envir_type)) {
+          envir_type <- ""
+        }
+        if (envir_type == "virtualenv") {
           try(use_virtualenv(envname), silent = TRUE)
         } else {
           try(use_condaenv(envname), silent = TRUE)
@@ -63,6 +72,7 @@ import_check <- function(x, envname) {
           call = NULL
         )
       } else {
+        cli_progress_done(result = "failed")
         cli_abort(c(
           "{.emph '{x}' }{.header is not available current Python environment.}",
           paste(
@@ -95,13 +105,11 @@ import_check <- function(x, envname) {
       #   cli_end()
       # }
     } else {
-      msg <- paste(
-        "{.header Not using the} {.emph '{envname}'} ",
-        "{.header Python environment}.\n",
-        "{.header - Current Python path:} {.emph {py_exe()}}"
-      )
-      cli_div(theme = cli_colors())
-      cli_alert_warning(msg)
+      cli_progress_done(result = "failed")
+      cli_bullets(c(
+        " " = "{.header A different Python is already loaded: }{.emph '{py_exe()}'}",
+        " " = "{.emph '{x}'} {.header was found and loaded from that environment}"
+      ))
       cli_end()
     }
   }

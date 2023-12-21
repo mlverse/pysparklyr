@@ -28,6 +28,8 @@
 #' use the environment variable `DATABRICKS_HOST`
 #' @param token The Databricks authentication token. Defaults to NULL. If left NULL, it will
 #' use the environment variable `DATABRICKS_TOKEN`
+#' @param confirm Should the user be prompted to confirm that the correct
+#' information is being used for deployment? Defaults to TRUE.
 #' @param ... Additional named arguments passed to `rsconnect::deployApp()` function
 #' @export
 deploy_databricks <- function(
@@ -40,6 +42,7 @@ deploy_databricks <- function(
     cluster_id = NULL,
     host = NULL,
     token = NULL,
+    confirm = TRUE,
     ...
   ) {
   if (is.null(version) && !is.null(cluster_id)) {
@@ -67,15 +70,22 @@ deploy_databricks <- function(
     Sys.setenv("CONNECT_DATABRICKS_TOKEN" = token)
     env_vars <- c(env_vars, "CONNECT_DATABRICKS_TOKEN")
   } else {
-    token <- databricks_token()
-    if(names(token) == "environment") {
-      env_vars <-  c(env_vars, "DATABRICKS_TOKEN")
+    env_token_name <- "DATABRICKS_TOKEN"
+    token <- Sys.getenv(env_token_name, unset = "")
+    if(token != "") {
+      env_vars <-  c(env_vars, env_token_name)
     }
   }
   if(!is.null(token)) {
     env_var_message <- c(
       env_var_message,
       " " = glue("|- Token: '<REDACTED>'")
+      )
+  } else{
+    cli_abort(paste0(
+      "No token was provided or found. Please either set the",
+      " {.emph 'DATABRICKS_HOST'} environment variable,",
+      " or pass the {.code token} argument.")
       )
   }
   deploy(
@@ -87,6 +97,7 @@ deploy_databricks <- function(
     env_var_message = env_var_message,
     account = account,
     server = server,
+    confirm = confirm,
     ...
   )
 }
@@ -101,6 +112,7 @@ deploy <- function(
     version = NULL,
     method = NULL,
     env_var_message = NULL,
+    confirm,
     ...) {
   if(is.null(method)) {
     abort("'method' is empty, please provide one")
@@ -150,7 +162,7 @@ deploy <- function(
     cli_bullets(c("i" = "{.header Environment variables:}", env_var_message))
   }
   cli_inform("")
-  if(interactive()) {
+  if(interactive() && confirm) {
     cli_inform("Does everything look correct?")
     cli_end()
     choice <- utils::menu(choices = c("Yes", "No", accts_msg))

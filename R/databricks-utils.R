@@ -70,32 +70,38 @@ databricks_dbr_version_name <- function(cluster_id,
                                         token = NULL) {
   bullets <- NULL
   version <- NULL
-  cli_div(theme = cli_colors())
-  cli_progress_step(
-    msg = "Retrieving info for cluster:}{.emph '{cluster_id}'",
-    msg_done = "{.header Cluster:} {.emph '{cluster_id}'} | {.header DBR: }{.emph '{version}'}}"
-  )
   cluster_info <- databricks_dbr_info(
     cluster_id = cluster_id,
     host = host,
     token = token
   )
   cluster_name <- substr(cluster_info$cluster_name, 1, 100)
-  sp_version <- cluster_info$spark_version
+  version <- databricks_extract_version(cluster_info)
+  cli_progress_done()
+  cli_end()
+  list(version = version, name = cluster_name)
+}
+
+databricks_extract_version <- function(x) {
+  sp_version <- x$spark_version
   if (!is.null(sp_version)) {
     sp_sep <- unlist(strsplit(sp_version, "\\."))
     version <- paste0(sp_sep[1], ".", sp_sep[2])
   } else {
     version <- ""
   }
-  cli_progress_done()
-  cli_end()
-  list(version = version, name = cluster_name)
+  version
 }
 
 databricks_dbr_info <- function(cluster_id,
                                 host = NULL,
                                 token = NULL) {
+  cli_div(theme = cli_colors())
+  cli_progress_step(
+    msg = "Retrieving info for cluster:}{.emph '{cluster_id}'",
+    msg_done = "{.header Cluster:} {.emph '{cluster_id}'} | {.header DBR: }{.emph '{version}'}}",
+    msg_failed = "Failed contacting:}{.emph '{cluster_id}'"
+  )
   out <- databricks_cluster_get(cluster_id, host, token)
   if (inherits(out, "try-error")) {
     out <- databricks_cluster_get(cluster_id, sanitize_host(host), token)
@@ -126,6 +132,7 @@ databricks_dbr_info <- function(cluster_id,
     if (as.character(substr(out, 1, 26)) == "Error in req_perform(.) : ") {
       out <- substr(out, 27, nchar(out))
     }
+    cli_progress_done(result = "failed")
     cli_abort(
       c(
         "{.header Connection with Databricks failed: }\"{trimws(out)}\"",
@@ -136,7 +143,11 @@ databricks_dbr_info <- function(cluster_id,
       call = NULL
     )
     out <- list()
+  } else {
+    version <- databricks_extract_version(out)
   }
+  cli_progress_done()
+  cli_end()
   out
 }
 

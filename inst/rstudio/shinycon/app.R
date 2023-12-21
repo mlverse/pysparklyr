@@ -10,7 +10,7 @@ rsApiUpdateDialog <- function(code) {
 #' @import rstudioapi
 connection_spark_ui <- function() {
   env_var_name <- "DATABRICKS_SELECTED_CLUSTER_ID"
-  if(Sys.getenv(env_var_name) != "") {
+  if (Sys.getenv(env_var_name) != "") {
     cluster_label <- Sys.getenv(env_var_name)
     Sys.unsetenv(env_var_name)
   } else {
@@ -59,17 +59,12 @@ connection_spark_ui <- function() {
         tags$td(style = paste("height: 5px"))
       ),
       tags$tr(
-        tags$td("Host URL:"),
-        div(
-          tags$td(
-            textInput(
-              inputId = "host_url",
-              label = "",
-              value = pysparklyr:::databricks_host(fail = FALSE),
-              width = "400px"
-            )
-          )
-        )
+        tags$td(textOutput("dbr_label")),
+        tags$td(uiOutput("dbr_ui"))
+      ),
+      tags$tr(
+        tags$td(textOutput("host_label")),
+        tags$td(uiOutput("host_ui"))
       ),
       tags$tr(
         tags$td(style = paste("height: 0px")),
@@ -79,8 +74,8 @@ connection_spark_ui <- function() {
         tags$td(style = paste("height: 5px"))
       ),
       tags$tr(
-        tags$td("Password:"),
-        tags$td(textOutput("auth"))
+        tags$td(textOutput("auth_label")),
+        tags$td(textOutput("auth_ui"))
       )
     )
   )
@@ -89,34 +84,90 @@ connection_spark_ui <- function() {
 connection_spark_server <- function(input, output, session) {
   dbr_version <- reactiveVal("")
   token <- pysparklyr:::databricks_token()
+  host <- pysparklyr:::databricks_host(fail = FALSE)
+  output$auth_label <- reactive({
+    ret <- ""
+    if (!is.null(names(token))) {
+      ret <- "Password:"
+    }
+    ret
+  })
 
-  output$auth <- reactive({
+  output$auth_ui <- reactive({
     t_source <- names(token)
-    if (t_source == "environment") {
-      ret <- "✓ Found - Using 'DATABRICKS_TOKEN'"
+    if (is.null(t_source)) {
+      ret <- ""
+    } else {
+      if (t_source == "environment") {
+        ret <- "✓ Found - Using 'DATABRICKS_TOKEN'"
+      }
+      if (t_source == "oauth") {
+        ret <- "✓ Found - Managed by Posit Workbench OAuth"
+      }
+      if (t_source == "") {
+        ret <- "✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable"
+      }
     }
-    if (t_source == "oauth") {
-      ret <- "✓ Found - Managed by Posit Workbench OAuth"
+    ret
+  })
+
+  output$host_label <- reactive({
+    ret <- ""
+    if (host != "") {
+      ret <- "Host URL:"
     }
-    if (t_source == "") {
-      ret <- "✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable"
+    ret
+  })
+
+  output$host_ui <- renderUI({
+    if (host == "") {
+      tags$p("")
+    } else {
+      textInput(
+        inputId = "host_url",
+        label = "",
+        value = host,
+        width = "400px"
+      )
+    }
+  })
+
+  output$dbr_label <- reactive({
+    ret <- ""
+    if (token == "") {
+      ret <- "DBR Version:"
+    }
+    ret
+  })
+
+  output$dbr_ui <- renderUI({
+    if (token != "") {
+      ret <- tags$p("")
+    } else {
+      ret <- textInput(
+        inputId = "dbr_ver",
+        label = "",
+        value = "",
+        width = "50px"
+      )
     }
     ret
   })
 
   output$matches_host <- reactive({
-    host <- pysparklyr:::databricks_host(fail = FALSE)
     ret <- ""
-    if (input$host_url != host) {
-      ret <- "✓ Using supplied custom Host URL in code"
+    if (!is.null(input$host)) {
+      if (input$host != host) {
+        ret <- "✓ Using supplied custom Host URL in code"
+      }
+      if (host == "") ret <- ""
+      ret
     }
-    if (host == "") ret <- ""
-    ret
   })
 
   output$get_version <- reactive({
     ret <- ""
-    if (input$cluster_id != "") {
+    if (input$cluster_id != "" && host != "") {
       version <- try(pysparklyr:::databricks_dbr_version(
         cluster_id = input$cluster_id,
         host = input$host_url,
@@ -127,7 +178,9 @@ connection_spark_server <- function(input, output, session) {
         ret <- paste0("✓ Found - Cluster's DBR is ", version)
       } else {
         dbr_version("")
-        ret <- "✘ Could not verify cluster version"
+        if(token != "") {
+          ret <- "✘ Could not verify cluster version"
+        }
       }
     }
     ret
@@ -135,8 +188,12 @@ connection_spark_server <- function(input, output, session) {
 
   output$get_env <- reactive({
     env <- ""
-    version <- dbr_version()
-    if (version != "") {
+    version <- input$dbr_ver %||% dbr_version()
+
+    try_version <- try(pysparklyr:::version_prep(version), silent = TRUE)
+    err_version <- inherits(try_version, "try-error")
+
+    if (version != "" && !err_version) {
       if (!inherits(version, "try-error")) {
         verified <- pysparklyr:::use_envname(
           version = version,
@@ -157,18 +214,30 @@ connection_spark_server <- function(input, output, session) {
     env
   })
 
-  code_create <- function(cluster_id, host_url) {
-    host <- NULL
-    env_host <- pysparklyr:::databricks_host(fail = FALSE)
-    if (env_host != "" && env_host != host_url) {
+  code_create <- function(cluster_id, host_url, dbr) {
+    host_label <- NULL
+    dbr_label <- NULL
+
+    if(is.null(host_url)) {
+      host_url <- ""
+    }
+
+    if (host != "" && host != host_url) {
       host <- paste0("    master = \"", host_url, "\",")
+    }
+
+    if (!is.null(dbr)) {
+      if(dbr != "") {
+        dbr_label <- paste0("    version = \"", dbr, "\",")
+      }
     }
 
     code_lines <- c(
       "library(sparklyr)",
       "sc <- spark_connect(",
       paste0("    cluster_id = \"", cluster_id, "\","),
-      host,
+      dbr_label,
+      host_label,
       "    method = \"databricks_connect\"",
       ")"
     )
@@ -181,9 +250,11 @@ connection_spark_server <- function(input, output, session) {
   }
 
   code_reactive <- reactive({
-    cluster_id <- input$cluster_id
-    host_url <- input$host_url
-    code_create(cluster_id, host_url)
+    code_create(
+      cluster_id = input$cluster_id,
+      host_url = input$host_url,
+      dbr = input$dbr_ver %||% dbr_version()
+      )
   })
 
   observe({

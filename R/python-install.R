@@ -168,6 +168,7 @@ install_environment <- function(
     new_env = NULL,
     method = c("auto", "virtualenv", "conda"),
     install_ml = FALSE,
+    install_packages = NULL,
     ...) {
   if (is.null(version)) {
     cli_div(theme = cli_colors())
@@ -270,6 +271,10 @@ install_environment <- function(
   # conda_install() doesn't accept a version constraint for python_version
   if (method == "conda" && python_version == ">=3.9") {
     python_version <- "3.9"
+  }
+
+  if(!is.null(install_packages)) {
+    packages <- install_packages
   }
 
   py_install(

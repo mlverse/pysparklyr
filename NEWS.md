@@ -2,6 +2,14 @@
 
 ### Improvements
 
+* Improvements to the RStudio connections snippet. It now adapts for when the
+host and, or the token, are not available to verify the cluster's DBR version.
+If missing, then the snippet will hide the host and token sections, and display
+a cluster DBR section so that the user can enter it manually. After entering,
+the snippet will verify the installed environment.
+
+* Adds support for `sdf_schema()`
+
 * Adds `deploy_databricks()` function. It will simplify publishing to Posit
 Connect by automating much of the needed setup, and triggers the publication.
 

@@ -1,5 +1,5 @@
 #' @importFrom sparklyr spark_session invoke invoke_new invoke_static
-#' @importFrom sparklyr spark_dataframe spark_web sdf_register
+#' @importFrom sparklyr spark_dataframe spark_web sdf_register sdf_schema
 #' @importFrom sparklyr sdf_copy_to spark_connect_method spark_log random_string
 #' @importFrom sparklyr spark_table_name spark_integ_test_skip spark_ide_preview
 #' @importFrom sparklyr spark_connection connection_is_open hive_context

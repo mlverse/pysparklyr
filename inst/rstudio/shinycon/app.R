@@ -1,4 +1,4 @@
-library(sparklyr)
+library(rlang)
 
 rsApiUpdateDialog <- function(code) {
   if (exists(".rs.api.updateDialog")) {

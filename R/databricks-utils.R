@@ -30,11 +30,6 @@ databricks_token <- function(token = NULL, fail = FALSE) {
   if(!is.null(token)) {
     return(set_names(token, "argument"))
   }
-  # Checks for OAuth Databricks token inside the RStudio API
-  if (is.null(token) && exists(".rs.api.getDatabricksToken")) {
-    getDatabricksToken <- get(".rs.api.getDatabricksToken")
-    token <- set_names(getDatabricksToken(databricks_host()), "oauth")
-  }
   # Checks the Environment Variable
   if (is.null(token)) {
     env_token <- Sys.getenv("DATABRICKS_TOKEN", unset = NA)
@@ -46,6 +41,11 @@ databricks_token <- function(token = NULL, fail = FALSE) {
         token <- set_names(connect_token, "environment_connect")
       }
     }
+  }
+  # Checks for OAuth Databricks token inside the RStudio API
+  if (is.null(token) && exists(".rs.api.getDatabricksToken")) {
+    getDatabricksToken <- get(".rs.api.getDatabricksToken")
+    token <- set_names(getDatabricksToken(databricks_host()), "oauth")
   }
   if (is.null(token)) {
     if (fail) {

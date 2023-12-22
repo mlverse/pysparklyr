@@ -8,3 +8,4 @@
 .Renviron
 .saved_model
 derby.log
+spark-warehouse

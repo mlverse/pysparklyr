@@ -1,3 +1,11 @@
+test_that("Write table works", {
+  tbl_mtcars <- use_test_table_mtcars()
+  expect_silent(
+    spark_write_table(tbl_mtcars, "new_mtcars")
+  )
+  dir_delete(test_path("spark-warehouse"))
+})
+
 test_that("CSV works", {
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()

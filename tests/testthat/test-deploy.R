@@ -73,6 +73,18 @@ test_that("deploy works", {
           )
         }
       )
+
+      withr::with_envvar(
+        new = c("DATABRICKS_HOST" = NA, "DATABRICKS_TOKEN" = NA),
+        {
+          expect_error(
+            deploy_databricks(
+              version = dbr_version
+            )
+          )
+        }
+      )
+
     }
   )
 })

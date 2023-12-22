@@ -54,26 +54,39 @@ deploy_databricks <- function(
   }
   env_vars <- NULL
   env_var_message <- NULL
+
+  # Host URL
   if(!is.null(host)) {
     Sys.setenv("CONNECT_DATABRICKS_HOST" = host)
     env_vars <- "CONNECT_DATABRICKS_HOST"
   } else {
-    host <- databricks_host()
-    if(names(host) == "environment") {
-      env_vars <- "DATABRICKS_HOST"
+    env_host_name <- "DATABRICKS_HOST"
+    env_host <- Sys.getenv(env_host_name, unset = "")
+    if(env_host != "") {
+      env_vars <-  c(env_vars, env_host_name)
+      host <- env_host
     }
   }
   if(!is.null(host)) {
     env_var_message <- c(" " = glue("|- Host: {host}"))
+  } else {
+    var_error <- c(" " = paste0(
+      "{.header - No host URL was provided or found. Please either set the}",
+      " {.emph 'DATABRICKS_HOST'} {.header environment variable,}",
+      " {.header or pass the }{.code host} {.header argument.}")
+      )
   }
+
+  # Token
   if(!is.null(token)) {
     Sys.setenv("CONNECT_DATABRICKS_TOKEN" = token)
     env_vars <- c(env_vars, "CONNECT_DATABRICKS_TOKEN")
   } else {
     env_token_name <- "DATABRICKS_TOKEN"
-    token <- Sys.getenv(env_token_name, unset = "")
-    if(token != "") {
+    env_token <- Sys.getenv(env_token_name, unset = "")
+    if(env_token != "") {
       env_vars <-  c(env_vars, env_token_name)
+      token <- env_token
     }
   }
   if(!is.null(token)) {
@@ -81,13 +94,20 @@ deploy_databricks <- function(
       env_var_message,
       " " = glue("|- Token: '<REDACTED>'")
       )
-  } else{
-    cli_abort(paste0(
-      "No token was provided or found. Please either set the",
-      " {.emph 'DATABRICKS_HOST'} environment variable,",
-      " or pass the {.code token} argument.")
-      )
+  } else {
+    var_error <- c(var_error, " " = paste0(
+      "{.header - No token was provided or found. Please either set the}",
+      " {.emph 'DATABRICKS_TOKEN'} {.header environment variable,}",
+      " {.header or pass the} {.code token} {.header argument.}")
+    )
   }
+
+  if(!is.null(var_error)) {
+    cli_div(theme = cli_colors())
+    cli_abort(c("Cluster setup errors:", var_error), call = NULL)
+    cli_end()
+  }
+
   deploy(
     appDir = appDir, lint = lint,
     python = python,

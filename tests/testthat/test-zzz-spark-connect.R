@@ -19,6 +19,12 @@ test_that("Test Databricks connection", {
   withr::with_envvar(
     new = c("WORKON_HOME" = use_test_env()),
     {
+      sc <- use_test_spark_connect()
+      pyspark_version <- py_library_info("pyspark")
+      comp <- compareVersion(pyspark_version$version, spark_version(sc))
+      if(comp != 0) {
+        skip("Not latest version of Spark")
+      }
       local_mocked_bindings(
         initialize_connection = function(...) list(...)
       )
@@ -26,6 +32,7 @@ test_that("Test Databricks connection", {
       sc <- spark_connect_method.spark_method_databricks_connect(
         master = NULL,
         method = "databricks_connect",
+        envname = py_exe(),
         config = NULL
       )
       expect_s3_class(sc$conn, "databricks.connect.session.Builder")

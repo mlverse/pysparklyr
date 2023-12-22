@@ -1,3 +1,36 @@
+test_that("Databricks installation works", {
+  skip_if_not_databricks()
+  local_mocked_bindings(install_as_job = function(...) list(...))
+  out <- install_databricks(version = "14.1")
+  expect_snapshot(out)
+})
+
+test_that("Null version and libs work", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      local_mocked_bindings(py_install = function(...) list(...))
+      expect_message(
+        install_environment(
+          libs = "pyspark",
+          new_env = FALSE,
+          python = Sys.which("python")
+          ),
+        "Retrieving version from PyPi.org"
+      )
+
+      expect_error(
+        install_environment(
+          libs = "pyspark",
+          version = "0.1",
+          new_env = FALSE,
+          python = Sys.which("python")
+        ),
+        "Version '0.1' does not exist"
+      )
+    })
+})
+
 test_that("installed_components() output properly", {
   sc <- use_test_spark_connect()
   expect_message(installed_components())

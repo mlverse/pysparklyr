@@ -54,6 +54,7 @@ deploy_databricks <- function(
   }
   env_vars <- NULL
   env_var_message <- NULL
+  var_error <- NULL
 
   # Host URL
   if(!is.null(host)) {

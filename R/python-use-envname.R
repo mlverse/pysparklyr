@@ -24,9 +24,9 @@ use_envname <- function(
 
   env_base <- glue("r-sparklyr-{backend}-")
   run_code <- glue("pysparklyr::install_{backend}(version = \"{version}\")")
-  con_label <- connection_label(backend)
   run_full <- "{.header Run: {.run {run_code}} to install.}"
 
+  con_label <- connection_label(backend)
   sp_version <- version_prep(version)
   envname <- as.character(glue("{env_base}{sp_version}"))
   envs <- find_environments(env_base)
@@ -39,7 +39,7 @@ use_envname <- function(
     latest_ver <- lib_info$version
     install_recent <- compareVersion(latest_ver, version) == 1
   } else {
-    install_recent <- FALSE
+    install_recent <- TRUE
   }
 
   # There were 0 environments found

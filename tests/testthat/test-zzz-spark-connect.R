@@ -19,6 +19,7 @@ test_that("Test Databricks connection", {
   local_mocked_bindings(
     initialize_connection = function(...) list(...)
     )
+  py_install("databricks.connect")
   sc <- spark_connect_method.spark_method_databricks_connect(
     master = NULL,
     method = "databricks_connect",

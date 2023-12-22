@@ -1,6 +1,5 @@
 #' A Shiny app that can be used to construct a \code{spark_connect} statement
 #'
-#'
 #' @export
 #' @keywords internal
 #' @returns A Shiny app
@@ -17,7 +16,9 @@ connection_databricks_shinyapp <- function() {
     }
 
     if (!"shiny" %in% installed.packages()) {
-      stop("The 'shiny' package is not installed, please install and retry.")
+      cli_abort(
+        "The `shiny` package is not installed, please install and retry."
+        )
     }
   }
 

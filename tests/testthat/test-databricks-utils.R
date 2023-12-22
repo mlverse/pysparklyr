@@ -15,10 +15,51 @@ test_that("DBR error code returns as expected", {
 
 test_that("Databricks Host works", {
   expect_true(nchar(databricks_host()) > 5)
+
+  expect_named(databricks_host("thisisatest"), "argument")
+
+  expect_error(
+    withr::with_envvar(
+      new = c("DATABRICKS_HOST" = NA, "DATABRICKS_TOKEN" = NA),
+      {
+        databricks_host()
+      }),
+    "No Host URL was provided"
+  )
+
+  expect_named(
+    withr::with_envvar(
+      new = c("DATABRICKS_HOST" = NA, "CONNECT_DATABRICKS_HOST" = "testing"),
+      {
+        databricks_host()
+      }),
+    "environment_connect"
+  )
+
 })
 
 test_that("Databricks Token works", {
   expect_true(nchar(databricks_token()) > 5)
+
+  expect_named(databricks_token("thisisatest"), "argument")
+
+  expect_error(
+    withr::with_envvar(
+      new = c("DATABRICKS_HOST" = NA, "DATABRICKS_TOKEN" = NA),
+      {
+        databricks_token(fail = TRUE)
+      }),
+    "No authentication token was identified"
+  )
+
+  expect_named(
+    withr::with_envvar(
+      new = c("DATABRICKS_TOKEN" = NA, "CONNECT_DATABRICKS_TOKEN" = "testing"),
+      {
+        databricks_token()
+      }),
+    "environment_connect"
+  )
 })
 
 test_that("Get cluster version", {

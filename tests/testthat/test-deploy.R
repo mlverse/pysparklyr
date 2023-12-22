@@ -12,7 +12,7 @@ test_that("deploy works", {
 
       env_name <- use_envname(
         version = dbr_version,
-        method = "databricks_method"
+        backend = "databricks"
       )
 
       if (names(env_name) != "exact") {

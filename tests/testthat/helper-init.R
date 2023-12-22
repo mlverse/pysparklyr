@@ -85,7 +85,7 @@ use_test_python_environment <- function() {
     new = c("WORKON_HOME" = use_test_env()),
     {
       version <- use_test_version_spark()
-      env <- use_envname(method = "spark_connect", version = version)
+      env <- use_envname(backend = "pyspark", version = version)
       env_avail <- names(env)
       target <- path(use_test_env(), env)
       if (!dir_exists(target)) {
@@ -97,7 +97,7 @@ use_test_python_environment <- function() {
             python = Sys.which("python"),
             install_ml = FALSE
           )
-          env <- use_envname(method = "spark_connect", version = version)
+          env <- use_envname(backend = "pyspark", version = version)
         }
       }
     }

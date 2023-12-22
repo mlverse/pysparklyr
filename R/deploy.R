@@ -29,7 +29,7 @@
 #' @param token The Databricks authentication token. Defaults to NULL. If left NULL, it will
 #' use the environment variable `DATABRICKS_TOKEN`
 #' @param confirm Should the user be prompted to confirm that the correct
-#' information is being used for deployment? Defaults to TRUE.
+#' information is being used for deployment? Defaults to `interactive()`
 #' @param ... Additional named arguments passed to `rsconnect::deployApp()` function
 #' @export
 deploy_databricks <- function(
@@ -42,7 +42,7 @@ deploy_databricks <- function(
     cluster_id = NULL,
     host = NULL,
     token = NULL,
-    confirm = TRUE,
+    confirm = interactive(),
     ...
   ) {
   if (is.null(version) && !is.null(cluster_id)) {
@@ -112,7 +112,7 @@ deploy_databricks <- function(
     appDir = appDir, lint = lint,
     python = python,
     version = version,
-    method = "databricks_connect",
+    backend = "databricks",
     envVars = env_vars,
     env_var_message = env_var_message,
     account = account,
@@ -130,12 +130,12 @@ deploy <- function(
     envVars = NULL,
     python = NULL,
     version = NULL,
-    method = NULL,
+    backend = NULL,
     env_var_message = NULL,
     confirm,
     ...) {
-  if(is.null(method)) {
-    abort("'method' is empty, please provide one")
+  if(is.null(backend)) {
+    abort("'backend' is empty, please provide one")
   }
   rs_accounts <- accounts()
   accts_msg <- NULL
@@ -174,7 +174,7 @@ deploy <- function(
   python <- deploy_find_environment(
     python = python,
     version = version,
-    method = method
+    backend = backend
   )
   cli_inform("{.class - Publishing target -}")
   cli_alert_info("{.header Server:} {server} | {.header Account:} {account}")
@@ -210,7 +210,7 @@ deploy <- function(
 deploy_find_environment <- function(
     version = NULL,
     python = NULL,
-    method = "databricks_connect") {
+    backend = NULL) {
   ret <- NULL
   failed <- NULL
   env_name <- ""
@@ -223,7 +223,7 @@ deploy_find_environment <- function(
     if(!is.null(version)) {
       env_name <- use_envname(
         version = version,
-        method = method
+        backend = backend
       )
       if (names(env_name) == "exact") {
         check_conda <- try(conda_python(env_name), silent = TRUE)

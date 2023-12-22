@@ -197,7 +197,7 @@ connection_spark_server <- function(input, output, session) {
       if (!inherits(version, "try-error")) {
         verified <- pysparklyr:::use_envname(
           version = version,
-          method = "databricks_connect",
+          backend = "databricks",
           messages = FALSE,
           match_first = FALSE,
           ignore_reticulate_python = TRUE

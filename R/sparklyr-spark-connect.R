@@ -21,20 +21,18 @@ spark_connect_method.spark_method_spark_connect <- function(
   envname <- args$envname
 
   envname <- use_envname(
-    method = method,
+    backend = "pyspark",
     version = version,
     envname = envname,
     messages = TRUE,
     match_first = TRUE
   )
 
-  if (method == "spark_connect") {
-    pyspark <- import_check("pyspark", envname)
-    pyspark_sql <- pyspark$sql
-    conn <- pyspark_sql$SparkSession$builder$remote(master)
-    con_class <- "connect_spark"
-    master_label <- glue("Spark Connect - {master}")
-  }
+  pyspark <- import_check("pyspark", envname)
+  pyspark_sql <- pyspark$sql
+  conn <- pyspark_sql$SparkSession$builder$remote(master)
+  con_class <- "connect_spark"
+  master_label <- glue("Spark Connect - {master}")
 
   initialize_connection(
     conn = conn,
@@ -82,26 +80,28 @@ spark_connect_method.spark_method_databricks_connect <- function(
   }
 
   envname <- use_envname(
-    method = method,
+    backend = "databricks",
     version = version,
     envname = envname,
     messages = TRUE,
-    match_first = TRUE
+    match_first = TRUE,
+    libs = "databricks.connect"
   )
 
   db <- import_check("databricks.connect", envname)
 
   if (!is.null(cluster_info)) {
-    msg <- "{.header Connecting to} '{.emph {cluster_info$name}}' {.header (DBR '{.emph {version}}')}"
+    msg <- "{.header Connecting to} {.emph '{cluster_info$name}'}"
+    msg_done <- "{.header Connected to:} {.emph '{cluster_info$name}'}"
     master_label <- glue("{cluster_info$name} ({cluster_id})")
   } else {
-    msg <- "{.header Connecting to} '{.emph {cluster_id}}'"
+    msg <- "{.header Connecting to} {.emph '{cluster_id}'}"
+    msg_done <- "{.header Connected to:} '{.emph '{cluster_id}'}'"
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
   }
 
   cli_div(theme = cli_colors())
-  cli_progress_step(msg)
-  cli_end()
+  cli_progress_step(msg, msg_done)
 
   remote_args <- list()
   if (master != "") remote_args$host <- master
@@ -114,6 +114,9 @@ spark_connect_method.spark_method_databricks_connect <- function(
   }
 
   conn <- exec(databricks_session, !!!remote_args)
+
+  cli_progress_done()
+  cli_end()
 
   initialize_connection(
     conn = conn,
@@ -258,8 +261,8 @@ connection_label <- function(x) {
     method <- con$method
   }
   if (!is.null(method)) {
-    if (method == "spark_connect") ret <- "Spark Connect"
-    if (method == "databricks_connect") ret <- "Databricks Connect"
+    if (method == "spark_connect" | method == "pyspark") ret <- "Spark Connect"
+    if (method == "databricks_connect" | method == "databricks") ret <- "Databricks Connect"
   }
   ret
 }

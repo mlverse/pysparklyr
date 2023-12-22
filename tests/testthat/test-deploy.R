@@ -12,7 +12,7 @@ test_that("deploy works", {
 
       env_name <- use_envname(
         version = dbr_version,
-        method = "databricks_method"
+        backend = "databricks"
       )
 
       if (names(env_name) != "exact") {
@@ -73,6 +73,18 @@ test_that("deploy works", {
           )
         }
       )
+
+      withr::with_envvar(
+        new = c("DATABRICKS_HOST" = NA, "DATABRICKS_TOKEN" = NA),
+        {
+          expect_error(
+            deploy_databricks(
+              version = dbr_version
+            )
+          )
+        }
+      )
+
     }
   )
 })

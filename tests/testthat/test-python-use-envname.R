@@ -46,6 +46,25 @@ test_that("Error if 'use_first' is not TRUE", {
   withr::with_envvar(
     new = c("WORKON_HOME" = env_path),
     {
+      expect_message(
+        x <- use_envname(
+          version = "100.0",
+          messages = TRUE,
+          match_first = TRUE,
+          libs = "pyspark",
+          ask_if_not_installed = FALSE
+        ),
+        "Library Spark Connect version 100.0 is not yet available"
+      )
+    }
+  )
+
+})
+
+test_that("Error if 'use_first' is not TRUE", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = env_path),
+    {
       expect_error(
         x <- use_envname(
           version = "1.1",

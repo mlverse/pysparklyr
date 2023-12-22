@@ -28,6 +28,8 @@
 #' use the environment variable `DATABRICKS_HOST`
 #' @param token The Databricks authentication token. Defaults to NULL. If left NULL, it will
 #' use the environment variable `DATABRICKS_TOKEN`
+#' @param confirm Should the user be prompted to confirm that the correct
+#' information is being used for deployment? Defaults to `interactive()`
 #' @param ... Additional named arguments passed to `rsconnect::deployApp()` function
 #' @export
 deploy_databricks <- function(
@@ -40,6 +42,7 @@ deploy_databricks <- function(
     cluster_id = NULL,
     host = NULL,
     token = NULL,
+    confirm = interactive(),
     ...
   ) {
   if (is.null(version) && !is.null(cluster_id)) {
@@ -51,25 +54,40 @@ deploy_databricks <- function(
   }
   env_vars <- NULL
   env_var_message <- NULL
+  var_error <- NULL
+
+  # Host URL
   if(!is.null(host)) {
     Sys.setenv("CONNECT_DATABRICKS_HOST" = host)
     env_vars <- "CONNECT_DATABRICKS_HOST"
   } else {
-    host <- databricks_host()
-    if(names(host) == "environment") {
-      env_vars <- "DATABRICKS_HOST"
+    env_host_name <- "DATABRICKS_HOST"
+    env_host <- Sys.getenv(env_host_name, unset = "")
+    if(env_host != "") {
+      env_vars <-  c(env_vars, env_host_name)
+      host <- env_host
     }
   }
   if(!is.null(host)) {
     env_var_message <- c(" " = glue("|- Host: {host}"))
+  } else {
+    var_error <- c(" " = paste0(
+      "{.header - No host URL was provided or found. Please either set the}",
+      " {.emph 'DATABRICKS_HOST'} {.header environment variable,}",
+      " {.header or pass the }{.code host} {.header argument.}")
+      )
   }
+
+  # Token
   if(!is.null(token)) {
     Sys.setenv("CONNECT_DATABRICKS_TOKEN" = token)
     env_vars <- c(env_vars, "CONNECT_DATABRICKS_TOKEN")
   } else {
-    token <- databricks_token()
-    if(names(token) == "environment") {
-      env_vars <-  c(env_vars, "DATABRICKS_TOKEN")
+    env_token_name <- "DATABRICKS_TOKEN"
+    env_token <- Sys.getenv(env_token_name, unset = "")
+    if(env_token != "") {
+      env_vars <-  c(env_vars, env_token_name)
+      token <- env_token
     }
   }
   if(!is.null(token)) {
@@ -77,16 +95,30 @@ deploy_databricks <- function(
       env_var_message,
       " " = glue("|- Token: '<REDACTED>'")
       )
+  } else {
+    var_error <- c(var_error, " " = paste0(
+      "{.header - No token was provided or found. Please either set the}",
+      " {.emph 'DATABRICKS_TOKEN'} {.header environment variable,}",
+      " {.header or pass the} {.code token} {.header argument.}")
+    )
   }
+
+  if(!is.null(var_error)) {
+    cli_div(theme = cli_colors())
+    cli_abort(c("Cluster setup errors:", var_error), call = NULL)
+    cli_end()
+  }
+
   deploy(
     appDir = appDir, lint = lint,
     python = python,
     version = version,
-    method = "databricks_connect",
+    backend = "databricks",
     envVars = env_vars,
     env_var_message = env_var_message,
     account = account,
     server = server,
+    confirm = confirm,
     ...
   )
 }
@@ -99,11 +131,12 @@ deploy <- function(
     envVars = NULL,
     python = NULL,
     version = NULL,
-    method = NULL,
+    backend = NULL,
     env_var_message = NULL,
+    confirm,
     ...) {
-  if(is.null(method)) {
-    abort("'method' is empty, please provide one")
+  if(is.null(backend)) {
+    abort("'backend' is empty, please provide one")
   }
   rs_accounts <- accounts()
   accts_msg <- NULL
@@ -142,7 +175,7 @@ deploy <- function(
   python <- deploy_find_environment(
     python = python,
     version = version,
-    method = method
+    backend = backend
   )
   cli_inform("{.class - Publishing target -}")
   cli_alert_info("{.header Server:} {server} | {.header Account:} {account}")
@@ -150,7 +183,7 @@ deploy <- function(
     cli_bullets(c("i" = "{.header Environment variables:}", env_var_message))
   }
   cli_inform("")
-  if(interactive()) {
+  if(interactive() && confirm) {
     cli_inform("Does everything look correct?")
     cli_end()
     choice <- utils::menu(choices = c("Yes", "No", accts_msg))
@@ -178,7 +211,7 @@ deploy <- function(
 deploy_find_environment <- function(
     version = NULL,
     python = NULL,
-    method = "databricks_connect") {
+    backend = NULL) {
   ret <- NULL
   failed <- NULL
   env_name <- ""
@@ -191,7 +224,7 @@ deploy_find_environment <- function(
     if(!is.null(version)) {
       env_name <- use_envname(
         version = version,
-        method = method
+        backend = backend
       )
       if (names(env_name) == "exact") {
         check_conda <- try(conda_python(env_name), silent = TRUE)

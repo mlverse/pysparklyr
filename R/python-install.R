@@ -205,7 +205,7 @@ install_environment <- function(
       }
       ln <- "databricks"
       envname <- use_envname(
-        method = "databricks_connect",
+        backend = "databricks",
         version = ver_name,
         ask_if_not_installed = FALSE
       )
@@ -214,7 +214,7 @@ install_environment <- function(
         add_torch <- FALSE
       }
       envname <- use_envname(
-        method = "spark_connect",
+        backend = "pyspark",
         version = ver_name,
         ask_if_not_installed = FALSE
       )

@@ -14,6 +14,7 @@ deploy_databricks(
   cluster_id = NULL,
   host = NULL,
   token = NULL,
+  confirm = interactive(),
   ...
 )
 }
@@ -51,6 +52,9 @@ use the environment variable \code{DATABRICKS_HOST}}
 
 \item{token}{The Databricks authentication token. Defaults to NULL. If left NULL, it will
 use the environment variable \code{DATABRICKS_TOKEN}}
+
+\item{confirm}{Should the user be prompted to confirm that the correct
+information is being used for deployment? Defaults to \code{interactive()}}
 
 \item{...}{Additional named arguments passed to \code{rsconnect::deployApp()} function}
 }

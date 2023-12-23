@@ -1,8 +1,40 @@
 test_that("Databricks installation works", {
   skip_if_not_databricks()
   local_mocked_bindings(install_as_job = function(...) list(...))
+
   out <- install_databricks(version = "14.1")
   expect_snapshot(out)
+
+  expect_message(
+    install_databricks(
+      version = "14.1",
+      cluster = Sys.getenv("DATABRICKS_CLUSTER_ID"),
+      as_job = FALSE
+      ),
+    "Will use the value from 'version', and ignoring 'cluster_id'"
+  )
+
+  expect_message(
+    install_databricks(
+      cluster = Sys.getenv("DATABRICKS_CLUSTER_ID"),
+      as_job = FALSE
+    )
+  )
+})
+
+test_that("Instal as job works", {
+  local_mocked_bindings(
+    check_rstudio = function(...) TRUE,
+    jobRunScript = function(...) invisible(),
+    install_environment = function(...) list(...)
+    )
+  expect_message(
+    install_as_job(),
+    "Running installation as a RStudio job"
+  )
+  expect_snapshot(
+    install_as_job(as_job = TRUE)
+  )
 })
 
 test_that("Null version and libs work", {
@@ -32,7 +64,6 @@ test_that("Null version and libs work", {
 })
 
 test_that("installed_components() output properly", {
-  sc <- use_test_spark_connect()
   expect_message(installed_components())
 })
 
@@ -55,6 +86,7 @@ test_that("version_prep() outputs what's expected", {
 test_that("Install code is correctly created", {
   expect_snapshot(build_job_code(list(a = 1)))
 })
+
 
 skip_on_ci()
 

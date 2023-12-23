@@ -73,3 +73,26 @@ test_remove_python_envs <- function(x = "") {
     )
   )
 }
+
+tests_disable_all <- function() {
+  r_scripts <- dir_ls(test_path(), glob = "*.R")
+  test_scripts <- r_scripts[substr(path_file(r_scripts), 1, 5) == "test-"]
+  map(
+    test_scripts, ~{
+      ln <- readLines(.x)
+      writeLines(c("skip(\"temp\")", ln), con = .x)
+    }
+  )
+}
+
+tests_enable_all <- function() {
+  r_scripts <- dir_ls(test_path(), glob = "*.R")
+  test_scripts <- r_scripts[substr(path_file(r_scripts), 1, 5) == "test-"]
+  map(
+    test_scripts, ~{
+      ln <- readLines(.x)
+      new_ln <- ln[ln != "skip(\"temp\")"]
+      writeLines(new_ln, con = .x)
+    }
+  )
+}

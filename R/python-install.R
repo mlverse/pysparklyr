@@ -110,12 +110,7 @@ install_as_job <- function(
     install_ml = TRUE,
     ...) {
   args <- c(as.list(environment()), list(...))
-  in_rstudio <- FALSE
-  check_rstudio <- try(RStudio.Version(), silent = TRUE)
-  if (!inherits(check_rstudio, "try-error")) {
-    in_rstudio <- TRUE
-  }
-  if (as_job && in_rstudio) {
+  if (as_job && check_rstudio()) {
     install_code <- build_job_code(args)
     job_name <- paste0("Installing '", libs, "' version '", version, "'")
     temp_file <- tempfile()
@@ -124,7 +119,7 @@ install_as_job <- function(
       jobRunScript(path = temp_file, name = job_name)
     )
     cli_div(theme = cli_colors())
-    cli_alert_success("{.header Running installation as an RStudio job }")
+    cli_alert_success("{.header Running installation as a RStudio job }")
     cli_end()
   } else {
     install_environment(
@@ -137,6 +132,15 @@ install_as_job <- function(
       install_ml = install_ml,
       ... = ...
     )
+  }
+}
+
+check_rstudio <- function() {
+  check_rstudio <- try(RStudio.Version(), silent = TRUE)
+  if (inherits(check_rstudio, "try-error")) {
+    return(FALSE)
+  } else {
+    return(TRUE)
   }
 }
 
@@ -203,7 +207,6 @@ install_environment <- function(
       if (compareVersion(as.character(ver_name), "14.1") < 0) {
         add_torch <- FALSE
       }
-      ln <- "databricks"
       envname <- use_envname(
         backend = "databricks",
         version = ver_name,

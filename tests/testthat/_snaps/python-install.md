@@ -28,6 +28,13 @@
       [1] FALSE
       
 
+# Instal as job works
+
+    Code
+      install_as_job(as_job = TRUE)
+    Message
+      v Running installation as a RStudio job 
+
 # Install code is correctly created
 
     Code

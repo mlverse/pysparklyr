@@ -1,6 +1,5 @@
 #' A Shiny app that can be used to construct a \code{spark_connect} statement
 #'
-#'
 #' @export
 #' @keywords internal
 #' @returns A Shiny app
@@ -12,12 +11,14 @@ connection_databricks_shinyapp <- function() {
       ok = "Install"
     )
     if (identical(install_shiny, TRUE)) {
-      install_command <- get("install.packages")
+      install_command <- get_wrapper("install.packages")
       install_command("shiny")
     }
 
     if (!"shiny" %in% installed.packages()) {
-      stop("The 'shiny' package is not installed, please install and retry.")
+      cli_abort(
+        "The `shiny` package is not installed, please install and retry."
+        )
     }
   }
 
@@ -27,6 +28,14 @@ connection_databricks_shinyapp <- function() {
   } else {
     app_dir <- system.file("rstudio/shinycon", package = "pysparklyr")
   }
-  shinyAppDir <- get("shinyAppDir", envir = asNamespace("shiny"))
+  shinyAppDir <- get_wrapper("shinyAppDir", envir = asNamespace("shiny"))
   shinyAppDir(app_dir)
+}
+
+get_wrapper <- function(x, pos = -1, envir = as.environment(pos)) {
+  get(
+    x = x,
+    pos = pos,
+    envir = envir
+    )
 }

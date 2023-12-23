@@ -11,7 +11,7 @@ connection_databricks_shinyapp <- function() {
       ok = "Install"
     )
     if (identical(install_shiny, TRUE)) {
-      install_command <- get("install.packages")
+      install_command <- get_wrapper("install.packages")
       install_command("shiny")
     }
 
@@ -28,6 +28,14 @@ connection_databricks_shinyapp <- function() {
   } else {
     app_dir <- system.file("rstudio/shinycon", package = "pysparklyr")
   }
-  shinyAppDir <- get("shinyAppDir", envir = asNamespace("shiny"))
+  shinyAppDir <- get_wrapper("shinyAppDir", envir = asNamespace("shiny"))
   shinyAppDir(app_dir)
+}
+
+get_wrapper <- function(x, pos = -1, envir = as.environment(pos)) {
+  get(
+    x = x,
+    pos = pos,
+    envir = envir
+    )
 }

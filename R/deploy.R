@@ -106,7 +106,6 @@ deploy_databricks <- function(
   if(!is.null(var_error)) {
     cli_div(theme = cli_colors())
     cli_abort(c("Cluster setup errors:", var_error), call = NULL)
-    cli_end()
   }
 
   deploy(

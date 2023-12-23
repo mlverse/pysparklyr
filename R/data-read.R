@@ -160,11 +160,10 @@ spark_read_parquet.pyspark_connection <- function(
 pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
                                  overwrite, args, options = list(), py_obj = NULL) {
   opts <- c(args, options)
-
   rename_fields <- FALSE
   schema <- args$schema
   if (!is.null(schema)) {
-    if (!is.list(schema)) {
+    if (!inherits(schema, "list")) {
       rename_fields <- TRUE
     } else {
       abort("Complex schemas not yet supported")

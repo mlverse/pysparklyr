@@ -163,27 +163,28 @@ install_environment <- function(
     install_ml = FALSE,
     install_packages = NULL,
     ...) {
-  if (is.null(version)) {
-    lib <- py_library_info(main_library)
-    version <- lib$version
+  cli_div(theme = cli_colors())
+  library_info <- py_library_info(main_library, version)
+
+  if(!is.null(library_info)) {
+    version <- library_info$version
+    ver_name <- version
   } else {
-    lib <- py_library_info(main_library, version)
-    if (is.null(lib)) {
-      cli_alert_success(
-        "{.header Checking if provided version is valid against PyPi.org}"
-      )
-      cli_abort(
-        "{.header Version } {.emph '{version}' }{.header does not exist}"
+    if(!is.null(version)) {
+      ver_name <- version_prep(version)
+      if (version == ver_name) {
+        version <- paste0(version, ".*")
+      }
+    } else {
+      cli_abort(c(
+        "No `version` provided, and none could be found",
+        " " = "Please run again with a valid version number"
+      ),
+      call = NULL
       )
     }
+
   }
-
-  ver_name <- version_prep(version)
-
-  if (version == ver_name) {
-    version <- paste0(version, ".*")
-  }
-
   add_torch <- TRUE
   if (is.null(envname)) {
     ver_compare <- compareVersion(
@@ -200,7 +201,7 @@ install_environment <- function(
     )
   }
   cli_alert_success(
-    "Automatically naming the environment:{.emph '{envname}'}"
+    "{.header Automatically naming the environment:}{.emph '{envname}'}"
   )
 
   packages <- c(
@@ -256,7 +257,7 @@ install_environment <- function(
   if (!is.null(install_packages)) {
     packages <- install_packages
   }
-
+  stop()
   py_install(
     packages = packages,
     envname = envname,
@@ -314,8 +315,10 @@ py_library_info <- function(
     resp <- query_pypi(library_name, library_version, timeout)
     cli_progress_step(
       "{.header Retrieving version from PyPi.org}",
-      msg_done = paste0("{.header Using:} {.emph '{ret$name}'} {ret$version},",
-                        " {.header requires Python }{ret$requires_python}"),
+      msg_done = paste0(
+        "{.header Using:} {.emph '{ret$name}'} {.header version} {ret$version},",
+        " {.header requires Python }{ret$requires_python}"
+        ),
       msg_failed = "{.header {msg_fail}}"
     )
   }

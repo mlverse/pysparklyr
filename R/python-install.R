@@ -321,7 +321,6 @@ py_library_info <- function(
   ret <- NULL
   if (verbose) {
     cli_div(theme = cli_colors())
-    resp <- query_pypi(library_name, library_version, timeout)
     cli_progress_step(
       "{.header Retrieving version from PyPi.org}",
       msg_done = paste0(
@@ -331,6 +330,8 @@ py_library_info <- function(
       msg_failed = "{.header {msg_fail}}"
     )
   }
+
+  resp <- query_pypi(library_name, library_version, timeout)
 
   if (inherits(resp, "try-error")) {
     # Not catastrophic, it will simply try to use the upstream name and version

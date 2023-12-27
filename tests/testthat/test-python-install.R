@@ -92,7 +92,6 @@ test_that("Install code is correctly created", {
   expect_snapshot(build_job_code(list(a = 1)))
 })
 
-skip("temp")
 skip_on_ci()
 
 test_that("Databricks installations work", {

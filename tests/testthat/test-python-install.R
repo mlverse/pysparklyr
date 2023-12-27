@@ -20,9 +20,11 @@ test_that("Databricks installation works", {
       as_job = FALSE
     )
   )
+
+  expect_snapshot(install_databricks(version = "13.1"))
 })
 
-test_that("Instal as job works", {
+test_that("Install as job works", {
   local_mocked_bindings(
     check_rstudio = function(...) TRUE,
     jobRunScript = function(...) invisible(),

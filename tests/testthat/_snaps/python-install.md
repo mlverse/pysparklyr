@@ -28,7 +28,37 @@
       [1] FALSE
       
 
-# Instal as job works
+---
+
+    Code
+      install_databricks(version = "13.1")
+    Output
+      $libs
+      [1] "databricks-connect"
+      
+      $version
+      [1] "13.1"
+      
+      $envname
+      NULL
+      
+      $python_version
+      [1] ">=3.9"
+      
+      $new_env
+      [1] TRUE
+      
+      $method
+      [1] "auto"       "virtualenv" "conda"     
+      
+      $as_job
+      [1] TRUE
+      
+      $install_ml
+      [1] FALSE
+      
+
+# Install as job works
 
     Code
       install_as_job(as_job = TRUE)

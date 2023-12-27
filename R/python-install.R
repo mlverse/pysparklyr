@@ -124,7 +124,7 @@ install_as_job <- function(
   args <- c(as.list(environment()), list(...))
   if (as_job && check_rstudio()) {
     install_code <- build_job_code(args)
-    job_name <- paste0("Installing '", libs, "' version '", version, "'")
+    job_name <- paste0("Installing '", main_library, "' version '", version, "'")
     temp_file <- tempfile()
     writeLines(install_code, temp_file)
     invisible(
@@ -153,7 +153,7 @@ install_as_job <- function(
 install_environment <- function(
     main_library = NULL,
     spark_method = NULL,
-    backend = backend,
+    backend = NULL,
     ml_version = NULL,
     version = NULL,
     envname = NULL,
@@ -168,12 +168,12 @@ install_environment <- function(
     cli_alert_success(
       "{.header Retrieving version from PyPi.org}"
     )
-    lib <- py_library_info(libs)
+    lib <- py_library_info(main_library)
     version <- lib$version
     cli_alert_success("{.header Using version: }{.emph '{version}'}")
     cli_end()
   } else {
-    lib <- py_library_info(libs, version)
+    lib <- py_library_info(main_library, version)
     if (is.null(lib)) {
       cli_alert_success(
         "{.header Checking if provided version is valid against PyPi.org}"
@@ -192,31 +192,25 @@ install_environment <- function(
 
   add_torch <- TRUE
   if (is.null(envname)) {
-    if (libs == "databricks-connect") {
-      if (compareVersion(as.character(ver_name), "14.1") < 0) {
-        add_torch <- FALSE
-      }
-      envname <- use_envname(
-        backend = "databricks",
-        version = ver_name,
-        ask_if_not_installed = FALSE
-      )
-    } else {
-      if (compareVersion(as.character(ver_name), "3.5") < 0) {
-        add_torch <- FALSE
-      }
-      envname <- use_envname(
-        backend = "pyspark",
-        version = ver_name,
-        ask_if_not_installed = FALSE
-      )
+    ver_compare <- compareVersion(
+      as.character(ver_name),
+      as.character(ml_version)
+    )
+    if (ver_compare < 0) {
+      add_torch <- FALSE
     }
-    cli_alert_success(
-      "Automatically naming the environment:{.emph '{envname}'}"
+    envname <- use_envname(
+      backend = backend,
+      version = ver_name,
+      ask_if_not_installed = FALSE
     )
   }
+  cli_alert_success(
+    "Automatically naming the environment:{.emph '{envname}'}"
+  )
+
   packages <- c(
-    paste0(libs, "==", version),
+    paste0(main_library, "==", version),
     "pandas!=2.1.0", # deprecation warnings
     "PyArrow",
     "grpcio",

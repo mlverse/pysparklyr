@@ -3,8 +3,17 @@
     Code
       out
     Output
-      $libs
+      $main_library
       [1] "databricks-connect"
+      
+      $spark_method
+      [1] "databricks_connect"
+      
+      $backend
+      [1] "databricks"
+      
+      $ml_version
+      [1] "14.1"
       
       $version
       [1] "14.1"
@@ -13,7 +22,7 @@
       NULL
       
       $python_version
-      [1] ">=3.9"
+      NULL
       
       $new_env
       [1] TRUE
@@ -33,8 +42,17 @@
     Code
       install_databricks(version = "13.1")
     Output
-      $libs
+      $main_library
       [1] "databricks-connect"
+      
+      $spark_method
+      [1] "databricks_connect"
+      
+      $backend
+      [1] "databricks"
+      
+      $ml_version
+      [1] "14.1"
       
       $version
       [1] "13.1"
@@ -43,7 +61,7 @@
       NULL
       
       $python_version
-      [1] ">=3.9"
+      NULL
       
       $new_env
       [1] TRUE

@@ -34,8 +34,8 @@ use_envname <- function(
   match_one <- length(envs) > 0
   match_exact <- length(envs[envs == envname]) > 0
 
-  if(!is.null(libs) && !match_exact) {
-    lib_info <- py_library_info(libs)
+  if(!is.null(main_library) && !match_exact) {
+    lib_info <- py_library_info(main_library)
     latest_ver <- lib_info$version
     install_recent <- compareVersion(latest_ver, version) == 1
   } else {

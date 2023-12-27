@@ -1,10 +1,11 @@
 #' Installs PySpark and Python dependencies
 #' @param version Version of 'pyspark' to install
 #' @param envname The name of the Python Environment to use to install the
-#'   Python libraries. Default to `NULL.` If `NULL`, a name will automatically
+#'   Python libraries. Defaults to `NULL.` If `NULL`, a name will automatically
 #'   be assigned based on the version that will be installed
-#' @param python_version The version of Python to use to create the Python
-#'   environment.
+#' @param python_version The minimum required version of Python to use to create
+#' the Python environment. Defaults to `NULL`. If `NULL`, it will check against
+#' PyPi to get the minimum required Python version.
 #' @param new_env If `TRUE`, any existing Python virtual environment and/or
 #'   Conda environment specified by `envname` is deleted first.
 #' @param method The installation method to use. If creating a new environment,
@@ -29,14 +30,14 @@
 install_pyspark <- function(
     version = NULL,
     envname = NULL,
-    python_version = ">=3.9",
+    python_version = NULL,
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     as_job = TRUE,
     install_ml = FALSE,
     ...) {
   install_as_job(
-    libs = "pyspark",
+    main_library = "pyspark",
     version = version,
     envname = envname,
     python_version = python_version,
@@ -44,6 +45,7 @@ install_pyspark <- function(
     method = method,
     as_job = as_job,
     install_ml = install_ml,
+    ml_version = "3.5",
     ... = ...
   )
 }
@@ -59,7 +61,7 @@ install_databricks <- function(
     version = NULL,
     cluster_id = NULL,
     envname = NULL,
-    python_version = ">=3.9",
+    python_version = NULL,
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     as_job = TRUE,
@@ -87,7 +89,7 @@ install_databricks <- function(
   }
 
   install_as_job(
-    libs = "databricks-connect",
+    main_library = "databricks-connect",
     version = version,
     envname = envname,
     python_version = python_version,
@@ -95,12 +97,13 @@ install_databricks <- function(
     method = method,
     as_job = as_job,
     install_ml = install_ml,
+    ml_version = "14.1",
     ... = ...
   )
 }
 
 install_as_job <- function(
-    libs = NULL,
+    main_library = NULL,
     version = NULL,
     envname = NULL,
     python_version = NULL,
@@ -108,6 +111,7 @@ install_as_job <- function(
     method = c("auto", "virtualenv", "conda"),
     as_job = TRUE,
     install_ml = TRUE,
+    ml_version = NULL,
     ...) {
   args <- c(as.list(environment()), list(...))
   if (as_job && check_rstudio()) {
@@ -123,13 +127,14 @@ install_as_job <- function(
     cli_end()
   } else {
     install_environment(
-      libs = libs,
+      main_library = main_library,
       version = version,
       envname = envname,
       python_version = python_version,
       new_env = new_env,
       method = method,
       install_ml = install_ml,
+      ml_version = ml_version,
       ... = ...
     )
   }
@@ -158,14 +163,13 @@ build_job_code <- function(args) {
     }) %>%
     as.character() %>%
     paste0(collapse = ", ")
-
   paste0(
     "pysparklyr:::install_environment(", arg_list, ")"
   )
 }
 
 install_environment <- function(
-    libs = NULL,
+    main_library = NULL,
     version = NULL,
     envname = NULL,
     python_version = NULL,
@@ -173,6 +177,7 @@ install_environment <- function(
     method = c("auto", "virtualenv", "conda"),
     install_ml = FALSE,
     install_packages = NULL,
+    ml_version = NULL,
     ...) {
   if (is.null(version)) {
     cli_div(theme = cli_colors())

@@ -46,7 +46,7 @@ test_that("Null version and libs work", {
       local_mocked_bindings(py_install = function(...) list(...))
       expect_message(
         install_environment(
-          libs = "pyspark",
+          main_library = "pyspark",
           new_env = FALSE,
           python = Sys.which("python")
           ),
@@ -55,7 +55,7 @@ test_that("Null version and libs work", {
 
       expect_error(
         install_environment(
-          libs = "pyspark",
+          main_library = "pyspark",
           version = "0.1",
           new_env = FALSE,
           python = Sys.which("python")

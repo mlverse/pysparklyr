@@ -85,7 +85,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     envname = envname,
     messages = TRUE,
     match_first = TRUE,
-    libs = "databricks.connect"
+    main_library = "databricks.connect"
   )
 
   db <- import_check("databricks.connect", envname)

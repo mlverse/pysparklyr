@@ -51,7 +51,7 @@ test_that("Error if 'use_first' is not TRUE", {
           version = "100.0",
           messages = TRUE,
           match_first = TRUE,
-          libs = "pyspark",
+          main_library = "pyspark",
           ask_if_not_installed = FALSE
         ),
         "Library Spark Connect version 100.0 is not yet available"

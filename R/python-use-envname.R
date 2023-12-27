@@ -6,7 +6,7 @@ use_envname <- function(
     match_first = FALSE,
     ignore_reticulate_python = FALSE,
     ask_if_not_installed = interactive(),
-    libs = NULL
+    main_library = NULL
     ) {
   ret_python <- reticulate_python_check(ignore_reticulate_python)
 

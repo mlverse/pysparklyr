@@ -17,10 +17,6 @@
       $method
       [1] "auto"
       
-      $python_version
-                       python 
-      "/usr/local/bin/python" 
-      
       $pip
       [1] TRUE
       
@@ -48,10 +44,6 @@
       
       $method
       [1] "auto"
-      
-      $python_version
-                       python 
-      "/usr/local/bin/python" 
       
       $pip
       [1] TRUE

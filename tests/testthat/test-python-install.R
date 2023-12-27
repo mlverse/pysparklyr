@@ -34,6 +34,7 @@ test_that("Adds the ML libraries when prompted", {
         # Arg(s) being tested
         install_ml = TRUE
       )
+      x <- x[names(x) != "python_version"]
       expect_snapshot(x)
     }
   )
@@ -108,6 +109,7 @@ test_that("Installation runs even if no response from PyPi", {
         new_env = FALSE,
         python = Sys.which("python")
       )
+      x <- x[names(x) != "python_version"]
       expect_snapshot(x)
     }
   )

@@ -165,12 +165,17 @@ install_environment <- function(
     ...) {
   if (is.null(version)) {
     cli_div(theme = cli_colors())
-    cli_alert_success(
-      "{.header Retrieving version from PyPi.org}"
+    cli_progress_step(
+      "{.header Retrieving version from PyPi.org}",
+      msg_done = "{.header Using version: }{.emph '{version}'}",
+      msg_failed = "{. header Not able to get version from PyPi.org}"
     )
     lib <- py_library_info(main_library)
+    if(!is.null(libs)) {
+      cli_progress_done()
+    }
     version <- lib$version
-    cli_alert_success("{.header Using version: }{.emph '{version}'}")
+    cli_alert_success()
     cli_end()
   } else {
     lib <- py_library_info(main_library, version)
@@ -306,21 +311,50 @@ installed_components <- function(list_all = FALSE) {
   invisible()
 }
 
-py_library_info <- function(lib, ver = NULL) {
+py_library_info <- function(lib, ver = NULL, verbose = TRUE, timeout = 2) {
+
+  msg_fail <- NULL
+  msg_done <- NULL
+  ret <- NULL
+  if(verbose) {
+    cli_div(theme = cli_colors())
+    cli_progress_step(
+      "{.header Retrieving version from PyPi.org}",
+      msg_done = paste0("{.header Using:} {.emph '{ret$name}'} {ret$version},",
+                        " {.header requires Python }{ret$requires_python}"),
+      msg_failed = "{.header {msg_fail}}"
+    )
+  }
   url <- paste0("https://pypi.org/pypi/", lib)
   if (!is.null(ver)) {
     url <- paste0(url, "/", ver)
   }
   url <- paste0(url, "/json")
-  resp <- tryCatch(
-    url %>%
-      request() %>%
-      req_perform() %>%
-      resp_body_json(),
-    httr2_http_404 = function(cnd) NULL
+  resp <- try({
+    tryCatch(
+      url %>%
+        request() %>%
+        req_timeout(timeout) %>%
+        req_perform() %>%
+        resp_body_json(),
+      httr2_http_404 = function(cnd) NULL
+    )},
+    silent = TRUE
   )
-
-  resp$info
+  if(inherits(resp, "try-error")) {
+    msg_fail <- "Failed to contact PyPi.org"
+    if(verbose) cli_progress_done(result = "failed")
+    ret <- NULL
+  } else {
+    if(!is.null(resp)) {
+      ret <- resp$info
+      cli_progress_done()
+    } else {
+      msg_fail <- glue("Did not find library '{lib}'")
+      if(verbose) cli_progress_done(result = "failed")
+    }
+  }
+  ret
   # For possible future use
   # "https://packagemanager.posit.co/__api__/repos/5/packages/{lib}"
 }

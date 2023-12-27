@@ -1,5 +1,6 @@
 #' Installs PySpark and Python dependencies
-#' @param version Version of 'pyspark' to install
+#' @param version Version of 'pyspark' to install. Defaults to `NULL`. If `NULL`,
+#'   it will check against PyPi to get the current library version.
 #' @param envname The name of the Python Environment to use to install the
 #'   Python libraries. Defaults to `NULL.` If `NULL`, a name will automatically
 #'   be assigned based on the version that will be installed
@@ -38,6 +39,9 @@ install_pyspark <- function(
     ...) {
   install_as_job(
     main_library = "pyspark",
+    spark_method = "pyspark_connect",
+    backend = "pyspark",
+    ml_version = "3.5",
     version = version,
     envname = envname,
     python_version = python_version,
@@ -45,13 +49,13 @@ install_pyspark <- function(
     method = method,
     as_job = as_job,
     install_ml = install_ml,
-    ml_version = "3.5",
     ... = ...
   )
 }
 
 #' Installs Databricks Connect and Python dependencies
-#' @param version Version of 'databricks.connect' to install
+#' @param version Version of 'databricks.connect' to install. Defaults to `NULL`.
+#'  If `NULL`, it will check against PyPi to get the current library version.
 #' @param cluster_id Target of the cluster ID that will be used with.
 #' If provided, this value will be used to extract the cluster's
 #' version
@@ -90,6 +94,9 @@ install_databricks <- function(
 
   install_as_job(
     main_library = "databricks-connect",
+    spark_method = "databricks_connect",
+    backend = "databricks",
+    ml_version = "14.1",
     version = version,
     envname = envname,
     python_version = python_version,
@@ -97,13 +104,15 @@ install_databricks <- function(
     method = method,
     as_job = as_job,
     install_ml = install_ml,
-    ml_version = "14.1",
     ... = ...
   )
 }
 
 install_as_job <- function(
     main_library = NULL,
+    spark_method = NULL,
+    backend = NULL,
+    ml_version = NULL,
     version = NULL,
     envname = NULL,
     python_version = NULL,
@@ -111,7 +120,6 @@ install_as_job <- function(
     method = c("auto", "virtualenv", "conda"),
     as_job = TRUE,
     install_ml = TRUE,
-    ml_version = NULL,
     ...) {
   args <- c(as.list(environment()), list(...))
   if (as_job && check_rstudio()) {
@@ -128,48 +136,25 @@ install_as_job <- function(
   } else {
     install_environment(
       main_library = main_library,
+      spark_method = spark_method,
+      backend = backend,
+      ml_version = ml_version,
       version = version,
       envname = envname,
       python_version = python_version,
       new_env = new_env,
       method = method,
       install_ml = install_ml,
-      ml_version = ml_version,
       ... = ...
     )
   }
 }
 
-check_rstudio <- function() {
-  check_rstudio <- try(RStudio.Version(), silent = TRUE)
-  if (inherits(check_rstudio, "try-error")) {
-    return(FALSE)
-  } else {
-    return(TRUE)
-  }
-}
-
-build_job_code <- function(args) {
-  args$as_job <- NULL
-  args$method <- args$method[[1]]
-  arg_list <- args %>%
-    imap(~ {
-      if (inherits(.x, "character")) {
-        x <- paste0("\"", .x, "\"")
-      } else {
-        x <- .x
-      }
-      paste0(.y, " = ", x)
-    }) %>%
-    as.character() %>%
-    paste0(collapse = ", ")
-  paste0(
-    "pysparklyr:::install_environment(", arg_list, ")"
-  )
-}
-
 install_environment <- function(
     main_library = NULL,
+    spark_method = NULL,
+    backend = backend,
+    ml_version = NULL,
     version = NULL,
     envname = NULL,
     python_version = NULL,
@@ -177,7 +162,6 @@ install_environment <- function(
     method = c("auto", "virtualenv", "conda"),
     install_ml = FALSE,
     install_packages = NULL,
-    ml_version = NULL,
     ...) {
   if (is.null(version)) {
     cli_div(theme = cli_colors())
@@ -281,7 +265,7 @@ install_environment <- function(
     python_version <- "3.9"
   }
 
-  if(!is.null(install_packages)) {
+  if (!is.null(install_packages)) {
     packages <- install_packages
   }
 
@@ -377,4 +361,32 @@ version_prep <- function(version) {
   }
 
   out
+}
+
+check_rstudio <- function() {
+  check_rstudio <- try(RStudio.Version(), silent = TRUE)
+  if (inherits(check_rstudio, "try-error")) {
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
+}
+
+build_job_code <- function(args) {
+  args$as_job <- NULL
+  args$method <- args$method[[1]]
+  arg_list <- args %>%
+    imap(~ {
+      if (inherits(.x, "character")) {
+        x <- paste0("\"", .x, "\"")
+      } else {
+        x <- .x
+      }
+      paste0(.y, " = ", x)
+    }) %>%
+    as.character() %>%
+    paste0(collapse = ", ")
+  paste0(
+    "pysparklyr:::install_environment(", arg_list, ")"
+  )
 }

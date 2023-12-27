@@ -29,7 +29,8 @@ install_databricks(
 )
 }
 \arguments{
-\item{version}{Version of 'databricks.connect' to install}
+\item{version}{Version of 'databricks.connect' to install. Defaults to \code{NULL}.
+If \code{NULL}, it will check against PyPi to get the current library version.}
 
 \item{envname}{The name of the Python Environment to use to install the
 Python libraries. Defaults to \code{NULL.} If \code{NULL}, a name will automatically

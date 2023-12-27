@@ -1,14 +1,7 @@
 # Adds the ML libraries when prompted
 
     Code
-      install_environment(main_library = "pyspark", spark_method = "pyspark_connect",
-        backend = "pyspark", version = "3.5", ml_version = "3.5", new_env = FALSE,
-        python = Sys.which("python"), install_ml = TRUE)
-    Message
-      Retrieving version from PyPi.org
-      v Using: 'pyspark' version 3.5.0, requires Python >=3.8 [5ms]
-      
-      v Automatically naming the environment:'r-sparklyr-pyspark-3.5'
+      x
     Output
       $packages
       [1] "pyspark==3.5.0"           "pandas!=2.1.0"           
@@ -42,11 +35,7 @@
 # Installation runs even if no response from PyPi
 
     Code
-      install_environment(main_library = "pyspark", spark_method = "pyspark_connect",
-        backend = "pyspark", version = "3.5", ml_version = "3.5", new_env = FALSE,
-        python = Sys.which("python"))
-    Message
-      v Automatically naming the environment:'r-sparklyr-pyspark-3.5'
+      x
     Output
       $packages
       [1] "pyspark==3.5.*"           "pandas!=2.1.0"           

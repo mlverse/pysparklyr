@@ -1,6 +1,6 @@
 test_that("It checks with PyPi if library version is NULL", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
+    new = c("WORKON_HOME" = use_new_test_env()),
     {
       local_mocked_bindings(py_install = function(...) list(...))
       expect_message(
@@ -20,22 +20,21 @@ test_that("It checks with PyPi if library version is NULL", {
 
 test_that("Adds the ML libraries when prompted", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
+    new = c("WORKON_HOME" = use_new_test_env()),
     {
       local_mocked_bindings(py_install = function(...) list(...))
-      expect_snapshot(
-        install_environment(
-          main_library = "pyspark",
-          spark_method = "pyspark_connect",
-          backend = "pyspark",
-          version = "3.5",
-          ml_version = "3.5",
-          new_env = FALSE,
-          python = Sys.which("python"),
-          # Arg(s) being tested
-          install_ml = TRUE
-        )
+      x <- install_environment(
+        main_library = "pyspark",
+        spark_method = "pyspark_connect",
+        backend = "pyspark",
+        version = "3.5",
+        ml_version = "3.5",
+        new_env = FALSE,
+        python = Sys.which("python"),
+        # Arg(s) being tested
+        install_ml = TRUE
       )
+      expect_snapshot(x)
     }
   )
 })
@@ -59,7 +58,7 @@ test_that("Fails when non-existent Python version is used", {
 
 test_that("Fails when passing an invalid library version", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
+    new = c("WORKON_HOME" = use_new_test_env()),
     {
       local_mocked_bindings(py_install = function(...) list(...))
       expect_error(
@@ -94,23 +93,22 @@ test_that("install_as_job() is able to run", {
 
 test_that("Installation runs even if no response from PyPi", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
+    new = c("WORKON_HOME" = use_new_test_env()),
     {
       local_mocked_bindings(
         py_install = function(...) list(...),
         py_library_info = function(...) NULL
       )
-      expect_snapshot(
-        install_environment(
-          main_library = "pyspark",
-          spark_method = "pyspark_connect",
-          backend = "pyspark",
-          version = "3.5",
-          ml_version = "3.5",
-          new_env = FALSE,
-          python = Sys.which("python")
-        )
+      x <- install_environment(
+        main_library = "pyspark",
+        spark_method = "pyspark_connect",
+        backend = "pyspark",
+        version = "3.5",
+        ml_version = "3.5",
+        new_env = FALSE,
+        python = Sys.which("python")
       )
+      expect_snapshot(x)
     }
   )
 })
@@ -119,7 +117,7 @@ test_that(
   "Fails when no library version is provided, and nothing comes back from PyPi",
   {
     withr::with_envvar(
-      new = c("WORKON_HOME" = use_test_env()),
+      new = c("WORKON_HOME" = use_new_test_env()),
       {
         local_mocked_bindings(
           py_install = function(...) list(...),

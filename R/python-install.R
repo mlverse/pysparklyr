@@ -166,24 +166,24 @@ install_environment <- function(
   cli_div(theme = cli_colors())
   library_info <- py_library_info(main_library, version)
 
-  if(!is.null(library_info)) {
+  if (!is.null(library_info)) {
     version <- library_info$version
     ver_name <- version
   } else {
-    if(!is.null(version)) {
+    if (!is.null(version)) {
       ver_name <- version_prep(version)
       if (version == ver_name) {
         version <- paste0(version, ".*")
       }
     } else {
-      cli_abort(c(
-        "No `version` provided, and none could be found",
-        " " = "Please run again with a valid version number"
-      ),
-      call = NULL
+      cli_abort(
+        c(
+          "No `version` provided, and none could be found",
+          " " = "Please run again with a valid version number"
+        ),
+        call = NULL
       )
     }
-
   }
   add_torch <- TRUE
   if (is.null(envname)) {
@@ -305,12 +305,12 @@ py_library_info <- function(
     library_name,
     library_version = NULL,
     verbose = TRUE,
-    timeout = 2
-    ) {
+    fail = TRUE,
+    timeout = 2) {
   msg_fail <- NULL
   msg_done <- NULL
   ret <- NULL
-  if(verbose) {
+  if (verbose) {
     cli_div(theme = cli_colors())
     resp <- query_pypi(library_name, library_version, timeout)
     cli_progress_step(
@@ -318,41 +318,48 @@ py_library_info <- function(
       msg_done = paste0(
         "{.header Using:} {.emph '{ret$name}'} {.header version} {ret$version},",
         " {.header requires Python }{ret$requires_python}"
-        ),
+      ),
       msg_failed = "{.header {msg_fail}}"
     )
   }
 
-  if(inherits(resp, "try-error")) {
+  if (inherits(resp, "try-error")) {
     # Not catastrophic, it will simply try to use the upstream name and version
     # provided by the user
     msg_fail <- "Failed to contact PyPi.org"
-    if(verbose) cli_progress_done(result = "failed")
+    if (verbose) cli_progress_done(result = "failed")
     ret <- NULL
   } else {
-    if(!is.null(resp)) {
+    if (!is.null(resp)) {
       # Happy path :D
       ret <- resp$info
       cli_progress_done()
     } else {
-      if(!is.null(library_version)) {
+      msg_abort <- "{.header Library }{.emph {library_name}} {.header not found.}"
+      msg_fail <- glue("Python library '{library_name}' not found")
+      if (!is.null(library_version)) {
         # Quering PyPi again to see if at least the library name is valid
         resp2 <- query_pypi(library_name, timeout = timeout)
-        if(!is.null(resp2)) {
+        if (!is.null(resp2)) {
+          msg_fail <- glue("Version '{library_version}' for '{library_name}' not found")
           msg_abort <- c(
-              "Version {.emph '{library_version}'} is not valid for {.emph '{library_name}'}",
-              "i" = "{.header The most recent, valid, version is} {.emph '{resp2$info$version}'}"
-              )
-        } else {
-          msg_abort <- "{.header Library }{.emph {library_name}} {.header not found.}"
+            "Version {.emph '{library_version}'} is not valid for {.emph '{library_name}'}",
+            "i" = "{.header The most recent, valid, version is} {.emph '{resp2$info$version}'}"
+          )
         }
       }
-      if(verbose) {
-        cli_progress_done(result = "clear")
-        cli_progress_cleanup()
+      if (!fail) {
+        if (verbose) {
+          cli_progress_done(result = "failed")
+        }
+        return(NULL)
+      } else {
+        if (verbose) {
+          cli_progress_done(result = "clear")
+          cli_progress_cleanup()
+        }
+        cli_abort(msg_abort, call = NULL)
       }
-      # Failing despite 'verbose' set to FALSE (Catastrophic failure)
-      cli_abort(msg_abort, call = NULL)
     }
   }
   ret
@@ -366,15 +373,17 @@ query_pypi <- function(library_name, library_version = NULL, timeout) {
     url <- paste0(url, "/", library_version)
   }
   url <- paste0(url, "/json")
-  resp <- try({
-    tryCatch(
-      url %>%
-        request() %>%
-        req_timeout(timeout) %>%
-        req_perform() %>%
-        resp_body_json(),
-      httr2_http_404 = function(cnd) NULL
-    )},
+  resp <- try(
+    {
+      tryCatch(
+        url %>%
+          request() %>%
+          req_timeout(timeout) %>%
+          req_perform() %>%
+          resp_body_json(),
+        httr2_http_404 = function(cnd) NULL
+      )
+    },
     silent = TRUE
   )
   resp

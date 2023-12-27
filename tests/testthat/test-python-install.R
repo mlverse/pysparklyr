@@ -39,7 +39,7 @@ test_that("Install as job works", {
   )
 })
 
-test_that("Null version and libs work", {
+test_that("Null version works", {
   withr::with_envvar(
     new = c("WORKON_HOME" = use_test_env()),
     {
@@ -63,7 +63,7 @@ test_that("Null version and libs work", {
           new_env = FALSE,
           python = Sys.which("python")
         ),
-        "Version '0.1' does not exist"
+        "Version '0.1' is not valid for 'pyspark'"
       )
     })
 })
@@ -77,7 +77,7 @@ test_that("Can get pypy.org info", {
   expect_type(info, "list")
   expect_equal(info$summary, "Databricks Connect Client")
 
-  expect_null(py_library_info("doesnt.exist", ""))
+  expect_error(py_library_info("doesnt.exist", ""))
 })
 
 test_that("version_prep() outputs what's expected", {

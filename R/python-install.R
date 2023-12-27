@@ -164,19 +164,8 @@ install_environment <- function(
     install_packages = NULL,
     ...) {
   if (is.null(version)) {
-    cli_div(theme = cli_colors())
-    cli_progress_step(
-      "{.header Retrieving version from PyPi.org}",
-      msg_done = "{.header Using version: }{.emph '{version}'}",
-      msg_failed = "{. header Not able to get version from PyPi.org}"
-    )
     lib <- py_library_info(main_library)
-    if(!is.null(libs)) {
-      cli_progress_done()
-    }
     version <- lib$version
-    cli_alert_success()
-    cli_end()
   } else {
     lib <- py_library_info(main_library, version)
     if (is.null(lib)) {
@@ -311,13 +300,18 @@ installed_components <- function(list_all = FALSE) {
   invisible()
 }
 
-py_library_info <- function(lib, ver = NULL, verbose = TRUE, timeout = 2) {
-
+py_library_info <- function(
+    library_name,
+    library_version = NULL,
+    verbose = TRUE,
+    timeout = 2
+    ) {
   msg_fail <- NULL
   msg_done <- NULL
   ret <- NULL
   if(verbose) {
     cli_div(theme = cli_colors())
+    resp <- query_pypi(library_name, library_version, timeout)
     cli_progress_step(
       "{.header Retrieving version from PyPi.org}",
       msg_done = paste0("{.header Using:} {.emph '{ret$name}'} {ret$version},",
@@ -325,9 +319,48 @@ py_library_info <- function(lib, ver = NULL, verbose = TRUE, timeout = 2) {
       msg_failed = "{.header {msg_fail}}"
     )
   }
-  url <- paste0("https://pypi.org/pypi/", lib)
-  if (!is.null(ver)) {
-    url <- paste0(url, "/", ver)
+
+  if(inherits(resp, "try-error")) {
+    # Not catastrophic, it will simply try to use the upstream name and version
+    # provided by the user
+    msg_fail <- "Failed to contact PyPi.org"
+    if(verbose) cli_progress_done(result = "failed")
+    ret <- NULL
+  } else {
+    if(!is.null(resp)) {
+      # Happy path :D
+      ret <- resp$info
+      cli_progress_done()
+    } else {
+      if(!is.null(library_version)) {
+        # Quering PyPi again to see if at least the library name is valid
+        resp2 <- query_pypi(library_name, timeout = timeout)
+        if(!is.null(resp2)) {
+          msg_abort <- c(
+              "Version {.emph '{library_version}'} is not valid for {.emph '{library_name}'}",
+              "i" = "{.header The most recent, valid, version is} {.emph '{resp2$info$version}'}"
+              )
+        } else {
+          msg_abort <- "{.header Library }{.emph {library_name}} {.header not found.}"
+        }
+      }
+      if(verbose) {
+        cli_progress_done(result = "clear")
+        cli_progress_cleanup()
+      }
+      # Failing despite 'verbose' set to FALSE (Catastrophic failure)
+      cli_abort(msg_abort, call = NULL)
+    }
+  }
+  ret
+  # For possible future use
+  # "https://packagemanager.posit.co/__api__/repos/5/packages/{library_name}"
+}
+
+query_pypi <- function(library_name, library_version = NULL, timeout) {
+  url <- paste0("https://pypi.org/pypi/", library_name)
+  if (!is.null(library_version)) {
+    url <- paste0(url, "/", library_version)
   }
   url <- paste0(url, "/json")
   resp <- try({
@@ -341,22 +374,7 @@ py_library_info <- function(lib, ver = NULL, verbose = TRUE, timeout = 2) {
     )},
     silent = TRUE
   )
-  if(inherits(resp, "try-error")) {
-    msg_fail <- "Failed to contact PyPi.org"
-    if(verbose) cli_progress_done(result = "failed")
-    ret <- NULL
-  } else {
-    if(!is.null(resp)) {
-      ret <- resp$info
-      cli_progress_done()
-    } else {
-      msg_fail <- glue("Did not find library '{lib}'")
-      if(verbose) cli_progress_done(result = "failed")
-    }
-  }
-  ret
-  # For possible future use
-  # "https://packagemanager.posit.co/__api__/repos/5/packages/{lib}"
+  resp
 }
 
 version_prep <- function(version) {

@@ -167,6 +167,9 @@ install_environment <- function(
   library_info <- py_library_info(main_library, version)
 
   if (!is.null(library_info)) {
+    if(is.null(python_version)) {
+      python_version <- library_info$requires_python
+    }
     version <- library_info$version
     ver_name <- version
   } else {
@@ -185,6 +188,10 @@ install_environment <- function(
       )
     }
   }
+  python_number <- sub(">", "", python_version)
+  python_number <- sub("=", "", python_number)
+  python_number <- trimws(python_number)
+
   add_torch <- TRUE
   if (is.null(envname)) {
     ver_compare <- compareVersion(
@@ -233,13 +240,15 @@ install_environment <- function(
       }
     }
   }
-
   if (new_env && method != "conda" &&
     is.null(virtualenv_starter(python_version))) {
-    cli_abort(paste(
-      "Python version 3.9 or higher is required by some libraries.",
-      "Use: {.run reticulate::install_python(version = '3.9:latest')}",
-      "to install."
+    cli_abort(c(
+      paste0("{.header Python version} {.emph '{python_number}'}",
+             " {.header or higher is required by some libraries.}"
+             ),
+      " " =  paste0("Use: {.run reticulate::install_python",
+                    "(version = '{python_number}:latest')} to install."
+                    )
     ))
   }
 
@@ -250,14 +259,14 @@ install_environment <- function(
   }
 
   # conda_install() doesn't accept a version constraint for python_version
-  if (method == "conda" && python_version == ">=3.9") {
-    python_version <- "3.9"
+  if (method == "conda") {
+    python_version <- python_number
   }
 
   if (!is.null(install_packages)) {
     packages <- install_packages
   }
-  stop()
+
   py_install(
     packages = packages,
     envname = envname,

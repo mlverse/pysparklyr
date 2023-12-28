@@ -84,11 +84,6 @@ cli_colors <- function(envir = parent.frame()) {
   )
 }
 
-cli_internal_abort <- function(msg) {
-  cli_div(theme = cli_colors())
-  cli_abort(msg, call = NULL)
-  cli_end()
-}
 
 current_product_connect <- function() {
   out <- FALSE

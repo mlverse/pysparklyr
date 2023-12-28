@@ -10,6 +10,7 @@ deploy_databricks(
   account = NULL,
   server = NULL,
   lint = FALSE,
+  forceGeneratePythonEnvironment = TRUE,
   version = NULL,
   cluster_id = NULL,
   host = NULL,
@@ -41,6 +42,9 @@ environment is suited to be used as the one to use
 
 \item{lint}{Lint the project before initiating the project? Default to FALSE.
 It has been causing issues for this type of content.}
+
+\item{forceGeneratePythonEnvironment}{If an existing requirements.txt file is found,
+it will be overwritten when this argument is TRUE.}
 
 \item{version}{The Databricks Runtime (DBR) version. Use if \code{python} is NULL.}
 

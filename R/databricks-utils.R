@@ -99,7 +99,7 @@ databricks_dbr_info <- function(cluster_id,
   cli_div(theme = cli_colors())
   cli_progress_step(
     msg = "Retrieving info for cluster:}{.emph '{cluster_id}'",
-    msg_done = "{.header Cluster:} {.emph '{cluster_id}'} | {.header DBR: }{.emph '{version}'}}",
+    msg_done = "{.header Cluster:} {.emph '{cluster_id}'} | {.header DBR: }{.emph '{version}'}",
     msg_failed = "Failed contacting:}{.emph '{cluster_id}'"
   )
   out <- databricks_cluster_get(cluster_id, host, token)

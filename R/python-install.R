@@ -1,10 +1,12 @@
 #' Installs PySpark and Python dependencies
-#' @param version Version of 'pyspark' to install
+#' @param version Version of 'pyspark' to install. Defaults to `NULL`. If `NULL`,
+#'   it will check against PyPi to get the current library version.
 #' @param envname The name of the Python Environment to use to install the
-#'   Python libraries. Default to `NULL.` If `NULL`, a name will automatically
+#'   Python libraries. Defaults to `NULL.` If `NULL`, a name will automatically
 #'   be assigned based on the version that will be installed
-#' @param python_version The version of Python to use to create the Python
-#'   environment.
+#' @param python_version The minimum required version of Python to use to create
+#' the Python environment. Defaults to `NULL`. If `NULL`, it will check against
+#' PyPi to get the minimum required Python version.
 #' @param new_env If `TRUE`, any existing Python virtual environment and/or
 #'   Conda environment specified by `envname` is deleted first.
 #' @param method The installation method to use. If creating a new environment,
@@ -29,14 +31,17 @@
 install_pyspark <- function(
     version = NULL,
     envname = NULL,
-    python_version = ">=3.9",
+    python_version = NULL,
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     as_job = TRUE,
     install_ml = FALSE,
     ...) {
   install_as_job(
-    libs = "pyspark",
+    main_library = "pyspark",
+    spark_method = "pyspark_connect",
+    backend = "pyspark",
+    ml_version = "3.5",
     version = version,
     envname = envname,
     python_version = python_version,
@@ -49,7 +54,8 @@ install_pyspark <- function(
 }
 
 #' Installs Databricks Connect and Python dependencies
-#' @param version Version of 'databricks.connect' to install
+#' @param version Version of 'databricks.connect' to install. Defaults to `NULL`.
+#'  If `NULL`, it will check against PyPi to get the current library version.
 #' @param cluster_id Target of the cluster ID that will be used with.
 #' If provided, this value will be used to extract the cluster's
 #' version
@@ -59,7 +65,7 @@ install_databricks <- function(
     version = NULL,
     cluster_id = NULL,
     envname = NULL,
-    python_version = ">=3.9",
+    python_version = NULL,
     new_env = TRUE,
     method = c("auto", "virtualenv", "conda"),
     as_job = TRUE,
@@ -87,7 +93,10 @@ install_databricks <- function(
   }
 
   install_as_job(
-    libs = "databricks-connect",
+    main_library = "databricks-connect",
+    spark_method = "databricks_connect",
+    backend = "databricks",
+    ml_version = "14.1",
     version = version,
     envname = envname,
     python_version = python_version,
@@ -100,7 +109,10 @@ install_databricks <- function(
 }
 
 install_as_job <- function(
-    libs = NULL,
+    main_library = NULL,
+    spark_method = NULL,
+    backend = NULL,
+    ml_version = NULL,
     version = NULL,
     envname = NULL,
     python_version = NULL,
@@ -112,7 +124,7 @@ install_as_job <- function(
   args <- c(as.list(environment()), list(...))
   if (as_job && check_rstudio()) {
     install_code <- build_job_code(args)
-    job_name <- paste0("Installing '", libs, "' version '", version, "'")
+    job_name <- paste0("Installing '", main_library, "' version '", version, "'")
     temp_file <- tempfile()
     writeLines(install_code, temp_file)
     invisible(
@@ -123,7 +135,10 @@ install_as_job <- function(
     cli_end()
   } else {
     install_environment(
-      libs = libs,
+      main_library = main_library,
+      spark_method = spark_method,
+      backend = backend,
+      ml_version = ml_version,
       version = version,
       envname = envname,
       python_version = python_version,
@@ -135,37 +150,11 @@ install_as_job <- function(
   }
 }
 
-check_rstudio <- function() {
-  check_rstudio <- try(RStudio.Version(), silent = TRUE)
-  if (inherits(check_rstudio, "try-error")) {
-    return(FALSE)
-  } else {
-    return(TRUE)
-  }
-}
-
-build_job_code <- function(args) {
-  args$as_job <- NULL
-  args$method <- args$method[[1]]
-  arg_list <- args %>%
-    imap(~ {
-      if (inherits(.x, "character")) {
-        x <- paste0("\"", .x, "\"")
-      } else {
-        x <- .x
-      }
-      paste0(.y, " = ", x)
-    }) %>%
-    as.character() %>%
-    paste0(collapse = ", ")
-
-  paste0(
-    "pysparklyr:::install_environment(", arg_list, ")"
-  )
-}
-
 install_environment <- function(
-    libs = NULL,
+    main_library = NULL,
+    spark_method = NULL,
+    backend = NULL,
+    ml_version = NULL,
     version = NULL,
     envname = NULL,
     python_version = NULL,
@@ -174,60 +163,56 @@ install_environment <- function(
     install_ml = FALSE,
     install_packages = NULL,
     ...) {
-  if (is.null(version)) {
-    cli_div(theme = cli_colors())
-    cli_alert_success(
-      "{.header Retrieving version from PyPi.org}"
-    )
-    lib <- py_library_info(libs)
-    version <- lib$version
-    cli_alert_success("{.header Using version: }{.emph '{version}'}")
-    cli_end()
+  cli_div(theme = cli_colors())
+  library_info <- python_library_info(main_library, version)
+
+  if (!is.null(library_info)) {
+    if(is.null(python_version)) {
+      python_version <- library_info$requires_python
+    }
+    version <- library_info$version
+    ver_name <- version
   } else {
-    lib <- py_library_info(libs, version)
-    if (is.null(lib)) {
-      cli_alert_success(
-        "{.header Checking if provided version is valid against PyPi.org}"
-      )
+    if (!is.null(version)) {
+      ver_name <- version_prep(version)
+      if (version == ver_name) {
+        version <- paste0(version, ".*")
+      }
+    } else {
       cli_abort(
-        "{.header Version } {.emph '{version}' }{.header does not exist}"
+        c(
+          "No `version` provided, and none could be found",
+          " " = "Please run again with a valid version number"
+        ),
+        call = NULL
       )
     }
   }
-
-  ver_name <- version_prep(version)
-
-  if (version == ver_name) {
-    version <- paste0(version, ".*")
-  }
+  python_number <- sub(">", "", python_version)
+  python_number <- sub("=", "", python_number)
+  python_number <- trimws(python_number)
 
   add_torch <- TRUE
   if (is.null(envname)) {
-    if (libs == "databricks-connect") {
-      if (compareVersion(as.character(ver_name), "14.1") < 0) {
-        add_torch <- FALSE
-      }
-      envname <- use_envname(
-        backend = "databricks",
-        version = ver_name,
-        ask_if_not_installed = FALSE
-      )
-    } else {
-      if (compareVersion(as.character(ver_name), "3.5") < 0) {
-        add_torch <- FALSE
-      }
-      envname <- use_envname(
-        backend = "pyspark",
-        version = ver_name,
-        ask_if_not_installed = FALSE
-      )
+    ver_compare <- compareVersion(
+      as.character(ver_name),
+      as.character(ml_version)
+    )
+    if (ver_compare < 0) {
+      add_torch <- FALSE
     }
-    cli_alert_success(
-      "Automatically naming the environment:{.emph '{envname}'}"
+    envname <- use_envname(
+      backend = backend,
+      version = ver_name,
+      ask_if_not_installed = FALSE
     )
   }
+  cli_alert_success(
+    "{.header Automatically naming the environment:}{.emph '{envname}'}"
+  )
+
   packages <- c(
-    paste0(libs, "==", version),
+    paste0(main_library, "==", version),
     "pandas!=2.1.0", # deprecation warnings
     "PyArrow",
     "grpcio",
@@ -255,13 +240,15 @@ install_environment <- function(
       }
     }
   }
-
   if (new_env && method != "conda" &&
     is.null(virtualenv_starter(python_version))) {
-    cli_abort(paste(
-      "Python version 3.9 or higher is required by some libraries.",
-      "Use: {.run reticulate::install_python(version = '3.9:latest')}",
-      "to install."
+    cli_abort(c(
+      paste0("{.header Python version} {.emph '{python_number}'}",
+             " {.header or higher is required by some libraries.}"
+             ),
+      " " =  paste0("Use: {.run reticulate::install_python",
+                    "(version = '{python_number}:latest')} to install."
+                    )
     ))
   }
 
@@ -272,11 +259,11 @@ install_environment <- function(
   }
 
   # conda_install() doesn't accept a version constraint for python_version
-  if (method == "conda" && python_version == ">=3.9") {
-    python_version <- "3.9"
+  if (method == "conda") {
+    python_version <- python_number
   }
 
-  if(!is.null(install_packages)) {
+  if (!is.null(install_packages)) {
     packages <- install_packages
   }
 
@@ -323,23 +310,93 @@ installed_components <- function(list_all = FALSE) {
   invisible()
 }
 
-py_library_info <- function(lib, ver = NULL) {
-  url <- paste0("https://pypi.org/pypi/", lib)
-  if (!is.null(ver)) {
-    url <- paste0(url, "/", ver)
+python_library_info <- function(
+    library_name,
+    library_version = NULL,
+    verbose = TRUE,
+    fail = TRUE,
+    timeout = 2) {
+  msg_fail <- NULL
+  msg_done <- NULL
+  ret <- NULL
+  if (verbose) {
+    cli_div(theme = cli_colors())
+    cli_progress_step(
+      "{.header Retrieving version from PyPi.org}",
+      msg_done = paste0(
+        "{.header Using:} {.emph '{ret$name}'} {.header version} {ret$version},",
+        " {.header requires Python }{ret$requires_python}"
+      ),
+      msg_failed = "{.header {msg_fail}}"
+    )
+  }
+
+  resp <- query_pypi(library_name, library_version, timeout)
+
+  if (inherits(resp, "try-error")) {
+    # Not catastrophic, it will simply try to use the upstream name and version
+    # provided by the user
+    msg_fail <- "Failed to contact PyPi.org"
+    if (verbose) cli_progress_done(result = "failed")
+    ret <- NULL
+  } else {
+    if (!is.null(resp)) {
+      # Happy path :D
+      ret <- resp$info
+      cli_progress_done()
+    } else {
+      msg_abort <- "{.header Library }{.emph {library_name}} {.header not found.}"
+      msg_fail <- glue("Python library '{library_name}' not found")
+      if (!is.null(library_version)) {
+        # Quering PyPi again to see if at least the library name is valid
+        resp2 <- query_pypi(library_name, timeout = timeout)
+        if (!is.null(resp2)) {
+          msg_fail <- glue("Version '{library_version}' for '{library_name}' not found")
+          msg_abort <- c(
+            "Version {.emph '{library_version}'} is not valid for {.emph '{library_name}'}",
+            "i" = "{.header The most recent, valid, version is} {.emph '{resp2$info$version}'}"
+          )
+        }
+      }
+      if (!fail) {
+        if (verbose) {
+          cli_progress_done(result = "failed")
+        }
+        return(NULL)
+      } else {
+        if (verbose) {
+          cli_progress_done(result = "clear")
+          cli_progress_cleanup()
+        }
+        cli_abort(msg_abort, call = NULL)
+      }
+    }
+  }
+  ret
+  # For possible future use
+  # "https://packagemanager.posit.co/__api__/repos/5/packages/{library_name}"
+}
+
+query_pypi <- function(library_name, library_version = NULL, timeout) {
+  url <- paste0("https://pypi.org/pypi/", library_name)
+  if (!is.null(library_version)) {
+    url <- paste0(url, "/", library_version)
   }
   url <- paste0(url, "/json")
-  resp <- tryCatch(
-    url %>%
-      request() %>%
-      req_perform() %>%
-      resp_body_json(),
-    httr2_http_404 = function(cnd) NULL
+  resp <- try(
+    {
+      tryCatch(
+        url %>%
+          request() %>%
+          req_timeout(timeout) %>%
+          req_perform() %>%
+          resp_body_json(),
+        httr2_http_404 = function(cnd) NULL
+      )
+    },
+    silent = TRUE
   )
-
-  resp$info
-  # For possible future use
-  # "https://packagemanager.posit.co/__api__/repos/5/packages/{lib}"
+  resp
 }
 
 version_prep <- function(version) {
@@ -372,4 +429,32 @@ version_prep <- function(version) {
   }
 
   out
+}
+
+check_rstudio <- function() {
+  check_rstudio <- try(RStudio.Version(), silent = TRUE)
+  if (inherits(check_rstudio, "try-error")) {
+    return(FALSE)
+  } else {
+    return(TRUE)
+  }
+}
+
+build_job_code <- function(args) {
+  args$as_job <- NULL
+  args$method <- args$method[[1]]
+  arg_list <- args %>%
+    imap(~ {
+      if (inherits(.x, "character")) {
+        x <- paste0("\"", .x, "\"")
+      } else {
+        x <- .x
+      }
+      paste0(.y, " = ", x)
+    }) %>%
+    as.character() %>%
+    paste0(collapse = ", ")
+  paste0(
+    "pysparklyr:::install_environment(", arg_list, ")"
+  )
 }

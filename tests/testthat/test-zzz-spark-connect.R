@@ -20,7 +20,7 @@ test_that("Test Databricks connection", {
     new = c("WORKON_HOME" = use_test_env()),
     {
       sc <- use_test_spark_connect()
-      pyspark_version <- py_library_info("pyspark")
+      pyspark_version <- python_library_info("pyspark")
       comp <- compareVersion(pyspark_version$version, spark_version(sc))
       if(comp != 0) {
         skip("Not latest version of Spark")

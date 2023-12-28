@@ -1,33 +1,88 @@
-test_that("Databricks installation works", {
-  skip_if_not_databricks()
-  local_mocked_bindings(install_as_job = function(...) list(...))
-
-  out <- install_databricks(version = "14.1")
-  expect_snapshot(out)
-
-  expect_message(
-    install_databricks(
-      version = "14.1",
-      cluster = Sys.getenv("DATABRICKS_CLUSTER_ID"),
-      as_job = FALSE
-      ),
-    "Will use the value from 'version', and ignoring 'cluster_id'"
-  )
-
-  expect_message(
-    install_databricks(
-      cluster = Sys.getenv("DATABRICKS_CLUSTER_ID"),
-      as_job = FALSE
-    )
+test_that("It checks with PyPi if library version is NULL", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_new_test_env()),
+    {
+      local_mocked_bindings(py_install = function(...) list(...))
+      expect_message(
+        install_environment(
+          main_library = "pyspark",
+          spark_method = "pyspark_connect",
+          backend = "pyspark",
+          ml_version = "3.5",
+          new_env = FALSE,
+          python = Sys.which("python")
+        ),
+        "Retrieving version from PyPi.org"
+      )
+    }
   )
 })
 
-test_that("Instal as job works", {
+test_that("Adds the ML libraries when prompted", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_new_test_env()),
+    {
+      local_mocked_bindings(py_install = function(...) list(...))
+      x <- install_environment(
+        main_library = "pyspark",
+        spark_method = "pyspark_connect",
+        backend = "pyspark",
+        version = "3.5",
+        ml_version = "3.5",
+        new_env = FALSE,
+        python = Sys.which("python"),
+        # Arg(s) being tested
+        install_ml = TRUE
+      )
+      x <- x[names(x) != "python_version"]
+      expect_snapshot(x)
+    }
+  )
+})
+
+test_that("Fails when non-existent Python version is used", {
+  expect_error(
+    install_environment(
+      main_library = "pyspark",
+      spark_method = "pyspark_connect",
+      backend = "pyspark",
+      version = "3.5",
+      ml_version = "3.5",
+      python = Sys.which("python"),
+      # Arg(s) being tested
+      new_env = TRUE,
+      python_version = "10.1"
+    ),
+    "Python version '10.1' or higher is required by some libraries."
+  )
+})
+
+test_that("Fails when passing an invalid library version", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_new_test_env()),
+    {
+      local_mocked_bindings(py_install = function(...) list(...))
+      expect_error(
+        install_environment(
+          main_library = "pyspark",
+          new_env = FALSE,
+          python = Sys.which("python"),
+          # Arg(s) being tested
+          version = "0.1",
+        ),
+        "Version '0.1' is not valid for 'pyspark'"
+      )
+    }
+  )
+})
+
+
+test_that("install_as_job() is able to run", {
   local_mocked_bindings(
     check_rstudio = function(...) TRUE,
     jobRunScript = function(...) invisible(),
     install_environment = function(...) list(...)
-    )
+  )
   expect_message(
     install_as_job(),
     "Running installation as a RStudio job"
@@ -37,42 +92,67 @@ test_that("Instal as job works", {
   )
 })
 
-test_that("Null version and libs work", {
+test_that("Installation runs even if no response from PyPi", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
+    new = c("WORKON_HOME" = use_new_test_env()),
     {
-      local_mocked_bindings(py_install = function(...) list(...))
-      expect_message(
-        install_environment(
-          libs = "pyspark",
-          new_env = FALSE,
-          python = Sys.which("python")
-          ),
-        "Retrieving version from PyPi.org"
+      local_mocked_bindings(
+        py_install = function(...) list(...),
+        python_library_info = function(...) NULL
       )
-
-      expect_error(
-        install_environment(
-          libs = "pyspark",
-          version = "0.1",
-          new_env = FALSE,
-          python = Sys.which("python")
-        ),
-        "Version '0.1' does not exist"
+      x <- install_environment(
+        main_library = "pyspark",
+        spark_method = "pyspark_connect",
+        backend = "pyspark",
+        version = "3.5",
+        ml_version = "3.5",
+        new_env = FALSE,
+        python = Sys.which("python")
       )
-    })
+      x <- x[names(x) != "python_version"]
+      expect_snapshot(x)
+    }
+  )
 })
+
+test_that(
+  "Fails when no library version is provided, and nothing comes back from PyPi",
+  {
+    withr::with_envvar(
+      new = c("WORKON_HOME" = use_new_test_env()),
+      {
+        local_mocked_bindings(
+          py_install = function(...) list(...),
+          python_library_info = function(...) NULL
+        )
+        expect_error(
+          install_environment(
+            main_library = "pyspark",
+            spark_method = "pyspark_connect",
+            backend = "pyspark",
+            ml_version = "3.5",
+            new_env = FALSE,
+            python = Sys.which("python")
+          ),
+          "No `version` provided, and none could be found"
+        )
+      }
+    )
+  }
+)
+
+
 
 test_that("installed_components() output properly", {
   expect_message(installed_components())
 })
 
 test_that("Can get pypy.org info", {
-  info <- py_library_info("databricks.connect", "13.0")
+  info <- python_library_info("databricks.connect", "13.0")
   expect_type(info, "list")
   expect_equal(info$summary, "Databricks Connect Client")
 
-  expect_null(py_library_info("doesnt.exist", ""))
+  expect_error(python_library_info("doesnt.exist", ""))
 })
 
 test_that("version_prep() outputs what's expected", {
@@ -87,6 +167,31 @@ test_that("Install code is correctly created", {
   expect_snapshot(build_job_code(list(a = 1)))
 })
 
+test_that("Databricks installation works", {
+  skip_if_not_databricks()
+  local_mocked_bindings(install_as_job = function(...) list(...))
+
+  out <- install_databricks(version = "14.1")
+  expect_snapshot(out)
+
+  expect_message(
+    install_databricks(
+      version = "14.1",
+      cluster = Sys.getenv("DATABRICKS_CLUSTER_ID"),
+      as_job = FALSE
+    ),
+    "Will use the value from 'version', and ignoring 'cluster_id'"
+  )
+
+  expect_message(
+    install_databricks(
+      cluster = Sys.getenv("DATABRICKS_CLUSTER_ID"),
+      as_job = FALSE
+    )
+  )
+
+  expect_snapshot(install_databricks(version = "13.1"))
+})
 
 skip_on_ci()
 

@@ -8,7 +8,7 @@
 install_pyspark(
   version = NULL,
   envname = NULL,
-  python_version = ">=3.9",
+  python_version = NULL,
   new_env = TRUE,
   method = c("auto", "virtualenv", "conda"),
   as_job = TRUE,
@@ -20,7 +20,7 @@ install_databricks(
   version = NULL,
   cluster_id = NULL,
   envname = NULL,
-  python_version = ">=3.9",
+  python_version = NULL,
   new_env = TRUE,
   method = c("auto", "virtualenv", "conda"),
   as_job = TRUE,
@@ -29,14 +29,16 @@ install_databricks(
 )
 }
 \arguments{
-\item{version}{Version of 'databricks.connect' to install}
+\item{version}{Version of 'databricks.connect' to install. Defaults to \code{NULL}.
+If \code{NULL}, it will check against PyPi to get the current library version.}
 
 \item{envname}{The name of the Python Environment to use to install the
-Python libraries. Default to \code{NULL.} If \code{NULL}, a name will automatically
+Python libraries. Defaults to \code{NULL.} If \code{NULL}, a name will automatically
 be assigned based on the version that will be installed}
 
-\item{python_version}{The version of Python to use to create the Python
-environment.}
+\item{python_version}{The minimum required version of Python to use to create
+the Python environment. Defaults to \code{NULL}. If \code{NULL}, it will check against
+PyPi to get the minimum required Python version.}
 
 \item{new_env}{If \code{TRUE}, any existing Python virtual environment and/or
 Conda environment specified by \code{envname} is deleted first.}

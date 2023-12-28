@@ -6,7 +6,7 @@ use_envname <- function(
     match_first = FALSE,
     ignore_reticulate_python = FALSE,
     ask_if_not_installed = interactive(),
-    libs = NULL
+    main_library = NULL
     ) {
   ret_python <- reticulate_python_check(ignore_reticulate_python)
 
@@ -34,8 +34,8 @@ use_envname <- function(
   match_one <- length(envs) > 0
   match_exact <- length(envs[envs == envname]) > 0
 
-  if(!is.null(libs) && !match_exact) {
-    lib_info <- py_library_info(libs)
+  if(!is.null(main_library) && !match_exact) {
+    lib_info <- python_library_info(main_library, fail = FALSE, verbose = FALSE)
     latest_ver <- lib_info$version
     install_recent <- compareVersion(latest_ver, version) == 1
   } else {

@@ -6,11 +6,15 @@
 
 use_test_env <- function() {
   if (is.null(.test_env$env)) {
-    base <- fs::path_expand("~/test-spark")
-    .test_env$env <- fs::path(base, random_table_name("env"))
-    fs::dir_create(.test_env$env)
+    .test_env$env <- use_new_test_env()
   }
   .test_env$env
+}
+
+use_new_test_env <- function() {
+  base <- fs::path_expand("~/test-spark")
+  x <- fs::path(base, random_table_name("env"))
+  fs::dir_create(x)
 }
 
 use_test_version_spark <- function() {

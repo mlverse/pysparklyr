@@ -17,11 +17,11 @@
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by
 #' @importFrom dplyr filter mutate
 #' @importFrom purrr map_lgl map_chr map pmap_chr imap
-#' @importFrom purrr map_chr discard transpose
+#' @importFrom purrr map_chr discard transpose reduce
 #' @importFrom rlang enquo `!!` `!!!` quo_is_null sym warn abort `%||%`
 #' @importFrom rlang is_string is_character parse_exprs set_names
 #' @importFrom rlang exec arg_match as_utf8_character
-#' @importFrom rsconnect accounts deployApp
+#' @importFrom rsconnect accounts deployApp deployments
 #' @importFrom methods new is setOldClass
 #' @importFrom tidyselect matches
 #' @importFrom utils head type.convert compareVersion

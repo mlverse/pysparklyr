@@ -74,7 +74,7 @@ deploy_databricks <- function(
     }
   }
   if (!is.null(host)) {
-    env_var_message <- c(" " = glue("|- Host: {host}"))
+    env_var_message <- c("i" = paste0("{.header Host URL:} ", host))
   } else {
     var_error <- c(" " = paste0(
       "{.header - No host URL was provided or found. Please either set the}",
@@ -98,7 +98,7 @@ deploy_databricks <- function(
   if (!is.null(token)) {
     env_var_message <- c(
       env_var_message,
-      " " = glue("|- Token: '<REDACTED>'")
+      " " = "{.header Token:} '<REDACTED>'"
     )
   } else {
     var_error <- c(var_error, " " = paste0(
@@ -154,7 +154,7 @@ deploy <- function(
       server <- rs_accounts$server[1]
     }
     if (nrow(rs_accounts > 1)) {
-      accts_msg <- "Change Publishing Target (Posit Connect server)"
+      accts_msg <- "Change 'Posit server'"
     }
   }
   cli_div(theme = cli_colors())
@@ -175,21 +175,22 @@ deploy <- function(
   }
   appDir <- path(appDir)
 
-  cli_inform("{.class - App and Spark -}")
-  cli_alert_info("{.header Source: {.emph '{appDir}'}}")
+  cli_alert_info("{.header Source directory: {.emph {appDir}}}")
   python <- deploy_find_environment(
     python = python,
     version = version,
     backend = backend
   )
-  cli_inform("{.class - Publishing target -}")
-  cli_alert_info("{.header Server:} {server} | {.header Account:} {account}")
+  cli_inform(c(
+    "i" = "{.header Posit server:} {.emph {server}}",
+    " " = "{.header Account name:} {.emph {account}}"
+  ))
   if (!is.null(env_var_message)) {
-    cli_bullets(c("i" = "{.header Environment variables:}", env_var_message))
+    cli_bullets(env_var_message)
   }
   cli_inform("")
   if (interactive() && confirm) {
-    cli_inform("Does everything look correct?")
+    cli_inform("{.header Does everything look correct?}")
     choice <- utils::menu(choices = c("Yes", "No", accts_msg))
     if (choice == 2) {
       return(invisible())
@@ -214,10 +215,11 @@ deploy <- function(
       requirements_write(
         destfile = req_file,
         python = python
-        )
+      )
     }
   }
 
+  stop()
   deployApp(
     appDir = appDir,
     python = python,
@@ -236,11 +238,6 @@ deploy_find_environment <- function(
   ret <- NULL
   failed <- NULL
   env_name <- ""
-  cli_progress_step(
-    msg = "Searching and validating Python path",
-    msg_done = "{.header Python:{.emph '{ret}'}}",
-    msg_failed = "Environment not found: {.emph {failed}}"
-  )
   if (is.null(python)) {
     if (!is.null(version)) {
       env_name <- use_envname(
@@ -273,7 +270,6 @@ deploy_find_environment <- function(
   if (is.null(ret)) {
     exe_py <- py_exe()
     if(exe_py == "") {
-      cli_progress_done(result = "failed")
       cli_abort("No Python environment could be found")
     } else {
       ret <- exe_py
@@ -281,5 +277,7 @@ deploy_find_environment <- function(
   } else {
     ret <- path_expand(ret)
   }
+  cli_bullets(c("i" = "{.header Python:} {ret}"))
   ret
 }
+

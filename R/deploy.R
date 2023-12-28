@@ -47,6 +47,9 @@ deploy_databricks <- function(
     token = NULL,
     confirm = interactive(),
     ...) {
+
+  cli_div(theme = cli_colors())
+
   if (is.null(version) && !is.null(cluster_id)) {
     version <- databricks_dbr_version(
       cluster_id = cluster_id,
@@ -106,7 +109,6 @@ deploy_databricks <- function(
   }
 
   if (!is.null(var_error)) {
-    cli_div(theme = cli_colors())
     cli_abort(c("Cluster setup errors:", var_error), call = NULL)
   }
 
@@ -172,6 +174,7 @@ deploy <- function(
     appDir <- getwd()
   }
   appDir <- path(appDir)
+
   cli_inform("{.class - App and Spark -}")
   cli_alert_info("{.header Source: {.emph '{appDir}'}}")
   python <- deploy_find_environment(
@@ -187,7 +190,6 @@ deploy <- function(
   cli_inform("")
   if (interactive() && confirm) {
     cli_inform("Does everything look correct?")
-    cli_end()
     choice <- utils::menu(choices = c("Yes", "No", accts_msg))
     if (choice == 2) {
       return(invisible())
@@ -199,6 +201,23 @@ deploy <- function(
       choice <- utils::menu(title = "Select publishing target:", chr_accounts)
     }
   }
+
+  req_file <- path(appDir, "requirements.txt")
+  prev_deployments <- deployments(appDir)
+  if(!file_exists(req_file) && nrow(prev_deployments) == 0 && interactive()) {
+    cli_inform(c(
+      "{.header Would you like to create the 'requirements.txt' file?}",
+      "{.class Why consider? This will allow you to skip using `version` or `cluster_id`}"
+    ))
+    choice <- utils::menu(choices = c("Yes", "No"))
+    if(choice == 1) {
+      requirements_write(
+        destfile = req_file,
+        python = python
+        )
+    }
+  }
+
   deployApp(
     appDir = appDir,
     python = python,

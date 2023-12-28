@@ -98,7 +98,7 @@ test_that("Installation runs even if no response from PyPi", {
     {
       local_mocked_bindings(
         py_install = function(...) list(...),
-        py_library_info = function(...) NULL
+        python_library_info = function(...) NULL
       )
       x <- install_environment(
         main_library = "pyspark",
@@ -123,7 +123,7 @@ test_that(
       {
         local_mocked_bindings(
           py_install = function(...) list(...),
-          py_library_info = function(...) NULL
+          python_library_info = function(...) NULL
         )
         expect_error(
           install_environment(
@@ -148,11 +148,11 @@ test_that("installed_components() output properly", {
 })
 
 test_that("Can get pypy.org info", {
-  info <- py_library_info("databricks.connect", "13.0")
+  info <- python_library_info("databricks.connect", "13.0")
   expect_type(info, "list")
   expect_equal(info$summary, "Databricks Connect Client")
 
-  expect_error(py_library_info("doesnt.exist", ""))
+  expect_error(python_library_info("doesnt.exist", ""))
 })
 
 test_that("version_prep() outputs what's expected", {

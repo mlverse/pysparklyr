@@ -164,7 +164,7 @@ install_environment <- function(
     install_packages = NULL,
     ...) {
   cli_div(theme = cli_colors())
-  library_info <- py_library_info(main_library, version)
+  library_info <- python_library_info(main_library, version)
 
   if (!is.null(library_info)) {
     if(is.null(python_version)) {
@@ -310,7 +310,7 @@ installed_components <- function(list_all = FALSE) {
   invisible()
 }
 
-py_library_info <- function(
+python_library_info <- function(
     library_name,
     library_version = NULL,
     verbose = TRUE,

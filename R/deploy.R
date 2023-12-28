@@ -28,6 +28,8 @@
 #' use the environment variable `DATABRICKS_HOST`
 #' @param token The Databricks authentication token. Defaults to NULL. If left NULL, it will
 #' use the environment variable `DATABRICKS_TOKEN`
+#' @param forceGeneratePythonEnvironment If an existing requirements.txt file is found,
+#' it will be overwritten when this argument is TRUE.
 #' @param confirm Should the user be prompted to confirm that the correct
 #' information is being used for deployment? Defaults to `interactive()`
 #' @param ... Additional named arguments passed to `rsconnect::deployApp()` function
@@ -38,13 +40,13 @@ deploy_databricks <- function(
     account = NULL,
     server = NULL,
     lint = FALSE,
+    forceGeneratePythonEnvironment = TRUE,
     version = NULL,
     cluster_id = NULL,
     host = NULL,
     token = NULL,
     confirm = interactive(),
-    ...
-  ) {
+    ...) {
   if (is.null(version) && !is.null(cluster_id)) {
     version <- databricks_dbr_version(
       cluster_id = cluster_id,
@@ -57,59 +59,60 @@ deploy_databricks <- function(
   var_error <- NULL
 
   # Host URL
-  if(!is.null(host)) {
+  if (!is.null(host)) {
     Sys.setenv("CONNECT_DATABRICKS_HOST" = host)
     env_vars <- "CONNECT_DATABRICKS_HOST"
   } else {
     env_host_name <- "DATABRICKS_HOST"
     env_host <- Sys.getenv(env_host_name, unset = "")
-    if(env_host != "") {
-      env_vars <-  c(env_vars, env_host_name)
+    if (env_host != "") {
+      env_vars <- c(env_vars, env_host_name)
       host <- env_host
     }
   }
-  if(!is.null(host)) {
+  if (!is.null(host)) {
     env_var_message <- c(" " = glue("|- Host: {host}"))
   } else {
     var_error <- c(" " = paste0(
       "{.header - No host URL was provided or found. Please either set the}",
       " {.emph 'DATABRICKS_HOST'} {.header environment variable,}",
-      " {.header or pass the }{.code host} {.header argument.}")
-      )
+      " {.header or pass the }{.code host} {.header argument.}"
+    ))
   }
 
   # Token
-  if(!is.null(token)) {
+  if (!is.null(token)) {
     Sys.setenv("CONNECT_DATABRICKS_TOKEN" = token)
     env_vars <- c(env_vars, "CONNECT_DATABRICKS_TOKEN")
   } else {
     env_token_name <- "DATABRICKS_TOKEN"
     env_token <- Sys.getenv(env_token_name, unset = "")
-    if(env_token != "") {
-      env_vars <-  c(env_vars, env_token_name)
+    if (env_token != "") {
+      env_vars <- c(env_vars, env_token_name)
       token <- env_token
     }
   }
-  if(!is.null(token)) {
+  if (!is.null(token)) {
     env_var_message <- c(
       env_var_message,
       " " = glue("|- Token: '<REDACTED>'")
-      )
+    )
   } else {
     var_error <- c(var_error, " " = paste0(
       "{.header - No token was provided or found. Please either set the}",
       " {.emph 'DATABRICKS_TOKEN'} {.header environment variable,}",
-      " {.header or pass the} {.code token} {.header argument.}")
-    )
+      " {.header or pass the} {.code token} {.header argument.}"
+    ))
   }
 
-  if(!is.null(var_error)) {
+  if (!is.null(var_error)) {
     cli_div(theme = cli_colors())
     cli_abort(c("Cluster setup errors:", var_error), call = NULL)
   }
 
   deploy(
-    appDir = appDir, lint = lint,
+    appDir = appDir,
+    lint = lint,
     python = python,
     version = version,
     backend = "databricks",
@@ -134,21 +137,21 @@ deploy <- function(
     env_var_message = NULL,
     confirm,
     ...) {
-  if(is.null(backend)) {
+  if (is.null(backend)) {
     abort("'backend' is empty, please provide one")
   }
   rs_accounts <- accounts()
   accts_msg <- NULL
-  if(nrow(rs_accounts) == 0) {
+  if (nrow(rs_accounts) == 0) {
     abort("There are no server accounts setup")
   } else {
-    if(is.null(account)) {
+    if (is.null(account)) {
       account <- rs_accounts$name[1]
     }
-    if(is.null(server)) {
+    if (is.null(server)) {
       server <- rs_accounts$server[1]
     }
-    if(nrow(rs_accounts > 1)) {
+    if (nrow(rs_accounts > 1)) {
       accts_msg <- "Change Publishing Target (Posit Connect server)"
     }
   }
@@ -160,12 +163,12 @@ deploy <- function(
   if (is.null(appDir)) {
     if (interactive() && in_rstudio) {
       editor_doc <- getSourceEditorContext()
-      if(!is.null(editor_doc)) {
+      if (!is.null(editor_doc)) {
         appDir <- dirname(editor_doc$path)
       }
     }
   }
-  if(is.null(appDir)) {
+  if (is.null(appDir)) {
     appDir <- getwd()
   }
   appDir <- path(appDir)
@@ -178,18 +181,18 @@ deploy <- function(
   )
   cli_inform("{.class - Publishing target -}")
   cli_alert_info("{.header Server:} {server} | {.header Account:} {account}")
-  if(!is.null(env_var_message)) {
+  if (!is.null(env_var_message)) {
     cli_bullets(c("i" = "{.header Environment variables:}", env_var_message))
   }
   cli_inform("")
-  if(interactive() && confirm) {
+  if (interactive() && confirm) {
     cli_inform("Does everything look correct?")
     cli_end()
     choice <- utils::menu(choices = c("Yes", "No", accts_msg))
-    if(choice == 2) {
+    if (choice == 2) {
       return(invisible())
     }
-    if(choice == 3) {
+    if (choice == 3) {
       chr_accounts <- rs_accounts %>%
         transpose() %>%
         map_chr(~ glue("Server: {.x$server} | Account: {.x$name}"))
@@ -220,7 +223,7 @@ deploy_find_environment <- function(
     msg_failed = "Environment not found: {.emph {failed}}"
   )
   if (is.null(python)) {
-    if(!is.null(version)) {
+    if (!is.null(version)) {
       env_name <- use_envname(
         version = version,
         backend = backend
@@ -234,7 +237,7 @@ deploy_find_environment <- function(
       if (is.null(ret)) failed <- env_name
     } else {
       py_exe_path <- py_exe()
-      if(grepl("r-sparklyr-", py_exe_path)) {
+      if (grepl("r-sparklyr-", py_exe_path)) {
         ret <- py_exe_path
       } else {
         failed <- "Please pass a 'version' or a 'cluster_id'"
@@ -249,8 +252,13 @@ deploy_find_environment <- function(
     }
   }
   if (is.null(ret)) {
-    cli_progress_done(result = "failed")
-    cli_abort("No Python environment could be found")
+    exe_py <- py_exe()
+    if(exe_py == "") {
+      cli_progress_done(result = "failed")
+      cli_abort("No Python environment could be found")
+    } else {
+      ret <- exe_py
+    }
   } else {
     ret <- path_expand(ret)
   }

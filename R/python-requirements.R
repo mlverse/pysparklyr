@@ -1,3 +1,8 @@
+#' Write the 'requirements.txt' file
+#' @param envname The name of, or path to, a Python virtual environment.
+#' @param destfile Target path for the requirements file. Defaults to 'requirements.txt'.
+#' @param overwrite Replace the contents of the file if it already exists?
+#' @param ... Additional arguments passed to `reticulate::py_list_packages()`
 #' @export
 requirements_write <- function(
     envname = NULL,

@@ -96,3 +96,30 @@ tests_enable_all <- function() {
     }
   )
 }
+
+test_databricks_cluster_id <- function() {
+  Sys.getenv("DATABRICKS_CLUSTER_ID")
+}
+
+test_databricks_cluster_version <- function() {
+  if(is.null(.test_env$dbr)) {
+    dbr <- databricks_dbr_version(
+      cluster_id = test_databricks_cluster_id(),
+      host = databricks_host(),
+      token = databricks_token()
+    )
+    .test_env$dbr <- dbr
+  }
+  .test_env$dbr
+}
+
+test_databricks_deploy_env_path <- function() {
+  env_name <- use_envname(
+    version = test_databricks_cluster_version(),
+    backend = "databricks"
+  )
+  if (names(env_name) != "exact") {
+    py_install("numpy", env_name, pip = TRUE, python = Sys.which("python"))
+  }
+  path(reticulate::virtualenv_python(env_name))
+}

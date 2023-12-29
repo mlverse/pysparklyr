@@ -159,11 +159,9 @@ deploy <- function(
   }
   cli_div(theme = cli_colors())
   cli_h1("Starting deployment")
-  check_rstudio <- try(RStudio.Version(), silent = TRUE)
-  in_rstudio <- !inherits(check_rstudio, "try-error")
   editor_doc <- NULL
   if (is.null(appDir)) {
-    if (interactive() && in_rstudio) {
+    if (check_interactive() && check_rstudio()) {
       editor_doc <- getSourceEditorContext()
       if (!is.null(editor_doc)) {
         appDir <- dirname(editor_doc$path)
@@ -189,9 +187,9 @@ deploy <- function(
     cli_bullets(env_var_message)
   }
   cli_inform("")
-  if (interactive() && confirm) {
+  if (check_interactive() && confirm) {
     cli_inform("{.header Does everything look correct?}")
-    choice <- utils::menu(choices = c("Yes", "No", accts_msg))
+    choice <- menu(choices = c("Yes", "No", accts_msg))
     if (choice == 2) {
       return(invisible())
     }
@@ -199,18 +197,18 @@ deploy <- function(
       chr_accounts <- rs_accounts %>%
         transpose() %>%
         map_chr(~ glue("Server: {.x$server} | Account: {.x$name}"))
-      choice <- utils::menu(title = "Select publishing target:", chr_accounts)
+      choice <- menu(title = "Select publishing target:", chr_accounts)
     }
   }
 
   req_file <- path(appDir, "requirements.txt")
   prev_deployments <- deployments(appDir)
-  if(!file_exists(req_file) && nrow(prev_deployments) == 0 && interactive()) {
+  if(!file_exists(req_file) && nrow(prev_deployments) == 0 && check_interactive()) {
     cli_inform(c(
       "{.header Would you like to create the 'requirements.txt' file?}",
       "{.class Why consider? This will allow you to skip using `version` or `cluster_id`}"
     ))
-    choice <- utils::menu(choices = c("Yes", "No"))
+    choice <- menu(choices = c("Yes", "No"))
     if(choice == 1) {
       requirements_write(
         destfile = req_file,
@@ -219,7 +217,6 @@ deploy <- function(
     }
   }
 
-  stop()
   deployApp(
     appDir = appDir,
     python = python,

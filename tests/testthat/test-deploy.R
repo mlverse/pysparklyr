@@ -4,22 +4,9 @@ test_that("deploy works", {
   withr::with_envvar(
     new = c("WORKON_HOME" = use_test_env()),
     {
-      cluster_id <- Sys.getenv("DATABRICKS_CLUSTER_ID")
-
-      dbr_version <- databricks_dbr_version(
-        cluster_id = cluster_id,
-        host = databricks_host(),
-        token = databricks_token()
-      )
-
-      env_name <- use_envname(
-        version = dbr_version,
-        backend = "databricks"
-      )
-
-      if (names(env_name) != "exact") {
-        py_install("numpy", env_name, pip = TRUE, python = Sys.which("python"))
-      }
+      dbr_version <- test_databricks_cluster_version()
+      cluster_id <- test_databricks_cluster_id()
+      env_path <- test_databricks_deploy_env_path()
 
       local_mocked_bindings(
         deployApp = function(...) list(...),
@@ -27,8 +14,6 @@ test_that("deploy works", {
           data.frame(name = "my_account", server = "my_server")
         }
       )
-
-      env_path <- path(reticulate::virtualenv_python(env_name))
 
       expect_equal(
         deploy_databricks(version = dbr_version),
@@ -102,6 +87,48 @@ test_that("deploy works", {
     }
   )
 })
+
+test_that("deploy works", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      deploy_folder <- path(tempdir(), random_table_name("dep"))
+      dir_create(deploy_folder)
+      deploy_file <- path(deploy_folder, "test.qmd")
+      writeLines("x", con = deploy_file)
+      dbr_version <- test_databricks_cluster_version()
+      cluster_id <- test_databricks_cluster_id()
+      env_path <- test_databricks_deploy_env_path()
+      local_mocked_bindings(
+        check_interactive = function(...) TRUE,
+        check_rstudio = function(...) TRUE,
+        menu = function(...) return(1),
+        deployApp = function(...) list(...),
+        getSourceEditorContext = function(...) {
+          x <- list()
+          x$path <- deploy_file
+          x
+        }
+        )
+      expect_equal(
+        deploy_databricks(
+          version = dbr_version,
+          server = "my_server",
+          account = "my_account"
+        ),
+        list(
+          appDir = deploy_folder,
+          python = env_path,
+          envVars = c("DATABRICKS_HOST", "DATABRICKS_TOKEN"),
+          server = "my_server",
+          account = "my_account",
+          lint = FALSE
+        )
+      )
+    }
+  )
+})
+
 
 test_that("Misc deploy tests", {
   expect_error(deploy(), "'backend'")

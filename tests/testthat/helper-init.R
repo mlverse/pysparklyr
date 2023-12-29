@@ -3,6 +3,7 @@
 .test_env$lr_model <- NULL
 .test_env$env <- NULL
 .test_env$started <- NULL
+.test_env$dbr <- NULL
 
 use_test_env <- function() {
   if (is.null(.test_env$env)) {

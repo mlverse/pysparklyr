@@ -95,7 +95,7 @@ use_envname <- function(
         " " = msg_2,
         " " = "Do you wish to install {con_label} version {version}?"
       ))
-      choice <- utils::menu(choices = c("Yes", "No", "Cancel"))
+      choice <- menu(choices = c("Yes", "No", "Cancel"))
       if (choice == 1) {
         ret <- set_names(envname, "prompt")
         rlang::exec(

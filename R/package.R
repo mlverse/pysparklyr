@@ -30,7 +30,7 @@
 #' @importFrom processx process
 #' @importFrom rstudioapi jobRunScript showQuestion getSourceEditorContext
 #' @importFrom stats terms
-#' @importFrom utils capture.output installed.packages
+#' @importFrom utils capture.output installed.packages menu
 #' @importFrom magrittr %>%
 #' @import reticulate
 #' @import dbplyr

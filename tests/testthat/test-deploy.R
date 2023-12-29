@@ -22,7 +22,18 @@ test_databricks_deploy_output <- function() {
   )
 }
 
-accounts_df <- function() data.frame(name = "my_account", server = "my_server")
+test_databricks_deploy_file <- function() {
+  deploy_folder <- path(tempdir(), random_table_name("dep"))
+  dir_create(deploy_folder)
+  deploy_file <- path(deploy_folder, "test.qmd")
+  writeLines("x", con = deploy_file)
+  deploy_file
+}
+
+accounts_df <- function() data.frame(
+  name = c("my_account", "my_account2", "my_account3"),
+  server = c("my_server", "my_server2", "my_server3")
+  )
 
 test_that("Basic use, passing DBR version works", {
   withr::with_envvar(
@@ -128,10 +139,7 @@ test_that("Simulates interactive session, selects Yes (1) for both prompts", {
   withr::with_envvar(
     new = c("WORKON_HOME" = use_test_env()),
     {
-      deploy_folder <- path(tempdir(), random_table_name("dep"))
-      dir_create(deploy_folder)
-      deploy_file <- path(deploy_folder, "test.qmd")
-      writeLines("x", con = deploy_file)
+      deploy_file <- test_databricks_deploy_file()
       local_mocked_bindings(
         check_interactive = function(...) TRUE,
         check_rstudio = function(...) TRUE,
@@ -141,17 +149,53 @@ test_that("Simulates interactive session, selects Yes (1) for both prompts", {
         deployApp = function(...) list(...),
         getSourceEditorContext = function(...) {
           x <- list()
-          x$path <- deploy_file
+          x$path <- as_fs_path(deploy_file)
           x
         }
       )
       out <- test_databricks_deploy_output()
-      out$appDir <- deploy_folder
+      out$appDir <- as_fs_path(path_dir(deploy_file))
+
       expect_equal(
         deploy_databricks(
           version = test_databricks_cluster_version(),
           server = "my_server",
           account = "my_account",
+          confirm = TRUE
+        ),
+        out
+      )
+    }
+  )
+})
+
+test_that("Simulates interactive session, selects 3 for both prompts", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      deploy_file <- test_databricks_deploy_file()
+      local_mocked_bindings(
+        check_interactive = function(...) TRUE,
+        check_rstudio = function(...) TRUE,
+        menu = function(...) {
+          return(3)
+        },
+        deployApp = function(...) list(...),
+        accounts = function(...) accounts_df(),
+        getSourceEditorContext = function(...) {
+          x <- list()
+          x$path <- as_fs_path(deploy_file)
+          x
+        }
+      )
+      out <- test_databricks_deploy_output()
+      out$appDir <- as_fs_path(path_dir(deploy_file))
+      out$server <- "my_server3"
+      out$account <- "my_account3"
+
+      expect_equal(
+        deploy_databricks(
+          version = test_databricks_cluster_version(),
           confirm = TRUE
         ),
         out

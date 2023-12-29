@@ -198,6 +198,8 @@ deploy <- function(
         transpose() %>%
         map_chr(~ glue("Server: {.x$server} | Account: {.x$name}"))
       choice <- menu(title = "Select publishing target:", chr_accounts)
+      server <- rs_accounts$server[choice]
+      account <- rs_accounts$name[choice]
     }
   }
 

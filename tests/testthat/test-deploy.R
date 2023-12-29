@@ -114,7 +114,8 @@ test_that("deploy works", {
         deploy_databricks(
           version = dbr_version,
           server = "my_server",
-          account = "my_account"
+          account = "my_account",
+          confirm = TRUE
         ),
         list(
           appDir = deploy_folder,
@@ -124,6 +125,25 @@ test_that("deploy works", {
           account = "my_account",
           lint = FALSE
         )
+      )
+    }
+  )
+})
+
+test_that("deploy works", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      env_path <- test_databricks_deploy_env_path()
+      local_mocked_bindings(
+        py_exe = function(...) return(NULL)
+      )
+      expect_equal(
+        deploy_find_environment(python = env_path),
+        env_path
+      )
+      expect_error(
+        deploy_find_environment()
       )
     }
   )

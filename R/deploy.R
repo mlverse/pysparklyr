@@ -235,6 +235,7 @@ deploy_find_environment <- function(
   ret <- NULL
   failed <- NULL
   env_name <- ""
+  exe_py <- py_exe()
   if (is.null(python)) {
     if (!is.null(version)) {
       env_name <- use_envname(
@@ -249,9 +250,8 @@ deploy_find_environment <- function(
       }
       if (is.null(ret)) failed <- env_name
     } else {
-      py_exe_path <- py_exe()
-      if (grepl("r-sparklyr-", py_exe_path)) {
-        ret <- py_exe_path
+      if (grepl("r-sparklyr-", exe_py)) {
+        ret <- exe_py
       } else {
         failed <- "Please pass a 'version' or a 'cluster_id'"
       }
@@ -265,8 +265,8 @@ deploy_find_environment <- function(
     }
   }
   if (is.null(ret)) {
-    exe_py <- py_exe()
-    if(exe_py == "") {
+
+    if(is.null(exe_py)) {
       cli_abort("No Python environment could be found")
     } else {
       ret <- exe_py

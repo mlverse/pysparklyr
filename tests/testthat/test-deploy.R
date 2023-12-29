@@ -147,6 +147,7 @@ test_that("Simulates interactive session, selects Yes (1) for both prompts", {
           return(1)
         },
         deployApp = function(...) list(...),
+        accounts = function(...) accounts_df(),
         getSourceEditorContext = function(...) {
           x <- list()
           x$path <- as_fs_path(deploy_file)

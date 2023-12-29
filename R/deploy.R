@@ -74,7 +74,7 @@ deploy_databricks <- function(
     }
   }
   if (!is.null(host)) {
-    env_var_message <- c(" " = glue("|- Host: {host}"))
+    env_var_message <- c("i" = paste0("{.header Host URL:} ", host))
   } else {
     var_error <- c(" " = paste0(
       "{.header - No host URL was provided or found. Please either set the}",
@@ -98,7 +98,7 @@ deploy_databricks <- function(
   if (!is.null(token)) {
     env_var_message <- c(
       env_var_message,
-      " " = glue("|- Token: '<REDACTED>'")
+      " " = "{.header Token:} '<REDACTED>'"
     )
   } else {
     var_error <- c(var_error, " " = paste0(
@@ -154,16 +154,14 @@ deploy <- function(
       server <- rs_accounts$server[1]
     }
     if (nrow(rs_accounts > 1)) {
-      accts_msg <- "Change Publishing Target (Posit Connect server)"
+      accts_msg <- "Change 'Posit server'"
     }
   }
   cli_div(theme = cli_colors())
   cli_h1("Starting deployment")
-  check_rstudio <- try(RStudio.Version(), silent = TRUE)
-  in_rstudio <- !inherits(check_rstudio, "try-error")
   editor_doc <- NULL
   if (is.null(appDir)) {
-    if (interactive() && in_rstudio) {
+    if (check_interactive() && check_rstudio()) {
       editor_doc <- getSourceEditorContext()
       if (!is.null(editor_doc)) {
         appDir <- dirname(editor_doc$path)
@@ -175,22 +173,23 @@ deploy <- function(
   }
   appDir <- path(appDir)
 
-  cli_inform("{.class - App and Spark -}")
-  cli_alert_info("{.header Source: {.emph '{appDir}'}}")
+  cli_alert_info("{.header Source directory: {.emph {appDir}}}")
   python <- deploy_find_environment(
     python = python,
     version = version,
     backend = backend
   )
-  cli_inform("{.class - Publishing target -}")
-  cli_alert_info("{.header Server:} {server} | {.header Account:} {account}")
+  cli_inform(c(
+    "i" = "{.header Posit server:} {.emph {server}}",
+    " " = "{.header Account name:} {.emph {account}}"
+  ))
   if (!is.null(env_var_message)) {
-    cli_bullets(c("i" = "{.header Environment variables:}", env_var_message))
+    cli_bullets(env_var_message)
   }
   cli_inform("")
-  if (interactive() && confirm) {
-    cli_inform("Does everything look correct?")
-    choice <- utils::menu(choices = c("Yes", "No", accts_msg))
+  if (check_interactive() && confirm) {
+    cli_inform("{.header Does everything look correct?}")
+    choice <- menu(choices = c("Yes", "No", accts_msg))
     if (choice == 2) {
       return(invisible())
     }
@@ -198,23 +197,25 @@ deploy <- function(
       chr_accounts <- rs_accounts %>%
         transpose() %>%
         map_chr(~ glue("Server: {.x$server} | Account: {.x$name}"))
-      choice <- utils::menu(title = "Select publishing target:", chr_accounts)
+      choice <- menu(title = "Select publishing target:", chr_accounts)
+      server <- rs_accounts$server[choice]
+      account <- rs_accounts$name[choice]
     }
   }
 
   req_file <- path(appDir, "requirements.txt")
   prev_deployments <- deployments(appDir)
-  if(!file_exists(req_file) && nrow(prev_deployments) == 0 && interactive()) {
+  if(!file_exists(req_file) && nrow(prev_deployments) == 0 && check_interactive()) {
     cli_inform(c(
       "{.header Would you like to create the 'requirements.txt' file?}",
       "{.class Why consider? This will allow you to skip using `version` or `cluster_id`}"
     ))
-    choice <- utils::menu(choices = c("Yes", "No"))
+    choice <- menu(choices = c("Yes", "No"))
     if(choice == 1) {
       requirements_write(
         destfile = req_file,
         python = python
-        )
+      )
     }
   }
 
@@ -236,11 +237,7 @@ deploy_find_environment <- function(
   ret <- NULL
   failed <- NULL
   env_name <- ""
-  cli_progress_step(
-    msg = "Searching and validating Python path",
-    msg_done = "{.header Python:{.emph '{ret}'}}",
-    msg_failed = "Environment not found: {.emph {failed}}"
-  )
+  exe_py <- py_exe()
   if (is.null(python)) {
     if (!is.null(version)) {
       env_name <- use_envname(
@@ -255,9 +252,8 @@ deploy_find_environment <- function(
       }
       if (is.null(ret)) failed <- env_name
     } else {
-      py_exe_path <- py_exe()
-      if (grepl("r-sparklyr-", py_exe_path)) {
-        ret <- py_exe_path
+      if (grepl("r-sparklyr-", exe_py)) {
+        ret <- exe_py
       } else {
         failed <- "Please pass a 'version' or a 'cluster_id'"
       }
@@ -271,9 +267,8 @@ deploy_find_environment <- function(
     }
   }
   if (is.null(ret)) {
-    exe_py <- py_exe()
-    if(exe_py == "") {
-      cli_progress_done(result = "failed")
+
+    if(is.null(exe_py)) {
       cli_abort("No Python environment could be found")
     } else {
       ret <- exe_py
@@ -281,5 +276,7 @@ deploy_find_environment <- function(
   } else {
     ret <- path_expand(ret)
   }
+  cli_bullets(c("i" = "{.header Python:} {ret}"))
   ret
 }
+

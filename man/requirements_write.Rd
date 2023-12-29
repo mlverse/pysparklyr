@@ -2,7 +2,7 @@
 % Please edit documentation in R/python-requirements.R
 \name{requirements_write}
 \alias{requirements_write}
-\title{Write the 'requirements.txt' file}
+\title{Writes the 'requirements.txt' file, containing the needed Python libraries}
 \usage{
 requirements_write(
   envname = NULL,
@@ -21,5 +21,7 @@ requirements_write(
 \item{...}{Additional arguments passed to \code{reticulate::py_list_packages()}}
 }
 \description{
-Write the 'requirements.txt' file
+This is a helper function that it is meant to be used for deployments
+of the document or application. By default, \code{deploy_databricks()} will run this
+function the first time you use that function to deploy content to Posit Connect.
 }

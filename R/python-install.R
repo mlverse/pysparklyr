@@ -440,6 +440,8 @@ check_rstudio <- function() {
   }
 }
 
+check_interactive <- function() interactive()
+
 build_job_code <- function(args) {
   args$as_job <- NULL
   args$method <- args$method[[1]]

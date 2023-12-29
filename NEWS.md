@@ -9,6 +9,10 @@
 * Adds `deploy_databricks()` function. It will simplify publishing to Posit
 Connect by automating much of the needed setup, and triggers the publication.
 
+* Adds `requirements_write()` function. It will inventory the Python libraries
+loaded in a given Python environment and create the 'requirements.txt'. This
+is in an effort to make it easier to republish deployed content.
+
 ### Improvements
 
 * Improvements to the RStudio connections snippet. It now adapts for when the

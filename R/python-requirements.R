@@ -1,4 +1,7 @@
-#' Write the 'requirements.txt' file
+#' Writes the 'requirements.txt' file, containing the needed Python libraries
+#' @description This is a helper function that it is meant to be used for deployments
+#' of the document or application. By default, `deploy_databricks()` will run this
+#' function the first time you use that function to deploy content to Posit Connect.
 #' @param envname The name of, or path to, a Python virtual environment.
 #' @param destfile Target path for the requirements file. Defaults to 'requirements.txt'.
 #' @param overwrite Replace the contents of the file if it already exists?

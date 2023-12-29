@@ -136,14 +136,14 @@ ml_installed <- function() {
   if (!all(find_ml)) {
     cli_div(theme = cli_colors())
     msg1 <- "Required Python libraries to run ML functions are missing"
-    if (interactive()) {
+    if (check_interactive()) {
       missing_ml <- ml_libraries[!find_ml]
       cli_alert_warning(msg1)
       cli_bullets(c(
         " " = "{.header Could not find: {missing_ml}}",
         " " = "Do you wish to install? {.class (This will be a one time operation)}"
       ))
-      choice <- utils::menu(choices = c("Yes", "Cancel"))
+      choice <- menu(choices = c("Yes", "Cancel"))
       if (choice == 1) {
         py_install(missing_ml)
       }

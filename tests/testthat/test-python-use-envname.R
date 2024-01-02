@@ -77,5 +77,27 @@ test_that("Error if 'use_first' is not TRUE", {
     }
   )
 
-  fs::dir_delete(env_path)
+})
+
+test_that("'Ask to install', simulates menu selection", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = env_path),
+    {
+      local_mocked_bindings(
+        check_interactive = function(...) TRUE,
+        check_rstudio = function(...) TRUE,
+        menu = function(...) return(1),
+        exec = function(...) list(...)
+        )
+      expect_equal(
+        use_envname(
+          version = "1.1",
+          messages = TRUE,
+          match_first = FALSE,
+          ask_if_not_installed = TRUE
+        ),
+        rlang::set_names("r-sparklyr-pyspark-1.1", "prompt")
+      )
+    }
+  )
 })

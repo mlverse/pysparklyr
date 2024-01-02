@@ -51,9 +51,15 @@ test_that("Misc functions", {
 
   expect_silent(compute(tbl_am, name = "am"))
 
+  expect_silent(compute(tbl_am, name = NULL))
+
   tbl_join <- use_test_table_mtcars() %>%
     left_join(tbl_am, by = "am") %>%
     arrange(mpg, qsec, hp)
+
+  expect_error(tbl_ptype(tbl_am))
+
+  expect_snapshot(tbl_am[1])
 
   expect_snapshot(tbl_join)
 })

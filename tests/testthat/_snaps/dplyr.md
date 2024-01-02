@@ -38,6 +38,18 @@
 # Misc functions
 
     Code
+      tbl_am[1]
+    Output
+      # Source: spark<?> [?? x 1]
+      # Groups: am
+           am
+        <dbl>
+      1     0
+      2     1
+
+---
+
+    Code
       tbl_join
     Output
       # Source:     spark<?> [?? x 11]

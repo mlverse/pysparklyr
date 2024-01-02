@@ -98,7 +98,7 @@ use_envname <- function(
       choice <- menu(choices = c("Yes", "No", "Cancel"))
       if (choice == 1) {
         ret <- set_names(envname, "prompt")
-        rlang::exec(
+        exec(
           .fn = glue("install_{backend}"),
           version = version,
           as_job = FALSE

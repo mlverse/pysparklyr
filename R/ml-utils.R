@@ -129,9 +129,9 @@ get_params <- function(x) {
     })
 }
 
-ml_installed <- function() {
+ml_installed <- function(envname = NULL) {
   ml_libraries <- pysparklyr_env$ml_libraries
-  installed_libraries <- py_list_packages()$package
+  installed_libraries <- py_list_packages(envname = envname)$package
   find_ml <- map_lgl(ml_libraries, ~ .x %in% installed_libraries)
   if (!all(find_ml)) {
     cli_div(theme = cli_colors())

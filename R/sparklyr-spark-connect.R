@@ -216,16 +216,13 @@ build_user_agent <- function() {
   }
 
   if (is.null(product)) {
-    check_rstudio <- try(RStudio.Version(), silent = TRUE)
-    if (!inherits(check_rstudio, "try-error")) {
+    if (check_rstudio()) {
+      rstudio_version <- int_rstudio_version()
       prod <- "rstudio"
-
-      edition <- check_rstudio$edition
+      edition <- rstudio_version$edition
       if (length(edition) == 0) edition <- ""
-
-      mod <- check_rstudio$mode
+      mod <- rstudio_version$mode
       if (length(mod) == 0) mod <- ""
-
       if (edition == "Professional") {
         if (mod == "server") {
           prod <- "workbench-rstudio"
@@ -233,12 +230,10 @@ build_user_agent <- function() {
           prod <- "rstudio-pro"
         }
       }
-
       if (Sys.getenv("R_CONFIG_ACTIVE") == "rstudio_cloud") {
         prod <- "cloud-rstudio"
       }
-
-      product <- glue("posit-{prod}/{check_rstudio$long_version}")
+      product <- glue("posit-{prod}/{rstudio_version$long_version}")
     }
   }
 
@@ -248,6 +243,12 @@ build_user_agent <- function() {
       product
     )
   )
+}
+
+int_rstudio_version <- function() {
+  out <- try(RStudio.Version(), silent = TRUE)
+  if(!inherits(out, "try-error")) return(out)
+  return(NULL)
 }
 
 connection_label <- function(x) {
@@ -261,8 +262,12 @@ connection_label <- function(x) {
     method <- con$method
   }
   if (!is.null(method)) {
-    if (method == "spark_connect" | method == "pyspark") ret <- "Spark Connect"
-    if (method == "databricks_connect" | method == "databricks") ret <- "Databricks Connect"
+    if (method == "spark_connect" | method == "pyspark") {
+      ret <- "Spark Connect"
+    }
+    if (method == "databricks_connect" | method == "databricks") {
+      ret <- "Databricks Connect"
+    }
   }
   ret
 }

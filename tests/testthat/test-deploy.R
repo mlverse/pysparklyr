@@ -1,20 +1,9 @@
 skip_if_not_databricks()
 
-test_databricks_deploy_env_path <- function() {
-  env_name <- use_envname(
-    version = test_databricks_cluster_version(),
-    backend = "databricks"
-  )
-  if (names(env_name) != "exact") {
-    py_install("numpy", env_name, pip = TRUE, python = Sys.which("python"))
-  }
-  path(reticulate::virtualenv_python(env_name))
-}
-
 test_databricks_deploy_output <- function() {
   list(
     appDir = path(getwd()),
-    python = test_databricks_deploy_env_path(),
+    python = test_databricks_stump_env(),
     envVars = c("DATABRICKS_HOST", "DATABRICKS_TOKEN"),
     server = "my_server",
     account = "my_account",
@@ -44,7 +33,7 @@ test_that("Basic use, passing DBR version works", {
         accounts = function(...) accounts_df()
       )
       # Initializes environment
-      invisible(test_databricks_deploy_env_path())
+      invisible(test_databricks_stump_env())
 
       expect_equal(
         deploy_databricks(version = test_databricks_cluster_version()),
@@ -209,7 +198,7 @@ test_that("Rare cases for finding environments works", {
   withr::with_envvar(
     new = c("WORKON_HOME" = use_test_env()),
     {
-      env_path <- test_databricks_deploy_env_path()
+      env_path <- test_databricks_stump_env()
       local_mocked_bindings(
         py_exe = function(...) {
           return(NULL)

@@ -112,3 +112,14 @@ test_databricks_cluster_version <- function() {
   }
   .test_env$dbr
 }
+
+test_databricks_stump_env <- function() {
+  env_name <- use_envname(
+    version = test_databricks_cluster_version(),
+    backend = "databricks"
+  )
+  if (names(env_name) != "exact") {
+    py_install("numpy", env_name, pip = TRUE, python = Sys.which("python"))
+  }
+  path(reticulate::virtualenv_python(env_name))
+}

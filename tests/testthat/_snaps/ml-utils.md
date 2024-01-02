@@ -13,7 +13,7 @@
 # ml_installed() works on simulated interactive session
 
     Code
-      ml_installed()
+      ml_installed(envname = test_env)
     Message
       ! Required Python libraries to run ML functions are missing
         Could not find: torch, torcheval, and scikit-learn

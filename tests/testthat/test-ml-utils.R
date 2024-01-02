@@ -40,25 +40,17 @@ test_that("ml_connect_not_supported() works", {
 
 test_that("ml_installed() works on simulated interactive session", {
   skip_if_not_databricks()
-
   test_env <- test_databricks_stump_env() %>%
     path_dir() %>%
     path_dir()
-
-  withr::with_envvar(
-    new = c("WORKON_HOME" = test_env),
-    {
-      local_mocked_bindings(
-        check_interactive = function(...) TRUE,
-        check_rstudio = function(...) TRUE,
-        menu = function(...) {
-          return(1)
-        },
-        py_install = function(...) invisible()
-      )
-      expect_snapshot(
-        ml_installed()
-      )
-    }
-  )
+  print(test_env)
+    local_mocked_bindings(
+      check_interactive = function(...) TRUE,
+      check_rstudio = function(...) TRUE,
+      menu = function(...) return(1),
+      py_install = function(...) invisible()
+    )
+    expect_snapshot(
+      ml_installed(envname = test_env)
+    )
 })

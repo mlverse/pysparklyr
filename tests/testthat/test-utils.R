@@ -6,7 +6,6 @@ test_that("Reticulate Python check works", {
         reticulate_python_check(ignore = TRUE),
         ""
       )
-
       expect_message(
         reticulate_python_check(unset = FALSE, message = TRUE),
         "Your 'RETICULATE_PYTHON' environment is set, which may cause"

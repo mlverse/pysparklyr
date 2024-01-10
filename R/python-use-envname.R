@@ -42,6 +42,17 @@ use_envname <- function(
     install_recent <- TRUE
   }
 
+  msg_exact <- paste0(
+    "You do not have a Python environment that matches your {.emph {con_label}}",
+    " cluster"
+    )
+
+  msg_1 <- NULL
+  msg_2 <- NULL
+  msg_yes <- NULL
+  msg_no <- NULL
+  msg_cancel <- NULL
+
   # There were 0 environments found
   if (!match_one && !match_exact) {
     ret <- set_names(envname, "unavailable")
@@ -61,11 +72,8 @@ use_envname <- function(
   if (match_one && !match_exact && match_first) {
     ret <- set_names(envs[1], "first")
     if(install_recent) {
-      msg_1 <- env_notfound_msg("exact")
-      msg_2 <- paste0(
-        "{.header If the exact version is not installed, {.code sparklyr} will ",
-        "use {.code {ret}}}"
-      )
+      msg_1 <- msg_exact
+      msg_no <- glue(" - Will use alternate environment ({ret})")
     } else {
       ask_if_not_installed <- FALSE
       run_full <- NULL
@@ -73,16 +81,14 @@ use_envname <- function(
         "{.header Library {.emph {con_label}} version {.emph {version}} is not ",
         "yet available}"
       )
-      msg_2 <- paste0(
-        "{.header {.code sparklyr} will use {.code {ret}}}"
-      )
     }
   }
 
   # There are environments, but no exact match
   if (match_one && !match_exact && !match_first) {
-    msg_1 <- env_notfound_msg("exact")
+    msg_1 <- msg_exact
     msg_2 <- "{.header The default Python environment may not work correctly}"
+    msg_yes <- glue(" - Will install {con_label} {version}")
     ret <- set_names(envname, "unavailable")
   }
 
@@ -95,7 +101,11 @@ use_envname <- function(
         " " = msg_2,
         " " = "Do you wish to install {con_label} version {version}?"
       ))
-      choice <- menu(choices = c("Yes", "No", "Cancel"))
+      choice <- menu(choices = c(
+        paste0("Yes", msg_yes),
+        paste0("No", msg_no),
+        "Cancel"
+        ))
       if (choice == 1) {
         ret <- set_names(envname, "prompt")
         exec(

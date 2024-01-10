@@ -148,7 +148,7 @@ ml_installed <- function(envname = NULL) {
         py_install(missing_ml)
       }
       if (choice == 2) {
-        cli_abort("Operation cancelled by user")
+        return(invisible())
       }
     } else {
       cli_abort(msg1)

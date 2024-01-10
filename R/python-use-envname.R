@@ -108,7 +108,7 @@ use_envname <- function(
         ret <- set_names(ret, "prompt")
       }
       if (choice == 3) {
-        cli_abort("Operation cancelled by user")
+        return(invisible())
       }
     } else {
       if (ret_name == "unavailable") {

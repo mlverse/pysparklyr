@@ -67,13 +67,16 @@ databricks_token <- function(token = NULL, fail = FALSE) {
 
 databricks_dbr_version_name <- function(cluster_id,
                                         host = NULL,
-                                        token = NULL) {
+                                        token = NULL,
+                                        silent = FALSE
+                                        ) {
   bullets <- NULL
   version <- NULL
   cluster_info <- databricks_dbr_info(
     cluster_id = cluster_id,
     host = host,
-    token = token
+    token = token,
+    silent = silent
   )
   cluster_name <- substr(cluster_info$cluster_name, 1, 100)
   version <- databricks_extract_version(cluster_info)
@@ -95,16 +98,23 @@ databricks_extract_version <- function(x) {
 
 databricks_dbr_info <- function(cluster_id,
                                 host = NULL,
-                                token = NULL) {
+                                token = NULL,
+                                silent = FALSE
+                                ) {
+
   cli_div(theme = cli_colors())
-  cli_progress_step(
+
+  if(!silent) {
+    cli_progress_step(
     msg = "Retrieving info for cluster:}{.emph '{cluster_id}'",
     msg_done = "{.header Cluster:} {.emph '{cluster_id}'} | {.header DBR: }{.emph '{version}'}",
     msg_failed = "Failed contacting:}{.emph '{cluster_id}'"
-  )
+  )}
+
   out <- databricks_cluster_get(cluster_id, host, token)
   if (inherits(out, "try-error")) {
-    out <- databricks_cluster_get(cluster_id, sanitize_host(host), token)
+    sanitized <- sanitize_host(host, silent)
+    out <- databricks_cluster_get(cluster_id, sanitized, token)
   }
 
   if (inherits(out, "try-error")) {
@@ -132,7 +142,7 @@ databricks_dbr_info <- function(cluster_id,
     if (as.character(substr(out, 1, 26)) == "Error in req_perform(.) : ") {
       out <- substr(out, 27, nchar(out))
     }
-    cli_progress_done(result = "failed")
+    if(!silent) cli_progress_done(result = "failed")
     cli_abort(
       c(
         "{.header Connection with Databricks failed: }\"{trimws(out)}\"",
@@ -146,7 +156,7 @@ databricks_dbr_info <- function(cluster_id,
   } else {
     version <- databricks_extract_version(out)
   }
-  cli_progress_done()
+  if(!silent) cli_progress_done()
   cli_end()
   out
 }
@@ -214,7 +224,7 @@ databricks_dbr_error <- function(error) {
   )
 }
 
-sanitize_host <- function(url) {
+sanitize_host <- function(url, silent = FALSE) {
   parsed_url <- url_parse(url)
   new_url <- url_parse("http://localhost")
   if (is.null(parsed_url$scheme)) {
@@ -227,7 +237,7 @@ sanitize_host <- function(url) {
     new_url$hostname <- parsed_url$hostname
   }
   ret <- url_build(new_url)
-  if (ret != url) {
+  if (ret != url && !silent) {
     cli_div(theme = cli_colors())
     cli_alert_warning(
       "{.header Changing host URL to:} {.emph {ret}}"

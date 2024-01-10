@@ -118,7 +118,7 @@ use_envname <- function(
         ret <- set_names(ret, "prompt")
       }
       if (choice == 3) {
-        return(invisible())
+        stop_quietly()
       }
     } else {
       if (ret_name == "unavailable") {

@@ -28,6 +28,10 @@ spark_connect_method.spark_method_spark_connect <- function(
     match_first = TRUE
   )
 
+  if(is.null(envname)) {
+    return(invisible())
+  }
+
   pyspark <- import_check("pyspark", envname)
   pyspark_sql <- pyspark$sql
   conn <- pyspark_sql$SparkSession$builder$remote(master)
@@ -93,6 +97,10 @@ spark_connect_method.spark_method_databricks_connect <- function(
     match_first = TRUE,
     main_library = "databricks.connect"
   )
+
+  if(is.null(envname)) {
+    return(invisible)
+  }
 
   db <- import_check("databricks.connect", envname, silent)
 

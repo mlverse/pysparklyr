@@ -8,6 +8,9 @@ use_envname <- function(
     ask_if_not_installed = interactive(),
     main_library = NULL
     ) {
+
+  cli_div(theme = cli_colors())
+
   ret_python <- reticulate_python_check(ignore_reticulate_python)
 
   if (ret_python != "") {
@@ -42,29 +45,26 @@ use_envname <- function(
     install_recent <- TRUE
   }
 
-  msg_exact <- paste0(
-    "You do not have a Python environment that matches your {.emph {con_label}}",
-    " cluster"
+  msg_default <- paste0(
+    "{.header You do not have a Python environment that matches your",
+    " {.emph {con_label}} cluster}"
     )
 
   msg_1 <- NULL
   msg_2 <- NULL
   msg_yes <- NULL
   msg_no <- NULL
-  msg_cancel <- NULL
 
   # There were 0 environments found
   if (!match_one && !match_exact) {
     ret <- set_names(envname, "unavailable")
-    msg_1 <- env_notfound_msg("viable")
-    msg_2 <- NULL
+    msg_1 <- msg_default
+    msg_no <- " - Will use the default Python environment"
   }
 
   # Found an exact match
   if (match_one && match_exact) {
     ret <- set_names(envname, "exact")
-    msg_1 <- env_notfound_msg("matching")
-    msg_2 <- NULL
   }
 
   # There are environments, but no exact match, and argument says
@@ -72,7 +72,7 @@ use_envname <- function(
   if (match_one && !match_exact && match_first) {
     ret <- set_names(envs[1], "first")
     if(install_recent) {
-      msg_1 <- msg_exact
+      msg_1 <- msg_default
       msg_no <- glue(" - Will use alternate environment ({ret})")
     } else {
       ask_if_not_installed <- FALSE
@@ -86,7 +86,7 @@ use_envname <- function(
 
   # There are environments, but no exact match
   if (match_one && !match_exact && !match_first) {
-    msg_1 <- msg_exact
+    msg_1 <- msg_default
     msg_2 <- "{.header The default Python environment may not work correctly}"
     msg_yes <- glue(" - Will install {con_label} {version}")
     ret <- set_names(envname, "unavailable")
@@ -94,12 +94,11 @@ use_envname <- function(
 
   ret_name <- names(ret)
   if (messages && ret_name != "exact") {
-    cli_div(theme = cli_colors())
     if (ask_if_not_installed) {
       cli_alert_warning(msg_1)
       cli_bullets(c(
         " " = msg_2,
-        " " = "Do you wish to install {con_label} version {version}?"
+        " " = "{.header Do you wish to install {con_label} version {version}?}"
       ))
       choice <- menu(choices = c(
         paste0("Yes", msg_yes),
@@ -135,13 +134,6 @@ use_envname <- function(
     cli_end()
   }
   ret
-}
-
-env_notfound_msg <- function(x) {
-  paste0(
-    "No {.emph ", x,"} Python Environment was found for ",
-    "{.emph {con_label}} version {.emph {version}}"
-  )
 }
 
 find_environments <- function(x) {

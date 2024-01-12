@@ -59,6 +59,22 @@ test_that("Basic use, passing the cluster's ID", {
   )
 })
 
+test_that("Use the Cluster ID from environment variable", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      local_mocked_bindings(
+        deployApp = function(...) list(...),
+        accounts = function(...) accounts_df()
+      )
+      expect_equal(
+        deploy_databricks(),
+        test_databricks_deploy_output()
+      )
+    }
+  )
+})
+
 test_that("Additional arguments are passed on to deployApp()", {
   withr::with_envvar(
     new = c("WORKON_HOME" = use_test_env()),
@@ -214,7 +230,6 @@ test_that("Rare cases for finding environments works", {
     }
   )
 })
-
 
 test_that("Misc deploy tests", {
   expect_error(deploy(), "'backend'")

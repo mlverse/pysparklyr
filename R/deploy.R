@@ -51,6 +51,8 @@ deploy_databricks <- function(
 
   cli_div(theme = cli_colors())
 
+  cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
+
   if (is.null(version) && !is.null(cluster_id)) {
     version <- databricks_dbr_version(
       cluster_id = cluster_id,
@@ -202,21 +204,21 @@ deploy <- function(
       server <- rs_accounts$server[choice]
       account <- rs_accounts$name[choice]
     }
-  }
 
-  req_file <- path(appDir, "requirements.txt")
-  prev_deployments <- deployments(appDir)
-  if(!file_exists(req_file) && nrow(prev_deployments) == 0 && check_interactive()) {
-    cli_inform(c(
-      "{.header Would you like to create the 'requirements.txt' file?}",
-      "{.class Why consider? This will allow you to skip using `version` or `cluster_id`}"
-    ))
-    choice <- menu(choices = c("Yes", "No"))
-    if(choice == 1) {
-      requirements_write(
-        destfile = req_file,
-        python = python
-      )
+    req_file <- path(appDir, "requirements.txt")
+    prev_deployments <- deployments(appDir)
+    if(!file_exists(req_file) && nrow(prev_deployments) == 0 && check_interactive()) {
+      cli_inform(c(
+        "{.header Would you like to create the 'requirements.txt' file?}",
+        "{.class Why consider? This will allow you to skip using `version` or `cluster_id`}"
+      ))
+      choice <- menu(choices = c("Yes", "No"))
+      if(choice == 1) {
+        requirements_write(
+          destfile = req_file,
+          python = python
+        )
+      }
     }
   }
 

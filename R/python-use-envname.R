@@ -87,8 +87,7 @@ use_envname <- function(
   # There are environments, but no exact match
   if (match_one && !match_exact && !match_first) {
     msg_1 <- msg_default
-    msg_2 <- "{.header The default Python environment may not work correctly}"
-    msg_yes <- glue(" - Will install {con_label} {version}")
+    msg_no <- " - Will use the default Python environment"
     ret <- set_names(envname, "unavailable")
   }
 

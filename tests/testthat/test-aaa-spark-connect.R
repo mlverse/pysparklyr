@@ -12,7 +12,7 @@ test_that("Version mismatch works", {
             method = "spark_connect",
             version = alternate_version
           ),
-          "No exact Python Environment was found for Spark Connect version 3.4"
+          "You do not have a Python environment"
         )
       }
     )

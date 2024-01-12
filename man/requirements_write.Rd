@@ -20,6 +20,10 @@ requirements_write(
 
 \item{...}{Additional arguments passed to \code{reticulate::py_list_packages()}}
 }
+\value{
+No value is returned to R. The output is a text file with the
+list of Python libraries.
+}
 \description{
 This is a helper function that it is meant to be used for deployments
 of the document or application. By default, \code{deploy_databricks()} will run this

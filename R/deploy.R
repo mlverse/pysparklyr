@@ -33,6 +33,7 @@
 #' @param confirm Should the user be prompted to confirm that the correct
 #' information is being used for deployment? Defaults to `interactive()`
 #' @param ... Additional named arguments passed to `rsconnect::deployApp()` function
+#' @returns No value is returned to R. Only output to the console.
 #' @export
 deploy_databricks <- function(
     appDir = NULL,

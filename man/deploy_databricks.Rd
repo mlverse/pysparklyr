@@ -62,6 +62,9 @@ information is being used for deployment? Defaults to \code{interactive()}}
 
 \item{...}{Additional named arguments passed to \code{rsconnect::deployApp()} function}
 }
+\value{
+No value is returned to R. Only output to the console.
+}
 \description{
 This is a convenience function that is meant to make it easier for
 you to publish your Databricks backed content to a publishing server. It is

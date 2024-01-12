@@ -1,10 +1,12 @@
-import_check <- function(x, envname) {
+import_check <- function(x, envname, silent = FALSE) {
   cli_div(theme = cli_colors())
-  cli_progress_step(
-    msg = "Attempting to load {.emph '{envname}'}",
-    msg_done = "{.header Python environment:} {.emph '{envname}'}",
-    msg_failed = "Problem using {.emph '{envname}'}"
+  if(!silent) {
+    cli_progress_step(
+      msg = "Attempting to load {.emph '{envname}'}",
+      msg_done = "{.header Python environment:} {.emph '{envname}'}",
+      msg_failed = "Problem using {.emph '{envname}'}"
     )
+  }
   env_found <- !is.na(envname)
   env_loaded <- NA
   look_for_env <- TRUE

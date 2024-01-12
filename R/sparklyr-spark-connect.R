@@ -28,6 +28,10 @@ spark_connect_method.spark_method_spark_connect <- function(
     match_first = TRUE
   )
 
+  if(is.null(envname)) {
+    return(invisible())
+  }
+
   pyspark <- import_check("pyspark", envname)
   pyspark_sql <- pyspark$sql
   conn <- pyspark_sql$SparkSession$builder$remote(master)
@@ -62,18 +66,24 @@ spark_connect_method.spark_method_databricks_connect <- function(
   token <- args$token
   envname <- args$envname
   host_sanitize <- args$host_sanitize %||% TRUE
+  silent <- args$silent %||% FALSE
 
   method <- method[[1]]
   token <- databricks_token(token, fail = FALSE)
   cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
   master <- databricks_host(master, fail = FALSE)
   if (host_sanitize && master != "") {
-    master <- sanitize_host(master)
+    master <- sanitize_host(master, silent)
   }
 
   cluster_info <- NULL
   if (cluster_id != "" && master != "" && token != "") {
-    cluster_info <- databricks_dbr_version_name(cluster_id, master, token)
+    cluster_info <- databricks_dbr_version_name(
+      cluster_id = cluster_id,
+      host =  master,
+      token = token,
+      silent = silent
+      )
     if (is.null(version)) {
       version <- cluster_info$version
     }
@@ -83,12 +93,16 @@ spark_connect_method.spark_method_databricks_connect <- function(
     backend = "databricks",
     version = version,
     envname = envname,
-    messages = TRUE,
+    messages = !silent,
     match_first = TRUE,
     main_library = "databricks.connect"
   )
 
-  db <- import_check("databricks.connect", envname)
+  if(is.null(envname)) {
+    return(invisible)
+  }
+
+  db <- import_check("databricks.connect", envname, silent)
 
   if (!is.null(cluster_info)) {
     msg <- "{.header Connecting to} {.emph '{cluster_info$name}'}"
@@ -100,8 +114,10 @@ spark_connect_method.spark_method_databricks_connect <- function(
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
   }
 
-  cli_div(theme = cli_colors())
-  cli_progress_step(msg, msg_done)
+  if(!silent) {
+    cli_div(theme = cli_colors())
+    cli_progress_step(msg, msg_done)
+  }
 
   remote_args <- list()
   if (master != "") remote_args$host <- master
@@ -115,8 +131,10 @@ spark_connect_method.spark_method_databricks_connect <- function(
 
   conn <- exec(databricks_session, !!!remote_args)
 
-  cli_progress_done()
-  cli_end()
+  if(!silent) {
+    cli_progress_done()
+    cli_end()
+  }
 
   initialize_connection(
     conn = conn,

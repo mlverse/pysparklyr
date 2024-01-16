@@ -1,4 +1,4 @@
-# pysparklyr (development)
+# pysparklyr 0.1.3
 
 ### New
 

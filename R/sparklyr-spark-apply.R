@@ -15,12 +15,17 @@ spark_apply.tbl_pyspark <- function(
     auto_deps = FALSE,
     ...) {
   cli_div(theme = cli_colors())
-  args <- as.list(environment())
-  if(!is.null(args$packages)) {
+  if(!is.null(packages)) {
     cli_abort("`packages` is not yet supported for this backend")
   }
-  if(!is.null(args$context)) {
+  if(!is.null(context)) {
     cli_abort("`context` is not supported for this backend")
+  }
+  if(auto_deps) {
+    cli_abort("`auto_deps` is not supported for this backend")
+  }
+  if(partition_index_param != "") {
+    cli_abort("`partition_index_param` is not supported for this backend")
   }
   cli_end()
   sa_in_pandas(

@@ -71,19 +71,13 @@ sa_in_pandas <- function(
 
 sa_function_to_string <- function(.f, .group_by = NULL, ...) {
   path_scripts <- system.file("udf", package = "pysparklyr")
-  if (!is.null(.group_by)) {
-    udf_r <- "udf-apply.R"
-    udf_py <- "udf-apply.py"
-  } else {
-    udf_r <- "udf-map.R"
-    udf_py <- "udf-map.py"
-  }
+  udf_fn <- ifelse(is.null(.group_by), "map", "apply")
   fn_r <- paste0(
-    readLines(path(path_scripts, udf_r)),
+    readLines(path(path_scripts, glue("udf-{udf_fn}.R"))),
     collapse = ""
   )
   fn_python <- paste0(
-    readLines(path(path_scripts, udf_py)),
+    readLines(path(path_scripts, glue("udf-{udf_fn}.py"))),
     collapse = "\n"
   )
   if (!is.null(.group_by)) {

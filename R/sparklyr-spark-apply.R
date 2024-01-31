@@ -27,7 +27,7 @@ spark_apply.tbl_pyspark <- function(
   if(partition_index_param != "") {
     cli_abort("`partition_index_param` is not supported for this backend")
   }
-  if(i!s.null(arrow_max_records_per_batch)) {
+  if(!is.null(arrow_max_records_per_batch)) {
     cli_abort(
       "`arrow_max_records_per_batch` is not yet supported for this backend"
     )
@@ -93,7 +93,7 @@ sa_in_pandas <- function(
   ret
 }
 
-sa_function_to_string <- function(.f, .group_by = NULL, ...) {
+sa_function_to_string <- function(.f, .group_by = NULL, .r_only = FALSE, ...) {
   path_scripts <- system.file("udf", package = "pysparklyr")
   udf_fn <- ifelse(is.null(.group_by), "map", "apply")
   fn_r <- paste0(
@@ -123,5 +123,10 @@ sa_function_to_string <- function(.f, .group_by = NULL, ...) {
   fn_str <- gsub("\"", "'", fn_str)
   fn_rep <- "function\\(\\.\\.\\.\\) 1"
   fn_r_new <- gsub(fn_rep, fn_str, fn_r)
-  gsub(fn_rep, fn_r_new, fn_python)
+  if(.r_only) {
+    ret <- fn_r_new
+  } else {
+    ret <- gsub(fn_rep, fn_r_new, fn_python)
+  }
+  ret
 }

@@ -48,6 +48,11 @@ sa_in_pandas <- function(
     py_run_string()
   main <- reticulate::import_main()
   df <- python_sdf(x)
+  if(is.null(df)) {
+    df <- x %>%
+      compute() %>%
+      python_sdf()
+  }
   if (!is.null(.group_by)) {
     # TODO: Add support for multiple grouping columns
     renamed_gp <- paste0("_", .group_by)

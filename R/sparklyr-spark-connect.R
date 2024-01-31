@@ -169,6 +169,10 @@ initialize_connection <- function(
     message = "'SparkSession' object has no attribute 'setLocalProperty'",
     module = "pyspark"
   )
+  warnings$filterwarnings(
+    "ignore",
+    message = "Index.format is deprecated and will be removed in a future version"
+  )
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) databricks_dbr_error(get_version)

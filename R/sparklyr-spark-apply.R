@@ -27,6 +27,11 @@ spark_apply.tbl_pyspark <- function(
   if(partition_index_param != "") {
     cli_abort("`partition_index_param` is not supported for this backend")
   }
+  if(i!s.null(arrow_max_records_per_batch)) {
+    cli_abort(
+      "`arrow_max_records_per_batch` is not yet supported for this backend"
+    )
+    }
   cli_end()
   sa_in_pandas(
     x = x,

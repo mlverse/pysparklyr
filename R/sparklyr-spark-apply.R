@@ -17,14 +17,16 @@ spark_apply.tbl_pyspark <- function(
   sa_in_pandas(
     x = x,
     .f = f,
-    .schema = columns,
-    .group_by = group_by
+    .schema = columns %||% "x double",
+    .group_by = group_by,
+    ... = ...
     )
 }
 
 sa_in_pandas <- function(x, .f, ..., .schema = "x double", .group_by = NULL) {
-  fn <- sa_function_to_string(.f = .f, .group_by = .group_by, ... = ...)
-  py_run_string(fn)
+  .f %>%
+    sa_function_to_string(.group_by = .group_by, ... = ...) %>%
+    py_run_string()
   main <- reticulate::import_main()
   df <- x[[1]]$session
   if (!is.null(.group_by)) {

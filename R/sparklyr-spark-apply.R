@@ -14,6 +14,14 @@ spark_apply.tbl_pyspark <- function(
     arrow_max_records_per_batch = NULL,
     auto_deps = FALSE,
     ...) {
+  cli_div(theme = cli_colors())
+  args <- as.list(environment())
+  if(!is.null(args$packages)) {
+    cli_abort("`packages` is not yet supported for this backend")
+  }
+  if(!is.null(args$context)) {
+    cli_abort("`context` is not supported for this backend")
+  }
   sa_in_pandas(
     x = x,
     .f = f,
@@ -21,6 +29,7 @@ spark_apply.tbl_pyspark <- function(
     .group_by = group_by,
     ... = ...
     )
+  cli_end()
 }
 
 sa_in_pandas <- function(x, .f, ..., .schema = "x double", .group_by = NULL) {

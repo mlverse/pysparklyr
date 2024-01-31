@@ -30,6 +30,7 @@ spark_apply.tbl_pyspark <- function(
     .group_by = group_by,
     .as_sdf = fetch_result_as_sdf,
     .name = name,
+    .barrier = barrier,
     ... = ...
     )
 }
@@ -41,7 +42,8 @@ sa_in_pandas <- function(
     .schema = "x double",
     .group_by = NULL,
     .as_sdf = TRUE,
-    .name = NULL
+    .name = NULL,
+    .barrier = NULL
     ) {
   .f %>%
     sa_function_to_string(.group_by = .group_by, ... = ...) %>%
@@ -58,9 +60,16 @@ sa_in_pandas <- function(
     renamed_gp <- paste0("_", .group_by)
     w_gp <- df$withColumn(colName = renamed_gp, col = df[.group_by])
     tbl_gp <- w_gp$groupby(renamed_gp)
-    p_df <- tbl_gp$applyInPandas(main$r_apply, schema = .schema)
+    p_df <- tbl_gp$applyInPandas(
+      main$r_apply,
+      schema = .schema
+      )
   } else {
-    p_df <- df$mapInPandas(main$r_apply, schema = .schema)
+    p_df <- df$mapInPandas(
+      main$r_apply,
+      schema = .schema,
+      barrier = .barrier %||% FALSE
+      )
   }
   if(.as_sdf) {
     ret <- tbl_pyspark_temp(

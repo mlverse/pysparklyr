@@ -22,30 +22,49 @@ spark_apply.tbl_pyspark <- function(
   if(!is.null(args$context)) {
     cli_abort("`context` is not supported for this backend")
   }
+  cli_end()
   sa_in_pandas(
     x = x,
     .f = f,
     .schema = columns %||% "x double",
     .group_by = group_by,
+    .as_sdf = fetch_result_as_sdf,
+    .name = name,
     ... = ...
     )
-  cli_end()
 }
 
-sa_in_pandas <- function(x, .f, ..., .schema = "x double", .group_by = NULL) {
+sa_in_pandas <- function(
+    x,
+    .f,
+    ...,
+    .schema = "x double",
+    .group_by = NULL,
+    .as_sdf = TRUE,
+    .name = NULL
+    ) {
   .f %>%
     sa_function_to_string(.group_by = .group_by, ... = ...) %>%
     py_run_string()
   main <- reticulate::import_main()
-  df <- x[[1]]$session
+  df <- python_sdf(x)
   if (!is.null(.group_by)) {
     # TODO: Add support for multiple grouping columns
     renamed_gp <- paste0("_", .group_by)
     w_gp <- df$withColumn(colName = renamed_gp, col = df[.group_by])
     tbl_gp <- w_gp$groupby(renamed_gp)
-    ret <- tbl_gp$applyInPandas(main$r_apply, schema = .schema)$toPandas()
+    p_df <- tbl_gp$applyInPandas(main$r_apply, schema = .schema)
   } else {
-    ret <- df$mapInPandas(main$r_apply, schema = .schema)$toPandas()
+    p_df <- df$mapInPandas(main$r_apply, schema = .schema)
+  }
+  if(.as_sdf) {
+    ret <- tbl_pyspark_temp(
+      x = p_df,
+      conn = spark_connection(x),
+      tmp_name = .name
+      )
+  } else {
+    ret <- to_pandas_cleaned(p_df)
   }
   ret
 }

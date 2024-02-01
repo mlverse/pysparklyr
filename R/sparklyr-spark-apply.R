@@ -14,6 +14,10 @@ spark_apply.tbl_pyspark <- function(
     arrow_max_records_per_batch = NULL,
     auto_deps = FALSE,
     ...) {
+  py_check_installed(
+    libraries = "rpy2",
+    msg = "Requires an additional Python library"
+    )
   cli_div(theme = cli_colors())
   if (!is.null(packages)) {
     cli_abort("`packages` is not yet supported for this backend")

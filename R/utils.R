@@ -93,6 +93,36 @@ current_product_connect <- function() {
   out
 }
 
+py_check_installed <- function(
+    envname = NULL,
+    libraries = "",
+    msg = ""
+    ) {
+  installed_libraries <- py_list_packages(envname = envname)$package
+  find_libs <- map_lgl(libraries, ~ .x %in% installed_libraries)
+  if (!all(find_libs)) {
+    cli_div(theme = cli_colors())
+    if (check_interactive()) {
+      missing_lib <- libraries[!find_libs]
+      cli_alert_warning(msg)
+      cli_bullets(c(
+        " " = "{.header Could not find: {missing_lib}}",
+        " " = "Do you wish to install? {.class (This will be a one time operation)}"
+      ))
+      choice <- menu(choices = c("Yes", "Cancel"))
+      if (choice == 1) {
+        py_install(missing_lib)
+      }
+      if (choice == 2) {
+        stop_quietly()
+      }
+    } else {
+      cli_abort(msg)
+    }
+    cli_end()
+  }
+}
+
 stop_quietly <- function() {
   opt <- options(show.error.messages = FALSE)
   on.exit(options(opt))

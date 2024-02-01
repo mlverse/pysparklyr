@@ -28,9 +28,16 @@ spark_apply.tbl_pyspark <- function(
     cli_abort("`partition_index_param` is not supported for this backend")
   }
   if (!is.null(arrow_max_records_per_batch)) {
-    cli_abort(
-      "`arrow_max_records_per_batch` is not yet supported for this backend"
-    )
+    sc <- python_sdf(x)$sparkSession
+    conf_name <- "spark.sql.execution.arrow.maxRecordsPerBatch"
+    conf_curr <- sc$conf$get(conf_name)
+    conf_req <- as.character(arrow_max_records_per_batch)
+    if(conf_curr != conf_req) {
+      cli_div(theme = cli_colors())
+      cli_inform("{.header Changing {conf_name} to: {conf_req}}")
+      cli_end()
+      sc$conf$set(conf_name, conf_req)
+    }
   }
   cli_end()
   sa_in_pandas(

@@ -217,7 +217,8 @@ install_environment <- function(
     "PyArrow",
     "grpcio",
     "google-api-python-client",
-    "grpcio_status"
+    "grpcio_status",
+    "rpy2"
   )
 
   if (add_torch && install_ml) {

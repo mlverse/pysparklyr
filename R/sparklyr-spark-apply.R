@@ -36,7 +36,7 @@ spark_apply.tbl_pyspark <- function(
   sa_in_pandas(
     x = x,
     .f = f,
-    .schema = columns %||% "x double",
+    .schema = columns,
     .group_by = group_by,
     .as_sdf = fetch_result_as_sdf,
     .name = name,
@@ -49,12 +49,36 @@ sa_in_pandas <- function(
     x,
     .f,
     ...,
-    .schema = "x double",
+    .schema = NULL,
     .group_by = NULL,
     .as_sdf = TRUE,
     .name = NULL,
     .barrier = NULL
     ) {
+  if(is.null(.schema)) {
+    r_fn <- .f %>%
+      sa_function_to_string(
+        .r_only = TRUE,
+        .group_by = .group_by,
+        ... = ...
+        ) %>%
+      rlang::parse_expr() %>%
+      eval()
+    r_df <- x %>%
+      head(10) %>%
+      collect()
+    r_exec <- r_fn(r_df)
+    .schema <- r_exec %>%
+      imap(~ {
+        x_class <- class(.x)
+        if("POSIXt" %in% x_class) x_class <- "timestamp"
+        if(x_class == "character") x_class <- "string"
+        if(x_class == "numeric") x_class <- "double"
+        if(x_class == "integer") x_class <- "long"
+        paste0(.y, " ", x_class)
+      }) %>%
+      paste0(collapse = ", ")
+  }
   .f %>%
     sa_function_to_string(.group_by = .group_by, ... = ...) %>%
     py_run_string()

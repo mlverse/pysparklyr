@@ -34,7 +34,9 @@ spark_apply.tbl_pyspark <- function(
     conf_req <- as.character(arrow_max_records_per_batch)
     if(conf_curr != conf_req) {
       cli_div(theme = cli_colors())
-      cli_inform("{.header Changing {conf_name} to: {conf_req}}")
+      cli_inform(
+        "{.header Changing {.emph {conf_name}} to: {prettyNum(conf_req, big.mark = ',')}}"
+        )
       cli_end()
       sc$conf$set(conf_name, conf_req)
     }

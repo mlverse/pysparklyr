@@ -15,23 +15,23 @@ spark_apply.tbl_pyspark <- function(
     auto_deps = FALSE,
     ...) {
   cli_div(theme = cli_colors())
-  if(!is.null(packages)) {
+  if (!is.null(packages)) {
     cli_abort("`packages` is not yet supported for this backend")
   }
-  if(!is.null(context)) {
+  if (!is.null(context)) {
     cli_abort("`context` is not supported for this backend")
   }
-  if(auto_deps) {
+  if (auto_deps) {
     cli_abort("`auto_deps` is not supported for this backend")
   }
-  if(partition_index_param != "") {
+  if (partition_index_param != "") {
     cli_abort("`partition_index_param` is not supported for this backend")
   }
-  if(!is.null(arrow_max_records_per_batch)) {
+  if (!is.null(arrow_max_records_per_batch)) {
     cli_abort(
       "`arrow_max_records_per_batch` is not yet supported for this backend"
     )
-    }
+  }
   cli_end()
   sa_in_pandas(
     x = x,
@@ -42,7 +42,7 @@ spark_apply.tbl_pyspark <- function(
     .name = name,
     .barrier = barrier,
     ... = ...
-    )
+  )
 }
 
 sa_in_pandas <- function(
@@ -50,18 +50,19 @@ sa_in_pandas <- function(
     .f,
     ...,
     .schema = NULL,
+    .schema_arg = "columns",
     .group_by = NULL,
     .as_sdf = TRUE,
     .name = NULL,
-    .barrier = NULL
-    ) {
-  if(is.null(.schema)) {
+    .barrier = NULL) {
+  schema_msg <- FALSE
+  if (is.null(.schema)) {
     r_fn <- .f %>%
       sa_function_to_string(
         .r_only = TRUE,
         .group_by = .group_by,
         ... = ...
-        ) %>%
+      ) %>%
       rlang::parse_expr() %>%
       eval()
     r_df <- x %>%
@@ -71,20 +72,21 @@ sa_in_pandas <- function(
     .schema <- r_exec %>%
       imap(~ {
         x_class <- class(.x)
-        if("POSIXt" %in% x_class) x_class <- "timestamp"
-        if(x_class == "character") x_class <- "string"
-        if(x_class == "numeric") x_class <- "double"
-        if(x_class == "integer") x_class <- "long"
+        if ("POSIXt" %in% x_class) x_class <- "timestamp"
+        if (x_class == "character") x_class <- "string"
+        if (x_class == "numeric") x_class <- "double"
+        if (x_class == "integer") x_class <- "long"
         paste0(.y, " ", x_class)
       }) %>%
       paste0(collapse = ", ")
+    schema_msg <- TRUE
   }
   .f %>%
     sa_function_to_string(.group_by = .group_by, ... = ...) %>%
     py_run_string()
   main <- reticulate::import_main()
   df <- python_sdf(x)
-  if(is.null(df)) {
+  if (is.null(df)) {
     df <- x %>%
       compute() %>%
       python_sdf()
@@ -97,22 +99,32 @@ sa_in_pandas <- function(
     p_df <- tbl_gp$applyInPandas(
       main$r_apply,
       schema = .schema
-      )
+    )
   } else {
     p_df <- df$mapInPandas(
       main$r_apply,
       schema = .schema,
       barrier = .barrier %||% FALSE
-      )
+    )
   }
-  if(.as_sdf) {
+  if (.as_sdf) {
     ret <- tbl_pyspark_temp(
       x = p_df,
       conn = spark_connection(x),
       tmp_name = .name
-      )
+    )
   } else {
     ret <- to_pandas_cleaned(p_df)
+  }
+  if(schema_msg) {
+    schema_arg <- .schema_arg
+    schema <- .schema
+    cli_div(theme = cli_colors())
+    cli_inform(c(
+      "{.header To increase performance, use the following schema:}",
+      "{.emph {schema_arg} = \"{schema}\" }"
+    ))
+    cli_end()
   }
   ret
 }
@@ -147,7 +159,7 @@ sa_function_to_string <- function(.f, .group_by = NULL, .r_only = FALSE, ...) {
   fn_str <- gsub("\"", "'", fn_str)
   fn_rep <- "function\\(\\.\\.\\.\\) 1"
   fn_r_new <- gsub(fn_rep, fn_str, fn_r)
-  if(.r_only) {
+  if (.r_only) {
     ret <- fn_r_new
   } else {
     ret <- gsub(fn_rep, fn_r_new, fn_python)

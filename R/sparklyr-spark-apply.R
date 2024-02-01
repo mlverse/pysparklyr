@@ -74,6 +74,7 @@ sa_in_pandas <- function(
       sa_function_to_string(
         .r_only = TRUE,
         .group_by = .group_by,
+        .colnames = NULL,
         ... = ...
       ) %>%
       rlang::parse_expr() %>%
@@ -82,6 +83,9 @@ sa_in_pandas <- function(
       head(10) %>%
       collect()
     r_exec <- r_fn(r_df)
+    col_names <- colnames(r_exec)
+    col_names <- gsub("\\.", "_", col_names)
+    colnames(r_exec) <- col_names
     .schema <- r_exec %>%
       imap(~ {
         x_class <- class(.x)
@@ -93,9 +97,17 @@ sa_in_pandas <- function(
       }) %>%
       paste0(collapse = ", ")
     schema_msg <- TRUE
+  } else {
+    fields <- unlist(strsplit(.schema, ","))
+    col_names <- map_chr(fields, ~ unlist(strsplit(trimws(.x), " "))[[1]])
+    col_names <- gsub("\\.", "_", col_names)
   }
   .f %>%
-    sa_function_to_string(.group_by = .group_by, ... = ...) %>%
+    sa_function_to_string(
+      .group_by = .group_by,
+      .colnames = col_names,
+      ... = ...
+      ) %>%
     py_run_string()
   main <- reticulate::import_main()
   df <- python_sdf(x)
@@ -142,8 +154,17 @@ sa_in_pandas <- function(
   ret
 }
 
-sa_function_to_string <- function(.f, .group_by = NULL, .r_only = FALSE, ...) {
+sa_function_to_string <- function(
+    .f,
+    .group_by = NULL,
+    .r_only = FALSE,
+    .colnames = NULL,
+    ...
+    ) {
   path_scripts <- system.file("udf", package = "pysparklyr")
+  if(dir_exists("inst/udf")) {
+    path_scripts <- path_expand("inst/udf")
+  }
   udf_fn <- ifelse(is.null(.group_by), "map", "apply")
   fn_r <- paste0(
     readLines(path(path_scripts, glue("udf-{udf_fn}.R"))),
@@ -160,6 +181,16 @@ sa_function_to_string <- function(.f, .group_by = NULL, .r_only = FALSE, ...) {
       fn_r
     )
   }
+  if(is.null(.colnames)) {
+    .colnames <- "NULL"
+  } else {
+    .colnames <- paste0("'", .colnames, "'", collapse = ", ")
+  }
+  fn_r <- gsub(
+    "col_names <- c\\('am', 'x'\\)",
+    paste0("col_names <- c(", .colnames, ")"),
+    fn_r
+  )
   fn <- purrr::as_mapper(.f = .f, ... = ...)
   fn_str <- paste0(deparse(fn), collapse = "")
   if (inherits(fn, "rlang_lambda_function")) {

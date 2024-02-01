@@ -3,12 +3,15 @@ function(df = mtcars) {
   fn <- function(...) 1;
   fn_run <- fn(df);
   gp_field <- 'am';
-  gp <- df[1, gp_field]; 
+  gp <- df[1, gp_field];
   if(is.vector(fn_run)) {
     ret <- data.frame(x = fn_run);
   } else {
     ret <- as.data.frame(fn_run);
   };
   ret[gp_field] <- gp;
-  ret
+  cols <- colnames(ret);
+  gp_cols <- cols == gp_field;
+  new_cols <- c(cols[gp_cols], cols[!gp_cols]);
+  ret[, new_cols]
 }

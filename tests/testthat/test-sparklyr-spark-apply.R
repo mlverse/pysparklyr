@@ -4,6 +4,7 @@ test_that("spark_apply() works", {
     spark_apply(tbl_mtcars, nrow, group_by = "am", columns = "am double, x long"),
     "tbl_spark"
   )
+  skip_spark_min_version(3.5)
   expect_s3_class(
     spark_apply(tbl_mtcars, function(x) x),
     "tbl_spark"

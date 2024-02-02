@@ -12,7 +12,8 @@ test_that("Pivot longer", {
       tidyr::pivot_longer(
         -id,
         names_to = c(".value", "n"), names_sep = "_"
-      )
+      ) %>%
+      collect()
   )
 })
 

@@ -38,7 +38,9 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::devtools
+          extra-packages: |
+            any::devtools
+            any::arrow
           needs: check
 
       - name: Set up Python 3.10

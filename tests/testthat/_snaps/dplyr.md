@@ -3,7 +3,8 @@
     Code
       tbl_ordered
     Output
-      # Source:     spark<?> [?? x 11]
+      # Source:     SQL [?? x 11]
+      # Database:   spark_connection
       # Ordered by: mpg, qsec, hp
            mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
          <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
@@ -24,7 +25,8 @@
     Code
       print(head(tbl_ordered))
     Output
-      # Source:     spark<?> [?? x 11]
+      # Source:     SQL [6 x 11]
+      # Database:   spark_connection
       # Ordered by: mpg, qsec, hp
           mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
         <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
@@ -40,8 +42,9 @@
     Code
       tbl_am[1]
     Output
-      # Source: spark<?> [?? x 1]
-      # Groups: am
+      # Source:   SQL [2 x 1]
+      # Database: spark_connection
+      # Groups:   am
            am
         <dbl>
       1     0
@@ -52,7 +55,8 @@
     Code
       tbl_join
     Output
-      # Source:     spark<?> [?? x 11]
+      # Source:     SQL [?? x 11]
+      # Database:   spark_connection
       # Ordered by: mpg, qsec, hp
            mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
          <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>

@@ -130,29 +130,9 @@ get_params <- function(x) {
 }
 
 ml_installed <- function(envname = NULL) {
-  ml_libraries <- pysparklyr_env$ml_libraries
-  installed_libraries <- py_list_packages(envname = envname)$package
-  find_ml <- map_lgl(ml_libraries, ~ .x %in% installed_libraries)
-  if (!all(find_ml)) {
-    cli_div(theme = cli_colors())
-    msg1 <- "Required Python libraries to run ML functions are missing"
-    if (check_interactive()) {
-      missing_ml <- ml_libraries[!find_ml]
-      cli_alert_warning(msg1)
-      cli_bullets(c(
-        " " = "{.header Could not find: {missing_ml}}",
-        " " = "Do you wish to install? {.class (This will be a one time operation)}"
-      ))
-      choice <- menu(choices = c("Yes", "Cancel"))
-      if (choice == 1) {
-        py_install(missing_ml)
-      }
-      if (choice == 2) {
-        stop_quietly()
-      }
-    } else {
-      cli_abort(msg1)
-    }
-    cli_end()
-  }
+  py_check_installed(
+    envname = envname,
+    libraries = pysparklyr_env$ml_libraries,
+    msg = "Required Python libraries to run ML functions are missing"
+  )
 }

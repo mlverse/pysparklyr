@@ -1,3 +1,9 @@
+# pysparklyr dev
+
+### New
+
+* Adds support for `spark_apply()` via the `rpy2` Python library.
+
 # pysparklyr 0.1.3
 
 ### New

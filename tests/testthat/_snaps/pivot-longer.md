@@ -1,9 +1,10 @@
 # Pivot longer
 
     Code
-      tbl_pivot %>% tidyr::pivot_longer(-id, names_to = c(".value", "n"), names_sep = "_")
+      tbl_pivot %>% tidyr::pivot_longer(-id, names_to = c(".value", "n"), names_sep = "_") %>%
+        collect()
     Output
-      # Source: spark<?> [?? x 5]
+      # A tibble: 4 x 5
         id    n         z     y     x
         <chr> <chr> <dbl> <dbl> <dbl>
       1 A     1         1     2     3

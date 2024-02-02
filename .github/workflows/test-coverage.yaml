@@ -33,6 +33,7 @@ jobs:
           extra-packages: |
             any::covr
             any::devtools
+            any::arrow
           needs: coverage
 
       - name: Cache Spark

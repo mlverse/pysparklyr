@@ -49,6 +49,36 @@ spark_connect_method.spark_method_spark_connect <- function(
 }
 
 #' @export
+spark_connect_method.spark_method_cde_connect <- function(
+    x,
+    method,
+    master,
+    spark_home,
+    config = NULL,
+    app_name,
+    version = NULL,
+    hadoop_version,
+    extensions,
+    scala_version,
+    ...) {
+
+  pyspark <- reticulate::import("cde")
+  pyspark_sql <- pyspark$sql
+  conn <- pyspark_sql$CDESparkConnectSession$builder$remote(master)
+  con_class <- "connect_cde"
+  master_label <- glue("CDE Connect - {master}")
+
+  initialize_connection(
+    conn = conn,
+    master_label = master_label,
+    con_class = con_class,
+    cluster_id = NULL,
+    method = method,
+    config = config
+  )
+}
+
+#' @export
 spark_connect_method.spark_method_databricks_connect <- function(
     x,
     method,

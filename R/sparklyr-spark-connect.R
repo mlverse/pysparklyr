@@ -66,7 +66,7 @@ spark_connect_method.spark_method_cde_connect <- function(
   pyspark_sql <- pyspark$sql
   conn <- pyspark_sql$CDESparkConnectSession$builder
   con_class <- "connect_cde"
-  master_label <- glue("CDE Connect - {master}")
+  master_label <- glue("CDE Connect")
 
   initialize_connection(
     conn = conn,

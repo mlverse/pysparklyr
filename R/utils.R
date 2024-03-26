@@ -96,8 +96,7 @@ current_product_connect <- function() {
 py_check_installed <- function(
     envname = NULL,
     libraries = "",
-    msg = ""
-    ) {
+    msg = "") {
   installed_libraries <- py_list_packages(envname = envname)$package
   find_libs <- map_lgl(libraries, ~ .x %in% installed_libraries)
   if (!all(find_libs)) {

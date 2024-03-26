@@ -49,8 +49,8 @@ test_that("User agent works on RStudio Workbench", {
         build_user_agent(),
         glue(
           "sparklyr/{packageVersion('sparklyr')} posit-workbench-rstudio/2023.12.0"
-          )
         )
+      )
     }
   )
 })
@@ -95,7 +95,7 @@ test_that("User agent builder works with Connect env var", {
         glue(
           "sparklyr/{packageVersion('sparklyr')} posit-cloud-rstudio/2023.12.0"
         )
-        )
+      )
     }
   )
 })

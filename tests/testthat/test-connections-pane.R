@@ -28,8 +28,7 @@ test_that("Object retrieval function work", {
   )
 
   expect_s3_class(
-    rs_get_databases(sc, limit = 10,  catalog = "spark_catalog"),
+    rs_get_databases(sc, limit = 10, catalog = "spark_catalog"),
     "data.frame"
   )
-
 })

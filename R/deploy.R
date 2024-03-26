@@ -48,7 +48,6 @@ deploy_databricks <- function(
     token = NULL,
     confirm = interactive(),
     ...) {
-
   cli_div(theme = cli_colors())
 
   cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
@@ -207,13 +206,13 @@ deploy <- function(
 
     req_file <- path(appDir, "requirements.txt")
     prev_deployments <- deployments(appDir)
-    if(!file_exists(req_file) && nrow(prev_deployments) == 0 && check_interactive()) {
+    if (!file_exists(req_file) && nrow(prev_deployments) == 0 && check_interactive()) {
       cli_inform(c(
         "{.header Would you like to create the 'requirements.txt' file?}",
         "{.class Why consider? This will allow you to skip using `version` or `cluster_id`}"
       ))
       choice <- menu(choices = c("Yes", "No"))
-      if(choice == 1) {
+      if (choice == 1) {
         requirements_write(
           destfile = req_file,
           python = python
@@ -270,8 +269,7 @@ deploy_find_environment <- function(
     }
   }
   if (is.null(ret)) {
-
-    if(is.null(exe_py)) {
+    if (is.null(exe_py)) {
       cli_abort("No Python environment could be found")
     } else {
       ret <- exe_py
@@ -282,4 +280,3 @@ deploy_find_environment <- function(
   cli_bullets(c("i" = "{.header Python:} {ret}"))
   ret
 }
-

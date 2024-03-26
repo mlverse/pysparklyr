@@ -18,7 +18,7 @@ connection_databricks_shinyapp <- function() {
     if (!"shiny" %in% installed.packages()) {
       cli_abort(
         "The `shiny` package is not installed, please install and retry."
-        )
+      )
     }
   }
 
@@ -37,5 +37,5 @@ get_wrapper <- function(x, pos = -1, envir = as.environment(pos)) {
     x = x,
     pos = pos,
     envir = envir
-    )
+  )
 }

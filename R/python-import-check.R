@@ -1,6 +1,6 @@
 import_check <- function(x, envname, silent = FALSE) {
   cli_div(theme = cli_colors())
-  if(!silent) {
+  if (!silent) {
     cli_progress_step(
       msg = "Attempting to load {.emph '{envname}'}",
       msg_done = "{.header Python environment:} {.emph '{envname}'}",
@@ -30,7 +30,7 @@ import_check <- function(x, envname, silent = FALSE) {
       # If there is a Python environment already loaded
       if (env_found) {
         find_env <- env_python(envname)
-        if(is.na(find_env)) {
+        if (is.na(find_env)) {
           find_env <- ""
         }
         if (find_env == py_exe()) {
@@ -44,7 +44,7 @@ import_check <- function(x, envname, silent = FALSE) {
       if (env_found) {
         # If the envname is found, we try to use it
         envir_type <- env_type(envname)
-        if(is.na(envir_type)) {
+        if (is.na(envir_type)) {
           envir_type <- ""
         }
         if (envir_type == "virtualenv") {

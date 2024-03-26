@@ -60,6 +60,7 @@ ml_title <- function(x) {
   UseMethod("ml_title")
 }
 
+#' @export
 ml_title.ml_model_logistic_regression <- function(x) {
   "Logistic Regression"
 }

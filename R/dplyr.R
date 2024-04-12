@@ -189,11 +189,11 @@ python_sdf <- function(x) {
   out
 }
 
-#' @export
 python_obj_get <- function(x) {
   UseMethod("python_obj_get")
 }
 
+#' @export
 python_obj_get.ml_connect_model <- function(x) {
   x$pipeline$pyspark_obj
 }

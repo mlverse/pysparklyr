@@ -2,31 +2,19 @@
 
 In this version:
 
-* Adds support for `sparklyr::sdf_schema()` and `sparklyr::spark_write_table()`
-
-* Adds `deploy_databricks()` function. It will simplify publishing to Posit
-Connect by automating much of the needed setup, and triggers the publication.
-
-* Adds `requirements_write()` function. It will inventory the Python libraries
-loaded in a given Python environment and create the 'requirements.txt'. This
-is in an effort to make it easier to republish deployed content.
-
-* Improvements to the RStudio connections snippet. It now adapts for when the
-host and, or the token, are not available to verify the cluster's DBR version.
-If missing, then the snippet will hide the host and token sections, and display
-a cluster DBR section so that the user can enter it manually. After entering,
-the snippet will verify the installed environment.
-
-* Improves how it process host, token and cluster ID. If it doesn't find a
-token, it no longer fails. It will pass nothing for that argument, letting
-'databricks.connect' find the token. This allows for Databricks configurations
-files to work.
-
-* Prevents failure when the latest 'databricks.connect' version is lower than
-the DBR version of the cluster. It will not prompt to install, but rather
-alert the user that they will be on a lower version of the library.
-
-* Simplifies to `spark_connect()` connection output.
+* Adds support for `spark_apply()` via the `rpy2` Python library
+  * It will not automatically distribute packages, it will assume that the
+  necessary packages are already installed in each node. This also means that
+  the `packages` argument is not supported
+  * As in its original implementation, schema inferring works, and as with the
+  original implementation, it has a performance cost. Unlike the original, the 
+  Databricks, and Spark, Connect version will return a 'columns' specification
+  that you can use for the next time you run the call.
+  
+* At connection time, it enables Arrow by default. It does this by setting
+these two configuration settings to true: 
+  * `spark.sql.execution.arrow.pyspark.enabled`
+  * `spark.sql.execution.arrow.pyspark.fallback.enabled`
 
 ## Test environments
 

@@ -2,7 +2,22 @@
 
 ### New
 
-* Adds support for `spark_apply()` via the `rpy2` Python library.
+* Adds support for `spark_apply()` via the `rpy2` Python library
+  * It will not automatically distribute packages, it will assume that the
+  necessary packages are already installed in each node. This also means that
+  the `packages` argument is not supported
+  * As in its original implementation, schema inferring works, and as with the
+  original implementation, it has a performance cost. Unlike the original, the 
+  Databricks, and Spark, Connect version will return a 'columns' specification
+  that you can use for the next time you run the call.
+  
+### Improvements
+
+* At connection time, it enables Arrow by default. It does this by setting
+these two configuration settings to true: 
+  * `spark.sql.execution.arrow.pyspark.enabled`
+  * `spark.sql.execution.arrow.pyspark.fallback.enabled`
+
 
 # pysparklyr 0.1.3
 

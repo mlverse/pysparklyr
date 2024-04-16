@@ -45,4 +45,4 @@ remotes::install_github("mlverse/pysparklyr")
 
 To learn how to use, please visit the Spark / Databricks Connect article, 
 available in the official `sparklyr` website: [Spark Connect, and Databricks Connect v2
-](https://spark.rstudio.com/deployment/databricks-spark-connect.html)
+](https://spark.posit.co/deployment/databricks-connect.html)

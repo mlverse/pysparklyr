@@ -23,7 +23,8 @@ test_that("Databricks Host works", {
       new = c("DATABRICKS_HOST" = NA, "DATABRICKS_TOKEN" = NA),
       {
         databricks_host()
-      }),
+      }
+    ),
     "No Host URL was provided"
   )
 
@@ -32,10 +33,10 @@ test_that("Databricks Host works", {
       new = c("DATABRICKS_HOST" = NA, "CONNECT_DATABRICKS_HOST" = "testing"),
       {
         databricks_host()
-      }),
+      }
+    ),
     "environment_connect"
   )
-
 })
 
 test_that("Databricks Token works", {
@@ -48,7 +49,8 @@ test_that("Databricks Token works", {
       new = c("DATABRICKS_HOST" = NA, "DATABRICKS_TOKEN" = NA),
       {
         databricks_token(fail = TRUE)
-      }),
+      }
+    ),
     "No authentication token was identified"
   )
 
@@ -57,7 +59,8 @@ test_that("Databricks Token works", {
       new = c("DATABRICKS_TOKEN" = NA, "CONNECT_DATABRICKS_TOKEN" = "testing"),
       {
         databricks_token()
-      }),
+      }
+    ),
     "environment_connect"
   )
 })

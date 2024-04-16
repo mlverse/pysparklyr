@@ -22,7 +22,7 @@ test_that("Snippet caller works", {
   expect_error(
     connection_databricks_shinyapp(),
     "The `shiny` package is not installed, please install and retry"
-    )
+  )
 })
 
 test_that("Get wrapper works", {

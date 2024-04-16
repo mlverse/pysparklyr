@@ -9,9 +9,9 @@ test_that("Reticulate Python check works", {
       expect_message(
         reticulate_python_check(unset = FALSE, message = TRUE),
         "Your 'RETICULATE_PYTHON' environment is set, which may cause"
-        )
-    })
-
+      )
+    }
+  )
 })
 
 test_that("When in Posit Connect no unset happens", {
@@ -23,7 +23,8 @@ test_that("When in Posit Connect no unset happens", {
         reticulate_python_check(),
         "path/for/python"
       )
-    })
+    }
+  )
 })
 
 test_that("Check arguments works", {
@@ -32,5 +33,4 @@ test_that("Check arguments works", {
     check_arg_supported(x),
     "The 'x' argument is not currently supported for this back-end"
   )
-
 })

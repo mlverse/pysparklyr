@@ -193,10 +193,12 @@ python_obj_get <- function(x) {
   UseMethod("python_obj_get")
 }
 
+#' @export
 python_obj_get.ml_connect_model <- function(x) {
   x$pipeline$pyspark_obj
 }
 
+#' @export
 python_obj_get.default <- function(x) {
   if (inherits(x, "character")) {
     return(x)
@@ -207,22 +209,27 @@ python_obj_get.default <- function(x) {
   }
 }
 
+#' @export
 python_obj_get.python.builtin.object <- function(x) {
   x
 }
 
+#' @export
 python_obj_get.spark_pyobj <- function(x) {
   x[["pyspark_obj"]]
 }
 
+#' @export
 python_obj_get.ml_connect_model <- function(x) {
   x[["pipeline"]][["pyspark_obj"]]
 }
 
+#' @export
 python_obj_get.ml_connect_estimator <- function(x) {
   x[[".jobj"]]
 }
 
+#' @export
 python_obj_get.ml_connect_pipeline_model <- function(x) {
   x[[".jobj"]]
 }

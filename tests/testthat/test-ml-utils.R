@@ -44,13 +44,15 @@ test_that("ml_installed() works on simulated interactive session", {
     path_dir() %>%
     path_dir()
   print(test_env)
-    local_mocked_bindings(
-      check_interactive = function(...) TRUE,
-      check_rstudio = function(...) TRUE,
-      menu = function(...) return(1),
-      py_install = function(...) invisible()
-    )
-    expect_snapshot(
-      ml_installed(envname = test_env)
-    )
+  local_mocked_bindings(
+    check_interactive = function(...) TRUE,
+    check_rstudio = function(...) TRUE,
+    menu = function(...) {
+      return(1)
+    },
+    py_install = function(...) invisible()
+  )
+  expect_snapshot(
+    ml_installed(envname = test_env)
+  )
 })

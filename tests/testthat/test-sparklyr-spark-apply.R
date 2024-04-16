@@ -18,11 +18,11 @@ test_that("spark_apply() works", {
     "tbl_spark"
   )
   expect_s3_class(
-    spark_apply(tbl_mtcars, ~ .x),
+    spark_apply(tbl_mtcars, ~.x),
     "tbl_spark"
   )
   expect_s3_class(
-    spark_apply(dplyr::filter(tbl_mtcars, am == 0), ~ .x),
+    spark_apply(dplyr::filter(tbl_mtcars, am == 0), ~.x),
     "tbl_spark"
   )
 })

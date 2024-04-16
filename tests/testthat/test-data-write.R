@@ -29,7 +29,7 @@ test_that("CSV works", {
       path = file_name,
       overwrite = TRUE,
       repartition = 2
-      )
+    )
   )
   expect_snapshot(
     spark_read_csv(

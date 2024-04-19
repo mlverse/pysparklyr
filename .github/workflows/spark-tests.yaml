@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {spark: '3.4.1', pyspark: '3.4', hadoop: '3', name: 'PySpark 3.4'}
+          - {spark: '3.5.1', pyspark: '3.5', hadoop: '3', name: 'PySpark 3.5'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -63,6 +63,7 @@ jobs:
         if: steps.cache-spark.outputs.cache-hit != 'true'
         run: |
           sparklyr::spark_install(version = Sys.getenv("SPARK_VERSION"))
+          print(sparklyr::spark_install_find("3.5")$packageLocalPath)
         shell: Rscript {0}
 
       - name: Cache Scala

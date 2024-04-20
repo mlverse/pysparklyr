@@ -63,7 +63,7 @@ jobs:
         if: steps.cache-spark.outputs.cache-hit != 'true'
         run: |
           sparklyr::spark_install(version = Sys.getenv("SPARK_VERSION"))
-          print(sparklyr::spark_install_find("3.5")$packageLocalPath)
+          print(sparklyr::spark_install_find(Sys.getenv("SPARK_VERSION"))$sparkVersionDir)
         shell: Rscript {0}
 
       - name: Cache Scala

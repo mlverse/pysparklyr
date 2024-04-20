@@ -170,6 +170,13 @@ tbl_temp_name <- function() glue("{temp_prefix()}{random_string()}")
 
 #' @export
 sdf_register.spark_pyobj <- function(x, name = NULL) {
+  # Attempting to cache a data frame with 0 columns returns an error.
+  # So it returns nothing when this is the case (#110)
+  if(inherits(x$pyspark_obj, "pyspark.sql.connect.dataframe.DataFrame")) {
+    if(length(x$pyspark_obj$columns) == 0) {
+      return(invisible())
+    }
+  }
   sc <- spark_connection(x)
   tbl_pyspark_temp(
     x = x$pyspark_obj,

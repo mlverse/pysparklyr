@@ -1,3 +1,8 @@
+# pysparklyr (dev)
+
+* If the cluster version is higher than the available Python library, it will
+either use, or offer to install the available Python library
+
 # pysparklyr 0.1.4
 
 ### New

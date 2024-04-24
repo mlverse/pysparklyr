@@ -34,11 +34,18 @@ use_envname <- function(
 
   match_one <- length(envs) > 0
   match_exact <- length(envs[envs == envname]) > 0
+  install_ver <- version
 
   if (!is.null(main_library) && !match_exact) {
     lib_info <- python_library_info(main_library, fail = FALSE, verbose = FALSE)
     latest_ver <- lib_info$version
-    install_recent <- compareVersion(latest_ver, version) == 1
+    vers <- compareVersion(latest_ver, version)
+    install_recent <- vers == 1
+    # For cases when the cluster's version is higher than the latest library
+    if(vers == -1) {
+      envname <- as.character(glue("{env_base}{latest_ver}"))
+      install_ver <- latest_ver
+    }
   } else {
     install_recent <- TRUE
   }
@@ -95,7 +102,7 @@ use_envname <- function(
       cli_alert_warning(msg_1)
       cli_bullets(c(
         " " = msg_2,
-        " " = "{.header Do you wish to install {con_label} version {version}?}"
+        " " = "{.header Do you wish to install {con_label} version {install_ver}?}"
       ))
       choice <- menu(choices = c(
         paste0("Yes", msg_yes),

@@ -172,7 +172,9 @@ connection_spark_server <- function(input, output, session) {
         cluster_id = input$cluster_id,
         host = input$host_url,
         token = token
-      ))
+        ),
+        silent = TRUE
+        )
       if (!inherits(version, "try-error")) {
         dbr_version(version)
         ret <- paste0("✓ Found - Cluster's DBR is ", version)

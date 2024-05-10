@@ -203,7 +203,8 @@ initialize_connection <- function(
     "ignore",
     message = "Index.format is deprecated and will be removed in a future version"
   )
-  session <- conn$getOrCreate()
+  #TODO: Add switcher between get and getOrCreate before releasing
+  session <- conn$get()
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) databricks_dbr_error(get_version)
   session$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)

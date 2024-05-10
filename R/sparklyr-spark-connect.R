@@ -63,7 +63,8 @@ spark_connect_method.spark_method_cde_connect <- function(
     ...) {
 
   pyspark <- reticulate::import("cde")
-  conn <- pyspark$CDESparkConnectSession$builder(master)
+  conn <- pyspark$CDESparkConnectSession$builder$sessionName(master)$get()
+
   con_class <- "connect_cde"
   master_label <- glue("CDE Connect")
 

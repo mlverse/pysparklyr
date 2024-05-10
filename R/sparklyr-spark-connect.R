@@ -65,13 +65,10 @@ spark_connect_method.spark_method_cde_connect <- function(
   pyspark <- reticulate::import("cde")
   conn <- pyspark$CDESparkConnectSession$builder$sessionName(master)
 
-  con_class <- "connect_cde"
-  master_label <- glue("CDE Connect")
-
   initialize_connection(
     conn = conn,
-    master_label = master_label,
-    con_class = con_class,
+    master_label = "CDE Connect",
+    con_class = "connect_cde",
     cluster_id = NULL,
     method = method,
     config = config
@@ -241,6 +238,10 @@ setOldClass(
 
 setOldClass(
   c("connect_databricks", "pyspark_connection", "spark_connection")
+)
+
+setOldClass(
+  c("connect_cde", "pyspark_connection", "spark_connection")
 )
 
 python_conn <- function(x) {

@@ -127,3 +127,7 @@ stop_quietly <- function() {
   on.exit(options(opt))
   stop()
 }
+
+use_arrow <- function() {
+  arrow::binary()
+}

@@ -1,5 +1,9 @@
 # pysparklyr (dev)
 
+* Fixes issues with having multiple line functions in `spark_apply()`
+
+* Ensures `arrow` is installed by adding it to Imports (#116)
+
 * If the cluster version is higher than the available Python library, it will
 either use, or offer to install the available Python library
 

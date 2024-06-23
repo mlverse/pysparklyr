@@ -122,7 +122,11 @@ sdf_copy_to.pyspark_connection <- function(sc,
 
 #' @export
 tbl.pyspark_connection <- function(src, from, ...) {
-  sql_from <- as.sql(from, con = src$con)
+  if(inherits(from, "AsIs")) {
+    sql_from <- from
+  } else {
+    sql_from <- as.sql(from, con = src$con)
+  }
   con <- python_conn(src)
   pyspark_obj <- con$table(sql_from)
   vars <- as.character(pyspark_obj$columns)

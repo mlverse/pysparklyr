@@ -1,5 +1,7 @@
 # pysparklyr (dev)
 
+* Adds support for `I()` in `tbl()`
+
 * Fixes issues with having multiple line functions in `spark_apply()`
 
 * Ensures `arrow` is installed by adding it to Imports (#116)

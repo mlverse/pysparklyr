@@ -240,27 +240,34 @@ build_user_agent <- function() {
   }
 
   if (is.null(product)) {
+    pr <- NULL
     if (check_rstudio()) {
       rstudio_version <- int_rstudio_version()
       edition <- rstudio_version$edition
-      mod <- rstudio_version$mode
+      mode <- rstudio_version$mode
       version <- rstudio_version$long_version
-      prod <- "rstudio"
+      pr <- "rstudio"
       if (length(edition) == 0) edition <- ""
 
-      if (length(mod) == 0) mod <- ""
+      if (length(mode) == 0) mode <- ""
       if (edition == "Professional") {
-        if (mod == "server") {
-          prod <- "workbench-rstudio"
+        if (mode == "server") {
+          pr <- "workbench-rstudio"
         } else {
-          prod <- "rstudio-pro"
+          pr <- "rstudio-pro"
         }
       }
       if (Sys.getenv("R_CONFIG_ACTIVE") == "rstudio_cloud") {
-        prod <- "cloud-rstudio"
+        pr <- "cloud-rstudio"
       }
     }
-    product <- glue("posit-{prod}/{version}")
+    if(Sys.getenv("POSITRON", unset = "0") == "1") {
+      pr <- "positron"
+      version <- Sys.getenv("POSITRON_VERSION", unset = NA)
+    }
+    if(!is.null(pr)) {
+      product <- glue("posit-{pr}/{version}")
+    }
   }
 
   glue("sparklyr/{packageVersion('sparklyr')} {product}")

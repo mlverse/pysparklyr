@@ -242,10 +242,12 @@ build_user_agent <- function() {
   if (is.null(product)) {
     if (check_rstudio()) {
       rstudio_version <- int_rstudio_version()
-      prod <- "rstudio"
       edition <- rstudio_version$edition
-      if (length(edition) == 0) edition <- ""
       mod <- rstudio_version$mode
+      version <- rstudio_version$long_version
+      prod <- "rstudio"
+      if (length(edition) == 0) edition <- ""
+
       if (length(mod) == 0) mod <- ""
       if (edition == "Professional") {
         if (mod == "server") {
@@ -257,16 +259,11 @@ build_user_agent <- function() {
       if (Sys.getenv("R_CONFIG_ACTIVE") == "rstudio_cloud") {
         prod <- "cloud-rstudio"
       }
-      product <- glue("posit-{prod}/{rstudio_version$long_version}")
     }
+    product <- glue("posit-{prod}/{version}")
   }
 
-  glue(
-    paste(
-      "sparklyr/{packageVersion('sparklyr')}",
-      product
-    )
-  )
+  glue("sparklyr/{packageVersion('sparklyr')} {product}")
 }
 
 int_rstudio_version <- function() {

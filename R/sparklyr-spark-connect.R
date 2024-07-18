@@ -270,7 +270,10 @@ build_user_agent <- function() {
     }
   }
 
-  glue("sparklyr/{packageVersion('sparklyr')} {product}")
+  glue(
+    "sparklyr/{packageVersion('sparklyr')} {product}",
+    .null = NULL
+    )
 }
 
 int_rstudio_version <- function() {

@@ -1,3 +1,7 @@
+# pysparklyr (dev)
+
+* Adds IDE check for positron (#121)
+
 # pysparklyr 0.1.5
 
 ### Improvements

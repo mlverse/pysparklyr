@@ -2,6 +2,8 @@
 
 * Adds IDE check for positron (#121)
 
+* Avoids failure when an unexpected error from Databricks is returned (#123)
+
 # pysparklyr 0.1.5
 
 ### Improvements

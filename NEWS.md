@@ -4,6 +4,9 @@
 
 * Avoids failure when an unexpected error from Databricks is returned (#123)
 
+* No longer install 'rpy2' by default. It will prompt user for installation
+the first time `spark_apply()` is called (#125)
+
 # pysparklyr 0.1.5
 
 ### Improvements

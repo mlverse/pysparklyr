@@ -62,6 +62,7 @@ jobs:
       - name: Install Spark (via sparklyr)
         if: steps.cache-spark.outputs.cache-hit != 'true'
         run: |
+          devtools::install_github("sparklyr/sparklyr")
           sparklyr::spark_install(version = Sys.getenv("SPARK_VERSION"))
           print(sparklyr::spark_install_find(Sys.getenv("SPARK_VERSION"))$sparkVersionDir)
         shell: Rscript {0}

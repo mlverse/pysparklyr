@@ -14,10 +14,7 @@ spark_apply.tbl_pyspark <- function(
     arrow_max_records_per_batch = NULL,
     auto_deps = FALSE,
     ...) {
-  py_check_installed(
-    libraries = "rpy2",
-    msg = "Requires an additional Python library"
-  )
+  rpy2_installed()
   cli_div(theme = cli_colors())
   if (!is.null(packages)) {
     cli_abort("`packages` is not yet supported for this backend")
@@ -208,4 +205,12 @@ sa_function_to_string <- function(
     ret <- gsub(fn_rep, fn_r_new, fn_python)
   }
   ret
+}
+
+rpy2_installed <- function(envname = NULL) {
+  py_check_installed(
+    envname = envname,
+    libraries = "rpy2",
+    msg = "Required 'rpy2' Python library is missing"
+  )
 }

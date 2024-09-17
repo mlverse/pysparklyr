@@ -206,12 +206,17 @@ databricks_dbr_error <- function(error) {
   }
 
   status_tip <- NULL
-  if (grepl("UNAVAILABLE", status_error)) {
-    status_tip <- "Possible cause = The cluster is not running, or not accessible"
+  if(!is.null(status_error)){
+    if (grepl("UNAVAILABLE", status_error)) {
+      status_tip <- "Possible cause = The cluster is not running, or not accessible"
+    }
+    if (grepl("FAILED_PRECONDITION", status_error)) {
+      status_tip <- "Possible cause = The cluster is initializing. Try again later"
+    }
+  } else {
+    status_error <- error
   }
-  if (grepl("FAILED_PRECONDITION", status_error)) {
-    status_tip <- "Possible cause = The cluster is initializing. Try again later"
-  }
+
   rlang::abort(
     c(
       "Spark connection error",

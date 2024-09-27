@@ -42,18 +42,17 @@ databricks_token <- function(token = NULL, fail = FALSE) {
       }
     }
   }
-  # Checks for OAuth Databricks token inside the RStudio API
-  if (is.null(token) && exists(".rs.api.getDatabricksToken")) {
-    getDatabricksToken <- get(".rs.api.getDatabricksToken")
-    token <- set_names(getDatabricksToken(databricks_host()), "oauth")
-  }
+  # # Checks for OAuth Databricks token inside the RStudio API
+  # if (is.null(token) && exists(".rs.api.getDatabricksToken")) {
+  #   getDatabricksToken <- get(".rs.api.getDatabricksToken")
+  #   token <- set_names(getDatabricksToken(databricks_host()), "oauth")
+  # }
   if (is.null(token)) {
     if (fail) {
       rlang::abort(c(
         paste0(
           "No authentication token was identified: \n",
           " - No 'DATABRICKS_TOKEN' environment variable found \n",
-          " - No Databricks OAuth token found \n",
           " - Not passed as a function argument"
         ),
         "Please add your Token to 'DATABRICKS_TOKEN' inside your .Renviron file."
@@ -249,3 +248,4 @@ sanitize_host <- function(url, silent = FALSE) {
   }
   ret
 }
+

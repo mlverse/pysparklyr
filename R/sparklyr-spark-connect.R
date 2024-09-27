@@ -71,6 +71,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
   method <- method[[1]]
   token <- databricks_token(token, fail = FALSE)
   cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
+  cli_path <- Sys.getenv("DATABRICKS_CLI_PATH", "databricks")
   master <- databricks_host(master, fail = FALSE)
   if (host_sanitize && master != "") {
     master <- sanitize_host(master, silent)
@@ -102,7 +103,8 @@ spark_connect_method.spark_method_databricks_connect <- function(
     return(invisible)
   }
 
-  db <- import_check("databricks.connect", envname, silent)
+  db_connect <- import_check("databricks.connect", envname, silent)
+  db_sdk <- import_check("databricks.sdk", envname, silent)
 
   if (!is.null(cluster_info)) {
     msg <- "{.header Connecting to} {.emph '{cluster_info$name}'}"
@@ -119,17 +121,36 @@ spark_connect_method.spark_method_databricks_connect <- function(
     cli_progress_step(msg, msg_done)
   }
 
-  remote_args <- list()
-  if (master != "") remote_args$host <- master
-  if (token != "") remote_args$token <- token
-  if (cluster_id != "") remote_args$cluster_id <- cluster_id
-
-  databricks_session <- function(...) {
-    user_agent <- build_user_agent()
-    db$DatabricksSession$builder$remote(...)$userAgent(user_agent)
+  # config
+  # if token is found, propagate
+  # otherwise trust in sdk to detect and do what it can?
+  if (token != "") {
+    config <- db_sdk$core$Config(
+      host = master,
+      token = token,
+      cluster_id = cluster_id,
+      auth_type = "pat"
+    )
+  } else {
+    config <- db_sdk$core$Config(host = master, cluster_id = cluster_id)
   }
 
-  conn <- exec(databricks_session, !!!remote_args)
+  if (!httr2:::is_hosted_session() && nchar(Sys.which(cli_path)) != 0) {
+    # When on desktop, try using the Databricks CLI for auth.
+    output <- suppressWarnings(
+      system2(
+        cli_path,
+        c("auth", "login", "--host", master),
+        stdout = TRUE,
+        stderr = TRUE
+      )
+    )
+  }
+
+  user_agent <- build_user_agent()
+  conn <- db_connect$DatabricksSession$builder$sdkConfig(config)$userAgent(user_agent)
+
+
 
   if (!silent) {
     cli_progress_done()
@@ -173,6 +194,9 @@ initialize_connection <- function(
     "ignore",
     message = "Index.format is deprecated and will be removed in a future version"
   )
+
+  assign("conn", conn, .GlobalEnv)
+
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) databricks_dbr_error(get_version)

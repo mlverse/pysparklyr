@@ -1,5 +1,8 @@
 # pysparklyr (dev)
 
+* Fixes issues with catalog and schema names with dashes in the Connections
+Pane. 
+
 * Adds IDE check for positron (#121)
 
 * Avoids failure when an unexpected error from Databricks is returned (#123)

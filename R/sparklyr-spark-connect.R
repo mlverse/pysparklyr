@@ -210,8 +210,6 @@ initialize_connection <- function(
     message = "Index.format is deprecated and will be removed in a future version"
   )
 
-  assign("conn", conn, .GlobalEnv)
-
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) databricks_dbr_error(get_version)

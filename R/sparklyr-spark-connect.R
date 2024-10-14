@@ -57,6 +57,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     config,
     app_name,
     version = NULL,
+    serverless = FALSE,
     hadoop_version,
     extensions,
     scala_version,
@@ -77,17 +78,22 @@ spark_connect_method.spark_method_databricks_connect <- function(
     master <- sanitize_host(master, silent)
   }
 
+  # if serverless is TRUE, cluster_id is overruled (set to NULL)
   cluster_info <- NULL
-  if (cluster_id != "" && master != "" && token != "") {
-    cluster_info <- databricks_dbr_version_name(
-      cluster_id = cluster_id,
-      host = master,
-      token = token,
-      silent = silent
-    )
-    if (is.null(version)) {
-      version <- cluster_info$version
+  if (!serverless) {
+    if (cluster_id != "" && master != "" && token != "") {
+      cluster_info <- databricks_dbr_version_name(
+        cluster_id = cluster_id,
+        host = master,
+        token = token,
+        silent = silent
+      )
+      if (is.null(version)) {
+        version <- cluster_info$version
+      }
     }
+  } else {
+    cluster_id <- NULL
   }
 
   envname <- use_envname(
@@ -104,16 +110,20 @@ spark_connect_method.spark_method_databricks_connect <- function(
   }
 
   dbc <- import_check("databricks.connect", envname, silent)
-  db_sdk <- import_check("databricks.sdk", envname, silent)
+  db_sdk <- import_check("databricks.sdk", envname, silent = TRUE)
 
   if (!is.null(cluster_info)) {
     msg <- "{.header Connecting to} {.emph '{cluster_info$name}'}"
     msg_done <- "{.header Connected to:} {.emph '{cluster_info$name}'}"
     master_label <- glue("{cluster_info$name} ({cluster_id})")
-  } else {
+  } else if (!serverless) {
     msg <- "{.header Connecting to} {.emph '{cluster_id}'}"
     msg_done <- "{.header Connected to:} '{.emph '{cluster_id}'}'"
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
+  } else if (serverless) {
+    msg <- "{.header Connecting to} {.emph 'serverless'}"
+    msg_done <- "{.header Connected to:} '{.emph 'serverless'}'"
+    master_label <- glue("Databricks Connect - Cluster: serverless")
   }
 
   if (!silent) {
@@ -121,21 +131,24 @@ spark_connect_method.spark_method_databricks_connect <- function(
     cli_progress_step(msg, msg_done)
   }
 
-  # config
+  # sdk config
+  conf_args <- list(host = master)
   # if token is found, propagate
   # otherwise trust in sdk to detect and do what it can?
   if (token != "") {
-    config <- db_sdk$core$Config(
-      host = master,
-      token = token,
-      cluster_id = cluster_id,
-
-      auth_type = "pat"
-    )
-  } else {
-    config <- db_sdk$core$Config(host = master, cluster_id = cluster_id)
+    conf_args$token <- token
+    conf_args$auth_type <- "pat"
   }
 
+  if (serverless) {
+    conf_args$serverless_compute_id <- "auto"
+  } else {
+    conf_args$cluster_id <- cluster_id
+  }
+
+  sdk_config <- db_sdk$core$Config(!!!conf_args)
+
+  # unsure if this iss needed anymore?
   if (!httr2:::is_hosted_session() && nchar(Sys.which(cli_path)) != 0) {
     # When on desktop, try using the Databricks CLI for auth.
     output <- suppressWarnings(
@@ -149,8 +162,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
   }
 
   user_agent <- build_user_agent()
-  conn <- dbc$DatabricksSession$builder$sdkConfig(config)$userAgent(user_agent)
-
+  conn <- dbc$DatabricksSession$builder$sdkConfig(sdk_config)$userAgent(user_agent)
 
 
   if (!silent) {
@@ -163,6 +175,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     master_label = master_label,
     con_class = "connect_databricks",
     cluster_id = cluster_id,
+    serverless = serverless,
     method = method,
     config = config
   )
@@ -173,6 +186,7 @@ initialize_connection <- function(
     master_label,
     con_class,
     cluster_id = NULL,
+    serverless = NULL,
     method = NULL,
     config = NULL) {
   warnings <- import("warnings")
@@ -201,9 +215,11 @@ initialize_connection <- function(
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) databricks_dbr_error(get_version)
-  session$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
-  session$conf$set("spark.sql.execution.arrow.pyspark.enabled", "true")
-  session$conf$set("spark.sql.execution.arrow.pyspark.fallback.enabled", "false")
+  if (!serverless) {
+    session$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
+    session$conf$set("spark.sql.execution.arrow.pyspark.enabled", "true")
+    session$conf$set("spark.sql.execution.arrow.pyspark.fallback.enabled", "false")
+  }
 
   # do we need this `spark_context` object?
   spark_context <- list(spark_context = session)

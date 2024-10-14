@@ -103,7 +103,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     return(invisible)
   }
 
-  db_connect <- import_check("databricks.connect", envname, silent)
+  dbc <- import_check("databricks.connect", envname, silent)
   db_sdk <- import_check("databricks.sdk", envname, silent)
 
   if (!is.null(cluster_info)) {
@@ -129,6 +129,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
       host = master,
       token = token,
       cluster_id = cluster_id,
+
       auth_type = "pat"
     )
   } else {
@@ -148,7 +149,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
   }
 
   user_agent <- build_user_agent()
-  conn <- db_connect$DatabricksSession$builder$sdkConfig(config)$userAgent(user_agent)
+  conn <- dbc$DatabricksSession$builder$sdkConfig(config)$userAgent(user_agent)
 
 
 

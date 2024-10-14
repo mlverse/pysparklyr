@@ -7,6 +7,11 @@
 * No longer install 'rpy2' by default. It will prompt user for installation
 the first time `spark_apply()` is called (#125)
 
+* Adding support for Databricks serverless interactive compute (#127)
+
+* Extended authentication method support for Databricks by deferring to SDK
+(#127)
+
 # pysparklyr 0.1.5
 
 ### Improvements

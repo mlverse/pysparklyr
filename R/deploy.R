@@ -52,6 +52,7 @@ deploy_databricks <- function(
 
   cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
 
+  # TODO: this needs to be adjusted to use client, might need to refactor?
   if (is.null(version) && !is.null(cluster_id)) {
     version <- databricks_dbr_version(
       cluster_id = cluster_id,

@@ -58,6 +58,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     app_name,
     version = NULL,
     serverless = FALSE,
+    profile = NULL,
     hadoop_version,
     extensions,
     scala_version,
@@ -70,32 +71,14 @@ spark_connect_method.spark_method_databricks_connect <- function(
   silent <- args$silent %||% FALSE
 
   method <- method[[1]]
+
+
   token <- databricks_token(token, fail = FALSE)
   cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
-  cli_path <- Sys.getenv("DATABRICKS_CLI_PATH", "databricks")
-  master <- databricks_host(master, fail = FALSE)
-  if (host_sanitize && master != "") {
-    master <- sanitize_host(master, silent)
-  }
 
-  # if serverless is TRUE, cluster_id is overruled (set to NULL)
-  cluster_info <- NULL
-  if (!serverless) {
-    if (cluster_id != "" && master != "" && token != "") {
-      cluster_info <- databricks_dbr_version_name(
-        cluster_id = cluster_id,
-        host = master,
-        token = token,
-        silent = silent
-      )
-      if (is.null(version)) {
-        version <- cluster_info$version
-      }
-    }
-  } else {
-    cluster_id <- NULL
-  }
 
+
+  # load python env
   envname <- use_envname(
     backend = "databricks",
     version = version,
@@ -109,8 +92,58 @@ spark_connect_method.spark_method_databricks_connect <- function(
     return(invisible)
   }
 
+  # load python libs
   dbc <- import_check("databricks.connect", envname, silent)
   db_sdk <- import_check("databricks.sdk", envname, silent = TRUE)
+
+  # SDK behaviour
+  # https://databricks-sdk-py.readthedocs.io/en/latest/authentication.html#default-authentication-flow
+
+  conf_args <- list()
+
+  # the profile as specified - which has a default of 'DEFAULT'
+  # otherwise, if a token is found, propagate to SDK config
+
+  # TODO: emit messages about connection here?
+  # specific vars taken priority, profile only works when no env vars are set
+  if (token != "" && master != "") {
+    conf_args$host <-  master
+    conf_args$token <- token
+    conf_args$auth_type <- "pat"
+    databricks_desktop_login(host = master)
+  } else if (!is.null(profile)) {
+    conf_args$profile <- profile
+    databricks_desktop_login(profile = profile)
+  }
+
+  # serverless config related settings
+  if (serverless) {
+    conf_args$serverless_compute_id <- "auto"
+  } else {
+    conf_args$cluster_id <- cluster_id
+  }
+
+  sdk_config <- db_sdk$core$Config(!!!conf_args)
+
+  # create workspace client
+  sdk_client <- db_sdk$WorkspaceClient(config = sdk_config)
+
+  # if serverless is TRUE, cluster_id is overruled (set to NULL)
+  cluster_info <- NULL
+  if (!serverless) {
+    if (cluster_id != "" && master != "" && token != "") {
+      cluster_info <- databricks_dbr_version_name(
+        cluster_id = cluster_id,
+        client = sdk_client,
+        silent = silent
+      )
+      if (is.null(version)) {
+        version <- cluster_info$version
+      }
+    }
+  } else {
+    cluster_id <- NULL
+  }
 
   if (!is.null(cluster_info)) {
     msg <- "{.header Connecting to} {.emph '{cluster_info$name}'}"
@@ -121,8 +154,8 @@ spark_connect_method.spark_method_databricks_connect <- function(
     msg_done <- "{.header Connected to:} '{.emph '{cluster_id}'}'"
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
   } else if (serverless) {
-    msg <- "{.header Connecting to} {.emph 'serverless'}"
-    msg_done <- "{.header Connected to:} '{.emph 'serverless'}'"
+    msg <- "{.header Connecting to} {.emph serverless}"
+    msg_done <- "{.header Connected to:} '{.emph serverless}'"
     master_label <- glue("Databricks Connect - Cluster: serverless")
   }
 
@@ -131,39 +164,8 @@ spark_connect_method.spark_method_databricks_connect <- function(
     cli_progress_step(msg, msg_done)
   }
 
-  # sdk config
-  conf_args <- list(host = master)
-  # if token is found, propagate
-  # otherwise trust in sdk to detect and do what it can?
-  if (token != "") {
-    conf_args$token <- token
-    conf_args$auth_type <- "pat"
-  }
-
-  if (serverless) {
-    conf_args$serverless_compute_id <- "auto"
-  } else {
-    conf_args$cluster_id <- cluster_id
-  }
-
-  sdk_config <- db_sdk$core$Config(!!!conf_args)
-
-  # unsure if this iss needed anymore?
-  if (!httr2:::is_hosted_session() && nchar(Sys.which(cli_path)) != 0) {
-    # When on desktop, try using the Databricks CLI for auth.
-    output <- suppressWarnings(
-      system2(
-        cli_path,
-        c("auth", "login", "--host", master),
-        stdout = TRUE,
-        stderr = TRUE
-      )
-    )
-  }
-
   user_agent <- build_user_agent()
   conn <- dbc$DatabricksSession$builder$sdkConfig(sdk_config)$userAgent(user_agent)
-
 
   if (!silent) {
     cli_progress_done()

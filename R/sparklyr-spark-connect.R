@@ -57,14 +57,14 @@ spark_connect_method.spark_method_databricks_connect <- function(
     config,
     app_name,
     version = NULL,
-    serverless = FALSE,
-    profile = NULL,
     hadoop_version,
     extensions,
     scala_version,
     ...) {
   args <- list(...)
   cluster_id <- args$cluster_id
+  serverless <- args$serverless %||% FALSE
+  profile <- args$profile %||% NULL
   token <- args$token
   envname <- args$envname
   host_sanitize <- args$host_sanitize %||% TRUE
@@ -72,11 +72,8 @@ spark_connect_method.spark_method_databricks_connect <- function(
 
   method <- method[[1]]
 
-
   token <- databricks_token(token, fail = FALSE)
   cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
-
-
 
   # load python env
   envname <- use_envname(

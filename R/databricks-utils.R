@@ -214,29 +214,6 @@ databricks_dbr_error <- function(error) {
   )
 }
 
-# sanitize_host <- function(url, silent = FALSE) {
-#   parsed_url <- url_parse(url)
-#   new_url <- url_parse("http://localhost")
-#   if (is.null(parsed_url$scheme)) {
-#     new_url$scheme <- "https"
-#     if (!is.null(parsed_url$path) && is.null(parsed_url$hostname)) {
-#       new_url$hostname <- parsed_url$path
-#     }
-#   } else {
-#     new_url$scheme <- parsed_url$scheme
-#     new_url$hostname <- parsed_url$hostname
-#   }
-#   ret <- url_build(new_url)
-#   if (ret != url && !silent) {
-#     cli_div(theme = cli_colors())
-#     cli_alert_warning(
-#       "{.header Changing host URL to:} {.emph {ret}}"
-#     )
-#     cli_end()
-#   }
-#   ret
-# }
-
 # from httr2
 is_hosted_session <- function () {
   if (nzchar(Sys.getenv("COLAB_RELEASE_TAG"))) {

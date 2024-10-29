@@ -34,7 +34,18 @@ to_pandas_cleaned <- function(x) {
       collected[[cur_var]] <- cur
     }
   }
+
+  for (i in seq_len(ncol(collected))) {
+    if (orig_types[i] == "date") {
+      to_date <- collected[, i] %>%
+        as.integer() %>%
+        as.Date()
+      collected[, i] <- to_date
+    }
+  }
+
   out <- tibble(collected)
+
   attr(out, "pandas.index") <- NULL
   out
 }

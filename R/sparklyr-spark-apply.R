@@ -14,10 +14,7 @@ spark_apply.tbl_pyspark <- function(
     arrow_max_records_per_batch = NULL,
     auto_deps = FALSE,
     ...) {
-  py_check_installed(
-    libraries = "rpy2",
-    msg = "Requires an additional Python library"
-    )
+  rpy2_installed()
   cli_div(theme = cli_colors())
   if (!is.null(packages)) {
     cli_abort("`packages` is not yet supported for this backend")
@@ -36,11 +33,11 @@ spark_apply.tbl_pyspark <- function(
     conf_name <- "spark.sql.execution.arrow.maxRecordsPerBatch"
     conf_curr <- sc$conf$get(conf_name)
     conf_req <- as.character(arrow_max_records_per_batch)
-    if(conf_curr != conf_req) {
+    if (conf_curr != conf_req) {
       cli_div(theme = cli_colors())
       cli_inform(
         "{.header Changing {.emph {conf_name}} to: {prettyNum(conf_req, big.mark = ',')}}"
-        )
+      )
       cli_end()
       sc$conf$set(conf_name, conf_req)
     }
@@ -107,7 +104,7 @@ sa_in_pandas <- function(
       .group_by = .group_by,
       .colnames = col_names,
       ... = ...
-      ) %>%
+    ) %>%
     py_run_string()
   main <- reticulate::import_main()
   df <- python_sdf(x)
@@ -141,7 +138,7 @@ sa_in_pandas <- function(
   } else {
     ret <- to_pandas_cleaned(p_df)
   }
-  if(schema_msg) {
+  if (schema_msg) {
     schema_arg <- .schema_arg
     schema <- .schema
     cli_div(theme = cli_colors())
@@ -159,10 +156,9 @@ sa_function_to_string <- function(
     .group_by = NULL,
     .r_only = FALSE,
     .colnames = NULL,
-    ...
-    ) {
+    ...) {
   path_scripts <- system.file("udf", package = "pysparklyr")
-  if(dir_exists("inst/udf")) {
+  if (dir_exists("inst/udf")) {
     path_scripts <- path_expand("inst/udf")
   }
   udf_fn <- ifelse(is.null(.group_by), "map", "apply")
@@ -181,7 +177,7 @@ sa_function_to_string <- function(
       fn_r
     )
   }
-  if(is.null(.colnames)) {
+  if (is.null(.colnames)) {
     .colnames <- "NULL"
   } else {
     .colnames <- paste0("'", .colnames, "'", collapse = ", ")
@@ -192,7 +188,7 @@ sa_function_to_string <- function(
     fn_r
   )
   fn <- purrr::as_mapper(.f = .f, ... = ...)
-  fn_str <- paste0(deparse(fn), collapse = "")
+  fn_str <- paste0(deparse(fn), collapse = "\n")
   if (inherits(fn, "rlang_lambda_function")) {
     fn_str <- paste0(
       "function(...) {x <- (",
@@ -209,4 +205,12 @@ sa_function_to_string <- function(
     ret <- gsub(fn_rep, fn_r_new, fn_python)
   }
   ret
+}
+
+rpy2_installed <- function(envname = NULL) {
+  py_check_installed(
+    envname = envname,
+    libraries = "rpy2",
+    msg = "Required 'rpy2' Python library is missing"
+  )
 }

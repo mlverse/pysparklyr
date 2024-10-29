@@ -1,13 +1,13 @@
 databricks_host <- function(host = NULL, fail = TRUE) {
-  if(!is.null(host)) {
+  if (!is.null(host)) {
     return(set_names(host, "argument"))
   }
-  env_host <-  Sys.getenv("DATABRICKS_HOST", unset = NA)
+  env_host <- Sys.getenv("DATABRICKS_HOST", unset = NA)
   connect_host <- Sys.getenv("CONNECT_DATABRICKS_HOST", unset = NA)
-  if(!is.na(env_host)) {
+  if (!is.na(env_host)) {
     host <- set_names(env_host, "environment")
   }
-  if(!is.na(connect_host)) {
+  if (!is.na(connect_host)) {
     host <- set_names(connect_host, "environment_connect")
   }
   if (is.null(host)) {
@@ -27,7 +27,7 @@ databricks_host <- function(host = NULL, fail = TRUE) {
 }
 
 databricks_token <- function(token = NULL, fail = FALSE) {
-  if(!is.null(token)) {
+  if (!is.null(token)) {
     return(set_names(token, "argument"))
   }
   # Checks the Environment Variable
@@ -37,7 +37,7 @@ databricks_token <- function(token = NULL, fail = FALSE) {
     if (!is.na(env_token)) {
       token <- set_names(env_token, "environment")
     } else {
-      if(!is.na(connect_token)) {
+      if (!is.na(connect_token)) {
         token <- set_names(connect_token, "environment_connect")
       }
     }
@@ -68,8 +68,7 @@ databricks_token <- function(token = NULL, fail = FALSE) {
 databricks_dbr_version_name <- function(cluster_id,
                                         host = NULL,
                                         token = NULL,
-                                        silent = FALSE
-                                        ) {
+                                        silent = FALSE) {
   bullets <- NULL
   version <- NULL
   cluster_info <- databricks_dbr_info(
@@ -99,17 +98,16 @@ databricks_extract_version <- function(x) {
 databricks_dbr_info <- function(cluster_id,
                                 host = NULL,
                                 token = NULL,
-                                silent = FALSE
-                                ) {
-
+                                silent = FALSE) {
   cli_div(theme = cli_colors())
 
-  if(!silent) {
+  if (!silent) {
     cli_progress_step(
-    msg = "Retrieving info for cluster:}{.emph '{cluster_id}'",
-    msg_done = "{.header Cluster:} {.emph '{cluster_id}'} | {.header DBR: }{.emph '{version}'}",
-    msg_failed = "Failed contacting:}{.emph '{cluster_id}'"
-  )}
+      msg = "Retrieving info for cluster:}{.emph '{cluster_id}'",
+      msg_done = "{.header Cluster:} {.emph '{cluster_id}'} | {.header DBR: }{.emph '{version}'}",
+      msg_failed = "Failed contacting:}{.emph '{cluster_id}'"
+    )
+  }
 
   out <- databricks_cluster_get(cluster_id, host, token)
   if (inherits(out, "try-error")) {
@@ -142,7 +140,7 @@ databricks_dbr_info <- function(cluster_id,
     if (as.character(substr(out, 1, 26)) == "Error in req_perform(.) : ") {
       out <- substr(out, 27, nchar(out))
     }
-    if(!silent) cli_progress_done(result = "failed")
+    if (!silent) cli_progress_done(result = "failed")
     cli_abort(
       c(
         "{.header Connection with Databricks failed: }\"{trimws(out)}\"",
@@ -156,7 +154,7 @@ databricks_dbr_info <- function(cluster_id,
   } else {
     version <- databricks_extract_version(out)
   }
-  if(!silent) cli_progress_done()
+  if (!silent) cli_progress_done()
   cli_end()
   out
 }
@@ -208,12 +206,17 @@ databricks_dbr_error <- function(error) {
   }
 
   status_tip <- NULL
-  if (grepl("UNAVAILABLE", status_error)) {
-    status_tip <- "Possible cause = The cluster is not running, or not accessible"
+  if(!is.null(status_error)){
+    if (grepl("UNAVAILABLE", status_error)) {
+      status_tip <- "Possible cause = The cluster is not running, or not accessible"
+    }
+    if (grepl("FAILED_PRECONDITION", status_error)) {
+      status_tip <- "Possible cause = The cluster is initializing. Try again later"
+    }
+  } else {
+    status_error <- error
   }
-  if (grepl("FAILED_PRECONDITION", status_error)) {
-    status_tip <- "Possible cause = The cluster is initializing. Try again later"
-  }
+
   rlang::abort(
     c(
       "Spark connection error",

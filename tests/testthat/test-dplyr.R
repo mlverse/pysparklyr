@@ -66,13 +66,13 @@ test_that("Misc functions", {
 
 test_that("sdf_copy_to() workks", {
   sc <- use_test_spark_connect()
-  test_df <- data.frame(a = 1:1000, b= 1:1000)
+  test_df <- data.frame(a = 1:1000, b = 1:1000)
   expect_s3_class(
     sdf_copy_to(sc, test_df, name = "test_df"),
     "tbl_pyspark"
   )
   expect_error(
-    sdf_copy_to(sc, test_df, name = "test_df") ,
+    sdf_copy_to(sc, test_df, name = "test_df"),
     "Temp table test_df already exists, use `overwrite = TRUE` to replace"
   )
   expect_s3_class(
@@ -94,4 +94,14 @@ test_that("sdf_register() works", {
     sdf_register(py_obj),
     "tbl_pyspark"
   )
+})
+
+test_that("I() works", {
+  tbl_mtcars <- use_test_table_mtcars()
+  sc <- use_test_spark_connect()
+  expect_s3_class({
+    tbl(sc, I("mtcars")) %>%
+      head() %>%
+      collect()
+  }, "data.frame")
 })

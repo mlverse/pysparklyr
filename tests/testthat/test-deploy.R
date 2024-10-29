@@ -19,10 +19,12 @@ test_databricks_deploy_file <- function() {
   deploy_file
 }
 
-accounts_df <- function() data.frame(
-  name = c("my_account", "my_account2", "my_account3"),
-  server = c("my_server", "my_server2", "my_server3")
+accounts_df <- function() {
+  data.frame(
+    name = c("my_account", "my_account2", "my_account3"),
+    server = c("my_server", "my_server2", "my_server3")
   )
+}
 
 test_that("Basic use, passing DBR version works", {
   withr::with_envvar(
@@ -91,7 +93,7 @@ test_that("Additional arguments are passed on to deployApp()", {
         deploy_databricks(
           version = test_databricks_cluster_version(),
           appTitle = "My Cool Title"
-          ),
+        ),
         out
       )
     }
@@ -130,7 +132,7 @@ test_that("Fails if no host/token is found", {
     new = c(
       "DATABRICKS_HOST" = NA,
       "DATABRICKS_TOKEN" = NA
-      ),
+    ),
     {
       expect_error(
         deploy_databricks(version = test_databricks_cluster_version()),

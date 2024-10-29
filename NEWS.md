@@ -1,8 +1,50 @@
-# pysparklyr dev
+# pysparklyr (dev)
+
+* Fixes issues with catalog and schema names with dashes in the Connections
+Pane. 
+
+* Adds IDE check for positron (#121)
+
+* Avoids failure when an unexpected error from Databricks is returned (#123)
+
+* No longer install 'rpy2' by default. It will prompt user for installation
+the first time `spark_apply()` is called (#125)
+
+# pysparklyr 0.1.5
+
+### Improvements
+
+* Adds support for `I()` in `tbl()`
+
+* Ensures `arrow` is installed by adding it to Imports (#116)
+
+* If the cluster version is higher than the available Python library, it will
+either use, or offer to install the available Python library
+
+### Fixes
+
+* Fixes issues with having multiple line functions in `spark_apply()`
+
+# pysparklyr 0.1.4
 
 ### New
 
-* Adds support for `spark_apply()` via the `rpy2` Python library.
+* Adds support for `spark_apply()` via the `rpy2` Python library
+  * It will not automatically distribute packages, it will assume that the
+  necessary packages are already installed in each node. This also means that
+  the `packages` argument is not supported
+  * As in its original implementation, schema inferring works, and as with the
+  original implementation, it has a performance cost. Unlike the original, the 
+  Databricks, and Spark, Connect version will return a 'columns' specification
+  that you can use for the next time you run the call.
+  
+### Improvements
+
+* At connection time, it enables Arrow by default. It does this by setting
+these two configuration settings to true: 
+  * `spark.sql.execution.arrow.pyspark.enabled`
+  * `spark.sql.execution.arrow.pyspark.fallback.enabled`
+
 
 # pysparklyr 0.1.3
 

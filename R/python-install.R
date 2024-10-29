@@ -167,7 +167,7 @@ install_environment <- function(
   library_info <- python_library_info(main_library, version)
 
   if (!is.null(library_info)) {
-    if(is.null(python_version)) {
+    if (is.null(python_version)) {
       python_version <- library_info$requires_python
     }
     version <- library_info$version
@@ -217,8 +217,7 @@ install_environment <- function(
     "PyArrow",
     "grpcio",
     "google-api-python-client",
-    "grpcio_status",
-    "rpy2"
+    "grpcio_status"
   )
 
   if (add_torch && install_ml) {
@@ -244,12 +243,14 @@ install_environment <- function(
   if (new_env && method != "conda" &&
     is.null(virtualenv_starter(python_version))) {
     cli_abort(c(
-      paste0("{.header Python version} {.emph '{python_number}'}",
-             " {.header or higher is required by some libraries.}"
-             ),
-      " " =  paste0("Use: {.run reticulate::install_python",
-                    "(version = '{python_number}:latest')} to install."
-                    )
+      paste0(
+        "{.header Python version} {.emph '{python_number}'}",
+        " {.header or higher is required by some libraries.}"
+      ),
+      " " = paste0(
+        "Use: {.run reticulate::install_python",
+        "(version = '{python_number}:latest')} to install."
+      )
     ))
   }
 

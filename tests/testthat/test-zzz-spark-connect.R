@@ -7,7 +7,7 @@ test_that("Test Databricks connection", {
       sc <- use_test_spark_connect()
       pyspark_version <- python_library_info("pyspark")
       comp <- compareVersion(pyspark_version$version, spark_version(sc))
-      if(comp != 0) {
+      if (comp != 0) {
         skip("Not latest version of Spark")
       }
       local_mocked_bindings(

@@ -28,7 +28,7 @@ spark_connect_method.spark_method_spark_connect <- function(
     match_first = TRUE
   )
 
-  if(is.null(envname)) {
+  if (is.null(envname)) {
     return(invisible())
   }
 
@@ -107,10 +107,10 @@ spark_connect_method.spark_method_databricks_connect <- function(
   if (cluster_id != "" && master != "" && token != "") {
     cluster_info <- databricks_dbr_version_name(
       cluster_id = cluster_id,
-      host =  master,
+      host = master,
       token = token,
       silent = silent
-      )
+    )
     if (is.null(version)) {
       version <- cluster_info$version
     }
@@ -125,7 +125,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     main_library = "databricks.connect"
   )
 
-  if(is.null(envname)) {
+  if (is.null(envname)) {
     return(invisible)
   }
 
@@ -141,7 +141,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
   }
 
-  if(!silent) {
+  if (!silent) {
     cli_div(theme = cli_colors())
     cli_progress_step(msg, msg_done)
   }
@@ -158,7 +158,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
 
   conn <- exec(databricks_session, !!!remote_args)
 
-  if(!silent) {
+  if (!silent) {
     cli_progress_done()
     cli_end()
   }
@@ -272,38 +272,47 @@ build_user_agent <- function() {
   }
 
   if (is.null(product)) {
+    pr <- NULL
     if (check_rstudio()) {
       rstudio_version <- int_rstudio_version()
-      prod <- "rstudio"
       edition <- rstudio_version$edition
+      mode <- rstudio_version$mode
+      version <- rstudio_version$long_version
+      pr <- "rstudio"
       if (length(edition) == 0) edition <- ""
-      mod <- rstudio_version$mode
-      if (length(mod) == 0) mod <- ""
+
+      if (length(mode) == 0) mode <- ""
       if (edition == "Professional") {
-        if (mod == "server") {
-          prod <- "workbench-rstudio"
+        if (mode == "server") {
+          pr <- "workbench-rstudio"
         } else {
-          prod <- "rstudio-pro"
+          pr <- "rstudio-pro"
         }
       }
       if (Sys.getenv("R_CONFIG_ACTIVE") == "rstudio_cloud") {
-        prod <- "cloud-rstudio"
+        pr <- "cloud-rstudio"
       }
-      product <- glue("posit-{prod}/{rstudio_version$long_version}")
+    }
+    if(Sys.getenv("POSITRON", unset = "0") == "1") {
+      pr <- "positron"
+      version <- Sys.getenv("POSITRON_VERSION", unset = NA)
+    }
+    if(!is.null(pr)) {
+      product <- glue("posit-{pr}/{version}")
     }
   }
 
   glue(
-    paste(
-      "sparklyr/{packageVersion('sparklyr')}",
-      product
+    "sparklyr/{packageVersion('sparklyr')} {product}",
+    .null = NULL
     )
-  )
 }
 
 int_rstudio_version <- function() {
   out <- try(RStudio.Version(), silent = TRUE)
-  if(!inherits(out, "try-error")) return(out)
+  if (!inherits(out, "try-error")) {
+    return(out)
+  }
   return(NULL)
 }
 

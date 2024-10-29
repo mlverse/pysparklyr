@@ -11,12 +11,11 @@ test_that("Writing requirements works", {
 
   expect_error(
     requirements_write(destfile = req_file),
-   "File 'requirements.txt' already exists"
+    "File 'requirements.txt' already exists"
   )
 
   expect_message(
     requirements_write(destfile = req_file, overwrite = TRUE),
     "Python library requirements"
   )
-
 })

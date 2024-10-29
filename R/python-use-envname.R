@@ -6,9 +6,7 @@ use_envname <- function(
     match_first = FALSE,
     ignore_reticulate_python = FALSE,
     ask_if_not_installed = interactive(),
-    main_library = NULL
-    ) {
-
+    main_library = NULL) {
   cli_div(theme = cli_colors())
 
   ret_python <- reticulate_python_check(ignore_reticulate_python)
@@ -36,11 +34,18 @@ use_envname <- function(
 
   match_one <- length(envs) > 0
   match_exact <- length(envs[envs == envname]) > 0
+  install_ver <- version
 
-  if(!is.null(main_library) && !match_exact) {
+  if (!is.null(main_library) && !match_exact) {
     lib_info <- python_library_info(main_library, fail = FALSE, verbose = FALSE)
     latest_ver <- lib_info$version
-    install_recent <- compareVersion(latest_ver, version) == 1
+    vers <- compareVersion(latest_ver, version)
+    install_recent <- vers == 1
+    # For cases when the cluster's version is higher than the latest library
+    if(vers == -1) {
+      envname <- as.character(glue("{env_base}{latest_ver}"))
+      install_ver <- latest_ver
+    }
   } else {
     install_recent <- TRUE
   }
@@ -48,7 +53,7 @@ use_envname <- function(
   msg_default <- paste0(
     "{.header You do not have a Python environment that matches your",
     " {.emph {con_label}} cluster}"
-    )
+  )
 
   msg_1 <- NULL
   msg_2 <- NULL
@@ -71,7 +76,7 @@ use_envname <- function(
   # to choose the most recent environment
   if (match_one && !match_exact && match_first) {
     ret <- set_names(envs[1], "first")
-    if(install_recent) {
+    if (install_recent) {
       msg_1 <- msg_default
       msg_no <- glue(" - Will use alternate environment ({ret})")
     } else {
@@ -97,20 +102,20 @@ use_envname <- function(
       cli_alert_warning(msg_1)
       cli_bullets(c(
         " " = msg_2,
-        " " = "{.header Do you wish to install {con_label} version {version}?}"
+        " " = "{.header Do you wish to install {con_label} version {install_ver}?}"
       ))
       choice <- menu(choices = c(
         paste0("Yes", msg_yes),
         paste0("No", msg_no),
         "Cancel"
-        ))
+      ))
       if (choice == 1) {
         ret <- set_names(envname, "prompt")
         exec(
           .fn = glue("install_{backend}"),
           version = version,
           as_job = FALSE
-          )
+        )
       }
       if (choice == 2) {
         ret <- set_names(ret, "prompt")

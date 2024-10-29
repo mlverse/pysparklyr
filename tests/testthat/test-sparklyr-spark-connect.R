@@ -49,8 +49,8 @@ test_that("User agent works on RStudio Workbench", {
         build_user_agent(),
         glue(
           "sparklyr/{packageVersion('sparklyr')} posit-workbench-rstudio/2023.12.0"
-          )
         )
+      )
     }
   )
 })
@@ -95,7 +95,25 @@ test_that("User agent builder works with Connect env var", {
         glue(
           "sparklyr/{packageVersion('sparklyr')} posit-cloud-rstudio/2023.12.0"
         )
+      )
+    }
+  )
+})
+
+test_that("User agent builder for Positron", {
+  withr::with_envvar(
+    new = c(
+      "RSTUDIO_PRODUCT" = NA,
+      "POSITRON" = "1",
+      "POSITRON_VERSION" = "12345"
+      ),
+    {
+      expect_equal(
+        build_user_agent(),
+        glue(
+          "sparklyr/{packageVersion('sparklyr')} posit-positron/12345"
         )
+      )
     }
   )
 })

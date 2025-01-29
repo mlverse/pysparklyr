@@ -179,7 +179,6 @@ initialize_connection <- function(
   if (inherits(get_version, "try-error")) databricks_dbr_error(get_version)
   session$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
   session$conf$set("spark.sql.execution.arrow.pyspark.enabled", "true")
-  session$conf$set("spark.sql.execution.arrow.pyspark.fallback.enabled", "false")
 
   # do we need this `spark_context` object?
   spark_context <- list(spark_context = session)

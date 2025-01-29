@@ -57,8 +57,9 @@ import_check <- function(x, envname, silent = FALSE) {
   }
 
   env_path <- ifelse(is.na(env_path), "", env_path)
+  py_executable <- ifelse(is.null(py_exe()), "", py_exe())
   if (is.na(env_loaded)) {
-    env_loaded <- env_path == py_exe()
+    env_loaded <- env_path == py_executable
   }
 
   out <- try(import(x), silent = TRUE)
@@ -96,18 +97,7 @@ import_check <- function(x, envname, silent = FALSE) {
     }
     cli_alert_danger(glue("`reticulate` error:\n {out[[1]]}"))
   } else {
-    if (env_loaded) {
-      # if (look_for_env) {
-      #   msg <- paste(
-      #     "{.header Using the }{.emph '{envname}' }{.header Python}",
-      #     "{.header environment }"
-      #   )
-      #   cli_div(theme = cli_colors())
-      #   cli_alert_success(msg)
-      #   cli_bullets(c(" " = "{.class Path: {py_exe()}}"))
-      #   cli_end()
-      # }
-    } else {
+    if (!env_loaded) {
       cli_progress_done(result = "failed")
       cli_bullets(c(
         " " = "{.header A different Python is already loaded: }{.emph '{py_exe()}'}",

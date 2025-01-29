@@ -25,7 +25,8 @@ spark_connect_method.spark_method_spark_connect <- function(
     version = version,
     envname = envname,
     messages = TRUE,
-    match_first = TRUE
+    match_first = TRUE,
+    python_version = args$python_version
   )
 
   if (is.null(envname)) {
@@ -96,7 +97,8 @@ spark_connect_method.spark_method_databricks_connect <- function(
     messages = !silent,
     match_first = FALSE,
     main_library = "databricks.connect",
-    ask_if_not_installed = FALSE
+    ask_if_not_installed = FALSE,
+    python_version = args$python_version
   )
 
   if (is.null(envname)) {
@@ -261,11 +263,11 @@ build_user_agent <- function() {
         pr <- "cloud-rstudio"
       }
     }
-    if(Sys.getenv("POSITRON", unset = "0") == "1") {
+    if (Sys.getenv("POSITRON", unset = "0") == "1") {
       pr <- "positron"
       version <- Sys.getenv("POSITRON_VERSION", unset = NA)
     }
-    if(!is.null(pr)) {
+    if (!is.null(pr)) {
       product <- glue("posit-{pr}/{version}")
     }
   }
@@ -273,7 +275,7 @@ build_user_agent <- function() {
   glue(
     "sparklyr/{packageVersion('sparklyr')} {product}",
     .null = NULL
-    )
+  )
 }
 
 int_rstudio_version <- function() {

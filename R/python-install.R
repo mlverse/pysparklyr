@@ -326,7 +326,7 @@ python_library_info <- function(
     cli_progress_step(
       "{.header Retrieving version from PyPi.org}",
       msg_done = paste0(
-        "{.header Using:} {.emph '{ret$name}'} {.header version} {ret$version},",
+        "{.header PyPi specs:} {.emph '{ret$name}'} {.header version} {ret$version},",
         " {.header requires Python }{ret$requires_python}"
       ),
       msg_failed = "{.header {msg_fail}}"
@@ -471,7 +471,12 @@ python_requirements <- function(
     install_ml = FALSE,
     add_torch = FALSE) {
   cli_div(theme = cli_colors())
-  library_info <- python_library_info(main_library, version)
+
+  library_info <- python_library_info(
+    library_name = main_library,
+    library_version  = version,
+    verbose = is.null(python_version)
+    )
 
   if (!is.null(library_info)) {
     if (is.null(python_version)) {

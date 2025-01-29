@@ -125,7 +125,19 @@ use_envname <- function(
       }
     } else {
       if (ret_name == "unavailable") {
-        cli_abort(c(msg_1, msg_2, run_full))
+        #cli_abort(c(msg_1, msg_2, run_full))
+        reqs <- python_requirements(
+          main_library = main_library,
+          ml_version = ml_version,
+          version = version ,
+          #python_version = python_version,
+          install_ml = TRUE,
+          add_torch = TRUE
+          )
+        reticulate::py_require(
+          packages = reqs$packages,
+          python_version = reqs$python_version
+          )
       }
       if (ret_name == "first") {
         cli_alert_warning(msg_1)

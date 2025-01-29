@@ -56,6 +56,7 @@ import_check <- function(x, envname, silent = FALSE) {
     }
   }
 
+  env_path <- ifelse(is.na(env_path), "", env_path)
   if (is.na(env_loaded)) {
     env_loaded <- env_path == py_exe()
   }

@@ -20,7 +20,7 @@ Imports:
     dbplyr,
     glue,
     purrr,
-    reticulate (>= 1.38),
+    reticulate (>= 1.40.0.9000),
     methods,
     rlang,
     sparklyr (>= 1.8.5),
@@ -42,3 +42,5 @@ Suggests:
     tibble,
     withr
 Config/testthat/edition: 3
+Remotes:  
+    rstudio/reticulate

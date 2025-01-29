@@ -94,8 +94,9 @@ spark_connect_method.spark_method_databricks_connect <- function(
     version = version,
     envname = envname,
     messages = !silent,
-    match_first = TRUE,
-    main_library = "databricks.connect"
+    match_first = FALSE,
+    main_library = "databricks.connect",
+    ask_if_not_installed = FALSE
   )
 
   if (is.null(envname)) {

@@ -463,7 +463,7 @@ build_job_code <- function(args) {
   )
 }
 
-installation_requirements <- function(
+python_requirements <- function(
     main_library = NULL,
     ml_version = NULL,
     version = NULL,

@@ -125,14 +125,13 @@ use_envname <- function(
       }
     } else {
       if (ret_name == "unavailable") {
-        #cli_abort(c(msg_1, msg_2, run_full))
         reqs <- python_requirements(
           main_library = main_library,
           ml_version = ml_version,
           version = version ,
           #python_version = python_version,
-          install_ml = TRUE,
-          add_torch = TRUE
+          install_ml = FALSE,
+          add_torch = FALSE
           )
         reticulate::py_require(
           packages = reqs$packages,

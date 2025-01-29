@@ -1,15 +1,11 @@
 import_check <- function(x, envname, silent = FALSE) {
   cli_div(theme = cli_colors())
-  if (!silent) {
-    cli_progress_step(
-      msg = "Attempting to load {.emph '{envname}'}",
-      msg_done = "{.header Python environment:} {.emph '{envname}'}",
-      msg_failed = "Problem using {.emph '{envname}'}"
-    )
-  }
   env_found <- !is.na(envname)
   env_loaded <- NA
   look_for_env <- TRUE
+
+
+  cli_msg <- "Attempting to load {.emph '{envname}'}"
 
   if (file.exists(envname)) {
     env_is_file <- TRUE
@@ -20,7 +16,16 @@ import_check <- function(x, envname, silent = FALSE) {
     if(is.na(env_path)) {
       env_path <- ""
       envname <- "Managed `uv` environment"
+      cli_msg <- NULL
     }
+  }
+
+  if (!silent) {
+    cli_progress_step(
+      msg = cli_msg,
+      msg_done = "{.header Python environment:} {.emph '{envname}'}",
+      msg_failed = "Problem using {.emph '{envname}'}"
+    )
   }
 
   if (env_is_file) {

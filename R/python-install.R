@@ -516,6 +516,8 @@ python_requirements <- function(
     packages <- c(packages, pysparklyr_env$ml_libraries)
   }
 
+  packages <- c(packages, "pip")
+
   list(
     packages = packages,
     python_version = python_version

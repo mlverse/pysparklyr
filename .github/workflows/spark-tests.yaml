@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {spark: '3.5.2', pyspark: '3.5', hadoop: '3', name: 'PySpark 3.5'}
+          - {spark: '3.5.1', pyspark: '3.5', hadoop: '3', name: 'PySpark 3.5'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}

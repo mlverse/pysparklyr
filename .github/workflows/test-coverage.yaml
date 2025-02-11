@@ -41,7 +41,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /home/runner/spark/spark-3.5.1-bin-hadoop3
-          key: sparklyr-spark-3.5.1-bin-hadoop3-2
+          key: sparklyr-spark-3.5.1-bin-hadoop3
 
       - name: Install Spark (via sparklyr)
         if: steps.cache-spark-2.outputs.cache-hit != 'true'

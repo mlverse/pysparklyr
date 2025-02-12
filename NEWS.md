@@ -1,14 +1,21 @@
-# pysparklyr (dev)
+# pysparklyr 0.1.6
+
+### Improvements
+
+* Adds IDE check for positron (#121)
+
+* No longer install 'rpy2' by default. It will prompt user for installation
+the first time `spark_apply()` is called (#125)
+
+### Fixes
+
+* Fixes error returned by `httr2` to sanitize the Databricks Host URL (#130)
 
 * Fixes issues with catalog and schema names with dashes in the Connections
 Pane. 
 
-* Adds IDE check for positron (#121)
-
 * Avoids failure when an unexpected error from Databricks is returned (#123)
 
-* No longer install 'rpy2' by default. It will prompt user for installation
-the first time `spark_apply()` is called (#125)
 
 # pysparklyr 0.1.5
 

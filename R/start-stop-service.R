@@ -33,7 +33,7 @@ spark_connect_service_start <- function(version = "3.5",
   output <- prs$read_all_output()
   cli_bullets(c(" " = "{.info {output}}"))
   error <- prs$read_all_error()
-  if(error != "") {
+  if (error != "") {
     cli_abort(error)
   }
   cli_end()

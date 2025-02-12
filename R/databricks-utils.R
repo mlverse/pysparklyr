@@ -206,7 +206,7 @@ databricks_dbr_error <- function(error) {
   }
 
   status_tip <- NULL
-  if(!is.null(status_error)){
+  if (!is.null(status_error)) {
     if (grepl("UNAVAILABLE", status_error)) {
       status_tip <- "Possible cause = The cluster is not running, or not accessible"
     }
@@ -242,7 +242,7 @@ sanitize_host <- function(url, silent = FALSE) {
   }
   new_url$path <- NULL
   ret <- url_build(new_url)
-  if(endsWith(ret, "/")) {
+  if (endsWith(ret, "/")) {
     ret <- substr(ret, 1, nchar(ret) - 1)
   }
   if (ret != url && !silent) {

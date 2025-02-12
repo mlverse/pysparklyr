@@ -42,7 +42,7 @@ use_envname <- function(
     vers <- compareVersion(latest_ver, version)
     install_recent <- vers == 1
     # For cases when the cluster's version is higher than the latest library
-    if(vers == -1) {
+    if (vers == -1) {
       envname <- as.character(glue("{env_base}{latest_ver}"))
       install_ver <- latest_ver
     }

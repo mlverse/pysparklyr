@@ -26,7 +26,7 @@ jobs:
       PYSPARK_VERSION:  ${{ matrix.config.pyspark }}
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       DATABRICKS_HOST: "https://rstudio-partner-posit-default.cloud.databricks.com"
-      DATABRICKS_CLUSTER_ID: "0916-215603-ofitqny9"
+      DATABRICKS_CLUSTER_ID: "0129-151028-k1hamwf0"
 
     steps:
       - uses: actions/checkout@v3

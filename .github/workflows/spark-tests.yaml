@@ -45,7 +45,7 @@ jobs:
           needs: check
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -55,7 +55,7 @@ jobs:
 
       - name: Cache Spark
         id: cache-spark
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /home/runner/spark/spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
           key: sparklyr-spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
@@ -69,7 +69,7 @@ jobs:
 
       - name: Cache Scala
         id: cache-scala
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /home/runner/scala/
           key: scala-2

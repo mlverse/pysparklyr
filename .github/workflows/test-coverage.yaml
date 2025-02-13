@@ -11,7 +11,7 @@ jobs:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     env:
-      SPARK_VERSION: "3.5"
+      SPARK_VERSION: "3.5.1"
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       DATABRICKS_HOST: "https://rstudio-partner-posit-default.cloud.databricks.com"
@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -39,7 +39,7 @@ jobs:
 
       - name: Cache Spark
         id: cache-spark-2
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /home/runner/spark/spark-3.5.1-bin-hadoop3
           key: sparklyr-spark-3.5.1-bin-hadoop3
@@ -48,12 +48,12 @@ jobs:
         if: steps.cache-spark-2.outputs.cache-hit != 'true'
         run: |
           devtools::install_github("sparklyr/sparklyr")
-          sparklyr::spark_install(version = "3.5")
+          sparklyr::spark_install(version = "3.5.1")
         shell: Rscript {0}
 
       - name: Cache Scala
         id: cache-scala
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: /home/runner/scala/
           key: scala-2

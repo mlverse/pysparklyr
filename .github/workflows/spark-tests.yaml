@@ -8,6 +8,7 @@ name: Spark-Connect
 
 jobs:
   Spark-Tests:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
 
     name: ${{ matrix.config.name }}

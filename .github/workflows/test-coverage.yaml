@@ -8,6 +8,7 @@ name: test-coverage
 
 jobs:
   test-coverage:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     env:
       SPARK_VERSION: "3.5"
@@ -38,13 +39,13 @@ jobs:
 
       - name: Cache Spark
         id: cache-spark-2
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: /home/runner/spark/spark-3.5.2-bin-hadoop3
-          key: sparklyr-spark-3.5.2-bin-hadoop3-2
+          path: /home/runner/spark/spark-3.5.1-bin-hadoop3
+          key: sparklyr-spark-3.5.1-bin-hadoop3
 
       - name: Install Spark (via sparklyr)
-        if: steps.cache-spark.outputs.cache-2-hit != 'true'
+        if: steps.cache-spark-2.outputs.cache-hit != 'true'
         run: |
           devtools::install_github("sparklyr/sparklyr")
           sparklyr::spark_install(version = "3.5")
@@ -83,7 +84,7 @@ jobs:
 
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package

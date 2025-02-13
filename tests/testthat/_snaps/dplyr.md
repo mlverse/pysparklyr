@@ -25,7 +25,7 @@
     Code
       print(head(tbl_ordered))
     Output
-      # Source:     SQL [6 x 11]
+      # Source:     SQL [?? x 11]
       # Database:   spark_connection
       # Ordered by: mpg, qsec, hp
           mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
@@ -42,7 +42,7 @@
     Code
       tbl_am[1]
     Output
-      # Source:   SQL [2 x 1]
+      # Source:   SQL [?? x 1]
       # Database: spark_connection
       # Groups:   am
            am

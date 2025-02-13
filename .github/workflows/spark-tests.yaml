@@ -1,13 +1,14 @@
 on:
   push:
-    branches: main
+    branches: temp
   pull_request:
-    branches: main
+    branches: temp
 
 name: Spark-Connect
 
 jobs:
   Spark-Tests:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
 
     name: ${{ matrix.config.name }}
@@ -16,17 +17,17 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {spark: '3.5.2', pyspark: '3.5', hadoop: '3', name: 'PySpark 3.5'}
+          - {spark: '3.5.1', pyspark: '3.5', hadoop: '3', name: 'PySpark 3.5'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      SPARK_VERSION:  ${{ matrix.config.pyspark }}
+      SPARK_VERSION:  ${{ matrix.config.spark }}
       HADOOP_VERSION: ${{ matrix.config.hadoop }}
       PYSPARK_VERSION:  ${{ matrix.config.pyspark }}
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       DATABRICKS_HOST: "https://rstudio-partner-posit-default.cloud.databricks.com"
-      DATABRICKS_CLUSTER_ID: "0916-215603-ofitqny9"
+      DATABRICKS_CLUSTER_ID: "0129-151028-k1hamwf0"
 
     steps:
       - uses: actions/checkout@v3
@@ -62,7 +63,6 @@ jobs:
       - name: Install Spark (via sparklyr)
         if: steps.cache-spark.outputs.cache-hit != 'true'
         run: |
-          devtools::install_github("sparklyr/sparklyr")
           sparklyr::spark_install(version = Sys.getenv("SPARK_VERSION"))
           print(sparklyr::spark_install_find(Sys.getenv("SPARK_VERSION"))$sparkVersionDir)
         shell: Rscript {0}

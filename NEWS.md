@@ -1,3 +1,9 @@
+# pysparklyr (dev)
+
+* Disables un-setting the `RETICULATE_PYTHON` environment variable. It will
+still display a warning if it's set, letting the user know that it may 
+cause connectivity issues.
+
 # pysparklyr 0.1.6
 
 ### Improvements

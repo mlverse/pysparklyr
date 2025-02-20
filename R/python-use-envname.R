@@ -9,7 +9,7 @@ use_envname <- function(
     main_library = NULL) {
   cli_div(theme = cli_colors())
 
-  ret_python <- reticulate_python_check(ignore_reticulate_python)
+  ret_python <- reticulate_python_check(ignore_reticulate_python, unset = FALSE)
 
   if (ret_python != "") {
     return(set_names(ret_python, "env_var"))

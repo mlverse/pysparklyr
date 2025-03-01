@@ -52,12 +52,16 @@ deploy_databricks <- function(
 
   cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
 
-  # TODO: this needs to be adjusted to use client, might need to refactor?
+  sdk_client <- databricks_sdk_client(
+    host = databricks_host(host),
+    token = databricks_token(token),
+    cluster_id = cluster_id
+  )
+
   if (is.null(version) && !is.null(cluster_id)) {
     version <- databricks_dbr_version(
       cluster_id = cluster_id,
-      host = databricks_host(host),
-      token = databricks_token(token)
+      client = sdk_client
     )
   }
   env_vars <- NULL

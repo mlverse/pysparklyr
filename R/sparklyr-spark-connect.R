@@ -67,7 +67,6 @@ spark_connect_method.spark_method_databricks_connect <- function(
   profile <- args$profile %||% NULL
   token <- args$token
   envname <- args$envname
-  host_sanitize <- args$host_sanitize %||% TRUE
   silent <- args$silent %||% FALSE
 
   method <- method[[1]]
@@ -91,41 +90,17 @@ spark_connect_method.spark_method_databricks_connect <- function(
 
   # load python libs
   dbc <- import_check("databricks.connect", envname, silent)
-  db_sdk <- import_check("databricks.sdk", envname, silent = TRUE)
-
-  # SDK behaviour
-  # https://databricks-sdk-py.readthedocs.io/en/latest/authentication.html#default-authentication-flow
-
-  conf_args <- list()
-
-  # the profile as specified - which has a default of 'DEFAULT'
-  # otherwise, if a token is found, propagate to SDK config
-
-  # TODO: emit messages about connection here?
-  # specific vars taken priority, profile only works when no env vars are set
-  if (token != "" && master != "") {
-    conf_args$host <-  master
-    conf_args$token <- token
-    conf_args$auth_type <- "pat"
-    databricks_desktop_login(host = master)
-  } else if (!is.null(profile)) {
-    conf_args$profile <- profile
-    databricks_desktop_login(profile = profile)
-  }
-
-  # serverless config related settings
-  if (serverless) {
-    conf_args$serverless_compute_id <- "auto"
-  } else {
-    conf_args$cluster_id <- cluster_id
-  }
-
-  sdk_config <- db_sdk$core$Config(!!!conf_args)
 
   # create workspace client
-  sdk_client <- db_sdk$WorkspaceClient(config = sdk_config)
+  sdk_client <- databricks_sdk_client(
+    host = master,
+    serverless = serverless,
+    cluster_id = cluster_id,
+    token = token,
+    profile = profile
+  )
 
-  # if serverless is TRUE, cluster_id is overruled (set to NULL)
+  # if serverless override cluster_id and set to `NULL`
   cluster_info <- NULL
   if (!serverless) {
     if (cluster_id != "" && master != "" && token != "") {
@@ -161,8 +136,9 @@ spark_connect_method.spark_method_databricks_connect <- function(
     cli_progress_step(msg, msg_done)
   }
 
+  # build databricks session connection
   user_agent <- build_user_agent()
-  conn <- dbc$DatabricksSession$builder$sdkConfig(sdk_config)$userAgent(user_agent)
+  conn <- dbc$DatabricksSession$builder$sdkConfig(sdk_client$config)$userAgent(user_agent)
 
   if (!silent) {
     cli_progress_done()
@@ -230,6 +206,7 @@ initialize_connection <- function(
       method = method,
       session = session,
       state = spark_context,
+      serverless = serverless,
       con = structure(list(), class = c("spark_connection", "DBIConnection"))
     ),
     class = c(con_class, "pyspark_connection", "spark_connection", "DBIConnection")

@@ -68,6 +68,42 @@ databricks_token <- function(token = NULL, fail = FALSE) {
   token
 }
 
+databricks_sdk_client <- function(host,
+                                  token,
+                                  serverless = FALSE,
+                                  cluster_id = NULL,
+                                  profile = NULL) {
+
+
+  # SDK behaviour
+  # https://databricks-sdk-py.readthedocs.io/en/latest/authentication.html#default-authentication-flow
+  if (token == "") {
+    databricks_desktop_login(host = host, profile = profile)
+    auth_type = "databricks-cli"
+  } else {
+    auth_type = "pat"
+  }
+
+  if (serverless) {
+    serverless_compute_id <- "auto"
+    cluster_id <- NULL
+  }
+
+  db_sdk <- import_check("databricks.sdk", NA, silent = TRUE)
+
+  config <- db_sdk$core$Config(
+    host = host,
+    token = token,
+    auth_type = auth_type,
+    profile = profile,
+    serverless_compute_id = serverless_compute_id,
+    cluster_id = cluster_id
+  )
+
+  db_sdk$WorkspaceClient(config = config)
+
+}
+
 databricks_dbr_version_name <- function(cluster_id,
                                         client,
                                         silent = FALSE) {
@@ -110,10 +146,6 @@ databricks_dbr_info <- function(cluster_id,
   }
 
   out <- databricks_cluster_get(cluster_id, client)
-  if (inherits(out, "try-error")) {
-    # sanitized <- sanitize_host(host, silent)
-    out <- databricks_cluster_get(cluster_id, client)
-  }
 
   if (inherits(out, "try-error")) {
     cli_div(theme = cli_colors())
@@ -122,7 +154,7 @@ databricks_dbr_info <- function(cluster_id,
     invalid_cluster <- NULL
     invalid_msg <- " <<--- Possibly invalid"
     if (grepl("HTTP 404 Not Found", out)) {
-      parse_host <- url_parse(host)
+      parse_host <- url_parse(client$config$host)
       invalid_host <- invalid_msg
       if (!is.null(parse_host$path)) {
         invalid_host <- glue(

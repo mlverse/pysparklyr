@@ -68,7 +68,8 @@ databricks_token <- function(token = NULL, fail = FALSE) {
   token
 }
 
-databricks_sdk_client <- function(host,
+databricks_sdk_client <- function(sdk,
+                                  host,
                                   token,
                                   serverless = FALSE,
                                   cluster_id = NULL,
@@ -87,11 +88,11 @@ databricks_sdk_client <- function(host,
   if (serverless) {
     serverless_compute_id <- "auto"
     cluster_id <- NULL
+  } else {
+    serverless_compute_id <- NULL
   }
 
-  db_sdk <- import_check("databricks.sdk", NA, silent = TRUE)
-
-  config <- db_sdk$core$Config(
+  config <- sdk$core$Config(
     host = host,
     token = token,
     auth_type = auth_type,
@@ -100,18 +101,22 @@ databricks_sdk_client <- function(host,
     cluster_id = cluster_id
   )
 
-  db_sdk$WorkspaceClient(config = config)
+  sdk$WorkspaceClient(config = config)
 
 }
 
 databricks_dbr_version_name <- function(cluster_id,
-                                        client,
+                                        client = NULL,
+                                        host = NULL,
+                                        token = NULL,
                                         silent = FALSE) {
   bullets <- NULL
   version <- NULL
   cluster_info <- databricks_dbr_info(
     cluster_id = cluster_id,
     client = client,
+    host = host,
+    token = token,
     silent = silent
   )
   cluster_name <- substr(cluster_info$cluster_name, 1, 100)
@@ -133,7 +138,9 @@ databricks_extract_version <- function(x) {
 }
 
 databricks_dbr_info <- function(cluster_id,
-                                client,
+                                client = NULL,
+                                host = NULL,
+                                token = NULL,
                                 silent = FALSE) {
   cli_div(theme = cli_colors())
 
@@ -145,7 +152,9 @@ databricks_dbr_info <- function(cluster_id,
     )
   }
 
-  out <- databricks_cluster_get(cluster_id, client)
+  # client is used preferentially
+  # host/token only should be used on initial setup
+  out <- databricks_cluster_get(cluster_id, client, host, token)
 
   if (inherits(out, "try-error")) {
     cli_div(theme = cli_colors())
@@ -191,19 +200,40 @@ databricks_dbr_info <- function(cluster_id,
   out
 }
 
-databricks_dbr_version <- function(cluster_id, client) {
+databricks_dbr_version <- function(cluster_id, client = NULL,
+                                   host = NULL, token = NULL) {
   vn <- databricks_dbr_version_name(
     cluster_id = cluster_id,
-    client = client
+    client = client,
+    host = host,
+    token = token
   )
   vn$version
 }
 
-databricks_cluster_get <- function(cluster_id, client) {
-  try(
-    client$clusters$get(cluster_id = cluster_id)$as_dict(),
-    silent = TRUE
-  )
+databricks_cluster_get <- function(cluster_id, client = NULL,
+                                   host = NULL, token = NULL) {
+
+  if (!is.null(client)) {
+    try(
+      client$clusters$get(cluster_id = cluster_id)$as_dict(),
+      silent = TRUE
+    )
+  } else {
+    try(
+      paste0(
+        host,
+        "/api/2.0/clusters/get"
+      ) %>%
+        request() %>%
+        req_auth_bearer_token(token) %>%
+        req_body_json(list(cluster_id = cluster_id)) %>%
+        req_perform() %>%
+        resp_body_json(),
+      silent = TRUE
+    )
+  }
+
 }
 
 databricks_dbr_error <- function(error) {

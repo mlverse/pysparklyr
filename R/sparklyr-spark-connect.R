@@ -90,9 +90,11 @@ spark_connect_method.spark_method_databricks_connect <- function(
 
   # load python libs
   dbc <- import_check("databricks.connect", envname, silent)
+  db_sdk <- import_check("databricks.sdk", envname, silent = TRUE)
 
   # create workspace client
   sdk_client <- databricks_sdk_client(
+    sdk = db_sdk,
     host = master,
     serverless = serverless,
     cluster_id = cluster_id,
@@ -103,7 +105,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
   # if serverless override cluster_id and set to `NULL`
   cluster_info <- NULL
   if (!serverless) {
-    if (cluster_id != "" && master != "" && token != "") {
+    if (cluster_id != "") {
       cluster_info <- databricks_dbr_version_name(
         cluster_id = cluster_id,
         client = sdk_client,

@@ -4,6 +4,7 @@
 .test_env$env <- NULL
 .test_env$started <- NULL
 .test_env$dbr <- NULL
+.test_env$databricks <- NULL
 
 use_test_env <- function() {
   if (is.null(.test_env$env)) {

@@ -3,7 +3,6 @@ test_that("Message when RETICULATE_PYTHON is set", {
   withr::with_envvar(
     new = c("RETICULATE_PYTHON" = py_to_use),
     {
-      Sys.setenv("RETICULATE_PYTHON" = py_to_use)
       expect_message(use_envname("newtest", messages = TRUE))
     }
   )

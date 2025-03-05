@@ -123,7 +123,7 @@ sdf_copy_to.pyspark_connection <- function(sc,
 
 #' @export
 tbl.pyspark_connection <- function(src, from, ...) {
-  if(inherits(from, "AsIs")) {
+  if (inherits(from, "AsIs")) {
     sql_from <- from
   } else {
     sql_from <- as.sql(from, con = src$con)
@@ -177,8 +177,8 @@ tbl_temp_name <- function() glue("{temp_prefix()}{random_string()}")
 sdf_register.spark_pyobj <- function(x, name = NULL) {
   # Attempting to cache a data frame with 0 columns returns an error.
   # So it returns nothing when this is the case (#110)
-  if(inherits(x$pyspark_obj, "pyspark.sql.connect.dataframe.DataFrame")) {
-    if(length(x$pyspark_obj$columns) == 0) {
+  if (inherits(x$pyspark_obj, "pyspark.sql.connect.dataframe.DataFrame")) {
+    if (length(x$pyspark_obj$columns) == 0) {
       return(invisible())
     }
   }

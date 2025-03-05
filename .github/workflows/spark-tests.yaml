@@ -8,6 +8,7 @@ name: Spark-Connect
 
 jobs:
   Spark-Tests:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
 
     name: ${{ matrix.config.name }}
@@ -16,17 +17,17 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {spark: '3.5.2', pyspark: '3.5', hadoop: '3', name: 'PySpark 3.5'}
+          - {spark: '3.5.1', pyspark: '3.5', hadoop: '3', name: 'PySpark 3.5'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      SPARK_VERSION:  ${{ matrix.config.pyspark }}
+      SPARK_VERSION:  ${{ matrix.config.spark }}
       HADOOP_VERSION: ${{ matrix.config.hadoop }}
       PYSPARK_VERSION:  ${{ matrix.config.pyspark }}
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       DATABRICKS_HOST: "https://rstudio-partner-posit-default.cloud.databricks.com"
-      DATABRICKS_CLUSTER_ID: "0916-215603-ofitqny9"
+      DATABRICKS_CLUSTER_ID: "0129-151028-k1hamwf0"
 
     steps:
       - uses: actions/checkout@v3
@@ -44,7 +45,7 @@ jobs:
           needs: check
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -54,7 +55,7 @@ jobs:
 
       - name: Cache Spark
         id: cache-spark
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /home/runner/spark/spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
           key: sparklyr-spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
@@ -62,14 +63,13 @@ jobs:
       - name: Install Spark (via sparklyr)
         if: steps.cache-spark.outputs.cache-hit != 'true'
         run: |
-          devtools::install_github("sparklyr/sparklyr")
           sparklyr::spark_install(version = Sys.getenv("SPARK_VERSION"))
           print(sparklyr::spark_install_find(Sys.getenv("SPARK_VERSION"))$sparkVersionDir)
         shell: Rscript {0}
 
       - name: Cache Scala
         id: cache-scala
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /home/runner/scala/
           key: scala-2

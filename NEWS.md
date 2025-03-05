@@ -1,16 +1,30 @@
 # pysparklyr (dev)
 
-* Adds IDE check for positron (#121)
+* Adding support for Databricks serverless interactive compute (#127)
 
-* Avoids failure when an unexpected error from Databricks is returned (#123)
+* Extended authentication method support for Databricks by deferring to SDK (#127)
+
+* Disables un-setting the `RETICULATE_PYTHON` environment variable. It will
+still display a warning if it's set, letting the user know that it may 
+cause connectivity issues.
+
+# pysparklyr 0.1.6
+
+### Improvements
+
+* Adds IDE check for positron (#121)
 
 * No longer install 'rpy2' by default. It will prompt user for installation
 the first time `spark_apply()` is called (#125)
 
-* Adding support for Databricks serverless interactive compute (#127)
+### Fixes
 
-* Extended authentication method support for Databricks by deferring to SDK
-(#127)
+* Fixes error returned by `httr2` to sanitize the Databricks Host URL (#130)
+
+* Fixes issues with catalog and schema names with dashes in the Connections
+Pane. 
+
+* Avoids failure when an unexpected error from Databricks is returned (#123)
 
 # pysparklyr 0.1.5
 

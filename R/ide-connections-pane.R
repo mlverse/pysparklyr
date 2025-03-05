@@ -71,9 +71,9 @@ catalog_python <- function(
       out <- rs_get_databases(con, limit, catalog)
     } else {
       if (is.null(catalog)) {
-        sql_schema <- "show tables in {schema}"
+        sql_schema <- "show tables in `{schema}`"
       } else {
-        sql_schema <- "show tables in {catalog}.{schema}"
+        sql_schema <- "show tables in `{catalog}`.`{schema}`"
       }
       tables <- dbGetQuery(con, glue(sql_schema))
       out <- df_tables
@@ -99,7 +99,7 @@ catalog_python <- function(
 rs_get_databases <- function(con, limit = NA, catalog = NULL) {
   out <- data.frame()
   if (!is.null(catalog)) {
-    databases <- dbGetQuery(con, glue("show databases in {catalog}"))
+    databases <- dbGetQuery(con, glue("show databases in `{catalog}`"))
   } else {
     databases <- dbGetQuery(con, glue("show databases"))
   }

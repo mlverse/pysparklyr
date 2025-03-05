@@ -278,11 +278,11 @@ build_user_agent <- function() {
         pr <- "cloud-rstudio"
       }
     }
-    if(Sys.getenv("POSITRON", unset = "0") == "1") {
+    if (Sys.getenv("POSITRON", unset = "0") == "1") {
       pr <- "positron"
       version <- Sys.getenv("POSITRON_VERSION", unset = NA)
     }
-    if(!is.null(pr)) {
+    if (!is.null(pr)) {
       product <- glue("posit-{pr}/{version}")
     }
   }
@@ -290,7 +290,7 @@ build_user_agent <- function() {
   glue(
     "sparklyr/{packageVersion('sparklyr')} {product}",
     .null = NULL
-    )
+  )
 }
 
 int_rstudio_version <- function() {

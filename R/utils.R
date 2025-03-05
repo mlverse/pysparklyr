@@ -12,7 +12,7 @@
 #' @return The result of calling `rhs(lhs)`.
 NULL
 
-reticulate_python_check <- function(ignore = FALSE, unset = TRUE, message = TRUE) {
+reticulate_python_check <- function(ignore = FALSE, unset = FALSE, message = TRUE) {
   if (ignore) {
     return("")
   }
@@ -126,4 +126,8 @@ stop_quietly <- function() {
   opt <- options(show.error.messages = FALSE)
   on.exit(options(opt))
   stop()
+}
+
+use_arrow <- function() {
+  arrow::binary()
 }

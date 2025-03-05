@@ -5,7 +5,7 @@ test_coverage_enable <- function() {
 expect_same_remote_result <- function(.data, pipeline) {
   sc <- use_test_spark_connect()
   temp_name <- random_table_name("test_")
-  spark_data <- copy_to(sc, .data, temp_name)
+  spark_data <- dplyr::copy_to(sc, .data, temp_name)
 
   local <- pipeline(.data)
 

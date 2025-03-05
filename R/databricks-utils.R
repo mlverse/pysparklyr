@@ -206,12 +206,17 @@ databricks_dbr_error <- function(error) {
   }
 
   status_tip <- NULL
-  if (grepl("UNAVAILABLE", status_error)) {
-    status_tip <- "Possible cause = The cluster is not running, or not accessible"
+  if (!is.null(status_error)) {
+    if (grepl("UNAVAILABLE", status_error)) {
+      status_tip <- "Possible cause = The cluster is not running, or not accessible"
+    }
+    if (grepl("FAILED_PRECONDITION", status_error)) {
+      status_tip <- "Possible cause = The cluster is initializing. Try again later"
+    }
+  } else {
+    status_error <- error
   }
-  if (grepl("FAILED_PRECONDITION", status_error)) {
-    status_tip <- "Possible cause = The cluster is initializing. Try again later"
-  }
+
   rlang::abort(
     c(
       "Spark connection error",
@@ -223,6 +228,7 @@ databricks_dbr_error <- function(error) {
 }
 
 sanitize_host <- function(url, silent = FALSE) {
+  url <- ifelse(!grepl("^https?://", url), paste0("https://", url), url)
   parsed_url <- url_parse(url)
   new_url <- url_parse("http://localhost")
   if (is.null(parsed_url$scheme)) {
@@ -234,7 +240,11 @@ sanitize_host <- function(url, silent = FALSE) {
     new_url$scheme <- parsed_url$scheme
     new_url$hostname <- parsed_url$hostname
   }
+  new_url$path <- NULL
   ret <- url_build(new_url)
+  if (endsWith(ret, "/")) {
+    ret <- substr(ret, 1, nchar(ret) - 1)
+  }
   if (ret != url && !silent) {
     cli_div(theme = cli_colors())
     cli_alert_warning(

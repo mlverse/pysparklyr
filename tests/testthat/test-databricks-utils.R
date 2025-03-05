@@ -1,5 +1,3 @@
-skip_if_not_databricks()
-
 test_that("DBR error code returns as expected", {
   error <- paste0(
     "SparkConnectGrpcException('<_InactiveRpcError of RPC that terminated with:",
@@ -10,8 +8,12 @@ test_that("DBR error code returns as expected", {
     " created_time:'2023-10-02T12:14:52.379226-05:00'}'\n>')"
   )
 
-  expect_error(databricks_dbr_error(error))
+  expect_snapshot_error(databricks_dbr_error(error))
+
+  expect_snapshot_error(databricks_dbr_error(""))
 })
+
+skip_if_not_databricks()
 
 test_that("Databricks Host works", {
   expect_true(nchar(databricks_host()) > 5)

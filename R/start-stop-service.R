@@ -32,6 +32,10 @@ spark_connect_service_start <- function(version = "3.5",
   cli_text("{.header Starting {.emph Spark Connect} locally ...}")
   output <- prs$read_all_output()
   cli_bullets(c(" " = "{.info {output}}"))
+  error <- prs$read_all_error()
+  if (error != "") {
+    cli_abort(error)
+  }
   cli_end()
   invisible()
 }

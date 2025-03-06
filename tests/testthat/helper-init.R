@@ -60,7 +60,8 @@ use_test_spark_connect <- function() {
         .test_env$sc <- sparklyr::spark_connect(
           master = "sc://localhost",
           method = "spark_connect",
-          version = use_test_version_spark()
+          version = use_test_version_spark(),
+          envname = fs::path(use_test_python_environment(), "bin")
         )
       }
     )
@@ -87,28 +88,18 @@ use_test_lr_model <- function() {
 }
 
 use_test_python_environment <- function() {
-  withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
-    {
-      version <- use_test_version_spark()
-      env <- use_envname(backend = "pyspark", version = version)
-      env_avail <- names(env)
-      target <- path(use_test_env(), env)
-      if (!dir_exists(target)) {
-        if (env_avail != "exact") {
-          cli_h1("Creating Python environment")
-          install_pyspark(
-            version = version,
-            as_job = FALSE,
-            python = Sys.which("python"),
-            install_ml = FALSE
-          )
-          env <- use_envname(backend = "pyspark", version = version)
-        }
-      }
-    }
+  use_envname(
+    backend = "pyspark",
+    version = use_test_version_spark(),
+    ask_if_not_installed = FALSE,
+    match_first = FALSE,
+    messages = TRUE,
+    main_library = "pyspark",
+    ignore_reticulate_python = FALSE
   )
-  target
+  reticulate::import("pyspark")
+  exec_py <- py_exe()
+  fs::path_dir(fs::path_dir(exec_py))
 }
 
 use_test_ml_installed <- function() {

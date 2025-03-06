@@ -99,9 +99,12 @@ test_that("sdf_register() works", {
 test_that("I() works", {
   tbl_mtcars <- use_test_table_mtcars()
   sc <- use_test_spark_connect()
-  expect_s3_class({
-    tbl(sc, I("mtcars")) %>%
-      head() %>%
-      collect()
-  }, "data.frame")
+  expect_s3_class(
+    {
+      tbl(sc, I("mtcars")) %>%
+        head() %>%
+        collect()
+    },
+    "data.frame"
+  )
 })

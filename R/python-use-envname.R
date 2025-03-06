@@ -10,7 +10,7 @@ use_envname <- function(
     python_version = NULL) {
   cli_div(theme = cli_colors())
 
-  ret_python <- reticulate_python_check(ignore_reticulate_python)
+  ret_python <- reticulate_python_check(ignore_reticulate_python, unset = FALSE)
 
   if (ret_python != "") {
     return(set_names(ret_python, "env_var"))
@@ -43,7 +43,7 @@ use_envname <- function(
     vers <- compareVersion(latest_ver, version)
     install_recent <- vers == 1
     # For cases when the cluster's version is higher than the latest library
-    if(vers == -1) {
+    if (vers == -1) {
       envname <- as.character(glue("{env_base}{latest_ver}"))
       install_ver <- latest_ver
     }

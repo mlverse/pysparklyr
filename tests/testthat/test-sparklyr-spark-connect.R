@@ -106,7 +106,7 @@ test_that("User agent builder for Positron", {
       "RSTUDIO_PRODUCT" = NA,
       "POSITRON" = "1",
       "POSITRON_VERSION" = "12345"
-      ),
+    ),
     {
       expect_equal(
         build_user_agent(),

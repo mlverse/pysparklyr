@@ -6,7 +6,7 @@ use_envname <- function(
     match_first = FALSE,
     ignore_reticulate_python = FALSE,
     ask_if_not_installed = interactive(),
-    main_library = NULL,
+    main_library = "pyspark",
     python_version = NULL) {
   cli_div(theme = cli_colors())
 

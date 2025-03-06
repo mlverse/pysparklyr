@@ -23,7 +23,7 @@ Imports:
     reticulate (>= 1.41.0),
     methods,
     rlang,
-    sparklyr (>= 1.8.5),
+    sparklyr (>= 1.8.6.9002),
     tidyselect,
     fs,
     magrittr,
@@ -43,4 +43,4 @@ Suggests:
     withr
 Config/testthat/edition: 3
 Remotes: 
-    rstudio/reticulate
+    sparklyr/sparklyr

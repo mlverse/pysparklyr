@@ -11,7 +11,7 @@ Description: It enables 'sparklyr' to integrate with 'Spark Connect', and
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports:
     arrow,
     cli,
@@ -42,5 +42,5 @@ Suggests:
     tibble,
     withr
 Config/testthat/edition: 3
-Remotes:  
+Remotes: 
     rstudio/reticulate

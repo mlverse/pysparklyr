@@ -21,7 +21,13 @@ use_new_test_env <- function() {
 
 use_test_version_spark <- function() {
   version <- Sys.getenv("SPARK_VERSION", unset = NA)
-  if (is.na(version)) version <- "3.5"
+  if (is.na(version)) version <- "3.5.5"
+  version
+}
+
+use_test_version_python <- function() {
+  version <- Sys.getenv("PYTHON_VERSION", unset = NA)
+  if (is.na(version)) version <- "3.10"
   version
 }
 
@@ -54,16 +60,11 @@ use_test_spark_connect <- function() {
   if (is.null(.test_env$sc)) {
     use_test_connect_start()
     cli_h1("Connecting to Spark cluster")
-    withr::with_envvar(
-      new = c("WORKON_HOME" = use_test_env()),
-      {
-        .test_env$sc <- sparklyr::spark_connect(
-          master = "sc://localhost",
-          method = "spark_connect",
-          version = use_test_version_spark(),
-          envname = fs::path(use_test_python_environment(), "bin")
-        )
-      }
+    .test_env$sc <- sparklyr::spark_connect(
+      master = "sc://localhost",
+      method = "spark_connect",
+      version = use_test_version_spark(),
+      envname = fs::path(use_test_python_environment(), "bin")
     )
   }
   .test_env$sc
@@ -95,7 +96,8 @@ use_test_python_environment <- function() {
     match_first = FALSE,
     messages = TRUE,
     main_library = "pyspark",
-    ignore_reticulate_python = FALSE
+    ignore_reticulate_python = FALSE,
+    python_version = use_test_version_python()
   )
   reticulate::import("pyspark")
   exec_py <- py_exe()

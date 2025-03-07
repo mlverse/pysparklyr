@@ -23,7 +23,7 @@ Imports:
     reticulate (>= 1.38),
     methods,
     rlang,
-    sparklyr (>= 1.8.5),
+    sparklyr (>= 1.8.6.9002),
     tidyselect,
     fs,
     magrittr,
@@ -42,3 +42,5 @@ Suggests:
     tibble,
     withr
 Config/testthat/edition: 3
+Remotes: 
+    sparklyr/sparklyr

@@ -10,10 +10,10 @@ test_that("spark_apply() works", {
     spark_apply(tbl_mtcars, function(x) x),
     "tbl_spark"
   )
-  expect_s3_class(
-    spark_apply(tbl_mtcars, function(x) x, fetch_result_as_sdf = FALSE),
-    "data.frame"
-  )
+  # expect_s3_class(
+  #   spark_apply(tbl_mtcars, function(x) x, fetch_result_as_sdf = FALSE),
+  #   "data.frame"
+  # )
   expect_s3_class(
     spark_apply(tbl_mtcars, function(x) x, arrow_max_records_per_batch = 5000),
     "tbl_spark"

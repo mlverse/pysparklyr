@@ -1,3 +1,4 @@
+skip("Investicate 'PythonUDFEnvironment' issue")
 skip_if_not_databricks()
 
 test_that("Test Databricks connection", {

@@ -4,7 +4,7 @@ spark_connect_method.spark_method_spark_connect <- function(
     method,
     master,
     spark_home,
-    config = NULL,
+    config = pyspark_config(),
     app_name,
     version = NULL,
     hadoop_version,
@@ -54,7 +54,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
     method,
     master,
     spark_home,
-    config,
+    config = pyspark_config(),
     app_name,
     version = NULL,
     hadoop_version,
@@ -176,9 +176,14 @@ initialize_connection <- function(
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) databricks_dbr_error(get_version)
-  session$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
-  session$conf$set("spark.sql.execution.arrow.pyspark.enabled", "true")
-  session$conf$set("spark.sql.execution.arrow.pyspark.fallback.enabled", "false")
+
+  if(!is.null(config)) {
+    config_orig <- sparklyr::spark_config()
+    if(length(setdiff(config, config_orig))) {
+      config <- pyspark_config()
+    }
+    iwalk(config, \(x, y) session$conf$set(y, x))
+  }
 
   # do we need this `spark_context` object?
   spark_context <- list(spark_context = session)

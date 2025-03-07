@@ -52,6 +52,8 @@ use_test_connect_start <- function() {
 
 use_test_spark_connect <- function() {
   if (is.null(.test_env$sc)) {
+    conf <- pyspark_config()
+    conf$spark.python.worker.memory <- "50m"
     use_test_connect_start()
     cli_h1("Connecting to Spark cluster")
     withr::with_envvar(
@@ -60,7 +62,8 @@ use_test_spark_connect <- function() {
         .test_env$sc <- sparklyr::spark_connect(
           master = "sc://localhost",
           method = "spark_connect",
-          version = use_test_version_spark()
+          version = use_test_version_spark(),
+          config = conf
         )
       }
     )

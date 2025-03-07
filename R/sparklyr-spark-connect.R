@@ -179,7 +179,11 @@ initialize_connection <- function(
 
   if(!is.null(config)) {
     config_orig <- sparklyr::spark_config()
-    if(length(setdiff(config, config_orig))) {
+    diffs <- setdiff(config, config_orig)
+    if(length(diffs)) {
+      diffs <- diffs[!grepl("sparklyr", names(diffs))]
+    }
+    if(!length(diffs)) {
       config <- pyspark_config()
     }
     iwalk(config, \(x, y) session$conf$set(y, x))
@@ -318,6 +322,6 @@ pyspark_config <- function() {
   list(
     "spark.sql.session.localRelationCacheThreshold" = 1048576L,
     "spark.sql.execution.arrow.pyspark.enabled" = "true",
-    "spark.sql.execution.arrow.pyspark.fallback.enabled" = "false"
+    "spark.sql.execution.arrow.sparkr.enabled" = "true"
   )
 }

@@ -304,3 +304,15 @@ connection_label <- function(x) {
   }
   ret
 }
+
+#' Read Spark configuration
+#' @returns A list object with the initial configuration that will be used for
+#' the Connect session.
+#' @export
+pyspark_config <- function() {
+  list(
+    "spark.sql.session.localRelationCacheThreshold" = 1048576L,
+    "spark.sql.execution.arrow.pyspark.enabled" = "true",
+    "spark.sql.execution.arrow.pyspark.fallback.enabled" = "false"
+  )
+}

@@ -36,14 +36,25 @@ use_test_connect_start <- function() {
     env_path <- path(use_test_python_environment(), "bin", "python")
     version <- use_test_version_spark()
     Sys.setenv("PYTHON_VERSION_MISMATCH" = env_path)
+    Sys.setenv("PYSPARK_PYTHON" = env_path)
     Sys.setenv("PYSPARK_DRIVER_PYTHON" = env_path)
+    Sys.setenv("WORKON_HOME" = use_test_env())
     cli_h1("Starting Spark Connect service version {version}")
     cli_h3("PYTHON_VERSION_MISMATCH: {Sys.getenv('PYTHON_VERSION_MISMATCH')}")
-    cli_h3("PYSPARK_DRIVER_PYTHON: {Sys.getenv('PYSPARK_DRIVER_PYTHON')}")
-    spark_connect_service_start(
-      version = version,
-      scala_version = use_test_scala_spark()
-    )
+    cli_h3("PYSPARK_PYTHON: {Sys.getenv('PYSPARK_DRIVER_PYTHON')}")
+    cli_h3("WORKON_HOME: {Sys.getenv('WORKON_HOME')}")
+    withr::with_envvar(
+      new = c(
+        "PYSPARK_PYTHON" = env_path,
+        "PYTHON_VERSION_MISMATCH" = env_path,
+        "PYSPARK_DRIVER_PYTHON" = env_path
+        ),
+      {
+        spark_connect_service_start(
+          version = version,
+          scala_version = use_test_scala_spark()
+        )
+      })
     .test_env$started <- 0
   } else {
     invisible()
@@ -52,6 +63,8 @@ use_test_connect_start <- function() {
 
 use_test_spark_connect <- function() {
   if (is.null(.test_env$sc)) {
+    conf <- pyspark_config()
+    conf$spark.python.worker.memory <- "50m"
     use_test_connect_start()
     cli_h1("Connecting to Spark cluster")
     withr::with_envvar(
@@ -60,7 +73,8 @@ use_test_spark_connect <- function() {
         .test_env$sc <- sparklyr::spark_connect(
           master = "sc://localhost",
           method = "spark_connect",
-          version = use_test_version_spark()
+          version = use_test_version_spark(),
+          config = conf
         )
       }
     )

@@ -1,9 +1,6 @@
-skip("For now")
-
 skip_if_not_databricks()
 
 test_databricks_deploy_output <- function() {
-  sc <- use_test_spark_connect()
   list(
     appDir = path(getwd()),
     python = test_databricks_stump_env(),
@@ -30,61 +27,82 @@ accounts_df <- function() {
 }
 
 test_that("Basic use, passing DBR version works", {
-  local_mocked_bindings(
-    deployApp = function(...) list(...),
-    accounts = function(...) accounts_df()
-  )
-  # Initializes environment
-  invisible(test_databricks_stump_env())
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      local_mocked_bindings(
+        deployApp = function(...) list(...),
+        accounts = function(...) accounts_df()
+      )
+      # Initializes environment
+      invisible(test_databricks_stump_env())
 
-  expect_equal(
-    deploy_databricks(version = test_databricks_cluster_version()),
-    test_databricks_deploy_output()
+      expect_equal(
+        deploy_databricks(version = test_databricks_cluster_version()),
+        test_databricks_deploy_output()
+      )
+    }
   )
 })
 
 test_that("Basic use, passing the cluster's ID", {
-  local_mocked_bindings(
-    deployApp = function(...) list(...),
-    accounts = function(...) accounts_df()
-  )
-  expect_equal(
-    deploy_databricks(cluster_id = test_databricks_cluster_id()),
-    test_databricks_deploy_output()
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      local_mocked_bindings(
+        deployApp = function(...) list(...),
+        accounts = function(...) accounts_df()
+      )
+      expect_equal(
+        deploy_databricks(cluster_id = test_databricks_cluster_id()),
+        test_databricks_deploy_output()
+      )
+    }
   )
 })
 
 test_that("Use the Cluster ID from environment variable", {
-  local_mocked_bindings(
-    deployApp = function(...) list(...),
-    accounts = function(...) accounts_df()
-  )
-  expect_equal(
-    deploy_databricks(),
-    test_databricks_deploy_output()
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      local_mocked_bindings(
+        deployApp = function(...) list(...),
+        accounts = function(...) accounts_df()
+      )
+      expect_equal(
+        deploy_databricks(),
+        test_databricks_deploy_output()
+      )
+    }
   )
 })
 
 test_that("Additional arguments are passed on to deployApp()", {
-  local_mocked_bindings(
-    deployApp = function(...) list(...),
-    accounts = function(...) accounts_df()
-  )
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      local_mocked_bindings(
+        deployApp = function(...) list(...),
+        accounts = function(...) accounts_df()
+      )
 
-  out <- test_databricks_deploy_output()
-  out$appTitle <- "My Cool Title"
+      out <- test_databricks_deploy_output()
+      out$appTitle <- "My Cool Title"
 
-  expect_equal(
-    deploy_databricks(
-      version = test_databricks_cluster_version(),
-      appTitle = "My Cool Title"
-    ),
-    out
+      expect_equal(
+        deploy_databricks(
+          version = test_databricks_cluster_version(),
+          appTitle = "My Cool Title"
+        ),
+        out
+      )
+    }
   )
 })
 test_that("Custom environment variables are passed when `host` and `token` are used", {
   withr::with_envvar(
     new = c(
+      "WORKON_HOME" = use_test_env(),
       "CONNECT_DATABRICKS_HOST" = "",
       "CONNECT_DATABRICKS_TOKEN" = ""
     ),
@@ -160,48 +178,58 @@ test_that("Simulates interactive session, selects Yes (1) for both prompts", {
 })
 
 test_that("Simulates interactive session, selects 3 for both prompts", {
-  deploy_file <- test_databricks_deploy_file()
-  local_mocked_bindings(
-    check_interactive = function(...) TRUE,
-    check_rstudio = function(...) TRUE,
-    menu = function(...) {
-      return(3)
-    },
-    deployApp = function(...) list(...),
-    accounts = function(...) accounts_df(),
-    getSourceEditorContext = function(...) {
-      x <- list()
-      x$path <- as_fs_path(deploy_file)
-      x
-    }
-  )
-  out <- test_databricks_deploy_output()
-  out$appDir <- as_fs_path(path_dir(deploy_file))
-  out$server <- "my_server3"
-  out$account <- "my_account3"
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      deploy_file <- test_databricks_deploy_file()
+      local_mocked_bindings(
+        check_interactive = function(...) TRUE,
+        check_rstudio = function(...) TRUE,
+        menu = function(...) {
+          return(3)
+        },
+        deployApp = function(...) list(...),
+        accounts = function(...) accounts_df(),
+        getSourceEditorContext = function(...) {
+          x <- list()
+          x$path <- as_fs_path(deploy_file)
+          x
+        }
+      )
+      out <- test_databricks_deploy_output()
+      out$appDir <- as_fs_path(path_dir(deploy_file))
+      out$server <- "my_server3"
+      out$account <- "my_account3"
 
-  expect_equal(
-    deploy_databricks(
-      version = test_databricks_cluster_version(),
-      confirm = TRUE
-    ),
-    out
+      expect_equal(
+        deploy_databricks(
+          version = test_databricks_cluster_version(),
+          confirm = TRUE
+        ),
+        out
+      )
+    }
   )
 })
 
 test_that("Rare cases for finding environments works", {
-  env_path <- test_databricks_stump_env()
-  local_mocked_bindings(
-    py_exe = function(...) {
-      return(NULL)
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      env_path <- test_databricks_stump_env()
+      local_mocked_bindings(
+        py_exe = function(...) {
+          return(NULL)
+        }
+      )
+      expect_equal(
+        deploy_find_environment(python = env_path),
+        env_path
+      )
+      expect_error(
+        deploy_find_environment()
+      )
     }
-  )
-  expect_equal(
-    deploy_find_environment(python = env_path),
-    env_path
-  )
-  expect_error(
-    deploy_find_environment()
   )
 })
 

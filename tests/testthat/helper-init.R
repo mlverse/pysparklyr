@@ -21,13 +21,7 @@ use_new_test_env <- function() {
 
 use_test_version_spark <- function() {
   version <- Sys.getenv("SPARK_VERSION", unset = NA)
-  if (is.na(version)) version <- "3.5.5"
-  version
-}
-
-use_test_version_python <- function() {
-  version <- Sys.getenv("PYTHON_VERSION", unset = NA)
-  if (is.na(version)) version <- "3.10"
+  if (is.na(version)) version <- "3.5"
   version
 }
 
@@ -42,14 +36,25 @@ use_test_connect_start <- function() {
     env_path <- path(use_test_python_environment(), "bin", "python")
     version <- use_test_version_spark()
     Sys.setenv("PYTHON_VERSION_MISMATCH" = env_path)
+    Sys.setenv("PYSPARK_PYTHON" = env_path)
     Sys.setenv("PYSPARK_DRIVER_PYTHON" = env_path)
+    Sys.setenv("WORKON_HOME" = use_test_env())
     cli_h1("Starting Spark Connect service version {version}")
     cli_h3("PYTHON_VERSION_MISMATCH: {Sys.getenv('PYTHON_VERSION_MISMATCH')}")
-    cli_h3("PYSPARK_DRIVER_PYTHON: {Sys.getenv('PYSPARK_DRIVER_PYTHON')}")
-    spark_connect_service_start(
-      version = version,
-      scala_version = use_test_scala_spark()
-    )
+    cli_h3("PYSPARK_PYTHON: {Sys.getenv('PYSPARK_DRIVER_PYTHON')}")
+    cli_h3("WORKON_HOME: {Sys.getenv('WORKON_HOME')}")
+    withr::with_envvar(
+      new = c(
+        "PYSPARK_PYTHON" = env_path,
+        "PYTHON_VERSION_MISMATCH" = env_path,
+        "PYSPARK_DRIVER_PYTHON" = env_path
+        ),
+      {
+        spark_connect_service_start(
+          version = version,
+          scala_version = use_test_scala_spark()
+        )
+      })
     .test_env$started <- 0
   } else {
     invisible()
@@ -58,13 +63,20 @@ use_test_connect_start <- function() {
 
 use_test_spark_connect <- function() {
   if (is.null(.test_env$sc)) {
+    conf <- pyspark_config()
+    conf$spark.python.worker.memory <- "50m"
     use_test_connect_start()
     cli_h1("Connecting to Spark cluster")
-    .test_env$sc <- sparklyr::spark_connect(
-      master = "sc://localhost",
-      method = "spark_connect",
-      version = use_test_version_spark(),
-      envname = fs::path(use_test_python_environment(), "bin")
+    withr::with_envvar(
+      new = c("WORKON_HOME" = use_test_env()),
+      {
+        .test_env$sc <- sparklyr::spark_connect(
+          master = "sc://localhost",
+          method = "spark_connect",
+          version = use_test_version_spark(),
+          config = conf
+        )
+      }
     )
   }
   .test_env$sc
@@ -89,19 +101,28 @@ use_test_lr_model <- function() {
 }
 
 use_test_python_environment <- function() {
-  use_envname(
-    backend = "pyspark",
-    version = use_test_version_spark(),
-    ask_if_not_installed = FALSE,
-    match_first = FALSE,
-    messages = TRUE,
-    main_library = "pyspark",
-    ignore_reticulate_python = FALSE,
-    python_version = use_test_version_python()
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      version <- use_test_version_spark()
+      env <- use_envname(backend = "pyspark", version = version)
+      env_avail <- names(env)
+      target <- path(use_test_env(), env)
+      if (!dir_exists(target)) {
+        if (env_avail != "exact") {
+          cli_h1("Creating Python environment")
+          install_pyspark(
+            version = version,
+            as_job = FALSE,
+            python = Sys.which("python"),
+            install_ml = FALSE
+          )
+          env <- use_envname(backend = "pyspark", version = version)
+        }
+      }
+    }
   )
-  reticulate::import("pyspark")
-  exec_py <- py_exe()
-  fs::path_dir(fs::path_dir(exec_py))
+  target
 }
 
 use_test_ml_installed <- function() {

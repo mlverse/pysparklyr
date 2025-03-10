@@ -1,16 +1,17 @@
 #' @export
 spark_connect_method.spark_method_spark_connect <- function(
-    x,
-    method,
-    master,
-    spark_home,
-    config = NULL,
-    app_name,
-    version = NULL,
-    hadoop_version,
-    extensions,
-    scala_version,
-    ...) {
+  x,
+  method,
+  master,
+  spark_home,
+  config = NULL,
+  app_name,
+  version = NULL,
+  hadoop_version,
+  extensions,
+  scala_version,
+  ...
+) {
   version <- version %||% Sys.getenv("SPARK_VERSION")
 
   if (version == "") {
@@ -50,17 +51,18 @@ spark_connect_method.spark_method_spark_connect <- function(
 
 #' @export
 spark_connect_method.spark_method_databricks_connect <- function(
-    x,
-    method,
-    master,
-    spark_home,
-    config,
-    app_name,
-    version = NULL,
-    hadoop_version,
-    extensions,
-    scala_version,
-    ...) {
+  x,
+  method,
+  master,
+  spark_home,
+  config,
+  app_name,
+  version = NULL,
+  hadoop_version,
+  extensions,
+  scala_version,
+  ...
+) {
   args <- list(...)
   cluster_id <- args$cluster_id
   serverless <- args$serverless %||% FALSE
@@ -140,7 +142,9 @@ spark_connect_method.spark_method_databricks_connect <- function(
 
   # build databricks session connection
   user_agent <- build_user_agent()
-  conn <- dbc$DatabricksSession$builder$sdkConfig(sdk_client$config)$userAgent(user_agent)
+  conn <- dbc$DatabricksSession$builder$sdkConfig(sdk_client$config)$userAgent(
+    user_agent
+  )
 
   if (!silent) {
     cli_progress_done()
@@ -159,13 +163,14 @@ spark_connect_method.spark_method_databricks_connect <- function(
 }
 
 initialize_connection <- function(
-    conn,
-    master_label,
-    con_class,
-    cluster_id = NULL,
-    serverless = NULL,
-    method = NULL,
-    config = NULL) {
+  conn,
+  master_label,
+  con_class,
+  cluster_id = NULL,
+  serverless = FALSE,
+  method = NULL,
+  config = NULL
+) {
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",
@@ -193,7 +198,10 @@ initialize_connection <- function(
   if (!serverless) {
     session$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
     session$conf$set("spark.sql.execution.arrow.pyspark.enabled", "true")
-    session$conf$set("spark.sql.execution.arrow.pyspark.fallback.enabled", "false")
+    session$conf$set(
+      "spark.sql.execution.arrow.pyspark.fallback.enabled",
+      "false"
+    )
   }
 
   # do we need this `spark_context` object?
@@ -211,7 +219,12 @@ initialize_connection <- function(
       serverless = serverless,
       con = structure(list(), class = c("spark_connection", "DBIConnection"))
     ),
-    class = c(con_class, "pyspark_connection", "spark_connection", "DBIConnection")
+    class = c(
+      con_class,
+      "pyspark_connection",
+      "spark_connection",
+      "DBIConnection"
+    )
   )
 
   sc
@@ -219,7 +232,6 @@ initialize_connection <- function(
 # setOldClass(
 #   c("Hive", "spark_connection")
 # )
-
 
 setOldClass(
   c("connect_spark", "pyspark_connection", "spark_connection")

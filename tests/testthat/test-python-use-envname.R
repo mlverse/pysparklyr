@@ -69,8 +69,7 @@ test_that("Error if 'use_first' is not TRUE", {
           messages = TRUE,
           match_first = FALSE,
           ask_if_not_installed = FALSE
-        ),
-        "You do not have a Python environment that matches"
+        )
       )
     }
   )

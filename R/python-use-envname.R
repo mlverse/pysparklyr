@@ -138,6 +138,7 @@ use_envname <- function(
     cli_end()
   }
   print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+  print(find_environments("r-sparklyr"))
   print(ret)
   print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
   ret

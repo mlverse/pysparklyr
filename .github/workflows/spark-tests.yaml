@@ -44,10 +44,10 @@ jobs:
             any::arrow
           needs: check
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install Venv
         run: |
@@ -55,7 +55,7 @@ jobs:
 
       - name: Cache Spark
         id: cache-spark
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: /home/runner/spark/spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
           key: sparklyr-spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
@@ -63,8 +63,12 @@ jobs:
       - name: Install Spark (via sparklyr)
         if: steps.cache-spark.outputs.cache-hit != 'true'
         run: |
-          sparklyr::spark_install(version = Sys.getenv("SPARK_VERSION"))
-          print(sparklyr::spark_install_find(Sys.getenv("SPARK_VERSION"))$sparkVersionDir)
+          devtools::load_all()
+          library(sparklyr)
+          spark_install(
+            version = Sys.getenv("SPARK_VERSION"),
+            hadoop_version = Sys.getenv("HADOOP_VERSION")
+            )
         shell: Rscript {0}
 
       - name: Cache Scala

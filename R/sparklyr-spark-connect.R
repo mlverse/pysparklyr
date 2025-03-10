@@ -1,17 +1,16 @@
 #' @export
 spark_connect_method.spark_method_spark_connect <- function(
-  x,
-  method,
-  master,
-  spark_home,
-  config = NULL,
-  app_name,
-  version = NULL,
-  hadoop_version,
-  extensions,
-  scala_version,
-  ...
-) {
+    x,
+    method,
+    master,
+    spark_home,
+    config = pyspark_config(),
+    app_name,
+    version = NULL,
+    hadoop_version,
+    extensions,
+    scala_version,
+    ...) {
   version <- version %||% Sys.getenv("SPARK_VERSION")
 
   if (version == "") {
@@ -51,18 +50,17 @@ spark_connect_method.spark_method_spark_connect <- function(
 
 #' @export
 spark_connect_method.spark_method_databricks_connect <- function(
-  x,
-  method,
-  master,
-  spark_home,
-  config,
-  app_name,
-  version = NULL,
-  hadoop_version,
-  extensions,
-  scala_version,
-  ...
-) {
+    x,
+    method,
+    master,
+    spark_home,
+    config = pyspark_config(),
+    app_name,
+    version = NULL,
+    hadoop_version,
+    extensions,
+    scala_version,
+    ...) {
   args <- list(...)
   cluster_id <- args$cluster_id
   serverless <- args$serverless %||% FALSE
@@ -170,7 +168,7 @@ initialize_connection <- function(
   serverless = FALSE,
   method = NULL,
   config = NULL
-) {
+  ) {
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",
@@ -202,6 +200,18 @@ initialize_connection <- function(
       "spark.sql.execution.arrow.pyspark.fallback.enabled",
       "false"
     )
+
+  if(!is.null(config)) {
+    config_orig <- sparklyr::spark_config()
+    diffs <- setdiff(config, config_orig)
+    if(length(diffs)) {
+      diffs <- diffs[!grepl("sparklyr", names(diffs))]
+    }
+    if(!length(diffs)) {
+      config <- pyspark_config()
+    }
+    iwalk(config, \(x, y) session$conf$set(y, x))
+>>>>>>> main
   }
 
   # do we need this `spark_context` object?
@@ -332,4 +342,16 @@ connection_label <- function(x) {
     }
   }
   ret
+}
+
+#' Read Spark configuration
+#' @returns A list object with the initial configuration that will be used for
+#' the Connect session.
+#' @export
+pyspark_config <- function() {
+  list(
+    "spark.sql.session.localRelationCacheThreshold" = 1048576L,
+    "spark.sql.execution.arrow.pyspark.enabled" = "true",
+    "spark.sql.execution.arrow.sparkr.enabled" = "true"
+  )
 }

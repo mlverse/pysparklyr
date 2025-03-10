@@ -36,14 +36,21 @@ use_test_connect_start <- function() {
     env_path <- path(use_test_python_environment(), "bin", "python")
     version <- use_test_version_spark()
     Sys.setenv("PYTHON_VERSION_MISMATCH" = env_path)
-    Sys.setenv("PYSPARK_DRIVER_PYTHON" = env_path)
+    Sys.setenv("PYSPARK_PYTHON" = env_path)
     cli_h1("Starting Spark Connect service version {version}")
     cli_h3("PYTHON_VERSION_MISMATCH: {Sys.getenv('PYTHON_VERSION_MISMATCH')}")
-    cli_h3("PYSPARK_DRIVER_PYTHON: {Sys.getenv('PYSPARK_DRIVER_PYTHON')}")
-    spark_connect_service_start(
-      version = version,
-      scala_version = use_test_scala_spark()
-    )
+    cli_h3("PYSPARK_PYTHON: {Sys.getenv('PYSPARK_DRIVER_PYTHON')}")
+    withr::with_envvar(
+      new = c(
+        "PYSPARK_PYTHON" = env_path,
+        "PYTHON_VERSION_MISMATCH" = env_path
+        ),
+      {
+        spark_connect_service_start(
+          version = version,
+          scala_version = use_test_scala_spark()
+        )
+      })
     .test_env$started <- 0
   } else {
     invisible()

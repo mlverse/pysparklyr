@@ -37,13 +37,17 @@ use_test_connect_start <- function() {
     version <- use_test_version_spark()
     Sys.setenv("PYTHON_VERSION_MISMATCH" = env_path)
     Sys.setenv("PYSPARK_PYTHON" = env_path)
+    Sys.setenv("PYSPARK_DRIVER_PYTHON" = env_path)
+    Sys.setenv("WORKON_HOME" = use_test_env)
     cli_h1("Starting Spark Connect service version {version}")
     cli_h3("PYTHON_VERSION_MISMATCH: {Sys.getenv('PYTHON_VERSION_MISMATCH')}")
     cli_h3("PYSPARK_PYTHON: {Sys.getenv('PYSPARK_DRIVER_PYTHON')}")
+    cli_h3("WORKON_HOME: {Sys.getenv('WORKON_HOME')}")
     withr::with_envvar(
       new = c(
         "PYSPARK_PYTHON" = env_path,
-        "PYTHON_VERSION_MISMATCH" = env_path
+        "PYTHON_VERSION_MISMATCH" = env_path,
+        "PYSPARK_DRIVER_PYTHON" = env_path
         ),
       {
         spark_connect_service_start(

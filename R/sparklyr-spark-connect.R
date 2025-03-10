@@ -200,7 +200,7 @@ initialize_connection <- function(
       "spark.sql.execution.arrow.pyspark.fallback.enabled",
       "false"
     )
-
+    }
   if(!is.null(config)) {
     config_orig <- sparklyr::spark_config()
     diffs <- setdiff(config, config_orig)
@@ -211,7 +211,6 @@ initialize_connection <- function(
       config <- pyspark_config()
     }
     iwalk(config, \(x, y) session$conf$set(y, x))
->>>>>>> main
   }
 
   # do we need this `spark_context` object?

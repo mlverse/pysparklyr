@@ -96,7 +96,6 @@ spark_connect_method.spark_method_databricks_connect <- function(
     envname = envname,
     messages = !silent,
     match_first = FALSE,
-    main_library = "databricks.connect",
     ask_if_not_installed = FALSE,
     python_version = args$python_version
   )

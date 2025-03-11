@@ -198,10 +198,10 @@ skip_on_ci()
 test_that("Databricks installations work", {
   env_paths <- map(1:3, ~ fs::path(tempdir(), random_table_name("env")))
   baseenv <- "r-sparklyr-databricks"
-  version_1 <- "14.0"
-  version_2 <- "13.0"
+  version_1 <- "14.3"
+  version_2 <- "13.3"
   cluster_id <- Sys.getenv("DATABRICKS_CLUSTER_ID")
-  python_path <- Sys.which("python1")
+  python_path <- Sys.which("python")
 
   withr::with_envvar(
     new = c("WORKON_HOME" = env_paths[[1]]),

@@ -204,7 +204,8 @@ install_environment <- function(
     envname <- use_envname(
       backend = backend,
       version = ver_name,
-      ask_if_not_installed = FALSE
+      ask_if_not_installed = FALSE,
+      python_version = python_version
     )
   }
   cli_alert_success(
@@ -275,7 +276,7 @@ install_environment <- function(
     method = method,
     python_version = python_version,
     pip = TRUE,
-    ... = ...
+    ...
   )
 }
 

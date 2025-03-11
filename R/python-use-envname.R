@@ -172,3 +172,74 @@ find_environments <- function(x) {
   sorted <- sort(matched, decreasing = TRUE)
   sorted
 }
+
+python_requirements <- function(
+    backend = NULL,
+    main_library = NULL,
+    ml_version = NULL,
+    version = NULL,
+    python_version = NULL,
+    install_ml = FALSE,
+    add_torch = FALSE) {
+  cli_div(theme = cli_colors())
+
+  if(is.null(python_version) && backend == "databricks") {
+    python_version <- databricks_dbr_python(version)
+  }
+
+  library_info <- python_library_info(
+    library_name = main_library,
+    library_version  = version,
+    verbose = is.null(python_version)
+  )
+
+  if (!is.null(library_info)) {
+    if (is.null(python_version)) {
+      python_version <- library_info$requires_python
+    }
+    version <- library_info$version
+    ver_name <- version
+  } else {
+    if (!is.null(version)) {
+      ver_name <- version_prep(version)
+      if (version == ver_name) {
+        version <- paste0(version, ".*")
+      }
+    } else {
+      cli_abort(
+        c(
+          "No `version` provided, and none could be found",
+          " " = "Please run again with a valid version number"
+        ),
+        call = NULL
+      )
+    }
+  }
+
+  requires_dist <- as.character(library_info$requires_dist)
+  packages <- c(
+    paste0(main_library, "==", version),
+    if (length(requires_dist)) {
+      requires_dist[!grepl("extra", requires_dist)]
+    } else {
+      c(
+        "pandas!=2.1.0", # deprecation warnings
+        "PyArrow",
+        "grpcio",
+        "google-api-python-client",
+        "grpcio_status"
+      )
+    }
+  )
+
+  if (add_torch && install_ml) {
+    packages <- c(packages, pysparklyr_env$ml_libraries)
+  }
+
+  packages <- c(packages, "pip")
+
+  list(
+    packages = packages,
+    python_version = python_version
+  )
+}

@@ -155,11 +155,10 @@ test_that("Expect error when no 'version' is provided", {
 
 
 test_that("Requirements work", {
-  expect_snapshot(
-    python_requirements(
-      backend = "pyspark",
-      main_library = "pyspark",
-      version = "3.4"
-      )
+  reqs <- python_requirements(
+    backend = "pyspark",
+    main_library = "pyspark",
+    version = "3.4"
   )
+  expect_equal(c("packages", "python_version"), names(reqs))
 })

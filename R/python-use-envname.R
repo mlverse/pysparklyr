@@ -138,6 +138,7 @@ use_envname <- function(
     } else {
       if (ret_name == "unavailable") {
         reqs <- python_requirements(
+          backend = backend,
           main_library = main_library,
           version = version ,
           python_version = python_version,

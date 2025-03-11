@@ -254,3 +254,13 @@ sanitize_host <- function(url, silent = FALSE) {
   }
   ret
 }
+
+databricks_dbr_python <- function(version) {
+  if(version >= "16.0") {
+    "3.12"
+  } else if (version >= "15.0") {
+    "3.11"
+  } else {
+    "3.10"
+    }
+}

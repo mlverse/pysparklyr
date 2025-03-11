@@ -465,6 +465,7 @@ build_job_code <- function(args) {
 }
 
 python_requirements <- function(
+    backend = NULL,
     main_library = NULL,
     ml_version = NULL,
     version = NULL,
@@ -472,6 +473,10 @@ python_requirements <- function(
     install_ml = FALSE,
     add_torch = FALSE) {
   cli_div(theme = cli_colors())
+
+  if(is.null(python_version) && !is.null(backend)) {
+    python_version <- databricks_dbr_python(version)
+  }
 
   library_info <- python_library_info(
     library_name = main_library,

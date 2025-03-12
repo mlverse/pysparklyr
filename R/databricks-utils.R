@@ -68,12 +68,23 @@ databricks_token <- function(token = NULL, fail = FALSE) {
   token
 }
 
+<<<<<<< HEAD
 databricks_sdk_client <- function(sdk,
                                   host,
                                   token,
                                   serverless = FALSE,
                                   cluster_id = NULL,
                                   profile = NULL) {
+=======
+databricks_sdk_client <- function(
+  sdk,
+  host,
+  token,
+  serverless = FALSE,
+  cluster_id = NULL,
+  profile = NULL
+) {
+>>>>>>> main
   # SDK behaviour
   # https://databricks-sdk-py.readthedocs.io/en/latest/authentication.html#default-authentication-flow
   if (token == "") {
@@ -102,11 +113,13 @@ databricks_sdk_client <- function(sdk,
   sdk$WorkspaceClient(config = config)
 }
 
-databricks_dbr_version_name <- function(cluster_id,
-                                        client = NULL,
-                                        host = NULL,
-                                        token = NULL,
-                                        silent = FALSE) {
+databricks_dbr_version_name <- function(
+  cluster_id,
+  client = NULL,
+  host = NULL,
+  token = NULL,
+  silent = FALSE
+) {
   bullets <- NULL
   version <- NULL
   cluster_info <- databricks_dbr_info(
@@ -134,11 +147,13 @@ databricks_extract_version <- function(x) {
   version
 }
 
-databricks_dbr_info <- function(cluster_id,
-                                client = NULL,
-                                host = NULL,
-                                token = NULL,
-                                silent = FALSE) {
+databricks_dbr_info <- function(
+  cluster_id,
+  client = NULL,
+  host = NULL,
+  token = NULL,
+  silent = FALSE
+) {
   cli_div(theme = cli_colors())
 
   if (!silent) {
@@ -197,8 +212,12 @@ databricks_dbr_info <- function(cluster_id,
   out
 }
 
-databricks_dbr_version <- function(cluster_id, client = NULL,
-                                   host = NULL, token = NULL) {
+databricks_dbr_version <- function(
+  cluster_id,
+  client = NULL,
+  host = NULL,
+  token = NULL
+) {
   vn <- databricks_dbr_version_name(
     cluster_id = cluster_id,
     client = client,
@@ -208,8 +227,17 @@ databricks_dbr_version <- function(cluster_id, client = NULL,
   vn$version
 }
 
+<<<<<<< HEAD
 databricks_cluster_get <- function(cluster_id, client = NULL,
                                    host = NULL, token = NULL) {
+=======
+databricks_cluster_get <- function(
+  cluster_id,
+  client = NULL,
+  host = NULL,
+  token = NULL
+) {
+>>>>>>> main
   if (!is.null(client)) {
     try(
       client$clusters$get(cluster_id = cluster_id)$as_dict(),
@@ -343,4 +371,14 @@ databricks_dbr_python <- function(version) {
   } else {
     "3.10"
   }
+}
+
+# https://docs.databricks.com/aws/en/release-notes/serverless#supported-spark-configuration-parameters
+allowed_serverless_configs <- function() {
+  c(
+    "spark.sql.legacy.timeParserPolicy",
+    "spark.sql.session.timeZone",
+    "spark.sql.shuffle.partitions",
+    "spark.sql.ansi.enabled"
+  )
 }

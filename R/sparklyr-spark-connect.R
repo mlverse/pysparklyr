@@ -1,16 +1,17 @@
 #' @export
 spark_connect_method.spark_method_spark_connect <- function(
-    x,
-    method,
-    master,
-    spark_home,
-    config = pyspark_config(),
-    app_name,
-    version = NULL,
-    hadoop_version,
-    extensions,
-    scala_version,
-    ...) {
+  x,
+  method,
+  master,
+  spark_home,
+  config = pyspark_config(),
+  app_name,
+  version = NULL,
+  hadoop_version,
+  extensions,
+  scala_version,
+  ...
+) {
   version <- version %||% Sys.getenv("SPARK_VERSION")
 
   if (version == "") {
@@ -50,17 +51,18 @@ spark_connect_method.spark_method_spark_connect <- function(
 
 #' @export
 spark_connect_method.spark_method_databricks_connect <- function(
-    x,
-    method,
-    master,
-    spark_home,
-    config = pyspark_config(),
-    app_name,
-    version = NULL,
-    hadoop_version,
-    extensions,
-    scala_version,
-    ...) {
+  x,
+  method,
+  master,
+  spark_home,
+  config = pyspark_config(),
+  app_name,
+  version = NULL,
+  hadoop_version,
+  extensions,
+  scala_version,
+  ...
+) {
   args <- list(...)
   cluster_id <- args$cluster_id
   serverless <- args$serverless %||% FALSE
@@ -72,7 +74,13 @@ spark_connect_method.spark_method_databricks_connect <- function(
   method <- method[[1]]
 
   token <- databricks_token(token, fail = FALSE)
-  cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
+
+  # if serverless ignore specified cluster ids
+  if (serverless) {
+    cluster_id <- NULL
+  } else {
+    cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
+  }
 
   # load python env
   envname <- use_envname(
@@ -115,8 +123,6 @@ spark_connect_method.spark_method_databricks_connect <- function(
         version <- cluster_info$version
       }
     }
-  } else {
-    cluster_id <- NULL
   }
 
   if (!is.null(cluster_info)) {
@@ -168,7 +174,7 @@ initialize_connection <- function(
   serverless = FALSE,
   method = NULL,
   config = NULL
-  ) {
+) {
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",
@@ -193,21 +199,17 @@ initialize_connection <- function(
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) databricks_dbr_error(get_version)
-  if (!serverless) {
-    session$conf$set("spark.sql.session.localRelationCacheThreshold", 1048576L)
-    session$conf$set("spark.sql.execution.arrow.pyspark.enabled", "true")
-    session$conf$set(
-      "spark.sql.execution.arrow.pyspark.fallback.enabled",
-      "false"
-    )
-    }
-  if(!is.null(config)) {
+  # many configs cannot be applied on serverless - applies to databricks
+  if (serverless) {
+    config <- NULL
+  }
+  if (!is.null(config)) {
     config_orig <- sparklyr::spark_config()
     diffs <- setdiff(config, config_orig)
-    if(length(diffs)) {
+    if (length(diffs)) {
       diffs <- diffs[!grepl("sparklyr", names(diffs))]
     }
-    if(!length(diffs)) {
+    if (!length(diffs)) {
       config <- pyspark_config()
     }
     iwalk(config, \(x, y) session$conf$set(y, x))

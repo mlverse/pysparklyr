@@ -84,7 +84,6 @@ install_databricks <- function(
 
   if (is.null(envname)) {
     if (is.null(version) && !is.null(cluster_id)) {
-
       version <- databricks_dbr_version(
         cluster_id = cluster_id,
         host = databricks_host(),
@@ -205,7 +204,8 @@ install_environment <- function(
     envname <- use_envname(
       backend = backend,
       version = ver_name,
-      ask_if_not_installed = FALSE
+      ask_if_not_installed = FALSE,
+      python_version = python_version
     )
   }
   cli_alert_success(
@@ -277,7 +277,7 @@ install_environment <- function(
     method = method,
     python_version = python_version,
     pip = TRUE,
-    ... = ...
+    ...
   )
 }
 
@@ -328,7 +328,7 @@ python_library_info <- function(
     cli_progress_step(
       "{.header Retrieving version from PyPi.org}",
       msg_done = paste0(
-        "{.header Using:} {.emph '{ret$name}'} {.header version} {ret$version},",
+        "{.header PyPi specs:} {.emph '{ret$name}'} {.header version} {ret$version},",
         " {.header requires Python }{ret$requires_python}"
       ),
       msg_failed = "{.header {msg_fail}}"

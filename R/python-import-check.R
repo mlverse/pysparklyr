@@ -1,15 +1,11 @@
 import_check <- function(x, envname, silent = FALSE) {
   cli_div(theme = cli_colors())
-  if (!silent) {
-    cli_progress_step(
-      msg = "Attempting to load {.emph '{envname}'}",
-      msg_done = "{.header Python environment:} {.emph '{envname}'}",
-      msg_failed = "Problem using {.emph '{envname}'}"
-    )
-  }
   env_found <- !is.na(envname)
   env_loaded <- NA
   look_for_env <- TRUE
+
+
+  cli_msg <- "Attempting to load {.emph '{envname}'}"
 
   if (file.exists(envname)) {
     env_is_file <- TRUE
@@ -17,6 +13,19 @@ import_check <- function(x, envname, silent = FALSE) {
   } else {
     env_is_file <- FALSE
     env_path <- env_python(envname)
+    if (is.na(env_path)) {
+      env_path <- ""
+      envname <- "Managed `uv` environment"
+      cli_msg <- NULL
+    }
+  }
+
+  if (!silent) {
+    cli_progress_step(
+      msg = cli_msg,
+      msg_done = "{.header Python environment:} {.emph '{envname}'}",
+      msg_failed = "Problem using {.emph '{envname}'}"
+    )
   }
 
   if (env_is_file) {
@@ -56,8 +65,10 @@ import_check <- function(x, envname, silent = FALSE) {
     }
   }
 
+
+  py_executable <- ifelse(is.null(py_exe()), "", py_exe())
   if (is.na(env_loaded)) {
-    env_loaded <- env_path == py_exe()
+    env_loaded <- env_path == py_executable
   }
 
   out <- try(import(x), silent = TRUE)
@@ -95,18 +106,7 @@ import_check <- function(x, envname, silent = FALSE) {
     }
     cli_alert_danger(glue("`reticulate` error:\n {out[[1]]}"))
   } else {
-    if (env_loaded) {
-      # if (look_for_env) {
-      #   msg <- paste(
-      #     "{.header Using the }{.emph '{envname}' }{.header Python}",
-      #     "{.header environment }"
-      #   )
-      #   cli_div(theme = cli_colors())
-      #   cli_alert_success(msg)
-      #   cli_bullets(c(" " = "{.class Path: {py_exe()}}"))
-      #   cli_end()
-      # }
-    } else {
+    if (!env_loaded) {
       cli_progress_done(result = "failed")
       cli_bullets(c(
         " " = "{.header A different Python is already loaded: }{.emph '{py_exe()}'}",

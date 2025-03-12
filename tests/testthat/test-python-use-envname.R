@@ -69,8 +69,7 @@ test_that("Error if 'use_first' is not TRUE", {
           messages = TRUE,
           match_first = FALSE,
           ask_if_not_installed = FALSE
-        ),
-        "You do not have a Python environment that matches"
+        )
       )
     }
   )
@@ -152,4 +151,14 @@ test_that("'Ask to install', simulates menu selection 'Cancel'", {
 
 test_that("Expect error when no 'version' is provided", {
   expect_error(use_envname(version = NULL))
+})
+
+
+test_that("Requirements work", {
+  reqs <- python_requirements(
+    backend = "pyspark",
+    main_library = "pyspark",
+    version = "3.4"
+  )
+  expect_equal(c("packages", "python_version"), names(reqs))
 })

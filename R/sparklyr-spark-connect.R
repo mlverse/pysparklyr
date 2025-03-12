@@ -1,17 +1,16 @@
 #' @export
 spark_connect_method.spark_method_spark_connect <- function(
-  x,
-  method,
-  master,
-  spark_home,
-  config = pyspark_config(),
-  app_name,
-  version = NULL,
-  hadoop_version,
-  extensions,
-  scala_version,
-  ...
-) {
+    x,
+    method,
+    master,
+    spark_home,
+    config = pyspark_config(),
+    app_name,
+    version = NULL,
+    hadoop_version,
+    extensions,
+    scala_version,
+    ...) {
   version <- version %||% Sys.getenv("SPARK_VERSION")
 
   if (version == "") {
@@ -26,7 +25,8 @@ spark_connect_method.spark_method_spark_connect <- function(
     version = version,
     envname = envname,
     messages = TRUE,
-    match_first = TRUE
+    match_first = TRUE,
+    python_version = args$python_version
   )
 
   if (is.null(envname)) {
@@ -51,18 +51,17 @@ spark_connect_method.spark_method_spark_connect <- function(
 
 #' @export
 spark_connect_method.spark_method_databricks_connect <- function(
-  x,
-  method,
-  master,
-  spark_home,
-  config = pyspark_config(),
-  app_name,
-  version = NULL,
-  hadoop_version,
-  extensions,
-  scala_version,
-  ...
-) {
+    x,
+    method,
+    master,
+    spark_home,
+    config = pyspark_config(),
+    app_name,
+    version = NULL,
+    hadoop_version,
+    extensions,
+    scala_version,
+    ...) {
   args <- list(...)
   cluster_id <- args$cluster_id
   serverless <- args$serverless %||% FALSE
@@ -89,8 +88,9 @@ spark_connect_method.spark_method_databricks_connect <- function(
     version = version,
     envname = envname,
     messages = !silent,
-    match_first = TRUE,
-    main_library = "databricks.connect"
+    match_first = FALSE,
+    ask_if_not_installed = FALSE,
+    python_version = args$python_version
   )
 
   if (is.null(envname)) {
@@ -168,14 +168,13 @@ spark_connect_method.spark_method_databricks_connect <- function(
 }
 
 initialize_connection <- function(
-  conn,
-  master_label,
-  con_class,
-  cluster_id = NULL,
-  serverless = FALSE,
-  method = NULL,
-  config = NULL
-) {
+    conn,
+    master_label,
+    con_class,
+    cluster_id = NULL,
+    serverless = FALSE,
+    method = NULL,
+    config = NULL) {
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",

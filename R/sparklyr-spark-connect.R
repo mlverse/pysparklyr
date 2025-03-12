@@ -1,16 +1,17 @@
 #' @export
 spark_connect_method.spark_method_spark_connect <- function(
-    x,
-    method,
-    master,
-    spark_home,
-    config = pyspark_config(),
-    app_name,
-    version = NULL,
-    hadoop_version,
-    extensions,
-    scala_version,
-    ...) {
+  x,
+  method,
+  master,
+  spark_home,
+  config = pyspark_config(),
+  app_name,
+  version = NULL,
+  hadoop_version,
+  extensions,
+  scala_version,
+  ...
+) {
   version <- version %||% Sys.getenv("SPARK_VERSION")
 
   if (version == "") {
@@ -51,45 +52,38 @@ spark_connect_method.spark_method_spark_connect <- function(
 
 #' @export
 spark_connect_method.spark_method_databricks_connect <- function(
-    x,
-    method,
-    master,
-    spark_home,
-    config = pyspark_config(),
-    app_name,
-    version = NULL,
-    hadoop_version,
-    extensions,
-    scala_version,
-    ...) {
+  x,
+  method,
+  master,
+  spark_home,
+  config = pyspark_config(),
+  app_name,
+  version = NULL,
+  hadoop_version,
+  extensions,
+  scala_version,
+  ...
+) {
   args <- list(...)
   cluster_id <- args$cluster_id
+  serverless <- args$serverless %||% FALSE
+  profile <- args$profile %||% NULL
   token <- args$token
   envname <- args$envname
-  host_sanitize <- args$host_sanitize %||% TRUE
   silent <- args$silent %||% FALSE
 
   method <- method[[1]]
+
   token <- databricks_token(token, fail = FALSE)
-  cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
-  master <- databricks_host(master, fail = FALSE)
-  if (host_sanitize && master != "") {
-    master <- sanitize_host(master, silent)
+
+  # if serverless ignore specified cluster ids
+  if (serverless) {
+    cluster_id <- NULL
+  } else {
+    cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
   }
 
-  cluster_info <- NULL
-  if (cluster_id != "" && master != "" && token != "") {
-    cluster_info <- databricks_dbr_version_name(
-      cluster_id = cluster_id,
-      host = master,
-      token = token,
-      silent = silent
-    )
-    if (is.null(version)) {
-      version <- cluster_info$version
-    }
-  }
-
+  # load python env
   envname <- use_envname(
     backend = "databricks",
     version = version,
@@ -104,16 +98,47 @@ spark_connect_method.spark_method_databricks_connect <- function(
     return(invisible)
   }
 
-  db <- import_check("databricks.connect", envname, silent)
+  # load python libs
+  dbc <- import_check("databricks.connect", envname, silent)
+  db_sdk <- import_check("databricks.sdk", envname, silent = TRUE)
+
+  # create workspace client
+  sdk_client <- databricks_sdk_client(
+    sdk = db_sdk,
+    host = master,
+    serverless = serverless,
+    cluster_id = cluster_id,
+    token = token,
+    profile = profile
+  )
+
+  # if serverless override cluster_id and set to `NULL`
+  cluster_info <- NULL
+  if (!serverless) {
+    if (cluster_id != "") {
+      cluster_info <- databricks_dbr_version_name(
+        cluster_id = cluster_id,
+        client = sdk_client,
+        silent = silent
+      )
+      if (is.null(version)) {
+        version <- cluster_info$version
+      }
+    }
+  }
 
   if (!is.null(cluster_info)) {
     msg <- "{.header Connecting to} {.emph '{cluster_info$name}'}"
     msg_done <- "{.header Connected to:} {.emph '{cluster_info$name}'}"
     master_label <- glue("{cluster_info$name} ({cluster_id})")
-  } else {
+  } else if (!serverless) {
     msg <- "{.header Connecting to} {.emph '{cluster_id}'}"
     msg_done <- "{.header Connected to:} '{.emph '{cluster_id}'}'"
     master_label <- glue("Databricks Connect - Cluster: {cluster_id}")
+  } else if (serverless) {
+    msg <- "{.header Connecting to} {.emph serverless}"
+    msg_done <- "{.header Connected to:} '{.emph serverless}'"
+    master_label <- glue("Databricks Connect - Cluster: serverless")
   }
 
   if (!silent) {
@@ -121,17 +146,11 @@ spark_connect_method.spark_method_databricks_connect <- function(
     cli_progress_step(msg, msg_done)
   }
 
-  remote_args <- list()
-  if (master != "") remote_args$host <- master
-  if (token != "") remote_args$token <- token
-  if (cluster_id != "") remote_args$cluster_id <- cluster_id
-
-  databricks_session <- function(...) {
-    user_agent <- build_user_agent()
-    db$DatabricksSession$builder$remote(...)$userAgent(user_agent)
-  }
-
-  conn <- exec(databricks_session, !!!remote_args)
+  # build databricks session connection
+  user_agent <- build_user_agent()
+  conn <- dbc$DatabricksSession$builder$sdkConfig(sdk_client$config)$userAgent(
+    user_agent
+  )
 
   if (!silent) {
     cli_progress_done()
@@ -143,18 +162,21 @@ spark_connect_method.spark_method_databricks_connect <- function(
     master_label = master_label,
     con_class = "connect_databricks",
     cluster_id = cluster_id,
+    serverless = serverless,
     method = method,
     config = config
   )
 }
 
 initialize_connection <- function(
-    conn,
-    master_label,
-    con_class,
-    cluster_id = NULL,
-    method = NULL,
-    config = NULL) {
+  conn,
+  master_label,
+  con_class,
+  cluster_id = NULL,
+  serverless = FALSE,
+  method = NULL,
+  config = NULL
+) {
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",
@@ -175,16 +197,23 @@ initialize_connection <- function(
     "ignore",
     message = "Index.format is deprecated and will be removed in a future version"
   )
+
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) databricks_dbr_error(get_version)
-  if(!is.null(config)) {
+
+  # many configs cannot be applied on serverless - applies to databricks
+  if (serverless) {
+    config <- NULL
+  }
+
+  if (!is.null(config)) {
     config_orig <- sparklyr::spark_config()
     diffs <- setdiff(config, config_orig)
-    if(length(diffs)) {
+    if (length(diffs)) {
       diffs <- diffs[!grepl("sparklyr", names(diffs))]
     }
-    if(!length(diffs)) {
+    if (!length(diffs)) {
       config <- pyspark_config()
     }
     iwalk(config, \(x, y) session$conf$set(y, x))
@@ -202,9 +231,15 @@ initialize_connection <- function(
       method = method,
       session = session,
       state = spark_context,
+      serverless = serverless,
       con = structure(list(), class = c("spark_connection", "DBIConnection"))
     ),
-    class = c(con_class, "pyspark_connection", "spark_connection", "DBIConnection")
+    class = c(
+      con_class,
+      "pyspark_connection",
+      "spark_connection",
+      "DBIConnection"
+    )
   )
 
   sc
@@ -212,7 +247,6 @@ initialize_connection <- function(
 # setOldClass(
 #   c("Hive", "spark_connection")
 # )
-
 
 setOldClass(
   c("connect_spark", "pyspark_connection", "spark_connection")

@@ -84,6 +84,7 @@ install_databricks <- function(
 
   if (is.null(envname)) {
     if (is.null(version) && !is.null(cluster_id)) {
+
       version <- databricks_dbr_version(
         cluster_id = cluster_id,
         host = databricks_host(),
@@ -218,7 +219,8 @@ install_environment <- function(
     "PyArrow",
     "grpcio",
     "google-api-python-client",
-    "grpcio_status"
+    "grpcio_status",
+    "databricks-sdk"
   )
 
   if (add_torch && install_ml) {

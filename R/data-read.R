@@ -201,7 +201,7 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
     }
   }
 
-  if (memory) {
+  if (memory && !sc$serverless) {
     if (repartition > 1) {
       storage_level <- import("pyspark.storagelevel")
       x$createOrReplaceTempView(name)

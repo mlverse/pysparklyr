@@ -1,5 +1,9 @@
 # pysparklyr (dev)
 
+* Adding support for Databricks serverless interactive compute (#127)
+
+* Extended authentication method support for Databricks by deferring to SDK (#127)
+
 * Disables un-setting the `RETICULATE_PYTHON` environment variable. It will
 still display a warning if it's set, letting the user know that it may 
 cause connectivity issues.
@@ -21,7 +25,6 @@ the first time `spark_apply()` is called (#125)
 Pane. 
 
 * Avoids failure when an unexpected error from Databricks is returned (#123)
-
 
 # pysparklyr 0.1.5
 

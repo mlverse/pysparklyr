@@ -73,6 +73,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
 
   method <- method[[1]]
 
+  master <- databricks_host(master, fail = FALSE)
   token <- databricks_token(token, fail = FALSE)
 
   # if serverless ignore specified cluster ids
@@ -199,19 +200,36 @@ initialize_connection <- function(
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) databricks_dbr_error(get_version)
-  # many configs cannot be applied on serverless - applies to databricks
-  if (serverless) {
-    config <- NULL
-  }
+
   if (!is.null(config)) {
-    config_orig <- sparklyr::spark_config()
-    diffs <- setdiff(config, config_orig)
-    if (length(diffs)) {
-      diffs <- diffs[!grepl("sparklyr", names(diffs))]
+    # remove sparklyr default configs (at least for now)
+    config <- list_diff(config, sparklyr::spark_config())
+
+    # remove any other sparklyr configs
+    config <- config[!grepl("^sparklyr", names(config))]
+
+    # add pyspark configs if not on serverless
+    # drop spark sql configs that are unsupported on serverless
+    if (!serverless) {
+      config <- c(config, pyspark_config())
+    } else {
+      # ensure only `spark.sql.<...>` configs are considered
+      sql_configs <- names(config)[grepl("^spark.sql", names(config))]
+      allowed_confs <- sql_configs %in% allowed_serverless_configs()
+
+      # drop configs that aren't supported
+      dropped <- sql_configs[!allowed_confs]
+
+      if (length(dropped) > 0) {
+        cli::cli_alert_warning(
+          text = "Unsupported configs on serverless were dropped:"
+        )
+        cli::cli_li(paste0("{.envvar ", dropped, "}"))
+        cli::cli_end()
+      }
+      config <- config[!names(config) %in% dropped]
     }
-    if (!length(diffs)) {
-      config <- pyspark_config()
-    }
+
     iwalk(config, \(x, y) session$conf$set(y, x))
   }
 

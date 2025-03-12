@@ -1,5 +1,10 @@
 # pysparklyr (dev)
 
+* Adjusted logic for handling config to now warn users when unsupported configs
+are supplied if using Databricks serverless compute
+
+* Databricks connections should now correctly use `databricks_host()`
+
 * Adding support for Databricks serverless interactive compute (#127)
 
 * Extended authentication method support for Databricks by deferring to SDK (#127)

@@ -13,10 +13,9 @@
 NULL
 
 reticulate_python_check <- function(
-  ignore = FALSE,
-  unset = FALSE,
-  message = TRUE
-) {
+    ignore = FALSE,
+    unset = FALSE,
+    message = TRUE) {
   if (ignore) {
     return("")
   }
@@ -98,10 +97,9 @@ current_product_connect <- function() {
 }
 
 py_check_installed <- function(
-  envname = NULL,
-  libraries = "",
-  msg = ""
-) {
+    envname = NULL,
+    libraries = "",
+    msg = "") {
   installed_libraries <- py_list_packages(envname = envname)$package
   find_libs <- map_lgl(libraries, ~ .x %in% installed_libraries)
   if (!all(find_libs)) {

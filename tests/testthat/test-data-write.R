@@ -14,7 +14,7 @@ test_that("Write table works", {
   expect_silent(
     spark_write_table(tbl_mtcars, "new_mtcars")
   )
-  if(dir_exists(test_path("spark-warehouse"))) {
+  if (dir_exists(test_path("spark-warehouse"))) {
     dir_delete(test_path("spark-warehouse"))
   }
 })

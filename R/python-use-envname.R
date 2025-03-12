@@ -8,11 +8,10 @@ use_envname <- function(
     ask_if_not_installed = interactive(),
     main_library = NULL,
     python_version = NULL) {
-
-  if(is.null(main_library) && !is.null(backend)) {
-    if(backend == "pyspark") {
+  if (is.null(main_library) && !is.null(backend)) {
+    if (backend == "pyspark") {
       main_library <- "pyspark"
-    } else if (backend == "databricks"){
+    } else if (backend == "databricks") {
       main_library <- "databricks.connect"
     }
   }
@@ -48,7 +47,7 @@ use_envname <- function(
 
   if (!is.null(main_library) && !match_exact) {
     lib_info <- python_library_info(main_library, fail = FALSE, verbose = FALSE)
-    if(!is.null(lib_info)) {
+    if (!is.null(lib_info)) {
       latest_ver <- lib_info$version
       vers <- compareVersion(latest_ver, version)
       install_recent <- vers == 1
@@ -140,15 +139,15 @@ use_envname <- function(
         reqs <- python_requirements(
           backend = backend,
           main_library = main_library,
-          version = version ,
+          version = version,
           python_version = python_version,
           install_ml = FALSE,
           add_torch = FALSE
-          )
+        )
         reticulate::py_require(
           packages = reqs$packages,
           python_version = reqs$python_version
-          )
+        )
       }
       if (ret_name == "first") {
         cli_alert_warning(msg_1)
@@ -183,13 +182,13 @@ python_requirements <- function(
     add_torch = FALSE) {
   cli_div(theme = cli_colors())
 
-  if(is.null(python_version) && backend == "databricks") {
+  if (is.null(python_version) && backend == "databricks") {
     python_version <- databricks_dbr_python(version)
   }
 
   library_info <- python_library_info(
     library_name = main_library,
-    library_version  = version,
+    library_version = version,
     verbose = is.null(python_version)
   )
 

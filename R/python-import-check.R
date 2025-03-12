@@ -13,7 +13,7 @@ import_check <- function(x, envname, silent = FALSE) {
   } else {
     env_is_file <- FALSE
     env_path <- env_python(envname)
-    if(is.na(env_path)) {
+    if (is.na(env_path)) {
       env_path <- ""
       envname <- "Managed `uv` environment"
       cli_msg <- NULL

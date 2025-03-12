@@ -74,15 +74,13 @@ databricks_sdk_client <- function(sdk,
                                   serverless = FALSE,
                                   cluster_id = NULL,
                                   profile = NULL) {
-
-
   # SDK behaviour
   # https://databricks-sdk-py.readthedocs.io/en/latest/authentication.html#default-authentication-flow
   if (token == "") {
     databricks_desktop_login(host = host, profile = profile)
-    auth_type = "databricks-cli"
+    auth_type <- "databricks-cli"
   } else {
-    auth_type = "pat"
+    auth_type <- "pat"
   }
 
   if (serverless) {
@@ -102,7 +100,6 @@ databricks_sdk_client <- function(sdk,
   )
 
   sdk$WorkspaceClient(config = config)
-
 }
 
 databricks_dbr_version_name <- function(cluster_id,
@@ -213,7 +210,6 @@ databricks_dbr_version <- function(cluster_id, client = NULL,
 
 databricks_cluster_get <- function(cluster_id, client = NULL,
                                    host = NULL, token = NULL) {
-
   if (!is.null(client)) {
     try(
       client$clusters$get(cluster_id = cluster_id)$as_dict(),
@@ -233,7 +229,6 @@ databricks_cluster_get <- function(cluster_id, client = NULL,
       silent = TRUE
     )
   }
-
 }
 
 databricks_dbr_error <- function(error) {
@@ -277,7 +272,7 @@ databricks_dbr_error <- function(error) {
 }
 
 # from httr2
-is_hosted_session <- function () {
+is_hosted_session <- function() {
   if (nzchar(Sys.getenv("COLAB_RELEASE_TAG"))) {
     return(TRUE)
   }
@@ -286,7 +281,6 @@ is_hosted_session <- function () {
 }
 
 databricks_desktop_login <- function(host = NULL, profile = NULL) {
-
   # host takes priority over profile
   if (!is.null(host)) {
     method <- "--host"
@@ -342,12 +336,11 @@ sanitize_host <- function(url, silent = FALSE) {
 }
 
 databricks_dbr_python <- function(version) {
-  if(version >= "16.0") {
+  if (version >= "16.0") {
     "3.12"
   } else if (version >= "15.0") {
     "3.11"
   } else {
     "3.10"
-    }
+  }
 }
-

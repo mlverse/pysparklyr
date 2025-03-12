@@ -48,13 +48,14 @@ use_test_connect_start <- function() {
         "PYSPARK_PYTHON" = env_path,
         "PYTHON_VERSION_MISMATCH" = env_path,
         "PYSPARK_DRIVER_PYTHON" = env_path
-        ),
+      ),
       {
         spark_connect_service_start(
           version = version,
           scala_version = use_test_scala_spark()
         )
-      })
+      }
+    )
     .test_env$started <- 0
   } else {
     invisible()

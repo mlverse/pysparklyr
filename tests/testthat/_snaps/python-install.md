@@ -4,11 +4,11 @@
       x
     Output
       $packages
-      [1] "pyspark==3.5.0"           "pandas!=2.1.0"           
-      [3] "PyArrow"                  "grpcio"                  
-      [5] "google-api-python-client" "grpcio_status"           
-      [7] "torch"                    "torcheval"               
-      [9] "scikit-learn"            
+       [1] "pyspark==3.5.0"           "pandas!=2.1.0"           
+       [3] "PyArrow"                  "grpcio"                  
+       [5] "google-api-python-client" "grpcio_status"           
+       [7] "databricks-sdk"           "torch"                   
+       [9] "torcheval"                "scikit-learn"            
       
       $envname
                    unavailable 
@@ -37,6 +37,7 @@
       [1] "pyspark==3.5.*"           "pandas!=2.1.0"           
       [3] "PyArrow"                  "grpcio"                  
       [5] "google-api-python-client" "grpcio_status"           
+      [7] "databricks-sdk"          
       
       $envname
                    unavailable 

@@ -1,5 +1,10 @@
 # pysparklyr (dev)
 
+* Adds support for new way `reticulate` manages Python environments
+(https://rstudio.github.io/reticulate/articles/package.html). This means that 
+the need to run `install_pyspark()` or `install_databricks()` will not be 
+needed for interactive R sessions. 
+
 * Adjusted logic for handling config to now warn users when unsupported configs
 are supplied if using Databricks serverless compute
 

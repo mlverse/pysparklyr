@@ -39,7 +39,7 @@ to_pandas_cleaned <- function(x) {
     if (orig_types[i] == "date") {
       to_date <- collected[, i] %>%
         as.integer() %>%
-        as.Date()
+        as.Date(origin = "1970-01-01")
       collected[, i] <- to_date
     }
   }

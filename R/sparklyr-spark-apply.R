@@ -119,7 +119,7 @@ sa_in_pandas <- function(
     w_gp <- df$withColumn(colName = renamed_gp, col = df[.group_by])
     tbl_gp <- w_gp$groupby(renamed_gp)
     p_df <- tbl_gp$applyInPandas(
-      main$r_apply,
+      main$r_apply(1),
       schema = .schema
     )
   } else {

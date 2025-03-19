@@ -1,7 +1,7 @@
-function(df = mtcars) {
+function(df = mtcars, context = 1) {
   library(arrow);
   fn <- function(...) 1;
-  fn_run <- fn(df);
+  fn_run <- fn(df, context);
   gp_field <- 'am';
   col_names <- c('am', 'x');
   gp <- df[1, gp_field];

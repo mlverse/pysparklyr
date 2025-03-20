@@ -19,9 +19,15 @@ spark_apply.tbl_pyspark <- function(
   if (!is.null(packages)) {
     cli_abort("`packages` is not yet supported for this backend")
   }
-  # if (!is.null(context)) {
-  #   cli_abort("`context` is not supported for this backend")
-  # }
+  if (!is.null(context)) {
+    if(!is.null(group_by)) {
+      if(inherits(context, "list")) {
+        cli_abort("R lists are not supported for `context`")
+      }
+    } else {
+      cli_abort("`context` is only supported for calls using `group_by`")
+    }
+  }
   if (auto_deps) {
     cli_abort("`auto_deps` is not supported for this backend")
   }
@@ -165,6 +171,7 @@ sa_function_to_string <- function(
     .colnames = NULL,
     ...) {
   path_scripts <- system.file("udf", package = "pysparklyr")
+  #path_scripts <- "inst/udf"
   if (dir_exists("inst/udf")) {
     path_scripts <- path_expand("inst/udf")
   }

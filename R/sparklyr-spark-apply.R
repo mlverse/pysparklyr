@@ -81,7 +81,12 @@ sa_in_pandas <- function(
     r_df <- x %>%
       head(10) %>%
       collect()
-    r_exec <- r_fn(r_df)
+    if(is.null(.context)) {
+      r_exec <- r_fn(r_df)
+    } else {
+      r_exec <- r_fn(r_df, .context)
+    }
+
     col_names <- colnames(r_exec)
     col_names <- gsub("\\.", "_", col_names)
     colnames(r_exec) <- col_names

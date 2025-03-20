@@ -5,6 +5,9 @@
 the need to run `install_pyspark()` or `install_databricks()` will not be 
 needed for interactive R sessions. 
 
+* Adds limited support for `context` in `spark_apply()`. It will only work when
+`group_by` is used. The object passed to `context` cannot be an R `list`
+
 * Adjusted logic for handling config to now warn users when unsupported configs
 are supplied if using Databricks serverless compute
 

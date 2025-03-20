@@ -170,8 +170,8 @@ sa_function_to_string <- function(
     .r_only = FALSE,
     .colnames = NULL,
     ...) {
-  path_scripts <- system.file("udf", package = "pysparklyr")
-  #path_scripts <- "inst/udf"
+  #path_scripts <- system.file("udf", package = "pysparklyr")
+  path_scripts <- "inst/udf"
   if (dir_exists("inst/udf")) {
     path_scripts <- path_expand("inst/udf")
   }

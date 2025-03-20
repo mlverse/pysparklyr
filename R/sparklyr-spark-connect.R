@@ -82,6 +82,14 @@ spark_connect_method.spark_method_databricks_connect <- function(
     cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
   }
 
+  if (cluster_id != "" && !serverless && is.null(version) && !is.null(token)) {
+    version <- databricks_dbr_version(
+      cluster_id = cluster_id,
+      host = master,
+      token = token
+    )
+  }
+
   # load python env
   envname <- use_envname(
     backend = "databricks",
@@ -120,9 +128,6 @@ spark_connect_method.spark_method_databricks_connect <- function(
         client = sdk_client,
         silent = silent
       )
-      if (is.null(version)) {
-        version <- cluster_info$version
-      }
     }
   }
 

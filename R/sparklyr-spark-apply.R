@@ -19,9 +19,9 @@ spark_apply.tbl_pyspark <- function(
   if (!is.null(packages)) {
     cli_abort("`packages` is not yet supported for this backend")
   }
-  if (!is.null(context)) {
-    cli_abort("`context` is not supported for this backend")
-  }
+  # if (!is.null(context)) {
+  #   cli_abort("`context` is not supported for this backend")
+  # }
   if (auto_deps) {
     cli_abort("`auto_deps` is not supported for this backend")
   }
@@ -51,6 +51,7 @@ spark_apply.tbl_pyspark <- function(
     .as_sdf = fetch_result_as_sdf,
     .name = name,
     .barrier = barrier,
+    .context = context,
     ... = ...
   )
 }
@@ -64,6 +65,7 @@ sa_in_pandas <- function(
     .group_by = NULL,
     .as_sdf = TRUE,
     .name = NULL,
+    .context = NULL,
     .barrier = NULL) {
   schema_msg <- FALSE
   if (is.null(.schema)) {
@@ -119,7 +121,7 @@ sa_in_pandas <- function(
     w_gp <- df$withColumn(colName = renamed_gp, col = df[.group_by])
     tbl_gp <- w_gp$groupby(renamed_gp)
     p_df <- tbl_gp$applyInPandas(
-      main$r_apply(1),
+      main$r_apply(.context),
       schema = .schema
     )
   } else {

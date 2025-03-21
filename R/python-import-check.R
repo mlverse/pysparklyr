@@ -3,6 +3,7 @@ import_check <- function(x, envname, silent = FALSE) {
   env_found <- !is.na(envname)
   env_loaded <- NA
   is_uv <- FALSE
+  uv_managed <- NA
   look_for_env <- TRUE
 
   env_found_names <- names(env_found) %||% ""
@@ -22,6 +23,7 @@ import_check <- function(x, envname, silent = FALSE) {
     if (is.na(env_path)) {
       env_path <- ""
       is_uv <- TRUE
+      uv_managed <- "true"
       envname <- "Managed `uv` environment"
       cli_msg <- NULL
     }
@@ -81,7 +83,10 @@ import_check <- function(x, envname, silent = FALSE) {
     }
   }
 
-  out <- try(import(x), silent = TRUE)
+  withr::with_envvar(
+    c("RETICULATE_USE_MANAGED_VENV" = uv_managed),
+    out <- try(import(x), silent = TRUE)
+  )
 
   if (inherits(out, "try-error")) {
     if (env_found) {

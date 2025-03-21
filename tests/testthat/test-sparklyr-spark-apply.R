@@ -26,6 +26,13 @@ test_that("spark_apply() works", {
     spark_apply(dplyr::filter(tbl_mtcars, am == 0), ~.x),
     "tbl_spark"
   )
+  expect_error(
+    spark_apply(tbl_mtcars, function(x, y) y, context = 1)
+  )
+  expect_s3_class(
+    spark_apply(tbl_mtcars, function(x, y) y, context = 1, group_by = "am"),
+    "tbl_spark"
+  )
 })
 
 test_that("Errors are output by specific params", {

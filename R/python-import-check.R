@@ -2,6 +2,7 @@ import_check <- function(x, envname, silent = FALSE) {
   cli_div(theme = cli_colors())
   env_found <- !is.na(envname)
   env_loaded <- NA
+  is_uv <- FALSE
   look_for_env <- TRUE
 
   env_found_names <- names(env_found) %||% ""
@@ -20,6 +21,7 @@ import_check <- function(x, envname, silent = FALSE) {
     env_path <- env_python(envname)
     if (is.na(env_path)) {
       env_path <- ""
+      is_uv <- TRUE
       envname <- "Managed `uv` environment"
       cli_msg <- NULL
     }
@@ -70,11 +72,7 @@ import_check <- function(x, envname, silent = FALSE) {
     }
   }
 
-
-  py_executable <- ifelse(is.null(py_exe()), "", py_exe())
-  if (is.na(env_loaded)) {
-    env_loaded <- env_path == py_executable
-  }
+  py_executable <- py_exe() %||% ""
 
   out <- try(import(x), silent = TRUE)
 
@@ -111,7 +109,7 @@ import_check <- function(x, envname, silent = FALSE) {
     }
     cli_alert_danger(glue("`reticulate` error:\n {out[[1]]}"))
   } else {
-    if (!env_loaded) {
+    if (!env_loaded && !is_uv) {
       cli_progress_done(result = "failed")
       cli_bullets(c(
         " " = "{.header A different Python is already loaded: }{.emph '{py_exe()}'}",

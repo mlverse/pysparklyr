@@ -82,12 +82,14 @@ spark_connect_method.spark_method_databricks_connect <- function(
     cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
   }
 
+  cluster_info <- NULL
   if (cluster_id != "" && !serverless && is.null(version) && !is.null(token)) {
-    version <- databricks_dbr_version(
+    cluster_info <- databricks_dbr_info(
       cluster_id = cluster_id,
       host = master,
       token = token
     )
+    version <- databricks_extract_version(cluster_info)
   }
 
   # load python env
@@ -120,9 +122,8 @@ spark_connect_method.spark_method_databricks_connect <- function(
   )
 
   # if serverless override cluster_id and set to `NULL`
-  cluster_info <- NULL
   if (!serverless) {
-    if (cluster_id != "") {
+    if (cluster_id != "" && is.null(cluster_info)) {
       cluster_info <- databricks_dbr_version_name(
         cluster_id = cluster_id,
         client = sdk_client,
@@ -132,9 +133,9 @@ spark_connect_method.spark_method_databricks_connect <- function(
   }
 
   if (!is.null(cluster_info)) {
-    msg <- "{.header Connecting to} {.emph '{cluster_info$name}'}"
-    msg_done <- "{.header Connected to:} {.emph '{cluster_info$name}'}"
-    master_label <- glue("{cluster_info$name} ({cluster_id})")
+    msg <- "{.header Connecting to} {.emph '{cluster_info$cluster_name}'}"
+    msg_done <- "{.header Connected to:} {.emph '{cluster_info$cluster_name}'}"
+    master_label <- glue("{cluster_info$cluster_name} ({cluster_id})")
   } else if (!serverless) {
     msg <- "{.header Connecting to} {.emph '{cluster_id}'}"
     msg_done <- "{.header Connected to:} '{.emph '{cluster_id}'}'"

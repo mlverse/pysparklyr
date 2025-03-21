@@ -72,7 +72,14 @@ import_check <- function(x, envname, silent = FALSE) {
     }
   }
 
-  py_executable <- py_exe() %||% ""
+  if(is.na(env_loaded)) {
+    if(env_path != "") {
+      py_executable <- py_exe() %||% ""
+      env_loaded <- env_path == py_executable
+    } else {
+      env_loaded <- FALSE
+    }
+  }
 
   out <- try(import(x), silent = TRUE)
 

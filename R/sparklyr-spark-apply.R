@@ -20,7 +20,13 @@ spark_apply.tbl_pyspark <- function(
     cli_abort("`packages` is not yet supported for this backend")
   }
   if (!is.null(context)) {
-    cli_abort("`context` is not supported for this backend")
+    if (!is.null(group_by)) {
+      if (inherits(context, "list")) {
+        cli_abort("R lists are not supported for `context`")
+      }
+    } else {
+      cli_abort("`context` is only supported for calls using `group_by`")
+    }
   }
   if (auto_deps) {
     cli_abort("`auto_deps` is not supported for this backend")
@@ -51,6 +57,7 @@ spark_apply.tbl_pyspark <- function(
     .as_sdf = fetch_result_as_sdf,
     .name = name,
     .barrier = barrier,
+    .context = context,
     ... = ...
   )
 }
@@ -64,6 +71,7 @@ sa_in_pandas <- function(
     .group_by = NULL,
     .as_sdf = TRUE,
     .name = NULL,
+    .context = NULL,
     .barrier = NULL) {
   schema_msg <- FALSE
   if (is.null(.schema)) {
@@ -72,6 +80,7 @@ sa_in_pandas <- function(
         .r_only = TRUE,
         .group_by = .group_by,
         .colnames = NULL,
+        .context = .context,
         ... = ...
       ) %>%
       rlang::parse_expr() %>%
@@ -79,7 +88,12 @@ sa_in_pandas <- function(
     r_df <- x %>%
       head(10) %>%
       collect()
-    r_exec <- r_fn(r_df)
+    if (is.null(.context)) {
+      r_exec <- r_fn(r_df)
+    } else {
+      r_exec <- r_fn(r_df, .context)
+    }
+
     col_names <- colnames(r_exec)
     col_names <- gsub("\\.", "_", col_names)
     colnames(r_exec) <- col_names
@@ -103,6 +117,7 @@ sa_in_pandas <- function(
     sa_function_to_string(
       .group_by = .group_by,
       .colnames = col_names,
+      .context = .context,
       ... = ...
     ) %>%
     py_run_string()
@@ -118,10 +133,17 @@ sa_in_pandas <- function(
     renamed_gp <- paste0("_", .group_by)
     w_gp <- df$withColumn(colName = renamed_gp, col = df[.group_by])
     tbl_gp <- w_gp$groupby(renamed_gp)
-    p_df <- tbl_gp$applyInPandas(
-      main$r_apply,
-      schema = .schema
-    )
+    if (is.null(.context)) {
+      p_df <- tbl_gp$applyInPandas(
+        main$r_apply,
+        schema = .schema
+      )
+    } else {
+      p_df <- tbl_gp$applyInPandas(
+        main$r_apply(.context),
+        schema = .schema
+      )
+    }
   } else {
     p_df <- df$mapInPandas(
       main$r_apply,
@@ -156,12 +178,17 @@ sa_function_to_string <- function(
     .group_by = NULL,
     .r_only = FALSE,
     .colnames = NULL,
+    .context = NULL,
     ...) {
   path_scripts <- system.file("udf", package = "pysparklyr")
+  # path_scripts <- "inst/udf"
   if (dir_exists("inst/udf")) {
     path_scripts <- path_expand("inst/udf")
   }
   udf_fn <- ifelse(is.null(.group_by), "map", "apply")
+  if (!is.null(.context)) {
+    udf_fn <- glue("{udf_fn}-context")
+  }
   fn_r <- paste0(
     readLines(path(path_scripts, glue("udf-{udf_fn}.R"))),
     collapse = ""

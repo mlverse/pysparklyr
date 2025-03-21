@@ -4,6 +4,11 @@ import_check <- function(x, envname, silent = FALSE) {
   env_loaded <- NA
   look_for_env <- TRUE
 
+  env_found_names <- names(env_found) %||% ""
+
+  if(env_found_names == "unavailable") {
+    env_found <- FALSE
+  }
 
   cli_msg <- "Attempting to load {.emph '{envname}'}"
 

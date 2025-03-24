@@ -235,7 +235,7 @@ initialize_connection <- function(
       config <- config[!names(config) %in% dropped]
     }
 
-    iwalk(config, \(x, y) session$conf$set(y, x))
+    iwalk(config, function(x, y) session$conf$set(y, x))
   }
 
   # do we need this `spark_context` object?

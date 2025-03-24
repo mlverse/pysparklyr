@@ -1,4 +1,10 @@
-# pysparklyr (dev)
+# pysparklyr 0.1.7
+
+### Improvements
+
+* Adding support for Databricks serverless interactive compute (#127)
+
+* Extended authentication method support for Databricks by deferring to SDK (#127)
 
 * Adds support for new way `reticulate` manages Python environments
 (https://rstudio.github.io/reticulate/articles/package.html). This means that 
@@ -11,15 +17,13 @@ needed for interactive R sessions.
 * Adjusted logic for handling config to now warn users when unsupported configs
 are supplied if using Databricks serverless compute
 
-* Databricks connections should now correctly use `databricks_host()`
-
-* Adding support for Databricks serverless interactive compute (#127)
-
-* Extended authentication method support for Databricks by deferring to SDK (#127)
-
 * Disables un-setting the `RETICULATE_PYTHON` environment variable. It will
 still display a warning if it's set, letting the user know that it may 
 cause connectivity issues.
+
+### Fixes
+
+* Databricks connections should now correctly use `databricks_host()`
 
 # pysparklyr 0.1.6
 

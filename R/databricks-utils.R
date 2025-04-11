@@ -1,14 +1,14 @@
 databricks_host <- function(host = NULL, fail = TRUE) {
   if (!is.null(host)) {
-    return(set_names(host, "argument"))
+    return(named_host(host, "argument"))
   }
   env_host <- Sys.getenv("DATABRICKS_HOST", unset = NA)
   connect_host <- Sys.getenv("CONNECT_DATABRICKS_HOST", unset = NA)
   if (!is.na(env_host)) {
-    host <- set_names(env_host, "environment")
+    host <- named_host(env_host, "environment")
   }
   if (!is.na(connect_host)) {
-    host <- set_names(connect_host, "environment_connect")
+    host <- named_host(connect_host, "environment_connect")
   }
   if (is.null(host)) {
     if (fail) {
@@ -334,14 +334,11 @@ sanitize_host <- function(url, silent = FALSE) {
   if (endsWith(ret, "/")) {
     ret <- substr(ret, 1, nchar(ret) - 1)
   }
-  if (ret != url && !silent) {
-    cli_div(theme = cli_colors())
-    cli_alert_warning(
-      "{.header Changing host URL to:} {.emph {ret}}"
-    )
-    cli_end()
-  }
   ret
+}
+
+named_host <- function(url, name) {
+  set_names(sanitize_host(url), name)
 }
 
 databricks_dbr_python <- function(version) {

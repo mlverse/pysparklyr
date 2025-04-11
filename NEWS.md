@@ -1,3 +1,7 @@
+# pysparklyr 0.1.7.9000
+
+* Restores Databricks Host name sanitation 
+
 # pysparklyr 0.1.7
 
 ### Improvements

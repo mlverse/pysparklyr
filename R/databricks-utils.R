@@ -1,6 +1,6 @@
 databricks_host <- function(host = NULL, fail = TRUE) {
   if (!is.null(host)) {
-    return(set_names(host, "argument"))
+    return(set_names(sanitize_host(host), "argument"))
   }
   env_host <- Sys.getenv("DATABRICKS_HOST", unset = NA)
   connect_host <- Sys.getenv("CONNECT_DATABRICKS_HOST", unset = NA)
@@ -23,7 +23,7 @@ databricks_host <- function(host = NULL, fail = TRUE) {
       host <- ""
     }
   }
-  host
+  sanitize_host(host)
 }
 
 databricks_token <- function(token = NULL, fail = FALSE) {
@@ -333,13 +333,6 @@ sanitize_host <- function(url, silent = FALSE) {
   ret <- url_build(new_url)
   if (endsWith(ret, "/")) {
     ret <- substr(ret, 1, nchar(ret) - 1)
-  }
-  if (ret != url && !silent) {
-    cli_div(theme = cli_colors())
-    cli_alert_warning(
-      "{.header Changing host URL to:} {.emph {ret}}"
-    )
-    cli_end()
   }
   ret
 }

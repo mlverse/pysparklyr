@@ -1,5 +1,7 @@
 # pysparklyr 0.1.7.9000
 
+* Fixes issue with resetting the connection label (#144)
+
 * Restores Databricks Host name sanitation 
 
 # pysparklyr 0.1.7

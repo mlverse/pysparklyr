@@ -124,7 +124,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
   # if serverless override cluster_id and set to `NULL`
   if (!serverless) {
     if (cluster_id != "" && is.null(cluster_info)) {
-      cluster_info <- databricks_dbr_version_name(
+      cluster_info <- databricks_dbr_info(
         cluster_id = cluster_id,
         client = sdk_client,
         silent = silent

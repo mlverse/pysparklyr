@@ -1,6 +1,6 @@
 Package: pysparklyr
 Title: Provides a 'PySpark' Back-End for the 'sparklyr' Package
-Version: 0.1.7.9000
+Version: 0.1.7.9001
 Authors@R: c(
     person("Edgar", "Ruiz", , "edgar@posit.co", role = c("aut", "cre")),
     person(given = "Posit Software, PBC", role = c("cph", "fnd"))

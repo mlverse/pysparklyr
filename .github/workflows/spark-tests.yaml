@@ -1,8 +1,8 @@
 on:
   push:
-    branches: temp
+    branches: main
   pull_request:
-    branches: temp
+    branches: main
 
 name: Spark-Connect
 

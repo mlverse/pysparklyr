@@ -1,4 +1,6 @@
-# pysparklyr (dev)
+# pysparklyr 0.1.8
+
+### Fixes
 
 * Avoids installing `rpy2` automatically for `uv`-based environments. It will
 also install `rpy2` via `py_require()` when `spark_apply()` is called.

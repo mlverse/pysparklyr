@@ -1,4 +1,7 @@
-# pysparklyr 0.1.7.9000
+# pysparklyr (dev)
+
+* Avoids installing `rpy2` automatically for `uv`-based environments. It will
+also install `rpy2` via `py_require()` when `spark_apply()` is called.
 
 * Fixes issue with resetting the connection label (#144)
 

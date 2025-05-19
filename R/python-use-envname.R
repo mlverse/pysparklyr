@@ -145,7 +145,7 @@ use_envname <- function(
           add_torch = FALSE
         )
         reticulate::py_require(
-          packages = c(reqs$packages, "rpy2"),
+          packages = reqs$packages,
           python_version = reqs$python_version
         )
       }

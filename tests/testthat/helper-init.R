@@ -57,6 +57,9 @@ use_test_connect_start <- function() {
       }
     )
     .test_env$started <- 0
+    cli_inform("-- Waiting a couple of seconds to let the service start")
+    Sys.sleep(2)
+    cli_inform("-- Done")
   } else {
     invisible()
   }

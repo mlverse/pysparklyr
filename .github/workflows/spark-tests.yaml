@@ -25,9 +25,6 @@ jobs:
       SPARK_VERSION:  ${{ matrix.config.spark }}
       HADOOP_VERSION: ${{ matrix.config.hadoop }}
       PYSPARK_VERSION:  ${{ matrix.config.pyspark }}
-      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-      DATABRICKS_HOST: "https://rstudio-partner-posit-default.cloud.databricks.com"
-      DATABRICKS_CLUSTER_ID: "0129-151028-k1hamwf0"
 
     steps:
       - uses: actions/checkout@v3
@@ -44,10 +41,10 @@ jobs:
             any::arrow
           needs: check
 
-      - name: Set up Python 3.12
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.11'
 
       - name: Install Venv
         run: |

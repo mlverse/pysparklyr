@@ -1,3 +1,9 @@
+# pysparklyr (dev)
+
+### Fixes
+
+* Gets token from Databricks SDK if one cannot be found. (#148)
+
 # pysparklyr 0.1.8
 
 ### Fixes

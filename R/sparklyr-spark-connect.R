@@ -111,6 +111,11 @@ spark_connect_method.spark_method_databricks_connect <- function(
   dbc <- import_check("databricks.connect", envname, silent)
   db_sdk <- import_check("databricks.sdk", envname, silent = TRUE)
 
+  if(token == "") {
+    sdk_config <- db_sdk$core$Config()
+    token <- sdk_config$token
+  }
+
   # create workspace client
   sdk_client <- databricks_sdk_client(
     sdk = db_sdk,

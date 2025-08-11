@@ -5,7 +5,6 @@ spark_write_delta.tbl_pyspark <- function(x,
                                           options = list(),
                                           partition_by = NULL,
                                           ...) {
-  save_action <- ifelse(identical(mode, "append"), "insertInto", "saveAsTable")
   pyspark_write_generic(
     x = x,
     path = path,
@@ -13,7 +12,6 @@ spark_write_delta.tbl_pyspark <- function(x,
     mode = mode,
     partition_by = partition_by,
     options = options,
-    save_action = save_action,
     args = list()
   )
 }

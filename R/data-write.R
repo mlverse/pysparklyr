@@ -1,4 +1,22 @@
 #' @export
+spark_write_delta.tbl_pyspark <- function(x,
+                                          path,
+                                          mode = NULL,
+                                          options = list(),
+                                          partition_by = NULL,
+                                          ...) {
+  pyspark_write_generic(
+    x = x,
+    path = path,
+    format = "delta",
+    mode = mode,
+    partition_by = partition_by,
+    options = options,
+    args = list()
+  )
+}
+
+#' @export
 spark_write_table.tbl_pyspark <- function(x,
                                           name,
                                           mode = NULL,

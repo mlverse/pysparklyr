@@ -1,5 +1,9 @@
 # pysparklyr (dev)
 
+### Improvements
+
+* Adds support for spark_write_delta() (#146)
+
 ### Fixes
 
 * Gets token from Databricks SDK if one cannot be found. (#148)

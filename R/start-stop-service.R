@@ -8,8 +8,8 @@
 #' @returns It returns messages to the console with the status of starting, and
 #' stopping the local Spark Connect service.
 #' @export
-spark_connect_service_start <- function(version = "3.5",
-                                        scala_version = "2.12",
+spark_connect_service_start <- function(version = "4.0",
+                                        scala_version = "2.13",
                                         include_args = TRUE,
                                         ...) {
   get_version <- spark_install_find(version = version)
@@ -50,7 +50,7 @@ spark_connect_service_start <- function(version = "3.5",
 
 #' @rdname spark_connect_service_start
 #' @export
-spark_connect_service_stop <- function(version = "3.5",
+spark_connect_service_stop <- function(version = "4.0",
                                        ...) {
   get_version <- spark_install_find(version = version)
   cmd <- path(get_version$sparkVersionDir, "sbin", "stop-connect-server.sh")

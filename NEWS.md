@@ -2,6 +2,10 @@
 
 ### Improvements
 
+* Adds support for new ML methodology implemented in Spark 4.0. Specific new
+models supported are:
+  * ml_linear_regression()
+
 * Adds support for spark_write_delta() (#146)
 
 ### Fixes

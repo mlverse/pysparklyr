@@ -73,11 +73,21 @@ ml_prep_dataset <- function(
   }
 
   ret <- python_obj_get(x)
+
+  if (spark_version(sc) >= "4.0.0") {
+    va <- pyspark$ml$feature$VectorAssembler()
+    vector_assembler <- va$copy()
+    vector_assembler$setOutputCol(features_col)
+    vector_assembler$setInputCols(features)
+    ret <- vector_assembler$transform(ret)
+  } else {
+    features_array <- pyspark$sql$functions$array(features)
+    ret <- ret$withColumn(features_col, features_array)
+  }
+
   if (!is.null(label)) {
     ret <- ret$withColumn(label_col, ret[label])
   }
-  features_array <- pyspark$sql$functions$array(features)
-  ret <- ret$withColumn(features_col, features_array)
 
   if (lf == "only") {
     ret <- ret$select(c(label_col, features_col))

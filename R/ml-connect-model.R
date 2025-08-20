@@ -66,6 +66,11 @@ ml_title.ml_model_logistic_regression <- function(x) {
 }
 
 #' @export
+ml_title.ml_model_linear_regression <- function(x) {
+  "Linear Regression"
+}
+
+#' @export
 spark_jobj.ml_connect_model <- function(x, ...) {
   x$pipeline
 }

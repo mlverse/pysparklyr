@@ -9,6 +9,37 @@ ml_linear_regression.tbl_pyspark <- function(x, formula = NULL, fit_intercept = 
                                              uid = NULL, ...) {
   args <- c(as.list(environment()), list(...))
 
+  prep_reg <- ml_linear_regression_prep(args)
+
+  tbl_prep <- ml_prep_dataset(
+    x = x,
+    formula = formula,
+    label_col = label_col,
+    features_col = features_col,
+    lf = "only"
+  )
+
+  fitted <- ml_fit_impl(prep_reg, tbl_prep)
+
+  attrs <- attributes(tbl_prep)
+
+  structure(
+    list(
+      pipeline = fitted,
+      features = attrs$features,
+      label = attrs$label
+    ),
+    class = c(
+      "ml_connect_model",
+      "ml_model_linear_regression",
+      "ml_model_regression",
+      "ml_model_prediction",
+      "ml_model"
+    )
+  )
+}
+
+ml_linear_regression_prep <- function(args) {
   jobj <- ml_execute(
     args = args,
     python_library = "pyspark.ml.regression",
@@ -37,31 +68,9 @@ ml_linear_regression.tbl_pyspark <- function(x, formula = NULL, fit_intercept = 
       "ml_pipeline_stage"
     )
   )
+}
 
-  tbl_prep <- ml_prep_dataset(
-    x = x,
-    formula = formula,
-    label_col = label_col,
-    features_col = features_col,
-    lf = "only"
-  )
-
-  fitted <- ml_fit_impl(prep_reg, tbl_prep)
-
-  attrs <- attributes(tbl_prep)
-
-  structure(
-    list(
-      pipeline = fitted,
-      features = attrs$features,
-      label = attrs$label
-    ),
-    class = c(
-      "ml_connect_model",
-      "ml_model_linear_regression",
-      "ml_model_regression",
-      "ml_model_prediction",
-      "ml_model"
-    )
-  )
+#' @export
+ml_title.ml_model_linear_regression <- function(x) {
+  "Linear Regression"
 }

@@ -2,7 +2,7 @@
 
 ### Improvements
 
-* Adds support for new ML methodology implemented in Spark 4.0. Specific new
+* Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific new
 models supported are:
   * ml_linear_regression()
 

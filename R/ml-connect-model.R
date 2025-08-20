@@ -48,6 +48,8 @@ print_coefficients <- function(x) {
     features <- c("Intercept", features)
     coefs <- c(round(py_x["intercept"], 3), coefs)
   }
+  coefs <- as.character(coefs)
+  coefs[coefs > 0] <- paste0(" ", coefs[coefs > 0])
   features <- paste0(features, ": ")
 
   out <- paste0(
@@ -63,7 +65,6 @@ print_coefficients <- function(x) {
     )
   )
   two_col_print(out)
-
 }
 
 two_col_print <- function(x) {

@@ -2,6 +2,10 @@
 print.ml_connect_model <- function(x, ...) {
   cli_h3("ML Connect model:")
   cat(cli::style_reset(ml_title(x)))
+  if(inherits(x, "ml_model_regression")) {
+    cli_h3("Coefficients:")
+    print_coefficients(x)
+  }
   cli_h3("Parameters:")
   print_parameters(x)
 }
@@ -18,14 +22,11 @@ print_parameters <- function(x) {
   p_values <- p %>%
     map(~ {
       cl <- class(.x$value)
-      out <- .x$value
-      # if(cl == "character") out <- paste0("'", out, "'")
-      out
+      .x$value
     }) %>%
     as.character()
-  p_bullet <- cli::col_blue(cli::symbol$square_small_filled)
-  p_paste <- paste0(
-    p_bullet,
+  out <- paste0(
+    cli::col_blue(cli::symbol$square_small_filled),
     " ",
     cli::ansi_align(
       text = cli::style_hyperlink(paste0(p_names, ":"), p_descriptions),
@@ -36,19 +37,49 @@ print_parameters <- function(x) {
       width = max(cli::ansi_nchar(p_values))
     )
   )
-  p_length <- length(p_names)
+  two_col_print(out)
+}
+
+print_coefficients <- function(x) {
+  py_x <- python_obj_get(x)
+  coefs <- round(py_x["coefficients"]["values"], 3)
+  features <- x$features
+  if(py_x$getFitIntercept()) {
+    features <- c("Intercept", features)
+    coefs <- c(round(py_x["intercept"], 3), coefs)
+  }
+  features <- paste0(features, ": ")
+
+  out <- paste0(
+    cli::col_blue(cli::symbol$square_small_filled),
+    " ",
+    cli::ansi_align(
+      text = cli::col_silver(features),
+      width = max(cli::ansi_nchar(features)) + 2
+    ),
+    cli::ansi_align(
+      text = cli::col_silver(coefs),
+      width = max(cli::ansi_nchar(coefs))
+    )
+  )
+  two_col_print(out)
+
+}
+
+two_col_print <- function(x) {
+  p_length <- length(x)
   is_odd <- p_length / 2 != floor(p_length / 2)
   if (is_odd) {
-    p_paste <- c(p_paste, "")
+    x <- c(x, "")
     p_length <- p_length + 1
   }
 
   # p_sel <- rep(c(TRUE, FALSE), p_length)
   p_sel <- rep(c(TRUE, FALSE), 1, each = (p_length / 2))
 
-  p_left <- p_paste[p_sel]
+  p_left <- x[p_sel]
   p_left <- p_left[!is.na(p_left)]
-  p_right <- p_paste[!p_sel]
+  p_right <- x[!p_sel]
   p_right <- p_right[!is.na(p_right)]
 
   p_two <- paste0(p_left, "   ", p_right)

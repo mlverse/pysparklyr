@@ -77,18 +77,24 @@ ml_logistic_regression.tbl_pyspark <- function(
 
 ml_logistic_regression_prep <- function(x, args) {
   ml_installed()
-  ml_connect_not_supported(
-    args = args,
-    not_supported = c(
-      "elastic_net_param", "reg_param", "threshold",
-      "aggregation_depth", "fit_intercept",
-      "raw_prediction_col", "uid", "weight_col"
+
+  if (spark_version(sc) >= "4.0.0") {
+    python_library <- "pyspark.ml.classification"
+  } else {
+    ml_connect_not_supported(
+      args = args,
+      not_supported = c(
+        "elastic_net_param", "reg_param", "threshold",
+        "aggregation_depth", "fit_intercept",
+        "raw_prediction_col", "uid", "weight_col"
+      )
     )
-  )
+    python_library <- "pyspark.ml.connect.classification"
+  }
 
   jobj <- ml_execute(
     args = args,
-    python_library = "pyspark.ml.connect.classification",
+    python_library = python_library,
     fn = "LogisticRegression"
   )
 

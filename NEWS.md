@@ -2,15 +2,22 @@
 
 ### Improvements
 
-* Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific new
-models supported are:
+* Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
+ML functions now supported are:
   * ml_linear_regression()
+  * ft_standard_scaler()
+  * ft_max_abs_scaler()
 
 * Adds support for spark_write_delta() (#146)
 
 ### Fixes
 
 * Gets token from Databricks SDK if one cannot be found. (#148)
+
+
+### Internal improvements
+
+* Switches base Python environment for tests to uv
 
 # pysparklyr 0.1.8
 

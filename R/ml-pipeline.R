@@ -1,8 +1,13 @@
 #' @export
 ml_pipeline.pyspark_connection <- function(x, ..., uid = NULL) {
   ml_installed()
-  connect_pipeline <- import("pyspark.ml.connect.pipeline")
-  jobj <- as_spark_pyobj(connect_pipeline, x)
+  if(spark_version(x) > "4.0") {
+    ml <- import("pyspark.ml")
+    jobj <- as_spark_pyobj(ml$Pipeline(), x)
+  } else {
+    connect_pipeline <- import("pyspark.ml.connect.pipeline")
+    jobj <- as_spark_pyobj(connect_pipeline, x)
+  }
   as_pipeline(jobj)
 }
 

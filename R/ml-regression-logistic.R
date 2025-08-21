@@ -78,7 +78,7 @@ ml_logistic_regression.tbl_pyspark <- function(
 ml_logistic_regression_prep <- function(x, args) {
   ml_installed()
 
-  if (spark_version(sc) >= "4.0.0") {
+  if (spark_version(spark_connection(x)) >= "4.0.0") {
     python_library <- "pyspark.ml.classification"
   } else {
     ml_connect_not_supported(

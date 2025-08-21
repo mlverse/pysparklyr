@@ -7,7 +7,7 @@ ft_standard_scaler.pyspark_connection <- function(
     uid = NULL,
     ...) {
   args <- c(as.list(environment()), list(...))
-  ft_scaler_prep(args, "StandardScaler")
+  ft_scaler_prep(x, args, "StandardScaler")
 }
 
 #' @export
@@ -17,7 +17,7 @@ ft_standard_scaler.ml_connect_pipeline <- function(
     uid = NULL,
     ...) {
   args <- c(as.list(environment()), list(...))
-  model <- ft_scaler_prep(args, "StandardScaler")
+  model <- ft_scaler_prep(x, args, "StandardScaler")
   ml_connect_add_stage(
     x = x,
     stage = python_obj_get(model)
@@ -47,7 +47,7 @@ ft_max_abs_scaler.pyspark_connection <- function(
     uid = NULL,
     ...) {
   args <- c(as.list(environment()), list(...))
-  ft_scaler_prep(args, "MaxAbsScaler")
+  ft_scaler_prep(x, args, "MaxAbsScaler")
 }
 
 #' @export
@@ -56,7 +56,7 @@ ft_max_abs_scaler.ml_connect_pipeline <- function(
     uid = NULL,
     ...) {
   args <- c(as.list(environment()), list(...))
-  model <- ft_scaler_prep(args, "MaxAbsScaler")
+  model <- ft_scaler_prep(x, args, "MaxAbsScaler")
   ml_connect_add_stage(
     x = x,
     stage = python_obj_get(model)
@@ -88,7 +88,7 @@ ft_execute_scaler <- function(x, input_col = NULL, output_col = NULL, .fn = "", 
   }
   args <- c(as.list(environment()), list(...))
 
-  model <- ft_scaler_prep(args, .fn)
+  model <- ft_scaler_prep(x, args, .fn)
 
   tbl_prep <- ml_prep_dataset(
     x = x,
@@ -116,7 +116,7 @@ ft_execute_scaler <- function(x, input_col = NULL, output_col = NULL, .fn = "", 
   tbl_pyspark_temp(ret, conn)
 }
 
-ft_scaler_prep <- function(args, fn) {
+ft_scaler_prep <- function(x, args, fn) {
   ml_installed()
   ml_connect_not_supported(
     args = args,
@@ -125,9 +125,15 @@ ft_scaler_prep <- function(args, fn) {
     )
   )
 
+  if (spark_version(spark_connection(x)) >= "4.0.0") {
+    python_library <- "pyspark.ml.feature"
+  } else {
+    python_library <- "pyspark.ml.connect.feature"
+  }
+
   jobj <- ml_execute(
     args = args,
-    python_library = "pyspark.ml.connect.feature",
+    python_library = python_library,
     fn = fn
   )
 

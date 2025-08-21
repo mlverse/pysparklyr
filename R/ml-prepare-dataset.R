@@ -74,7 +74,7 @@ ml_prep_dataset <- function(
 
   ret <- python_obj_get(x)
 
-  if (spark_version(sc) >= "4.0.0") {
+  if (spark_version(spark_connection(x)) >= "4.0.0") {
     va <- pyspark$ml$feature$VectorAssembler()
     vector_assembler <- va$copy()
     vector_assembler$setOutputCol(features_col)

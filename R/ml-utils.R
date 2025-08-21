@@ -75,7 +75,7 @@ ml_connect_not_supported <- function(args, not_supported = c()) {
   }
 }
 
-ml_execute <- function(args, python_library, fn) {
+ml_execute <- function(args, python_library, fn, sc) {
   py_lib <- import(python_library)
 
   # Removes any variable with a "." prefix
@@ -99,7 +99,7 @@ ml_execute <- function(args, python_library, fn) {
     )
   )
 
-  jobj
+  as_spark_pyobj(jobj, sc)
 }
 
 get_params <- function(x) {

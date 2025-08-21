@@ -31,7 +31,7 @@ spark_version.spark_pyobj <- function(sc) {
 
 #' @export
 spark_connection.spark_pyobj <- function(x, ...) {
-  x$connection
+  x[["connection"]]
 }
 
 #' @export

@@ -79,6 +79,9 @@ invoke_conn <- function(jobj, context, method, ...) {
 
     if (is.null(out)) {
       conn <- spark_connection(jobj)
+      if(is.null(conn)) {
+        stop("invoke cannot have a NULL connection")
+      }
       out <- as_spark_pyobj(run_x, conn)
     }
   }

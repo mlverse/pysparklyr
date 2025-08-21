@@ -238,7 +238,11 @@ python_obj_get.ml_connect_model <- function(x) {
 
 #' @export
 python_obj_get.ml_connect_estimator <- function(x) {
-  x[[".jobj"]]
+  ret <- x[[".jobj"]]
+  if(!inherits(ret, "python.builtin.object")) {
+    ret <- ret[["pyspark_obj"]]
+  }
+  ret
 }
 
 #' @export

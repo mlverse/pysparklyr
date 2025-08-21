@@ -124,8 +124,8 @@ ft_scaler_prep <- function(x, args, fn) {
       "with_mean", "with_std", "uid"
     )
   )
-
-  if (spark_version(spark_connection(x)) >= "4.0.0") {
+  sc <- spark_connection(x)
+  if (spark_version(sc) >= "4.0.0") {
     python_library <- "pyspark.ml.feature"
   } else {
     python_library <- "pyspark.ml.connect.feature"
@@ -134,7 +134,8 @@ ft_scaler_prep <- function(x, args, fn) {
   jobj <- ml_execute(
     args = args,
     python_library = python_library,
-    fn = fn
+    fn = fn,
+    sc = sc
   )
 
   structure(

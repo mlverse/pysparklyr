@@ -52,7 +52,11 @@ ft_r_formula_prep <- function(x, args, fn) {
   ml_installed()
   sc <- spark_connection(x)
   python_library <- "pyspark.ml.feature"
-  args$zzz_formula <- args$formula
+  f <- args$formula
+  if(rlang::is_formula(f)) {
+    f <- deparse(f)
+  }
+  args$zzz_formula <- f
   jobj <- ml_execute(
     args = args,
     python_library = python_library,

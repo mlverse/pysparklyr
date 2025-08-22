@@ -57,6 +57,9 @@ as_spark_pyobj <- function(obj, conn, class = NULL) {
 setOldClass(c("spark_pyobj", "spark_jobj"))
 
 get_spark_pyobj <- function(obj) {
+  if(inherits(obj, "spark_pyobj")) {
+    return(obj)
+  }
   out <- obj[[".jobj"]]
   if(is.null(out)) {
     out <- obj[["pipeline"]]

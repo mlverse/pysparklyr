@@ -84,6 +84,11 @@ ml_execute <- function(args, python_library, fn, sc) {
   args$x <- NULL
   args$formula <- NULL
 
+  if(!is.null(args$zzz_formula)) {
+    args$formula <- args$zzz_formula
+    args$zzz_formula <- NULL
+  }
+
   args <- discard(args, is.null)
 
   new_names <- args %>%

@@ -29,7 +29,9 @@ transform_impl <- function(x, dataset, prep = TRUE,
 
   py_object <- python_obj_get(x)
 
-  ret <- invoke(x, "transform", ml_df)
+  ret <-x %>%
+    get_spark_pyobj() %>%
+    invoke("transform", ml_df)
 
   if (remove) {
     if (inherits(x, "ml_connect_model")) {

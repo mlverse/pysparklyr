@@ -57,5 +57,12 @@ as_spark_pyobj <- function(obj, conn, class = NULL) {
 setOldClass(c("spark_pyobj", "spark_jobj"))
 
 get_spark_pyobj <- function(obj) {
-  obj[[".jobj"]]
+  out <- obj[[".jobj"]]
+  if(is.null(out)) {
+    out <- obj[["pipeline"]]
+  }
+  if(is.null(out)) {
+    stop("No `spark_pyobj` found")
+  }
+  out
 }

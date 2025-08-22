@@ -21,10 +21,10 @@ ml_fit.ml_connect_pipeline <- function(x, dataset, ...) {
 ml_fit_impl <- function(x, dataset) {
   ml_installed()
   py_dataset <- python_obj_get(dataset)
-  py_x <- python_obj_get(x)
+  py_x <- get_spark_pyobj(x)
 
   fitted <- try(
-    invoke_simple(x, "fit", py_dataset),
+    invoke(py_x, "fit", py_dataset),
     silent = TRUE
   )
 

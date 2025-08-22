@@ -74,10 +74,10 @@ ml_linear_regression_prep <- function(args) {
     args = args,
     python_library = "pyspark.ml.regression",
     fn = "LinearRegression",
-    sc = spark_connection(x)
+    sc = spark_connection(args$x)
   )
 
-  prep_reg <- structure(
+  structure(
     list(
       uid = invoke(jobj, "uid"),
       features_col = invoke(jobj, "getFeaturesCol"),

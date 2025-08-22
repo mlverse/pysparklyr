@@ -77,8 +77,8 @@ ml_logistic_regression.tbl_pyspark <- function(
 
 ml_logistic_regression_prep <- function(x, args) {
   ml_installed()
-
-  if (spark_version(spark_connection(x)) >= "4.0.0") {
+  sc <- spark_connection(x)
+  if (spark_version(sc) >= "4.0.0") {
     python_library <- "pyspark.ml.classification"
   } else {
     ml_connect_not_supported(
@@ -95,7 +95,8 @@ ml_logistic_regression_prep <- function(x, args) {
   jobj <- ml_execute(
     args = args,
     python_library = python_library,
-    fn = "LogisticRegression"
+    fn = "LogisticRegression",
+    sc = sc
   )
 
   structure(

@@ -1,7 +1,7 @@
 #' @export
 ml_pipeline.pyspark_connection <- function(x, ..., uid = NULL) {
   ml_installed()
-  if(spark_version(x) > "4.0") {
+  if (spark_version(x) > "4.0") {
     ml <- import("pyspark.ml")
     jobj <- as_spark_pyobj(ml$Pipeline(), x)
   } else {
@@ -101,27 +101,28 @@ print.ml_output_params <- function(x, ...) {
 ml_connect_add_stage <- function(x, stage) {
   pipeline <- python_obj_get(x)
   sc <- spark_connection(x)
-  not_pipeline_class <-
-    !inherits(pipeline, "pyspark.ml.connect.pipeline.Pipeline") &&
-    !inherits(pipeline, "pyspark.ml.pipeline.Pipeline")
-  if (not_pipeline_class) {
+  loaded_pipeline <- inherits(pipeline, "pyspark.ml.connect.pipeline.Pipeline")
+  if (loaded_pipeline) {
     pipeline <- invoke(pipeline, "Pipeline")
   }
+  if (inherits(pipeline, "pyspark.ml.pipeline.Pipeline")) {
+    loaded_pipeline <- pipeline$isSet("stages")
+  }
   stage_print <- ml_print_params(stage)
-  if (not_pipeline_class) {
+  if (loaded_pipeline) {
     # Not using invoke() here because it's returning a list
     # and we need a vector
     stages <- pipeline$getStages()
     outputs <- c(x$stages, list(stage_print))
     if (length(stages) > 0) {
-      jobj <- invoke(pipeline, "setStages", c(stages, stage))
+      jobj <- invoke_simple(x, "setStages", c(stages, stage))
     } else {
-      jobj <- invoke(pipeline, "stages", c(stages, stage))
+      jobj <- invoke_simple(x, "stages", c(stages, stage))
     }
   } else {
     outputs <- list(stage_print)
-    if(spark_version(sc) >= "4.0") {
-      jobj <- invoke(pipeline, "setStages", c(stage))
+    if (spark_version(sc) >= "4.0") {
+      jobj <- invoke_simple(x, "setStages", c(stage))
     } else {
       jobj <- pipeline(stages = c(stage))
     }

@@ -101,13 +101,16 @@ print.ml_output_params <- function(x, ...) {
 ml_connect_add_stage <- function(x, stage) {
   pipeline <- python_obj_get(x)
   sc <- spark_connection(x)
-  loaded_pipeline <- inherits(pipeline, "pyspark.ml.connect.pipeline.Pipeline")
-  if (loaded_pipeline) {
+  spark_new <- spark_version(sc) >= "4.0"
+  loaded_pipeline_old <- inherits(pipeline, "pyspark.ml.connect.pipeline.Pipeline")
+  if (!spark_new && !loaded_pipeline_old) {
     pipeline <- invoke(pipeline, "Pipeline")
   }
+  loaded_pipeline_new <- FALSE
   if (inherits(pipeline, "pyspark.ml.pipeline.Pipeline")) {
-    loaded_pipeline <- pipeline$isSet("stages")
+    loaded_pipeline_new <- pipeline$isSet("stages")
   }
+  loaded_pipeline <- loaded_pipeline_old | loaded_pipeline_new
   stage_print <- ml_print_params(stage)
   if (loaded_pipeline) {
     # Not using invoke() here because it's returning a list
@@ -121,10 +124,11 @@ ml_connect_add_stage <- function(x, stage) {
     }
   } else {
     outputs <- list(stage_print)
-    if (spark_version(sc) >= "4.0") {
+    if (spark_new) {
       jobj <- invoke_simple(x, "setStages", c(stage))
     } else {
       jobj <- pipeline(stages = c(stage))
+      jobj <- as_spark_pyobj(jobj, sc)
     }
   }
   as_pipeline(jobj, outputs, TRUE)

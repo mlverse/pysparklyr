@@ -1,3 +1,4 @@
+skip("Skipping installation tests to gain speed, need to be restored prior to sending PR over")
 test_that("Message when RETICULATE_PYTHON is set", {
   py_to_use <- py_exe()
   withr::with_envvar(

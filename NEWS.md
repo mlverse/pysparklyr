@@ -4,9 +4,12 @@
 
 * Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
 ML functions now supported are:
-  * ml_linear_regression()
+  * ml_linear_regression() *(New for Spark 4.0)*
+  * ml_logistic_regression() 
   * ft_standard_scaler()
   * ft_max_abs_scaler()
+  * ml_pipeline()
+  * ml_save()
 
 * Adds support for spark_write_delta() (#146)
 

@@ -52,7 +52,7 @@ ml_linear_regression.ml_connect_pipeline <- function(x, formula = NULL, fit_inte
   model <- ml_linear_regression_prep(args)
   ml_connect_add_stage(
     x = x,
-    stage = python_obj_get(model)
+    stage = model
   )
 }
 

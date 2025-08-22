@@ -20,7 +20,7 @@ ft_standard_scaler.ml_connect_pipeline <- function(
   model <- ft_scaler_prep(x, args, "StandardScaler")
   ml_connect_add_stage(
     x = x,
-    stage = python_obj_get(model)
+    stage = model
   )
 }
 
@@ -59,7 +59,7 @@ ft_max_abs_scaler.ml_connect_pipeline <- function(
   model <- ft_scaler_prep(x, args, "MaxAbsScaler")
   ml_connect_add_stage(
     x = x,
-    stage = python_obj_get(model)
+    stage = model
   )
 }
 

@@ -28,7 +28,7 @@ ml_logistic_regression.ml_connect_pipeline <- function(
   model <- ml_logistic_regression_prep(x, args)
   ml_connect_add_stage(
     x = x,
-    stage = python_obj_get(model)
+    stage = model
   )
 }
 

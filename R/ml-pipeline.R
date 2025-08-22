@@ -24,7 +24,7 @@ ml_fit_impl <- function(x, dataset) {
   py_x <- python_obj_get(x)
 
   fitted <- try(
-    invoke(py_x, "fit", py_dataset),
+    invoke_simple(x, "fit", py_dataset),
     silent = TRUE
   )
 
@@ -99,23 +99,27 @@ print.ml_output_params <- function(x, ...) {
 }
 
 ml_connect_add_stage <- function(x, stage) {
-  pipeline <- python_obj_get(x)
+  pipeline <- get_spark_pyobj(x)
+  pipeline_py <- python_obj_get(pipeline)
+  stage <- stage %>%
+    get_spark_pyobj() %>%
+    python_obj_get()
   sc <- spark_connection(x)
   spark_new <- spark_version(sc) >= "4.0"
-  loaded_pipeline_old <- inherits(pipeline, "pyspark.ml.connect.pipeline.Pipeline")
+  loaded_pipeline_old <- inherits(pipeline_py, "pyspark.ml.connect.pipeline.Pipeline")
   if (!spark_new && !loaded_pipeline_old) {
     pipeline <- invoke(pipeline, "Pipeline")
   }
   loaded_pipeline_new <- FALSE
-  if (inherits(pipeline, "pyspark.ml.pipeline.Pipeline")) {
-    loaded_pipeline_new <- pipeline$isSet("stages")
+  if (inherits(pipeline_py, "pyspark.ml.pipeline.Pipeline")) {
+    loaded_pipeline_new <- invoke(pipeline_py, "isSet", "stages")
   }
   loaded_pipeline <- loaded_pipeline_old | loaded_pipeline_new
   stage_print <- ml_print_params(stage)
   if (loaded_pipeline) {
     # Not using invoke() here because it's returning a list
     # and we need a vector
-    stages <- pipeline$getStages()
+    stages <- pipeline_py$getStages()
     outputs <- c(x$stages, list(stage_print))
     if (length(stages) > 0) {
       jobj <- invoke_simple(x, "setStages", c(stages, stage))

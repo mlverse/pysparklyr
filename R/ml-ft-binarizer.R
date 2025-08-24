@@ -46,6 +46,7 @@ ml_process_fn <- function(args, fn, has_fit = TRUE) {
     class = "ml_pipeline_stage"
   )
   if (inherits(x, "pyspark_connection")) {
+    class(stage) <- c("ml_transformer", class(stage))
     return(stage)
   }
   if (inherits(x, "ml_connect_pipeline")) {

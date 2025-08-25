@@ -4,6 +4,8 @@
 
 * Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
 ML functions now supported are:
+  * `ft_binarizer()` *(New for Spark 4.0)*
+  * `ft_bucketizer()` *(New for Spark 4.0)*
   * `ml_linear_regression()` *(New for Spark 4.0)*
   * `ft_r_formula()` *(New for Spark 4.0)*
   * `ml_logistic_regression()`

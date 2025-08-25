@@ -212,8 +212,8 @@ python_obj_get.default <- function(x) {
     return(x)
   }
   py_x <- try(get_spark_pyobj(x), silent = TRUE)
-  if (inherits(py_x, "try-error")) {
-    return(x[["pyspark_obj"]])
+  if (!inherits(py_x, "try-error")) {
+    return(py_x[["pyspark_obj"]])
   } else {
     sc <- spark_connection(x)
     if (inherits(sc$session, "python.builtin.object")) {

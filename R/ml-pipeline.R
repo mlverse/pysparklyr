@@ -76,7 +76,7 @@ ml_print_params <- function(x) {
       if (inherits(tr, "try-error")) {
         tr <- ""
       } else {
-        tr <- glue("{.x$name}: {tr}")
+        tr <- glue("{.x$name}: {paste(tr, collapse = ', ')}")
       }
       tr
     })

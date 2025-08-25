@@ -17,8 +17,8 @@ test_that("Binarizer works", {
 test_that("Bucketizer works", {
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()
-  expect_snapshot(class(ft_bucketizer(sc, "a", "b", c(1,2,3))))
-  expect_snapshot(class(ft_bucketizer(ml_pipeline(sc), "a", "b", c(1,2,3))))
+  expect_snapshot(class(ft_bucketizer(sc, "a", "b", c(1, 2, 3))))
+  expect_snapshot(class(ft_bucketizer(ml_pipeline(sc), "a", "b", c(1, 2, 3))))
   x <- ft_bucketizer(tbl_mtcars, "mpg", "mpg_new", splits = c(0, 10, 20, 30, 40))
   expect_snapshot(class(x))
   expect_equal(
@@ -41,4 +41,3 @@ test_that("R Formula works", {
       colnames()
   )
 })
-

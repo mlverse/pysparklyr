@@ -5,9 +5,9 @@ test_that("Functions work", {
   use_test_install_ml()
   tbl_mtcars <- use_test_table_mtcars()
   model <- use_test_lr_model()
-  expect_equal(
-    print(model),
-    NULL
+  expect_length(
+    capture.output(print(model)),
+    8
   )
 
   expect_s3_class(spark_jobj(model), "spark_pyobj")

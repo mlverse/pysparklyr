@@ -8,7 +8,7 @@ import_check <- function(x, envname, silent = FALSE) {
 
   env_found_names <- names(env_found) %||% ""
 
-  if(env_found_names == "unavailable") {
+  if (env_found_names == "unavailable") {
     env_found <- FALSE
   }
 
@@ -74,8 +74,8 @@ import_check <- function(x, envname, silent = FALSE) {
     }
   }
 
-  if(is.na(env_loaded)) {
-    if(env_path != "") {
+  if (is.na(env_loaded)) {
+    if (env_path != "") {
       py_executable <- py_exe() %||% ""
       env_loaded <- env_path == py_executable
     } else {

@@ -137,19 +137,19 @@ ml_installed <- function(envname = NULL) {
 }
 
 ml_get_params <- function(x) {
-  py_x <-get_spark_pyobj(x)
+  py_x <- get_spark_pyobj(x)
   params <- invoke(py_x, "params")
   params %>%
     map(~ {
       nm <- .x$name
       nm <- paste0("get", toupper(substr(nm, 1, 1)), substr(nm, 2, nchar(nm)))
       tr <- try(invoke(py_x, nm), silent = TRUE)
-      if(inherits(tr, "spark_pyobj")) {
+      if (inherits(tr, "spark_pyobj")) {
         tr <- tr %>%
           python_obj_get() %>%
           py_to_r()
       }
-      out <- ifelse (inherits(tr, "try-error"), list(), list(tr) )
+      out <- ifelse(inherits(tr, "try-error"), list(), list(tr))
       set_names(out, .x$name)
     }) %>%
     purrr::flatten() %>%

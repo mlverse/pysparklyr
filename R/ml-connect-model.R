@@ -29,7 +29,7 @@ transform_impl <- function(x, dataset, prep = TRUE,
 
   py_object <- python_obj_get(x)
 
-  ret <-x %>%
+  ret <- x %>%
     get_spark_pyobj() %>%
     invoke("transform", ml_df)
 
@@ -73,7 +73,7 @@ transform_impl <- function(x, dataset, prep = TRUE,
 print.ml_connect_model <- function(x, ...) {
   cli_h3("ML Connect model:")
   cat(cli::style_reset(ml_title(x)))
-  if(inherits(x, "ml_model_regression")) {
+  if (inherits(x, "ml_model_regression")) {
     cli_h3("Coefficients:")
     print_coefficients(x)
   }
@@ -115,7 +115,7 @@ print_coefficients <- function(x) {
   py_x <- python_obj_get(x)
   coefs <- round(py_x["coefficients"]["values"], 3)
   features <- x$features
-  if(py_x$getFitIntercept()) {
+  if (py_x$getFitIntercept()) {
     features <- c("Intercept", features)
     coefs <- c(round(py_x["intercept"], 3), coefs)
   }

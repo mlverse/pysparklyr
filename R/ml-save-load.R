@@ -9,7 +9,7 @@ ml_save.ml_connect_pipeline_stage <- function(x, path, overwrite = FALSE, ...) {
     spark_connection() %>%
     spark_version()
 
-  if(version >= "4.0") {
+  if (version >= "4.0") {
     model <- python_obj_get(py_obj)
     model$save(path)
   } else {
@@ -29,7 +29,7 @@ ml_connect_load <- function(sc, path) {
   ml_installed()
   path <- path_abs(path)
   conn <- python_obj_get(sc)
-  if(spark_version(sc) >= "4.0") {
+  if (spark_version(sc) >= "4.0") {
     connect_pipeline <- import("pyspark.ml")
     pipeline <- connect_pipeline$Pipeline$load(path)
   } else {

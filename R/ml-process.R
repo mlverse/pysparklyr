@@ -2,6 +2,11 @@ ml_process_fn <- function(args, fn, has_fit = TRUE) {
   ml_installed()
   x <- args$x
   args <- args[names(args) != "x"]
+  if(!is.null(args$formula)) {
+    if(rlang::is_formula(args$formula)) {
+      args$formula <- deparse(args$formula)
+    }
+  }
   jobj <- ml_execute(
     args = args,
     python_library = "pyspark.ml.feature",

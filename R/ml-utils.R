@@ -82,12 +82,6 @@ ml_execute <- function(args, python_library, fn, sc) {
   args <- args[substr(names(args), 1, 1) != "."]
 
   args$x <- NULL
-  args$formula <- NULL
-
-  if (!is.null(args$zzz_formula)) {
-    args$formula <- args$zzz_formula
-    args$zzz_formula <- NULL
-  }
 
   args <- discard(args, is.null)
 

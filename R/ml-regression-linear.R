@@ -71,7 +71,7 @@ ml_linear_regression.pyspark_connection <- function(x, formula = NULL, fit_inter
 
 ml_linear_regression_prep <- function(args) {
   jobj <- ml_execute(
-    args = args,
+    args = args[names(args) != "formula"],
     python_library = "pyspark.ml.regression",
     fn = "LinearRegression",
     sc = spark_connection(args$x)

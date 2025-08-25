@@ -3,7 +3,7 @@
     Code
       class(ft_r_formula(sc))
     Output
-      [1] "ml_connect_estimator" "ml_estimator"         "ml_pipeline_stage"   
+      [1] "ml_transformer"    "ml_pipeline_stage"
 
 # R Formula works with Pipeline
 

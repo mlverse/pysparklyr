@@ -93,7 +93,7 @@ ml_logistic_regression_prep <- function(x, args) {
   }
 
   jobj <- ml_execute(
-    args = args,
+    args = args[names(args) != "formula"],
     python_library = python_library,
     fn = "LogisticRegression",
     sc = sc

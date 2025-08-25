@@ -177,14 +177,15 @@ tbl_temp_name <- function() glue("{temp_prefix()}{random_string()}")
 sdf_register.spark_pyobj <- function(x, name = NULL) {
   # Attempting to cache a data frame with 0 columns returns an error.
   # So it returns nothing when this is the case (#110)
-  if (inherits(x$pyspark_obj, "pyspark.sql.connect.dataframe.DataFrame")) {
-    if (length(x$pyspark_obj$columns) == 0) {
+  x_obj <- python_obj_get(x)
+  if (inherits(x_obj, "pyspark.sql.connect.dataframe.DataFrame")) {
+    if (length(x_obj$columns) == 0) {
       return(invisible())
     }
   }
   sc <- spark_connection(x)
   tbl_pyspark_temp(
-    x = x$pyspark_obj,
+    x = x_obj,
     conn = sc,
     tmp_name = name
   )
@@ -206,18 +207,18 @@ python_obj_get <- function(x) {
 }
 
 #' @export
-python_obj_get.ml_connect_model <- function(x) {
-  x$pipeline$pyspark_obj
-}
-
-#' @export
 python_obj_get.default <- function(x) {
   if (inherits(x, "character")) {
     return(x)
   }
-  sc <- spark_connection(x)
-  if (inherits(sc$session, "python.builtin.object")) {
-    return(sc$session)
+  py_x <- try(get_spark_pyobj(x), silent = TRUE)
+  if(inherits(py_x, "try-error")) {
+    return(x[["pyspark_obj"]])
+  } else {
+    sc <- spark_connection(x)
+    if (inherits(sc$session, "python.builtin.object")) {
+      return(sc$session)
+    }
   }
 }
 
@@ -245,6 +246,12 @@ python_obj_get.ml_connect_pipeline <- function(x) {
 python_obj_get.ml_connect_pipeline_model <- function(x) {
   x[[".jobj"]]
 }
+
+#' @export
+python_obj_get.tbl_pyspark <- function(x) {
+  x[["src"]][["session"]]
+}
+
 
 python_obj_con_set <- function(sc, obj) {
   sc$session <- obj

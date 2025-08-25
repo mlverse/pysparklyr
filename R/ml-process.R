@@ -20,7 +20,7 @@ ml_process_fn <- function(args, fn, has_fit = TRUE) {
       param_map = list(),
       .jobj = jobj
     ),
-    args
+    ml_get_params(jobj)
   )
   stage <- structure(
     prep_obj,

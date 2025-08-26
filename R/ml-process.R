@@ -33,7 +33,7 @@ ml_process_fn <- function(args, fn, has_fit = TRUE) {
     return(ml_connect_add_stage(x, stage))
   }
   if (inherits(x, "tbl_pyspark")) {
-    return(ml_process_tbl(x, stage, input_col, has_fit))
+    return(ml_process_tbl(x, stage, args$input_col, has_fit))
   }
   abort("Object not recognized")
 }

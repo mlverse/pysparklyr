@@ -75,7 +75,7 @@ ml_print_params <- function(x, sc = NULL) {
       as_spark_pyobj(sc) %>%
       ml_get_params()
   }
-  x_params <- x_params |>
+  x_params <- x_params %>%
     map_chr(paste, collapse = ", ") %>%
     purrr::imap_chr(function(x, y) glue("{y}: {x}")) %>%
     paste0(collapse = "\n")

@@ -68,3 +68,123 @@
        [1] "mpg"   "cyl"   "disp"  "hp"    "drat"  "wt"    "qsec"  "vs"    "am"   
       [10] "gear"  "carb"  "test"  "label"
 
+# Tokenizer works
+
+    Code
+      class(ft_tokenizer(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_tokenizer(sc))
+    Output
+      [1] "ml_transformer"    "ml_pipeline_stage"
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
+---
+
+    Code
+      dplyr::pull(x, token_x)
+    Output
+      [1] "c(\"this\", \"has\", \"been\", \"the\", \"best\", \"tv\", \"i've\", \"ever\", \"used.\", \"great\", \"screen,\", \"and\", \"sound.\")"
+
+# Stop words remover works
+
+    Code
+      class(ft_tokenizer(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_tokenizer(sc))
+    Output
+      [1] "ml_transformer"    "ml_pipeline_stage"
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
+---
+
+    Code
+      dplyr::pull(x, stop_x)
+    Output
+      [1] "c(\"best\", \"tv\", \"ever\", \"used.\", \"great\", \"screen,\", \"sound.\")"
+
+# Hashing TF works
+
+    Code
+      class(ft_hashing_tf(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_hashing_tf(sc))
+    Output
+      [1] "ml_transformer"    "ml_pipeline_stage"
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
+---
+
+    Code
+      dplyr::pull(x, hashed_x)
+    Output
+      [1] "<environment>"
+
+# Normalizer works
+
+    Code
+      class(ft_hashing_tf(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_hashing_tf(sc))
+    Output
+      [1] "ml_transformer"    "ml_pipeline_stage"
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
+---
+
+    Code
+      dplyr::pull(x, normal_x)
+    Output
+      [1] "<environment>"
+

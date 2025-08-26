@@ -53,7 +53,7 @@ ft_r_formula.tbl_pyspark <- ft_r_formula_impl
 # ----------------------------- Tokenizer --------------------------------------
 
 ft_tokenizer_impl <- function(x, input_col = NULL, output_col = NULL,
-                         uid = NULL, ...) {
+                              uid = NULL, ...) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
     fn = "Tokenizer",
@@ -70,9 +70,9 @@ ft_tokenizer.tbl_pyspark <- ft_tokenizer_impl
 # -------------------------- Stop words remover --------------------------------
 
 ft_stop_words_remover_impl <- function(x, input_col = NULL, output_col = NULL,
-                                  case_sensitive = FALSE,
-                                  stop_words = NULL,
-                                  uid = NULL, ...) {
+                                       case_sensitive = FALSE,
+                                       stop_words = NULL,
+                                       uid = NULL, ...) {
   # TODO: Add way to set stop_words same way as regular sparklyr calls
   # not needed before release
   ml_process_fn(
@@ -91,7 +91,7 @@ ft_stop_words_remover.tbl_pyspark <- ft_stop_words_remover_impl
 # ----------------------- Hashing term frequencies  ----------------------------
 
 ft_hashing_tf_impl <- function(x, input_col = NULL, output_col = NULL, binary = FALSE,
-                          num_features = 2^18, uid = NULL, ...) {
+                               num_features = 2^18, uid = NULL, ...) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
     fn = "HashingTF",
@@ -108,7 +108,7 @@ ft_hashing_tf.tbl_pyspark <- ft_hashing_tf_impl
 # ------------------------------ Normalizer  -----------------------------------
 
 ft_normalizer_impl <- function(x, input_col = NULL, output_col = NULL,
-                          p = 2, uid = NULL, ...) {
+                               p = 2, uid = NULL, ...) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
     fn = "Normalizer",

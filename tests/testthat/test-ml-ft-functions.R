@@ -41,3 +41,65 @@ test_that("R Formula works", {
       colnames()
   )
 })
+
+test_that("Tokenizer works", {
+  sc <- use_test_spark_connect()
+  tbl_reviews <- use_test_table_reviews()
+  expect_snapshot(class(ft_tokenizer(ml_pipeline(sc))))
+  expect_snapshot(class(ft_tokenizer(sc)))
+  x <- ft_tokenizer(tbl_reviews, input_col = "x", output_col = "token_x")
+  expect_snapshot(class(x))
+  expect_snapshot(dplyr::pull(x, token_x))
+})
+
+test_that("Stop words remover works", {
+  sc <- use_test_spark_connect()
+  tbl_reviews <- use_test_table_reviews()
+  expect_snapshot(class(ft_tokenizer(ml_pipeline(sc))))
+  expect_snapshot(class(ft_tokenizer(sc)))
+  x <- tbl_reviews %>%
+    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+    ft_stop_words_remover(input_col = "token_x", output_col = "stop_x")
+  expect_snapshot(class(x))
+  expect_snapshot(dplyr::pull(x, stop_x))
+})
+
+test_that("Hashing TF works", {
+  sc <- use_test_spark_connect()
+  tbl_reviews <- use_test_table_reviews()
+  expect_snapshot(class(ft_hashing_tf(ml_pipeline(sc))))
+  expect_snapshot(class(ft_hashing_tf(sc)))
+  x <- tbl_reviews %>%
+    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+    ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
+    ft_hashing_tf(
+      input_col = "stop_x",
+      output_col = "hashed_x",
+      binary = TRUE,
+      num_features = 1024
+    )
+  expect_snapshot(class(x))
+  expect_snapshot(dplyr::pull(x, hashed_x))
+})
+
+test_that("Normalizer works", {
+  sc <- use_test_spark_connect()
+  tbl_reviews <- use_test_table_reviews()
+  expect_snapshot(class(ft_hashing_tf(ml_pipeline(sc))))
+  expect_snapshot(class(ft_hashing_tf(sc)))
+  x <- tbl_reviews %>%
+    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+    ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
+    ft_hashing_tf(
+      input_col = "stop_x",
+      output_col = "hashed_x",
+      binary = TRUE,
+      num_features = 1024
+    ) %>%
+    ft_normalizer(
+      input_col = "hashed_x",
+      output_col = "normal_x"
+    )
+  expect_snapshot(class(x))
+  expect_snapshot(dplyr::pull(x, normal_x))
+})

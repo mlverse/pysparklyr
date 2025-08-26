@@ -98,6 +98,19 @@ use_test_table_mtcars <- function() {
   ret
 }
 
+use_test_table_reviews <- function() {
+  reviews <- data.frame(
+    x = "This has been the best TV I've ever used. Great screen, and sound."
+  )
+  sc <- use_test_spark_connect()
+  if (!"reviews" %in% dbListTables(sc)) {
+    ret <- dplyr::copy_to(sc, reviews, overwrite = TRUE)
+  } else {
+    ret <- dplyr::tbl(sc, "reviews")
+  }
+  ret
+}
+
 use_test_lr_model <- function() {
   if (is.null(.test_env$lr_model)) {
     tbl_mtcars <- use_test_table_mtcars()

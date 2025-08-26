@@ -16,10 +16,8 @@ test_that("Logistic Regression works with Spark Connection", {
 test_that("Logistic Regression works with `tbl_spark`", {
   tbl_mtcars <- use_test_table_mtcars()
   expect_silent(model <- use_test_lr_model())
-  expect_equal(
-    print(model),
-    NULL
-  )
+  print_model <- suppressMessages(capture.output(print(model)))
+  expect_length(print_model, 8)
   expect_snapshot(model$features)
   expect_snapshot(model$label)
 

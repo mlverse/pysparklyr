@@ -6,7 +6,7 @@ test_that("Functions work", {
   tbl_mtcars <- use_test_table_mtcars()
   model <- use_test_lr_model()
   expect_length(
-    capture.output(print(model)),
+    suppressMessages(capture.output(print(model))),
     8
   )
 

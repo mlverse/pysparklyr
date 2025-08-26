@@ -49,3 +49,22 @@ ft_r_formula.ml_connect_pipeline <- ft_r_formula_impl
 ft_r_formula.pyspark_connection <- ft_r_formula_impl
 #' @export
 ft_r_formula.tbl_pyspark <- ft_r_formula_impl
+
+# ----------------------------- Tokenizer --------------------------------------
+
+ft_tokenizer_impl <- function(x, input_col = NULL, output_col = NULL,
+                         uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "Tokenizer",
+    has_fit = FALSE
+  )
+}
+#' @export
+ft_tokenizer.ml_connect_pipeline <- ft_tokenizer_impl
+#' @export
+ft_tokenizer.pyspark_connection <- ft_tokenizer_impl
+#' @export
+ft_tokenizer.tbl_pyspark <- ft_tokenizer_impl
+
+

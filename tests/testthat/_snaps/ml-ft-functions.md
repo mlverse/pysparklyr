@@ -96,7 +96,10 @@
     Code
       dplyr::pull(x, token_x)
     Output
-      [1] "c(\"this\", \"has\", \"been\", \"the\", \"best\", \"tv\", \"i've\", \"ever\", \"used.\", \"great\", \"screen,\", \"and\", \"sound.\")"
+      [[1]]
+       [1] "this"    "has"     "been"    "the"     "best"    "tv"      "i've"   
+       [8] "ever"    "used."   "great"   "screen," "and"     "sound." 
+      
 
 # Stop words remover works
 
@@ -126,7 +129,9 @@
     Code
       dplyr::pull(x, stop_x)
     Output
-      [1] "c(\"best\", \"tv\", \"ever\", \"used.\", \"great\", \"screen,\", \"sound.\")"
+      [[1]]
+      [1] "best"    "tv"      "ever"    "used."   "great"   "screen," "sound." 
+      
 
 # Hashing TF works
 
@@ -156,7 +161,9 @@
     Code
       dplyr::pull(x, hashed_x)
     Output
-      [1] "<environment>"
+      [[1]]
+      SparseVector(1024, {26: 1.0, 139: 1.0, 515: 1.0, 713: 1.0, 723: 1.0, 750: 1.0, 806: 1.0})
+      
 
 # Normalizer works
 
@@ -186,5 +193,7 @@
     Code
       dplyr::pull(x, normal_x)
     Output
-      [1] "<environment>"
+      [[1]]
+      SparseVector(1024, {26: 0.378, 139: 0.378, 515: 0.378, 713: 0.378, 723: 0.378, 750: 0.378, 806: 0.378})
+      
 

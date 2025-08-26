@@ -105,4 +105,19 @@ ft_hashing_tf.pyspark_connection <- ft_hashing_tf_impl
 #' @export
 ft_hashing_tf.tbl_pyspark <- ft_hashing_tf_impl
 
+# ------------------------------ Normalizer  -----------------------------------
 
+ft_normalizer_impl <- function(x, input_col = NULL, output_col = NULL,
+                          p = 2, uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "Normalizer",
+    has_fit = FALSE
+  )
+}
+#' @export
+ft_normalizer.ml_connect_pipeline <- ft_normalizer_impl
+#' @export
+ft_normalizer.pyspark_connection <- ft_normalizer_impl
+#' @export
+ft_normalizer.tbl_pyspark <- ft_normalizer_impl

@@ -14,7 +14,7 @@
 #' @importFrom sparklyr ml_logistic_regression ft_standard_scaler ft_max_abs_scaler
 #' @importFrom sparklyr ml_save ml_load spark_jobj spark_install_find spark_apply
 #' @importFrom sparklyr ml_linear_regression ft_r_formula ft_binarizer ft_bucketizer
-#' @importFrom sparklyr ft_tokenizer ft_stop_words_remover ft_hashing_tf
+#' @importFrom sparklyr ft_tokenizer ft_stop_words_remover ft_hashing_tf ft_normalizer
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by

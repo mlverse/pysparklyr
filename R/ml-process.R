@@ -17,10 +17,9 @@ ml_process_fn <- function(args, fn, has_fit = TRUE) {
   prep_obj <- c(
     list(
       uid = invoke(jobj, "uid"),
-      param_map = list(),
+      param_map = ml_get_params(jobj),
       .jobj = jobj
-    ),
-    ml_get_params(jobj)
+    )
   )
   stage <- structure(
     prep_obj,

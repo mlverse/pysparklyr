@@ -14,7 +14,8 @@ ml_pipeline.pyspark_connection <- function(x, ..., uid = NULL) {
 #' @export
 ml_fit.ml_connect_pipeline <- function(x, dataset, ...) {
   fitted <- ml_fit_impl(x, dataset)
-  stages <- map(invoke(fitted, "stages"), ml_print_params)
+  sc <- spark_connection(x)
+  stages <- map(invoke(fitted, "stages"), ml_print_params, sc)
   as_pipeline_model(fitted, stages)
 }
 
@@ -64,23 +65,15 @@ ml_transform.ml_connect_pipeline_model <- function(x, dataset, ...) {
   transform_impl(x, dataset, prep = FALSE, remove = TRUE)
 }
 
-ml_print_params <- function(x) {
+ml_print_params <- function(x, sc) {
   class_1 <- ml_get_last_item(class(x)[[1]])
   class_2 <- ml_get_last_item(class(x)[[3]])
-  x_params <- x$params %>%
-    map_chr(~ {
-      nm <- .x$name
-      nm <- paste0(toupper(substr(nm, 1, 1)), substr(nm, 2, nchar(nm)))
-      fn <- paste0("get", nm)
-      tr <- try(x[fn](), silent = TRUE)
-      if (inherits(tr, "try-error")) {
-        tr <- ""
-      } else {
-        tr <- glue("{.x$name}: {paste(tr, collapse = ', ')}")
-      }
-      tr
-    })
-  x_params <- x_params[x_params != ""]
+  x_params <- x %>%
+    as_spark_pyobj(sc) %>%
+    ml_get_params() %>%
+    map_chr(paste, collapse = ", ") %>%
+    purrr::imap_chr(function(x, y) glue("{y}: {x}")) %>%
+    paste0(collapse = "\n")
   name_label <- paste0("<", capture.output(x), ">")
   ret <- paste0(x_params, collapse = "\n")
   ret <- paste0(
@@ -115,7 +108,7 @@ ml_connect_add_stage <- function(x, stage) {
     loaded_pipeline_new <- invoke(pipeline_py, "isSet", "stages")
   }
   loaded_pipeline <- loaded_pipeline_old | loaded_pipeline_new
-  stage_print <- ml_print_params(stage)
+  stage_print <- ml_print_params(stage, sc)
   if (loaded_pipeline) {
     # Not using invoke() here because it's returning a list
     # and we need a vector

@@ -39,11 +39,11 @@ ml_connect_load <- function(sc, path) {
 
   class_current <- ml_get_last_item(class(pipeline)[[1]])
   if (class_current == "Pipeline") {
-    outputs <- map(pipeline$getStages(), ml_print_params)
+    outputs <- map(pipeline$getStages(), ml_print_params, sc)
     ret <- as_pipeline(pipeline, outputs, get_uid = TRUE)
   }
   if (class_current == "PipelineModel") {
-    outputs <- map(pipeline$stages, ml_print_params)
+    outputs <- map(pipeline$stages, ml_print_params, sc)
     ret <- as_pipeline_model(pipeline, outputs)
   }
   ret

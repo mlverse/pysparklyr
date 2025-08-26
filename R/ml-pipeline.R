@@ -3,12 +3,13 @@ ml_pipeline.pyspark_connection <- function(x, ..., uid = NULL) {
   ml_installed()
   if (spark_version(x) > "4.0") {
     ml <- import("pyspark.ml")
-    jobj <- as_spark_pyobj(ml$Pipeline(), x)
+    pipeline <- ml$Pipeline()
   } else {
-    connect_pipeline <- import("pyspark.ml.connect.pipeline")
-    jobj <- as_spark_pyobj(connect_pipeline, x)
+    pipeline <- import("pyspark.ml.connect.pipeline")
   }
-  as_pipeline(jobj)
+  pipeline %>%
+    as_spark_pyobj(x) %>%
+    as_pipeline()
 }
 
 #' @export
@@ -92,27 +93,6 @@ ml_print_params <- function(x, sc = NULL) {
   ret
 }
 
-ml_print_params1 <- function(x, sc) {
-  class_1 <- ml_get_last_item(class(x)[[1]])
-  class_2 <- ml_get_last_item(class(x)[[3]])
-  x_params <- x %>%
-    as_spark_pyobj(sc) %>%
-    ml_get_params() %>%
-    map_chr(paste, collapse = ", ") %>%
-    purrr::imap_chr(function(x, y) glue("{y}: {x}")) %>%
-    paste0(collapse = "\n")
-  name_label <- paste0("<", capture.output(x), ">")
-  ret <- paste0(x_params, collapse = "\n")
-  ret <- paste0(
-    class_1, " (", class_2, ")", "\n",
-    name_label, "\n",
-    "(Parameters)\n",
-    ret
-  )
-  class(ret) <- "ml_output_params"
-  ret
-}
-
 #' @export
 print.ml_output_params <- function(x, ...) {
   cat(x)
@@ -129,46 +109,6 @@ ml_connect_add_stage <- function(x, stage) {
     invoke("setStages", py_stages)
   outputs <- c(x$stages, list(ml_print_params(stage)))
   as_pipeline(pipeline, stages, outputs, TRUE)
-}
-
-ml_connect_add_stage1 <- function(x, stage) {
-  pipeline <- get_spark_pyobj(x)
-  pipeline_py <- python_obj_get(pipeline)
-  stage <- stage %>%
-    get_spark_pyobj() %>%
-    python_obj_get()
-  sc <- spark_connection(x)
-  spark_new <- spark_version(sc) >= "4.0"
-  loaded_pipeline_old <- inherits(pipeline_py, "pyspark.ml.connect.pipeline.Pipeline")
-  if (!spark_new && !loaded_pipeline_old) {
-    pipeline <- invoke(pipeline, "Pipeline")
-  }
-  loaded_pipeline_new <- FALSE
-  if (inherits(pipeline_py, "pyspark.ml.pipeline.Pipeline")) {
-    loaded_pipeline_new <- invoke(pipeline_py, "isSet", "stages")
-  }
-  loaded_pipeline <- loaded_pipeline_old | loaded_pipeline_new
-  stage_print <- ml_print_params(stage, sc)
-  if (loaded_pipeline) {
-    # Not using invoke() here because it's returning a list
-    # and we need a vector
-    stages <- pipeline_py$getStages()
-    outputs <- c(x$stages, list(stage_print))
-    if (length(stages) > 0) {
-      jobj <- invoke_simple(x, "setStages", c(stages, stage))
-    } else {
-      jobj <- invoke_simple(x, "stages", c(stages, stage))
-    }
-  } else {
-    outputs <- list(stage_print)
-    if (spark_new) {
-      jobj <- invoke_simple(x, "setStages", c(stage))
-    } else {
-      jobj <- pipeline(stages = c(stage))
-      jobj <- as_spark_pyobj(jobj, sc)
-    }
-  }
-  as_pipeline(jobj, outputs, TRUE)
 }
 
 as_pipeline <- function(jobj, stages = list(), outputs = list(), get_uid = FALSE) {

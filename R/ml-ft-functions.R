@@ -67,4 +67,19 @@ ft_tokenizer.pyspark_connection <- ft_tokenizer_impl
 #' @export
 ft_tokenizer.tbl_pyspark <- ft_tokenizer_impl
 
-
+ft_stop_words_remover_impl <- function(x, input_col = NULL, output_col = NULL,
+                                  case_sensitive = FALSE,
+                                  stop_words = NULL,
+                                  uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "StopWordsRemover",
+    has_fit = FALSE
+  )
+}
+#' @export
+ft_stop_words_remover.ml_connect_pipeline <- ft_stop_words_remover_impl
+#' @export
+ft_stop_words_remover.pyspark_connection <- ft_stop_words_remover_impl
+#' @export
+ft_stop_words_remover.tbl_pyspark <- ft_stop_words_remover_impl

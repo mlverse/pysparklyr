@@ -65,7 +65,27 @@ ml_transform.ml_connect_pipeline_model <- function(x, dataset, ...) {
   transform_impl(x, dataset, prep = FALSE, remove = TRUE)
 }
 
-ml_print_params <- function(x, sc) {
+ml_print_params <- function(x) {
+  py_x <- python_obj_get(x)
+  class_1 <- ml_get_last_item(class(py_x)[[1]])
+  class_2 <- ml_get_last_item(class(py_x)[[3]])
+  x_params <- x$param_map |>
+    map_chr(paste, collapse = ", ") %>%
+    purrr::imap_chr(function(x, y) glue("{y}: {x}")) %>%
+    paste0(collapse = "\n")
+  name_label <- paste0("<", capture.output(py_x), ">")
+  ret <- paste0(x_params, collapse = "\n")
+  ret <- paste0(
+    class_1, " (", class_2, ")", "\n",
+    name_label, "\n",
+    "(Parameters)\n",
+    ret
+  )
+  class(ret) <- "ml_output_params"
+  ret
+}
+
+ml_print_params1 <- function(x, sc) {
   class_1 <- ml_get_last_item(class(x)[[1]])
   class_2 <- ml_get_last_item(class(x)[[3]])
   x_params <- x %>%
@@ -92,6 +112,20 @@ print.ml_output_params <- function(x, ...) {
 }
 
 ml_connect_add_stage <- function(x, stage) {
+  stages <- c(x$param_map, list(stage))
+  py_stages <- NULL
+  for(i in stages) {
+    py_stages <- c(py_stages, python_obj_get(i))
+  }
+  pipeline <- x %>%
+    get_spark_pyobj() %>%
+    invoke("setStages", py_stages)
+  stage_print <- ml_print_params(stage)
+  outputs <- c(x$stages, list(stage_print))
+  as_pipeline(pipeline, stages, outputs, TRUE)
+}
+
+ml_connect_add_stage1 <- function(x, stage) {
   pipeline <- get_spark_pyobj(x)
   pipeline_py <- python_obj_get(pipeline)
   stage <- stage %>%
@@ -131,7 +165,7 @@ ml_connect_add_stage <- function(x, stage) {
   as_pipeline(jobj, outputs, TRUE)
 }
 
-as_pipeline <- function(jobj, outputs = NULL, get_uid = FALSE) {
+as_pipeline <- function(jobj, stages = list(), outputs = list(), get_uid = FALSE) {
   if (get_uid) {
     uid <- invoke(jobj, "uid")
   } else {
@@ -140,9 +174,9 @@ as_pipeline <- function(jobj, outputs = NULL, get_uid = FALSE) {
   structure(
     list(
       uid = uid,
-      param_map = list,
-      stages = outputs,
-      .jobj = jobj
+      param_map = stages,
+      .jobj = jobj,
+      stages = outputs
     ),
     class = c(
       "ml_connect_pipeline",

@@ -65,15 +65,22 @@ ml_transform.ml_connect_pipeline_model <- function(x, dataset, ...) {
   transform_impl(x, dataset, prep = FALSE, remove = TRUE)
 }
 
-ml_print_params <- function(x) {
+ml_print_params <- function(x, sc = NULL) {
   py_x <- python_obj_get(x)
-  class_1 <- ml_get_last_item(class(py_x)[[1]])
-  class_2 <- ml_get_last_item(class(py_x)[[3]])
-  x_params <- x$param_map |>
+  if (is.null(sc)) {
+    x_params <- x$param_map
+  } else {
+    x_params <- x %>%
+      as_spark_pyobj(sc) %>%
+      ml_get_params()
+  }
+  x_params <- x_params |>
     map_chr(paste, collapse = ", ") %>%
     purrr::imap_chr(function(x, y) glue("{y}: {x}")) %>%
     paste0(collapse = "\n")
   name_label <- paste0("<", capture.output(py_x), ">")
+  class_1 <- ml_get_last_item(class(py_x)[[1]])
+  class_2 <- ml_get_last_item(class(py_x)[[3]])
   ret <- paste0(x_params, collapse = "\n")
   ret <- paste0(
     class_1, " (", class_2, ")", "\n",
@@ -114,14 +121,13 @@ print.ml_output_params <- function(x, ...) {
 ml_connect_add_stage <- function(x, stage) {
   stages <- c(x$param_map, list(stage))
   py_stages <- NULL
-  for(i in stages) {
+  for (i in stages) {
     py_stages <- c(py_stages, python_obj_get(i))
   }
   pipeline <- x %>%
     get_spark_pyobj() %>%
     invoke("setStages", py_stages)
-  stage_print <- ml_print_params(stage)
-  outputs <- c(x$stages, list(stage_print))
+  outputs <- c(x$stages, list(ml_print_params(stage)))
   as_pipeline(pipeline, stages, outputs, TRUE)
 }
 

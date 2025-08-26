@@ -76,25 +76,15 @@ ml_linear_regression_prep <- function(args) {
     fn = "LinearRegression",
     sc = spark_connection(args$x)
   )
-
   structure(
     list(
       uid = invoke(jobj, "uid"),
-      features_col = invoke(jobj, "getFeaturesCol"),
-      label_col = invoke(jobj, "getLabelCol"),
-      prediction_col = invoke(jobj, "getPredictionCol"),
-      raw_prediction_col = invoke(jobj, "getPredictionCol"),
-      probability_col = NULL,
-      thresholds = NULL,
-      param_map = list(),
+      param_map = ml_get_params(jobj),
       .jobj = jobj
     ),
     class = c(
       "ml_connect_estimator",
       "ml_linear_regression",
-      "ml_probabilistic_classifier", # TODO: MAY NEED TO BE DIFFERENT
-      "ml_classifier", # TODO: MAY NEED TO BE DIFFERENT
-      "ml_predictor",
       "ml_estimator",
       "ml_pipeline_stage"
     )

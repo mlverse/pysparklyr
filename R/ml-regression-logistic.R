@@ -102,21 +102,12 @@ ml_logistic_regression_prep <- function(x, args) {
   structure(
     list(
       uid = invoke(jobj, "uid"),
-      features_col = invoke(jobj, "getFeaturesCol"),
-      label_col = invoke(jobj, "getLabelCol"),
-      prediction_col = invoke(jobj, "getPredictionCol"),
-      raw_prediction_col = invoke(jobj, "getPredictionCol"),
-      probability_col = invoke(jobj, "getProbabilityCol"),
-      thresholds = NULL,
-      param_map = list(),
+      param_map = ml_get_params(jobj),
       .jobj = jobj
     ),
     class = c(
       "ml_connect_estimator",
       "ml_logistic_regression",
-      "ml_probabilistic_classifier",
-      "ml_classifier",
-      "ml_predictor",
       "ml_estimator",
       "ml_pipeline_stage"
     )

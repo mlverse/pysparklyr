@@ -3,10 +3,8 @@
     Code
       class(ml_linear_regression(sc, max_iter = 10))
     Output
-      [1] "ml_connect_estimator"        "ml_linear_regression"       
-      [3] "ml_probabilistic_classifier" "ml_classifier"              
-      [5] "ml_predictor"                "ml_estimator"               
-      [7] "ml_pipeline_stage"          
+      [1] "ml_connect_estimator" "ml_linear_regression" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
 
 # Linear Regression works with `tbl_spark`
 

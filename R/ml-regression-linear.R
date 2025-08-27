@@ -1,95 +1,26 @@
-#' @export
-ml_linear_regression.tbl_pyspark <- function(x, formula = NULL, fit_intercept = TRUE,
-                                             elastic_net_param = 0, reg_param = 0,
-                                             max_iter = 100, weight_col = NULL,
-                                             loss = "squaredError", solver = "auto",
-                                             standardization = TRUE, tol = 1e-6,
-                                             features_col = "features", label_col = "label",
-                                             prediction_col = "prediction",
-                                             uid = NULL, ...) {
-  args <- c(as.list(environment()), list(...))
-
-  prep_reg <- ml_linear_regression_prep(args)
-
-  tbl_prep <- ml_prep_dataset(
-    x = x,
-    formula = formula,
-    label_col = label_col,
-    features_col = features_col,
-    lf = "only"
-  )
-
-  fitted <- ml_fit_impl(prep_reg, tbl_prep)
-
-  attrs <- attributes(tbl_prep)
-
-  structure(
-    list(
-      pipeline = fitted,
-      features = attrs$features,
-      label = attrs$label
-    ),
-    class = c(
-      "ml_connect_model",
-      "ml_model_linear_regression",
-      "ml_model_regression",
-      "ml_model_prediction",
-      "ml_model"
-    )
-  )
-}
-
-#' @export
-ml_linear_regression.ml_connect_pipeline <- function(x, formula = NULL, fit_intercept = TRUE,
-                                                     elastic_net_param = 0, reg_param = 0,
-                                                     max_iter = 100, weight_col = NULL,
-                                                     loss = "squaredError", solver = "auto",
-                                                     standardization = TRUE, tol = 1e-6,
-                                                     features_col = "features", label_col = "label",
-                                                     prediction_col = "prediction",
-                                                     uid = NULL, ...) {
-  args <- c(as.list(environment()), list(...))
-  model <- ml_linear_regression_prep(args)
-  ml_connect_add_stage(
-    x = x,
-    stage = model
-  )
-}
-
-#' @export
-ml_linear_regression.pyspark_connection <- function(x, formula = NULL, fit_intercept = TRUE,
-                                                    elastic_net_param = 0, reg_param = 0,
-                                                    max_iter = 100, weight_col = NULL,
-                                                    loss = "squaredError", solver = "auto",
-                                                    standardization = TRUE, tol = 1e-6,
-                                                    features_col = "features", label_col = "label",
-                                                    prediction_col = "prediction",
-                                                    uid = NULL, ...) {
-  args <- c(as.list(environment()), list(...))
-  ml_linear_regression_prep(args)
-}
-
-ml_linear_regression_prep <- function(args) {
-  jobj <- ml_execute(
-    args = args[names(args) != "formula"],
-    python_library = "pyspark.ml.regression",
+ml_linear_regression_impl <- function(x, formula = NULL, fit_intercept = TRUE,
+                                      elastic_net_param = 0, reg_param = 0,
+                                      max_iter = 100, weight_col = NULL,
+                                      loss = "squaredError", solver = "auto",
+                                      standardization = TRUE, tol = 1e-6,
+                                      features_col = "features", label_col = "label",
+                                      prediction_col = "prediction",
+                                      uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
     fn = "LinearRegression",
-    sc = spark_connection(args$x)
-  )
-  structure(
-    list(
-      uid = invoke(jobj, "uid"),
-      param_map = ml_get_params(jobj),
-      .jobj = jobj
-    ),
-    class = c(
-      "ml_connect_estimator",
-      "ml_linear_regression",
-      "ml_estimator",
-      "ml_pipeline_stage"
-    )
+    has_fit = TRUE,
+    ml_type = "regression",
+    ml_fn = "linear_regression"
   )
 }
+
+#' @export
+ml_linear_regression.pyspark_connection <- ml_linear_regression_impl
+#' @export
+ml_linear_regression.ml_connect_pipeline <- ml_linear_regression_impl
+#' @export
+ml_linear_regression.tbl_pyspark <- ml_linear_regression_impl
 
 #' @export
 ml_title.ml_model_linear_regression <- function(x) {

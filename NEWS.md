@@ -4,6 +4,7 @@
 
 * Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
 ML functions now supported are:
+  * `ml_random_forest_regressor()` *(New for Spark 4.0)*
   * `ml_random_forest_classifier()` *(New for Spark 4.0)*
   * `ft_string_indexer()` *(New for Spark 4.0)*
   * `ft_tokenizer()` *(New for Spark 4.0)*

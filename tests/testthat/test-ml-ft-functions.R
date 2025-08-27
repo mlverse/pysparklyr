@@ -110,7 +110,7 @@ test_that("String indexer works", {
   expect_snapshot(class(ft_string_indexer(ml_pipeline(sc))))
   expect_snapshot(class(ft_string_indexer(sc)))
   x <- tbl_iris %>%
-      ft_string_indexer("Species", "species_idx")
+    ft_string_indexer("Species", "species_idx")
   expect_snapshot(class(x))
   expect_snapshot(table(dplyr::pull(x)))
 })

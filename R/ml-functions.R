@@ -22,10 +22,6 @@ ml_linear_regression.pyspark_connection <- ml_linear_regression_impl
 ml_linear_regression.ml_connect_pipeline <- ml_linear_regression_impl
 #' @export
 ml_linear_regression.tbl_pyspark <- ml_linear_regression_impl
-#' @export
-ml_title.ml_model_linear_regression <- function(x) {
-  "Linear Regression"
-}
 
 # ----------------------- Random Forest Classifier  ----------------------------
 
@@ -53,7 +49,27 @@ ml_random_forest_classifier.pyspark_connection <- ml_random_forest_classifier_im
 ml_random_forest_classifier.ml_connect_pipeline <- ml_random_forest_classifier_impl
 #' @export
 ml_random_forest_classifier.tbl_pyspark <- ml_random_forest_classifier_impl
-#' @export
-ml_title.ml_model_random_forest_classifier <- function(x) {
-  "Linear Regression"
+
+# ----------------------- Random Forest Regressor  -----------------------------
+ml_random_forest_regressor_impl <- function(
+    x, formula = NULL, num_trees = 20, subsampling_rate = 1,
+    max_depth = 5, min_instances_per_node = 1, feature_subset_strategy = "auto",
+    impurity = "variance", min_info_gain = 0, max_bins = 32,
+    seed = NULL, checkpoint_interval = 10, cache_node_ids = FALSE,
+    max_memory_in_mb = NULL, features_col = "features", label_col = "label",
+    prediction_col = "prediction", uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "RandomForestRegressor",
+    has_fit = TRUE,
+    ml_type = "regression",
+    ml_fn = "random_forest_regressor"
+  )
 }
+#' @export
+ml_random_forest_regressor.pyspark_connection <- ml_random_forest_regressor_impl
+#' @export
+ml_random_forest_regressor.ml_connect_pipeline <- ml_random_forest_regressor_impl
+#' @export
+ml_random_forest_regressor.tbl_pyspark <- ml_random_forest_regressor_impl
+#' @export

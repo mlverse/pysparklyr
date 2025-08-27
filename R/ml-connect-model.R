@@ -71,15 +71,10 @@ transform_impl <- function(x, dataset, prep = TRUE,
 
 #' @export
 print.ml_connect_model <- function(x, ...) {
-  cli_h3("ML Connect model:")
-  cat(cli::style_reset(ml_title(x)))
-  if (inherits(x, "ml_model_regression")) {
-    cli_h3("Coefficients:")
-    print_coefficients(x)
-  }
+  model_name <- unlist(strsplit(py_repr(python_obj_get(x)), ":"))[[1]]
+  cli_h2("MLib model: {model_name}")
+  print_coefficients(x)
   print_summary(x)
-  cli_h3("Parameters:")
-  print_parameters(x)
 }
 
 print_parameters <- function(x) {
@@ -114,7 +109,12 @@ print_parameters <- function(x) {
 
 print_coefficients <- function(x) {
   py_x <- python_obj_get(x)
-  coefs <- round(py_x["coefficients"]["values"], 3)
+  coefs <- try(py_x[["coefficients"]], silent = TRUE)
+  if (inherits(coefs, "try-error")) {
+    return(invisible())
+  }
+  cli_h3("Coefficients:")
+  coefs <- round(coefs["values"], 3)
   features <- x$features
   if (py_x$getFitIntercept()) {
     features <- c("Intercept", features)
@@ -140,7 +140,13 @@ print_coefficients <- function(x) {
 }
 
 print_summary <- function(x) {
-  if (!py_x$hasSummary) {
+  py_x <- python_obj_get(x)
+  has_summary <- try(py_x$hasSummary, silent = TRUE)
+  if (inherits(has_summary, "try-error")) {
+    has_summary <- FALSE
+  }
+  if (!has_summary) {
+    print_parameters(x)
     return(invisible())
   }
   cli_h3("Summary:")
@@ -200,9 +206,6 @@ two_col_print <- function(x) {
   cat(paste0(p_two, collapse = "\n"))
 }
 
-ml_title <- function(x) {
-  UseMethod("ml_title")
-}
 
 #' @export
 spark_jobj.ml_connect_model <- function(x, ...) {

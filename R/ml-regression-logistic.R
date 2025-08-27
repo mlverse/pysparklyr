@@ -123,8 +123,3 @@ print.ml_connect_estimator <- function(x, ...) {
   cli_inform("<{.header {msg}}>")
   cli_end()
 }
-
-#' @export
-ml_title.ml_model_logistic_regression <- function(x) {
-  "Logistic Regression"
-}

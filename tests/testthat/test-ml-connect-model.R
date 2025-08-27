@@ -7,7 +7,7 @@ test_that("Functions work", {
   model <- use_test_lr_model()
   expect_length(
     suppressMessages(capture.output(print(model))),
-    8
+    23
   )
 
   expect_s3_class(spark_jobj(model), "spark_pyobj")

@@ -4,22 +4,24 @@
 
 * Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
 ML functions now supported are:
-  * `ml_random_forest_regressor()` *(New for Spark 4.0)*
-  * `ml_random_forest_classifier()` *(New for Spark 4.0)*
-  * `ft_string_indexer()` *(New for Spark 4.0)*
-  * `ft_tokenizer()` *(New for Spark 4.0)*
-  * `ft_stop_words_remover()` *(New for Spark 4.0)*
-  * `ft_hashing_tf()` *(New for Spark 4.0)*
-  * `ft_normalizer()` *(New for Spark 4.0)*
-  * `ft_binarizer()` *(New for Spark 4.0)*
-  * `ft_bucketizer()` *(New for Spark 4.0)*
-  * `ml_linear_regression()` *(New for Spark 4.0)*
-  * `ft_r_formula()` *(New for Spark 4.0)*
-  * `ml_logistic_regression()`
-  * `ft_standard_scaler()`
-  * `ft_max_abs_scaler()`
-  * `ml_pipeline()`
-  * `ml_save()`
+  * New in Spark 4.0
+    * `ml_linear_regression()`
+    * `ml_random_forest_regressor()`
+    * `ml_random_forest_classifier()`
+    * `ft_string_indexer()`
+    * `ft_tokenizer()`
+    * `ft_stop_words_remover()`
+    * `ft_hashing_tf()`
+    * `ft_normalizer()`
+    * `ft_binarizer()`
+    * `ft_bucketizer()`
+    * `ft_r_formula()`
+  * Updated for Spark 4.0
+    * `ml_logistic_regression()`
+    * `ft_standard_scaler()`
+    * `ft_max_abs_scaler()`
+    * `ml_pipeline()`
+    * `ml_save()`
 
 * Adds support for spark_write_delta() (#146)
 

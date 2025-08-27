@@ -157,25 +157,26 @@ print_summary <- function(x) {
         x <- round(x, 3)
       }
       x <- paste(x, collapse = ", ")
-      if (nchar(x) > 15) {
-        x <- glue("{substr(x, 1, 12)}...")
+      if (nchar(x) > 30) {
+        x <- glue("{substr(x, 1, 27)}...")
       }
       x
     })
   summary_names <- glue("{summary_names}: ")
-  paste0(
+  out <- paste0(
     cli::col_blue(cli::symbol$square_small_filled),
     " ",
     cli::ansi_align(
       text = cli::col_silver(summary_names),
-      width = max(cli::ansi_nchar(summary_names)) + 2
+      width = max(cli::ansi_nchar(summary_names)) + 1
     ),
     cli::ansi_align(
       text = cli::col_silver(summary_values),
       width = max(cli::ansi_nchar(summary_values))
-    )
-  ) %>%
-    two_col_print()
+    ),
+    "\n"
+  )
+  purrr::walk(out, cat)
 }
 
 two_col_print <- function(x) {

@@ -1,8 +1,9 @@
 # ------------------------------- Bucketizer -----------------------------------
-ft_bucketizer_impl <- function(x, input_col = NULL, output_col = NULL,
-                               splits = NULL, input_cols = NULL,
-                               output_cols = NULL, splits_array = NULL,
-                               handle_invalid = "error", uid = NULL, ...) {
+ft_bucketizer_impl <- function(
+    x, input_col = NULL, output_col = NULL,
+    splits = NULL, input_cols = NULL,
+    output_cols = NULL, splits_array = NULL,
+    handle_invalid = "error", uid = NULL, ...) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
     fn = "Bucketizer",
@@ -69,10 +70,11 @@ ft_tokenizer.tbl_pyspark <- ft_tokenizer_impl
 
 # -------------------------- Stop words remover --------------------------------
 
-ft_stop_words_remover_impl <- function(x, input_col = NULL, output_col = NULL,
-                                       case_sensitive = FALSE,
-                                       stop_words = NULL,
-                                       uid = NULL, ...) {
+ft_stop_words_remover_impl <- function(
+    x, input_col = NULL, output_col = NULL,
+    case_sensitive = FALSE,
+    stop_words = NULL,
+    uid = NULL, ...) {
   # TODO: Add way to set stop_words same way as regular sparklyr calls
   # not needed before release
   ml_process_fn(
@@ -90,8 +92,9 @@ ft_stop_words_remover.tbl_pyspark <- ft_stop_words_remover_impl
 
 # ----------------------- Hashing term frequencies  ----------------------------
 
-ft_hashing_tf_impl <- function(x, input_col = NULL, output_col = NULL, binary = FALSE,
-                               num_features = 2^18, uid = NULL, ...) {
+ft_hashing_tf_impl <- function(
+    x, input_col = NULL, output_col = NULL, binary = FALSE,
+    num_features = 2^18, uid = NULL, ...) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
     fn = "HashingTF",
@@ -107,8 +110,9 @@ ft_hashing_tf.tbl_pyspark <- ft_hashing_tf_impl
 
 # ------------------------------ Normalizer  -----------------------------------
 
-ft_normalizer_impl <- function(x, input_col = NULL, output_col = NULL,
-                               p = 2, uid = NULL, ...) {
+ft_normalizer_impl <- function(
+    x, input_col = NULL, output_col = NULL,
+    p = 2, uid = NULL, ...) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
     fn = "Normalizer",
@@ -121,3 +125,22 @@ ft_normalizer.ml_connect_pipeline <- ft_normalizer_impl
 ft_normalizer.pyspark_connection <- ft_normalizer_impl
 #' @export
 ft_normalizer.tbl_pyspark <- ft_normalizer_impl
+
+# ---------------------------- String Indexer  ---------------------------------
+
+ft_string_indexer_impl <- function(
+    x, input_col = NULL, output_col = NULL,
+    handle_invalid = "error", string_order_type = "frequencyDesc",
+    uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "StringIndexer",
+    has_fit = TRUE
+  )
+}
+#' @export
+ft_string_indexer.ml_connect_pipeline <- ft_string_indexer_impl
+#' @export
+ft_string_indexer.pyspark_connection <- ft_string_indexer_impl
+#' @export
+ft_string_indexer.tbl_pyspark <- ft_string_indexer_impl

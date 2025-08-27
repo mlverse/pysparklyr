@@ -77,6 +77,7 @@ print.ml_connect_model <- function(x, ...) {
     cli_h3("Coefficients:")
     print_coefficients(x)
   }
+  print_summary(x)
   cli_h3("Parameters:")
   print_parameters(x)
 }
@@ -136,6 +137,45 @@ print_coefficients <- function(x) {
     )
   )
   two_col_print(out)
+}
+
+print_summary <- function(x) {
+  if (!py_x$hasSummary) {
+    return(invisible())
+  }
+  cli_h3("Summary:")
+  py_x <- python_obj_get(x)
+  summary_names <- names(py_x$summary)
+  summary_values <- map(summary_names, function(x) py_x$summary[[x]])
+  summary_valid <- summary_values %>%
+    map_lgl(function(x) inherits(x, "numeric") | inherits(x, "character"))
+  summary_names <- summary_names[summary_valid]
+  summary_values <- summary_values[summary_valid]
+  summary_values <- summary_values %>%
+    map(function(x) {
+      if (is.numeric(x)) {
+        x <- round(x, 3)
+      }
+      x <- paste(x, collapse = ", ")
+      if (nchar(x) > 15) {
+        x <- glue("{substr(x, 1, 12)}...")
+      }
+      x
+    })
+  summary_names <- glue("{summary_names}: ")
+  paste0(
+    cli::col_blue(cli::symbol$square_small_filled),
+    " ",
+    cli::ansi_align(
+      text = cli::col_silver(summary_names),
+      width = max(cli::ansi_nchar(summary_names)) + 2
+    ),
+    cli::ansi_align(
+      text = cli::col_silver(summary_values),
+      width = max(cli::ansi_nchar(summary_values))
+    )
+  ) %>%
+    two_col_print()
 }
 
 two_col_print <- function(x) {

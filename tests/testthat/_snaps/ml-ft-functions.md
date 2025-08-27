@@ -204,3 +204,36 @@
       SparseVector(1024, {26: 0.378, 139: 0.378, 515: 0.378, 713: 0.378, 723: 0.378, 750: 0.378, 806: 0.378})
       
 
+# String indexer works
+
+    Code
+      class(ft_string_indexer(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_string_indexer(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
+---
+
+    Code
+      table(dplyr::pull(x))
+    Output
+      
+       0  1  2 
+      50 50 50 
+

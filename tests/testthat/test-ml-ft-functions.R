@@ -103,3 +103,14 @@ test_that("Normalizer works", {
   expect_snapshot(class(x))
   expect_snapshot(dplyr::pull(x, normal_x))
 })
+
+test_that("String indexer works", {
+  sc <- use_test_spark_connect()
+  tbl_iris <- use_test_table_iris()
+  expect_snapshot(class(ft_string_indexer(ml_pipeline(sc))))
+  expect_snapshot(class(ft_string_indexer(sc)))
+  x <- tbl_iris %>%
+      ft_string_indexer("Species", "species_idx")
+  expect_snapshot(class(x))
+  expect_snapshot(table(dplyr::pull(x)))
+})

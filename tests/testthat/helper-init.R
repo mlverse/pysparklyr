@@ -98,6 +98,17 @@ use_test_table_mtcars <- function() {
   ret
 }
 
+use_test_table_iris <- function() {
+  sc <- use_test_spark_connect()
+  if (!"iris" %in% dbListTables(sc)) {
+    ret <- dplyr::copy_to(sc, iris, overwrite = TRUE)
+  } else {
+    ret <- dplyr::tbl(sc, "iris")
+  }
+  ret
+}
+
+
 use_test_table_reviews <- function() {
   reviews <- data.frame(
     x = "This has been the best TV I've ever used. Great screen, and sound."

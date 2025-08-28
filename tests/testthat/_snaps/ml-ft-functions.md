@@ -22,6 +22,30 @@
     Output
       [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
 
+# Bucket Random Projection LSH works
+
+    Code
+      class(ft_bucketed_random_projection_lsh(sc, "a", "b"))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ft_bucketed_random_projection_lsh(ml_pipeline(sc), "a", "b"))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
 # Bucketizer works
 
     Code

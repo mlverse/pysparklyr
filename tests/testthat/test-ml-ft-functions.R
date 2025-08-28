@@ -14,6 +14,23 @@ test_that("Binarizer works", {
   )
 })
 
+test_that("Bucket Random Projection LSH works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_bucketed_random_projection_lsh(sc, "a", "b")))
+  expect_snapshot(class(ft_bucketed_random_projection_lsh(ml_pipeline(sc), "a", "b")))
+  tbl_reviews <- use_test_table_reviews()
+  x <- tbl_reviews %>%
+    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+    ft_hashing_tf(
+      input_col = "token_x",
+      output_col = "hashed_x",
+      binary = FALSE,
+      num_features = 1024
+    ) %>%
+    ft_bucketed_random_projection_lsh("hashed_x", "lsh_x", bucket_length = 1)
+  expect_snapshot(class(x))
+})
+
 test_that("Bucketizer works", {
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()

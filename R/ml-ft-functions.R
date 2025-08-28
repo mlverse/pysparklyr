@@ -1,3 +1,19 @@
+# ----------------------------- Binarizer --------------------------------------
+ft_binarizer_impl <- function(x, input_col, output_col,
+                              threshold = 0, uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "Binarizer",
+    has_fit = FALSE
+  )
+}
+#' @export
+ft_binarizer.ml_connect_pipeline <- ft_binarizer_impl
+#' @export
+ft_binarizer.pyspark_connection <- ft_binarizer_impl
+#' @export
+ft_binarizer.tbl_pyspark <- ft_binarizer_impl
+
 # ------------------------------- Bucketizer -----------------------------------
 ft_bucketizer_impl <- function(
     x, input_col = NULL, output_col = NULL,
@@ -17,21 +33,23 @@ ft_bucketizer.pyspark_connection <- ft_bucketizer_impl
 #' @export
 ft_bucketizer.tbl_pyspark <- ft_bucketizer_impl
 
-# ----------------------------- Binarizer --------------------------------------
-ft_binarizer_impl <- function(x, input_col, output_col,
-                              threshold = 0, uid = NULL, ...) {
+# ---------------------- Bucket Random Projection LSH --------------------------
+ft_bucketed_random_projection_lsh_impl <- function(
+    x, input_col = NULL, output_col = NULL,
+    bucket_length = NULL, num_hash_tables = 1, seed = NULL,
+    uid = NULL, ...) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
-    fn = "Binarizer",
-    has_fit = FALSE
+    fn = "BucketedRandomProjectionLSH",
+    has_fit = TRUE
   )
 }
 #' @export
-ft_binarizer.ml_connect_pipeline <- ft_binarizer_impl
+ft_bucketed_random_projection_lsh.ml_connect_pipeline <- ft_bucketed_random_projection_lsh_impl
 #' @export
-ft_binarizer.pyspark_connection <- ft_binarizer_impl
+ft_bucketed_random_projection_lsh.pyspark_connection <- ft_bucketed_random_projection_lsh_impl
 #' @export
-ft_binarizer.tbl_pyspark <- ft_binarizer_impl
+ft_bucketed_random_projection_lsh.tbl_pyspark <- ft_bucketed_random_projection_lsh_impl
 
 # ----------------------------- RFormula ---------------------------------------
 

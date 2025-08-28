@@ -16,6 +16,7 @@
 #' @importFrom sparklyr ml_linear_regression ft_r_formula ft_binarizer ft_bucketizer
 #' @importFrom sparklyr ft_tokenizer ft_stop_words_remover ft_hashing_tf ft_normalizer
 #' @importFrom sparklyr ml_random_forest_classifier ml_random_forest_regressor ft_string_indexer
+#' @importFrom sparklyr ft_bucketed_random_projection_lsh
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by

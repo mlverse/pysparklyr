@@ -5,6 +5,7 @@
 * Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
 ML functions now supported are:
   * New in Spark 4.0
+    * `ft_bucketed_random_projection_lsh()`
     * `ml_linear_regression()`
     * `ml_random_forest_regressor()`
     * `ml_random_forest_classifier()`

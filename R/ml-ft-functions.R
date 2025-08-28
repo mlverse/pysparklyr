@@ -79,13 +79,20 @@ ft_elementwise_product.ml_connect_pipeline <- ft_elementwise_product_impl
 ft_elementwise_product.pyspark_connection <- ft_elementwise_product_impl
 #' @export
 ft_elementwise_product.tbl_pyspark <- ft_elementwise_product_impl
-#' @export
-ft_discrete_cosine_transform.ml_connect_pipeline <- ft_elementwise_product_impl
-#' @export
-ft_discrete_cosine_transform.pyspark_connection <- ft_elementwise_product_impl
-#' @export
-ft_discrete_cosine_transform.tbl_pyspark <- ft_elementwise_product_impl
 
+
+# ---------------------------- Feature Hasher  ---------------------------------
+ft_feature_hasher_impl <- function(
+    x, input_cols = NULL, output_col = NULL,
+    num_features = 2^18, categorical_cols = NULL, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "FeatureHasher", FALSE)
+}
+#' @export
+ft_feature_hasher.ml_connect_pipeline <- ft_feature_hasher_impl
+#' @export
+ft_feature_hasher.pyspark_connection <- ft_feature_hasher_impl
+#' @export
+ft_feature_hasher.tbl_pyspark <- ft_feature_hasher_impl
 
 # ----------------------------- RFormula ---------------------------------------
 

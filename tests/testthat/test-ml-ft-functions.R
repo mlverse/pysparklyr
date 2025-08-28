@@ -96,6 +96,16 @@ test_that("Elementwise Product works", {
   expect_snapshot(dplyr::pull(x))
 })
 
+test_that("Feature Hasher works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_feature_hasher(sc)))
+  expect_snapshot(class(ft_feature_hasher(ml_pipeline(sc))))
+  x <- use_test_table_iris() %>%
+    ft_feature_hasher(c("Species", "Sepal_Width", "Petal_Length"), "hash_x")
+  expect_snapshot(class(x))
+  expect_snapshot(dplyr::pull(x))
+})
+
 test_that("R Formula works", {
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()

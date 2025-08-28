@@ -3145,7 +3145,7 @@
 # Imputer works
 
     Code
-      class(ft_imputer(sc, "a", "b"))
+      class(ft_imputer(sc))
     Output
       [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
       [4] "ml_pipeline_stage"   
@@ -3153,7 +3153,7 @@
 ---
 
     Code
-      class(ft_imputer(ml_pipeline(sc), "a", "b"))
+      class(ft_imputer(ml_pipeline(sc)))
     Output
       [1] "ml_connect_pipeline"       "ml_pipeline"              
       [3] "ml_connect_estimator"      "ml_estimator"             
@@ -3165,6 +3165,39 @@
       class(x)
     Output
       [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
+# Index-to-string works
+
+    Code
+      class(ft_index_to_string(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_index_to_string(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
+---
+
+    Code
+      table(dplyr::pull(x))
+    Output
+      
+          setosa versicolor  virginica 
+              50         50         50 
 
 # R Formula works
 

@@ -140,15 +140,27 @@ test_that("IDF works", {
 
 test_that("Imputer works", {
   sc <- use_test_spark_connect()
-  expect_snapshot(class(ft_imputer(sc, "a", "b")))
-  expect_snapshot(class(ft_imputer(ml_pipeline(sc), "a", "b")))
+  expect_snapshot(class(ft_imputer(sc)))
+  expect_snapshot(class(ft_imputer(ml_pipeline(sc))))
   x <- use_test_table(
     x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5),
     name = "imputer"
   ) %>%
-    ft_imputer("x", "imp_x")
+    ft_imputer(list(c("x")), list(c("new_x")))
   expect_snapshot(class(x))
   expect_equal(dplyr::pull(x), c(2, 2, 4, 3, 4))
+})
+
+test_that("Index-to-string works", {
+  sc <- use_test_spark_connect()
+  tbl_iris <- use_test_table_iris()
+  expect_snapshot(class(ft_index_to_string(ml_pipeline(sc))))
+  expect_snapshot(class(ft_index_to_string(sc)))
+  x <- tbl_iris %>%
+    ft_string_indexer("Species", "species_idx") %>%
+    ft_index_to_string("species_idx", "species_x")
+  expect_snapshot(class(x))
+  expect_snapshot(table(dplyr::pull(x)))
 })
 
 test_that("R Formula works", {

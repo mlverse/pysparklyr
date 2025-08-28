@@ -122,7 +122,8 @@ ft_idf.tbl_pyspark <- ft_idf_impl
 
 # -------------------------------- Imputer  ------------------------------------
 ft_imputer_impl <- function(
-    x, input_col = NULL, output_col = NULL, min_doc_freq = NULL, uid = NULL, ...) {
+    x, input_cols = NULL, output_cols = NULL, missing_value = NULL,
+    strategy = "mean", uid = NULL, ...) {
   ml_process_fn(c(as.list(environment()), list(...)), "Imputer", TRUE)
 }
 #' @export
@@ -132,8 +133,19 @@ ft_imputer.pyspark_connection <- ft_imputer_impl
 #' @export
 ft_imputer.tbl_pyspark <- ft_imputer_impl
 
-# ----------------------------- RFormula ---------------------------------------
+# ------------------------- Index to string  -----------------------------------
+ft_index_to_string_impl <- function(
+    x, input_col = NULL, output_col = NULL, labels = NULL, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "IndexToString", FALSE)
+}
+#' @export
+ft_index_to_string.ml_connect_pipeline <- ft_index_to_string_impl
+#' @export
+ft_index_to_string.pyspark_connection <- ft_index_to_string_impl
+#' @export
+ft_index_to_string.tbl_pyspark <- ft_index_to_string_impl
 
+# ----------------------------- RFormula ---------------------------------------
 ft_r_formula_impl <- function(
     x, formula = NULL, features_col = "features", label_col = "label",
     force_index_label = FALSE, uid = NULL, ...) {
@@ -147,7 +159,6 @@ ft_r_formula.pyspark_connection <- ft_r_formula_impl
 ft_r_formula.tbl_pyspark <- ft_r_formula_impl
 
 # ----------------------------- Tokenizer --------------------------------------
-
 ft_tokenizer_impl <- function(
     x, input_col = NULL, output_col = NULL, uid = NULL, ...) {
   ml_process_fn(c(as.list(environment()), list(...)), "Tokenizer", FALSE)

@@ -86,7 +86,12 @@ ft_dct.ml_connect_pipeline <- ft_dct_impl
 ft_dct.pyspark_connection <- ft_dct_impl
 #' @export
 ft_dct.tbl_pyspark <- ft_dct_impl
-
+#' @export
+ft_discrete_cosine_transform.ml_connect_pipeline <- ft_dct_impl
+#' @export
+ft_discrete_cosine_transform.pyspark_connection <- ft_dct_impl
+#' @export
+ft_discrete_cosine_transform.tbl_pyspark <- ft_dct_impl
 
 # ----------------------------- RFormula ---------------------------------------
 

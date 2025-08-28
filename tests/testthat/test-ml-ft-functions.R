@@ -74,6 +74,24 @@ test_that("DCT works", {
   expect_snapshot(dplyr::pull(x))
 })
 
+test_that("Discrete Cosine works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_discrete_cosine_transform(sc, "a", "b")))
+  expect_snapshot(class(ft_discrete_cosine_transform(ml_pipeline(sc), "a", "b")))
+  tbl_reviews <- use_test_table_reviews()
+  x <- tbl_reviews %>%
+    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+    ft_hashing_tf(
+      input_col = "token_x",
+      output_col = "hashed_x",
+      binary = FALSE,
+      num_features = 1024
+    ) %>%
+    ft_discrete_cosine_transform("hashed_x", "dct_x")
+  expect_snapshot(class(x))
+  expect_snapshot(dplyr::pull(x))
+})
+
 test_that("R Formula works", {
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()

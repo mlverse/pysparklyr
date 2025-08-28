@@ -9,7 +9,7 @@ test_that("Random Forest Classifier works", {
   expect_snapshot(class(model))
   x <- tbl_iris %>%
     ft_string_indexer("Species", "species_idx") %>%
-    ml_predict(model, .) |>
+    ml_predict(model, .) %>%
     collect()
   expect_snapshot(table(x$prediction))
 })
@@ -23,7 +23,7 @@ test_that("Random Forest Regressor works", {
     ml_random_forest_regressor(mpg ~ ., seed = 100)
   expect_snapshot(class(model))
   x <- tbl_mtcars %>%
-    ml_predict(model, .) |>
+    ml_predict(model, .) %>%
     collect()
   expect_true("prediction" %in% names(x))
 })

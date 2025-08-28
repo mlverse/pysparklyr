@@ -19,15 +19,13 @@ test_that("Bucket Random Projection LSH works", {
   expect_snapshot(class(ft_bucketed_random_projection_lsh(sc, "a", "b")))
   expect_snapshot(class(ft_bucketed_random_projection_lsh(ml_pipeline(sc), "a", "b")))
   tbl_reviews <- use_test_table_reviews()
-  x <- tbl_reviews %>%
-    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-    ft_hashing_tf(
-      input_col = "token_x",
-      output_col = "hashed_x",
-      binary = FALSE,
-      num_features = 1024
+  x <- use_test_table_iris() %>%
+    ft_vector_assembler(
+      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
+      output_col = "vec_x"
     ) %>%
-    ft_bucketed_random_projection_lsh("hashed_x", "lsh_x", bucket_length = 1)
+    ft_bucketed_random_projection_lsh("vec_x", "lsh_x", bucket_length = 1)
+  expect_snapshot(dplyr::pull(x))
   expect_snapshot(class(x))
 })
 
@@ -60,16 +58,12 @@ test_that("DCT works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_dct(sc, "a", "b")))
   expect_snapshot(class(ft_dct(ml_pipeline(sc), "a", "b")))
-  tbl_reviews <- use_test_table_reviews()
-  x <- tbl_reviews %>%
-    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-    ft_hashing_tf(
-      input_col = "token_x",
-      output_col = "hashed_x",
-      binary = FALSE,
-      num_features = 1024
+  x <- use_test_table_iris() %>%
+    ft_vector_assembler(
+      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
+      output_col = "vec_x"
     ) %>%
-    ft_dct("hashed_x", "dct_x")
+    ft_dct("vec_x", "dct_x")
   expect_snapshot(class(x))
   expect_snapshot(dplyr::pull(x))
 })
@@ -78,16 +72,12 @@ test_that("Discrete Cosine works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_discrete_cosine_transform(sc, "a", "b")))
   expect_snapshot(class(ft_discrete_cosine_transform(ml_pipeline(sc), "a", "b")))
-  tbl_reviews <- use_test_table_reviews()
-  x <- tbl_reviews %>%
-    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-    ft_hashing_tf(
-      input_col = "token_x",
-      output_col = "hashed_x",
-      binary = FALSE,
-      num_features = 1024
+  x <- use_test_table_iris() %>%
+    ft_vector_assembler(
+      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
+      output_col = "vec_x"
     ) %>%
-    ft_discrete_cosine_transform("hashed_x", "dct_x")
+    ft_discrete_cosine_transform("vec_x", "dct_x")
   expect_snapshot(class(x))
   expect_snapshot(dplyr::pull(x))
 })
@@ -188,8 +178,7 @@ test_that("Vector assembler works", {
     ft_vector_assembler(
       input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
       output_col = "vec_x"
-      )
+    )
   expect_snapshot(class(x))
   expect_snapshot(dplyr::pull(x))
 })
-

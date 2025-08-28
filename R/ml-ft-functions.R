@@ -120,6 +120,18 @@ ft_idf.pyspark_connection <- ft_idf_impl
 #' @export
 ft_idf.tbl_pyspark <- ft_idf_impl
 
+# -------------------------------- Imputer  ------------------------------------
+ft_imputer_impl <- function(
+    x, input_col = NULL, output_col = NULL, min_doc_freq = NULL, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "Imputer", TRUE)
+}
+#' @export
+ft_imputer.ml_connect_pipeline <- ft_imputer_impl
+#' @export
+ft_imputer.pyspark_connection <- ft_imputer_impl
+#' @export
+ft_imputer.tbl_pyspark <- ft_imputer_impl
+
 # ----------------------------- RFormula ---------------------------------------
 
 ft_r_formula_impl <- function(

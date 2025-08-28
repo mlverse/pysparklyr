@@ -138,6 +138,19 @@ test_that("IDF works", {
   expect_snapshot(dplyr::pull(x))
 })
 
+test_that("Imputer works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_imputer(sc, "a", "b")))
+  expect_snapshot(class(ft_imputer(ml_pipeline(sc), "a", "b")))
+  x <- use_test_table(
+    x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5),
+    name = "imputer"
+  ) %>%
+    ft_imputer("x", "imp_x")
+  expect_snapshot(class(x))
+  expect_equal(dplyr::pull(x), c(2, 2, 4, 3, 4))
+})
+
 test_that("R Formula works", {
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()

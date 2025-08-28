@@ -108,6 +108,15 @@ use_test_table_iris <- function() {
   ret
 }
 
+use_test_table <- function(x, name) {
+  sc <- use_test_spark_connect()
+  if (!name %in% dbListTables(sc)) {
+    ret <- dplyr::copy_to(sc, x, name = name, overwrite = TRUE)
+  } else {
+    ret <- dplyr::tbl(sc, name)
+  }
+  ret
+}
 
 use_test_table_reviews <- function() {
   reviews <- data.frame(

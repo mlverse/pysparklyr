@@ -3142,6 +3142,30 @@
       DenseVector([0.0, 0.0, 0.0])
       
 
+# Imputer works
+
+    Code
+      class(ft_imputer(sc, "a", "b"))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ft_imputer(ml_pipeline(sc), "a", "b"))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
 # R Formula works
 
     Code

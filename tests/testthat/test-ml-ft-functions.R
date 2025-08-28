@@ -82,6 +82,20 @@ test_that("Discrete Cosine works", {
   expect_snapshot(dplyr::pull(x))
 })
 
+test_that("Elementwise Product works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_elementwise_product(sc, "a", "b")))
+  expect_snapshot(class(ft_elementwise_product(ml_pipeline(sc), "a", "b")))
+  x <- use_test_table_iris() %>%
+    ft_vector_assembler(
+      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
+      output_col = "vec_x"
+    ) %>%
+    ft_elementwise_product("vec_x", "elm_x", scaling_vec = c(1:3))
+  expect_snapshot(class(x))
+  expect_snapshot(dplyr::pull(x))
+})
+
 test_that("R Formula works", {
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()

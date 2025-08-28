@@ -68,6 +68,25 @@ ft_discrete_cosine_transform.pyspark_connection <- ft_dct_impl
 #' @export
 ft_discrete_cosine_transform.tbl_pyspark <- ft_dct_impl
 
+# -------------------------- Elementwise Product  ------------------------------
+ft_elementwise_product_impl <- function(
+    x, input_col = NULL, output_col = NULL, scaling_vec = NULL, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "ElementwiseProduct", FALSE)
+}
+#' @export
+ft_elementwise_product.ml_connect_pipeline <- ft_elementwise_product_impl
+#' @export
+ft_elementwise_product.pyspark_connection <- ft_elementwise_product_impl
+#' @export
+ft_elementwise_product.tbl_pyspark <- ft_elementwise_product_impl
+#' @export
+ft_discrete_cosine_transform.ml_connect_pipeline <- ft_elementwise_product_impl
+#' @export
+ft_discrete_cosine_transform.pyspark_connection <- ft_elementwise_product_impl
+#' @export
+ft_discrete_cosine_transform.tbl_pyspark <- ft_elementwise_product_impl
+
+
 # ----------------------------- RFormula ---------------------------------------
 
 ft_r_formula_impl <- function(

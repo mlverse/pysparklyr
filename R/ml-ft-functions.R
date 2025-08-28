@@ -51,6 +51,25 @@ ft_bucketed_random_projection_lsh.pyspark_connection <- ft_bucketed_random_proje
 #' @export
 ft_bucketed_random_projection_lsh.tbl_pyspark <- ft_bucketed_random_projection_lsh_impl
 
+# ----------------------------- Count vectorizer -------------------------------
+ft_count_vectorizer_impl <- function(
+    x, input_col = NULL, output_col = NULL, binary = FALSE,
+    min_df = NULL, min_tf = NULL,
+    vocab_size = 2^18,
+    uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "CountVectorizer",
+    has_fit = TRUE
+  )
+}
+#' @export
+ft_count_vectorizer.ml_connect_pipeline <- ft_count_vectorizer_impl
+#' @export
+ft_count_vectorizer.pyspark_connection <- ft_count_vectorizer_impl
+#' @export
+ft_count_vectorizer.tbl_pyspark <- ft_count_vectorizer_impl
+
 # ----------------------------- RFormula ---------------------------------------
 
 ft_r_formula_impl <- function(x, formula = NULL, features_col = "features",

@@ -70,6 +70,39 @@
     Output
       [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
 
+# Count vectorizer works
+
+    Code
+      class(ft_count_vectorizer(sc, "a", "b"))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ft_count_vectorizer(ml_pipeline(sc), "a", "b"))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
+---
+
+    Code
+      dplyr::pull(x)
+    Output
+      [[1]]
+      SparseVector(13, {0: 1.0, 1: 1.0, 2: 1.0, 3: 1.0, 4: 1.0, 5: 1.0, 6: 1.0, 7: 1.0, 8: 1.0, 9: 1.0, 10: 1.0, 11: 1.0, 12: 1.0})
+      
+
 # R Formula works
 
     Code

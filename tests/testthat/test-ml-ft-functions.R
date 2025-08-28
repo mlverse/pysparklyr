@@ -44,6 +44,18 @@ test_that("Bucketizer works", {
   )
 })
 
+test_that("Count vectorizer works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_count_vectorizer(sc, "a", "b")))
+  expect_snapshot(class(ft_count_vectorizer(ml_pipeline(sc), "a", "b")))
+  tbl_reviews <- use_test_table_reviews()
+  x <- tbl_reviews %>%
+    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+    ft_count_vectorizer("token_x", "cv_x")
+  expect_snapshot(class(x))
+  expect_snapshot(dplyr::pull(x))
+})
+
 test_that("R Formula works", {
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()

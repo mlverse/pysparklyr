@@ -6,6 +6,7 @@
 ML functions now supported are:
   * New in Spark 4.0
     * `ft_bucketed_random_projection_lsh()`
+    * `ft_count_vectorizer()`
     * `ml_linear_regression()`
     * `ml_random_forest_regressor()`
     * `ml_random_forest_classifier()`

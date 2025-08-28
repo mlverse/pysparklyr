@@ -204,3 +204,21 @@ ft_string_indexer.ml_connect_pipeline <- ft_string_indexer_impl
 ft_string_indexer.pyspark_connection <- ft_string_indexer_impl
 #' @export
 ft_string_indexer.tbl_pyspark <- ft_string_indexer_impl
+
+
+# -------------------------- Vector Assembler ----------------------------------
+
+ft_vector_assembler_impl <- function(
+    x, input_cols = NULL, output_col = NULL, uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "VectorAssembler",
+    has_fit = FALSE
+  )
+}
+#' @export
+ft_vector_assembler.ml_connect_pipeline <- ft_vector_assembler_impl
+#' @export
+ft_vector_assembler.pyspark_connection <- ft_vector_assembler_impl
+#' @export
+ft_vector_assembler.tbl_pyspark <- ft_vector_assembler_impl

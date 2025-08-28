@@ -360,3 +360,483 @@
        0  1  2 
       50 50 50 
 
+# Vector assembler works
+
+    Code
+      class(ft_vector_assembler(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_vector_assembler(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
+---
+
+    Code
+      dplyr::pull(x)
+    Output
+      [[1]]
+      DenseVector([5.1, 3.5, 1.4])
+      
+      [[2]]
+      DenseVector([4.9, 3.0, 1.4])
+      
+      [[3]]
+      DenseVector([4.7, 3.2, 1.3])
+      
+      [[4]]
+      DenseVector([4.6, 3.1, 1.5])
+      
+      [[5]]
+      DenseVector([5.0, 3.6, 1.4])
+      
+      [[6]]
+      DenseVector([5.4, 3.9, 1.7])
+      
+      [[7]]
+      DenseVector([4.6, 3.4, 1.4])
+      
+      [[8]]
+      DenseVector([5.0, 3.4, 1.5])
+      
+      [[9]]
+      DenseVector([4.4, 2.9, 1.4])
+      
+      [[10]]
+      DenseVector([4.9, 3.1, 1.5])
+      
+      [[11]]
+      DenseVector([5.4, 3.7, 1.5])
+      
+      [[12]]
+      DenseVector([4.8, 3.4, 1.6])
+      
+      [[13]]
+      DenseVector([4.8, 3.0, 1.4])
+      
+      [[14]]
+      DenseVector([4.3, 3.0, 1.1])
+      
+      [[15]]
+      DenseVector([5.8, 4.0, 1.2])
+      
+      [[16]]
+      DenseVector([5.7, 4.4, 1.5])
+      
+      [[17]]
+      DenseVector([5.4, 3.9, 1.3])
+      
+      [[18]]
+      DenseVector([5.1, 3.5, 1.4])
+      
+      [[19]]
+      DenseVector([5.7, 3.8, 1.7])
+      
+      [[20]]
+      DenseVector([5.1, 3.8, 1.5])
+      
+      [[21]]
+      DenseVector([5.4, 3.4, 1.7])
+      
+      [[22]]
+      DenseVector([5.1, 3.7, 1.5])
+      
+      [[23]]
+      DenseVector([4.6, 3.6, 1.0])
+      
+      [[24]]
+      DenseVector([5.1, 3.3, 1.7])
+      
+      [[25]]
+      DenseVector([4.8, 3.4, 1.9])
+      
+      [[26]]
+      DenseVector([5.0, 3.0, 1.6])
+      
+      [[27]]
+      DenseVector([5.0, 3.4, 1.6])
+      
+      [[28]]
+      DenseVector([5.2, 3.5, 1.5])
+      
+      [[29]]
+      DenseVector([5.2, 3.4, 1.4])
+      
+      [[30]]
+      DenseVector([4.7, 3.2, 1.6])
+      
+      [[31]]
+      DenseVector([4.8, 3.1, 1.6])
+      
+      [[32]]
+      DenseVector([5.4, 3.4, 1.5])
+      
+      [[33]]
+      DenseVector([5.2, 4.1, 1.5])
+      
+      [[34]]
+      DenseVector([5.5, 4.2, 1.4])
+      
+      [[35]]
+      DenseVector([4.9, 3.1, 1.5])
+      
+      [[36]]
+      DenseVector([5.0, 3.2, 1.2])
+      
+      [[37]]
+      DenseVector([5.5, 3.5, 1.3])
+      
+      [[38]]
+      DenseVector([4.9, 3.6, 1.4])
+      
+      [[39]]
+      DenseVector([4.4, 3.0, 1.3])
+      
+      [[40]]
+      DenseVector([5.1, 3.4, 1.5])
+      
+      [[41]]
+      DenseVector([5.0, 3.5, 1.3])
+      
+      [[42]]
+      DenseVector([4.5, 2.3, 1.3])
+      
+      [[43]]
+      DenseVector([4.4, 3.2, 1.3])
+      
+      [[44]]
+      DenseVector([5.0, 3.5, 1.6])
+      
+      [[45]]
+      DenseVector([5.1, 3.8, 1.9])
+      
+      [[46]]
+      DenseVector([4.8, 3.0, 1.4])
+      
+      [[47]]
+      DenseVector([5.1, 3.8, 1.6])
+      
+      [[48]]
+      DenseVector([4.6, 3.2, 1.4])
+      
+      [[49]]
+      DenseVector([5.3, 3.7, 1.5])
+      
+      [[50]]
+      DenseVector([5.0, 3.3, 1.4])
+      
+      [[51]]
+      DenseVector([7.0, 3.2, 4.7])
+      
+      [[52]]
+      DenseVector([6.4, 3.2, 4.5])
+      
+      [[53]]
+      DenseVector([6.9, 3.1, 4.9])
+      
+      [[54]]
+      DenseVector([5.5, 2.3, 4.0])
+      
+      [[55]]
+      DenseVector([6.5, 2.8, 4.6])
+      
+      [[56]]
+      DenseVector([5.7, 2.8, 4.5])
+      
+      [[57]]
+      DenseVector([6.3, 3.3, 4.7])
+      
+      [[58]]
+      DenseVector([4.9, 2.4, 3.3])
+      
+      [[59]]
+      DenseVector([6.6, 2.9, 4.6])
+      
+      [[60]]
+      DenseVector([5.2, 2.7, 3.9])
+      
+      [[61]]
+      DenseVector([5.0, 2.0, 3.5])
+      
+      [[62]]
+      DenseVector([5.9, 3.0, 4.2])
+      
+      [[63]]
+      DenseVector([6.0, 2.2, 4.0])
+      
+      [[64]]
+      DenseVector([6.1, 2.9, 4.7])
+      
+      [[65]]
+      DenseVector([5.6, 2.9, 3.6])
+      
+      [[66]]
+      DenseVector([6.7, 3.1, 4.4])
+      
+      [[67]]
+      DenseVector([5.6, 3.0, 4.5])
+      
+      [[68]]
+      DenseVector([5.8, 2.7, 4.1])
+      
+      [[69]]
+      DenseVector([6.2, 2.2, 4.5])
+      
+      [[70]]
+      DenseVector([5.6, 2.5, 3.9])
+      
+      [[71]]
+      DenseVector([5.9, 3.2, 4.8])
+      
+      [[72]]
+      DenseVector([6.1, 2.8, 4.0])
+      
+      [[73]]
+      DenseVector([6.3, 2.5, 4.9])
+      
+      [[74]]
+      DenseVector([6.1, 2.8, 4.7])
+      
+      [[75]]
+      DenseVector([6.4, 2.9, 4.3])
+      
+      [[76]]
+      DenseVector([6.6, 3.0, 4.4])
+      
+      [[77]]
+      DenseVector([6.8, 2.8, 4.8])
+      
+      [[78]]
+      DenseVector([6.7, 3.0, 5.0])
+      
+      [[79]]
+      DenseVector([6.0, 2.9, 4.5])
+      
+      [[80]]
+      DenseVector([5.7, 2.6, 3.5])
+      
+      [[81]]
+      DenseVector([5.5, 2.4, 3.8])
+      
+      [[82]]
+      DenseVector([5.5, 2.4, 3.7])
+      
+      [[83]]
+      DenseVector([5.8, 2.7, 3.9])
+      
+      [[84]]
+      DenseVector([6.0, 2.7, 5.1])
+      
+      [[85]]
+      DenseVector([5.4, 3.0, 4.5])
+      
+      [[86]]
+      DenseVector([6.0, 3.4, 4.5])
+      
+      [[87]]
+      DenseVector([6.7, 3.1, 4.7])
+      
+      [[88]]
+      DenseVector([6.3, 2.3, 4.4])
+      
+      [[89]]
+      DenseVector([5.6, 3.0, 4.1])
+      
+      [[90]]
+      DenseVector([5.5, 2.5, 4.0])
+      
+      [[91]]
+      DenseVector([5.5, 2.6, 4.4])
+      
+      [[92]]
+      DenseVector([6.1, 3.0, 4.6])
+      
+      [[93]]
+      DenseVector([5.8, 2.6, 4.0])
+      
+      [[94]]
+      DenseVector([5.0, 2.3, 3.3])
+      
+      [[95]]
+      DenseVector([5.6, 2.7, 4.2])
+      
+      [[96]]
+      DenseVector([5.7, 3.0, 4.2])
+      
+      [[97]]
+      DenseVector([5.7, 2.9, 4.2])
+      
+      [[98]]
+      DenseVector([6.2, 2.9, 4.3])
+      
+      [[99]]
+      DenseVector([5.1, 2.5, 3.0])
+      
+      [[100]]
+      DenseVector([5.7, 2.8, 4.1])
+      
+      [[101]]
+      DenseVector([6.3, 3.3, 6.0])
+      
+      [[102]]
+      DenseVector([5.8, 2.7, 5.1])
+      
+      [[103]]
+      DenseVector([7.1, 3.0, 5.9])
+      
+      [[104]]
+      DenseVector([6.3, 2.9, 5.6])
+      
+      [[105]]
+      DenseVector([6.5, 3.0, 5.8])
+      
+      [[106]]
+      DenseVector([7.6, 3.0, 6.6])
+      
+      [[107]]
+      DenseVector([4.9, 2.5, 4.5])
+      
+      [[108]]
+      DenseVector([7.3, 2.9, 6.3])
+      
+      [[109]]
+      DenseVector([6.7, 2.5, 5.8])
+      
+      [[110]]
+      DenseVector([7.2, 3.6, 6.1])
+      
+      [[111]]
+      DenseVector([6.5, 3.2, 5.1])
+      
+      [[112]]
+      DenseVector([6.4, 2.7, 5.3])
+      
+      [[113]]
+      DenseVector([6.8, 3.0, 5.5])
+      
+      [[114]]
+      DenseVector([5.7, 2.5, 5.0])
+      
+      [[115]]
+      DenseVector([5.8, 2.8, 5.1])
+      
+      [[116]]
+      DenseVector([6.4, 3.2, 5.3])
+      
+      [[117]]
+      DenseVector([6.5, 3.0, 5.5])
+      
+      [[118]]
+      DenseVector([7.7, 3.8, 6.7])
+      
+      [[119]]
+      DenseVector([7.7, 2.6, 6.9])
+      
+      [[120]]
+      DenseVector([6.0, 2.2, 5.0])
+      
+      [[121]]
+      DenseVector([6.9, 3.2, 5.7])
+      
+      [[122]]
+      DenseVector([5.6, 2.8, 4.9])
+      
+      [[123]]
+      DenseVector([7.7, 2.8, 6.7])
+      
+      [[124]]
+      DenseVector([6.3, 2.7, 4.9])
+      
+      [[125]]
+      DenseVector([6.7, 3.3, 5.7])
+      
+      [[126]]
+      DenseVector([7.2, 3.2, 6.0])
+      
+      [[127]]
+      DenseVector([6.2, 2.8, 4.8])
+      
+      [[128]]
+      DenseVector([6.1, 3.0, 4.9])
+      
+      [[129]]
+      DenseVector([6.4, 2.8, 5.6])
+      
+      [[130]]
+      DenseVector([7.2, 3.0, 5.8])
+      
+      [[131]]
+      DenseVector([7.4, 2.8, 6.1])
+      
+      [[132]]
+      DenseVector([7.9, 3.8, 6.4])
+      
+      [[133]]
+      DenseVector([6.4, 2.8, 5.6])
+      
+      [[134]]
+      DenseVector([6.3, 2.8, 5.1])
+      
+      [[135]]
+      DenseVector([6.1, 2.6, 5.6])
+      
+      [[136]]
+      DenseVector([7.7, 3.0, 6.1])
+      
+      [[137]]
+      DenseVector([6.3, 3.4, 5.6])
+      
+      [[138]]
+      DenseVector([6.4, 3.1, 5.5])
+      
+      [[139]]
+      DenseVector([6.0, 3.0, 4.8])
+      
+      [[140]]
+      DenseVector([6.9, 3.1, 5.4])
+      
+      [[141]]
+      DenseVector([6.7, 3.1, 5.6])
+      
+      [[142]]
+      DenseVector([6.9, 3.1, 5.1])
+      
+      [[143]]
+      DenseVector([5.8, 2.7, 5.1])
+      
+      [[144]]
+      DenseVector([6.8, 3.2, 5.9])
+      
+      [[145]]
+      DenseVector([6.7, 3.3, 5.7])
+      
+      [[146]]
+      DenseVector([6.7, 3.0, 5.2])
+      
+      [[147]]
+      DenseVector([6.3, 2.5, 5.0])
+      
+      [[148]]
+      DenseVector([6.5, 3.0, 5.2])
+      
+      [[149]]
+      DenseVector([6.2, 3.4, 5.4])
+      
+      [[150]]
+      DenseVector([5.9, 3.0, 5.1])
+      
+

@@ -179,3 +179,17 @@ test_that("String indexer works", {
   expect_snapshot(class(x))
   expect_snapshot(table(dplyr::pull(x)))
 })
+
+test_that("Vector assembler works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_vector_assembler(ml_pipeline(sc))))
+  expect_snapshot(class(ft_vector_assembler(sc)))
+  x <- use_test_table_iris() %>%
+    ft_vector_assembler(
+      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
+      output_col = "vec_x"
+      )
+  expect_snapshot(class(x))
+  expect_snapshot(dplyr::pull(x))
+})
+

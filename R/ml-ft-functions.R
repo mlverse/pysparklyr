@@ -157,6 +157,19 @@ ft_interaction.pyspark_connection <- ft_interaction_impl
 #' @export
 ft_interaction.tbl_pyspark <- ft_interaction_impl
 
+# --------------------------- Min Max Scaler  ----------------------------------
+ft_min_max_scaler_impl <- function(
+    x, input_col = NULL, output_col = NULL, min = 0, max = 1, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "MinMaxScaler", TRUE)
+}
+#' @export
+ft_min_max_scaler.ml_connect_pipeline <- ft_min_max_scaler_impl
+#' @export
+ft_min_max_scaler.pyspark_connection <- ft_min_max_scaler_impl
+#' @export
+ft_min_max_scaler.tbl_pyspark <- ft_min_max_scaler_impl
+
+
 # ----------------------------- RFormula ---------------------------------------
 ft_r_formula_impl <- function(
     x, formula = NULL, features_col = "features", label_col = "label",

@@ -70,6 +70,24 @@ ft_count_vectorizer.pyspark_connection <- ft_count_vectorizer_impl
 #' @export
 ft_count_vectorizer.tbl_pyspark <- ft_count_vectorizer_impl
 
+# ---------------------------------- DCT  --------------------------------------
+ft_dct_impl <- function(
+    x, input_col = NULL, output_col = NULL,
+    inverse = FALSE, uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "DCT",
+    has_fit = FALSE
+  )
+}
+#' @export
+ft_dct.ml_connect_pipeline <- ft_dct_impl
+#' @export
+ft_dct.pyspark_connection <- ft_dct_impl
+#' @export
+ft_dct.tbl_pyspark <- ft_dct_impl
+
+
 # ----------------------------- RFormula ---------------------------------------
 
 ft_r_formula_impl <- function(x, formula = NULL, features_col = "features",

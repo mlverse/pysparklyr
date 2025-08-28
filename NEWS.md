@@ -5,6 +5,7 @@
 * Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
 ML functions now supported are:
   * New in Spark 4.0
+    * `ft_dct()`
     * `ft_bucketed_random_projection_lsh()`
     * `ft_count_vectorizer()`
     * `ml_linear_regression()`

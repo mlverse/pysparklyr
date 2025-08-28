@@ -145,6 +145,18 @@ ft_index_to_string.pyspark_connection <- ft_index_to_string_impl
 #' @export
 ft_index_to_string.tbl_pyspark <- ft_index_to_string_impl
 
+# ----------------------------- Interaction  -----------------------------------
+ft_interaction_impl <- function(x, input_cols = NULL, output_col = NULL ,
+                                uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "Interaction", FALSE)
+}
+#' @export
+ft_interaction.ml_connect_pipeline <- ft_interaction_impl
+#' @export
+ft_interaction.pyspark_connection <- ft_interaction_impl
+#' @export
+ft_interaction.tbl_pyspark <- ft_interaction_impl
+
 # ----------------------------- RFormula ---------------------------------------
 ft_r_formula_impl <- function(
     x, formula = NULL, features_col = "features", label_col = "label",

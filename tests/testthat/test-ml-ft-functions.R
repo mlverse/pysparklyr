@@ -163,14 +163,23 @@ test_that("Index-to-string works", {
   expect_snapshot(table(dplyr::pull(x)))
 })
 
+test_that("Interaction works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_interaction(sc)))
+  expect_snapshot(class(ft_interaction(ml_pipeline(sc))))
+  x <- use_test_table_mtcars() %>%
+    ft_interaction(c("mpg", "wt"), c("mpg_wt"))
+  expect_snapshot(class(x))
+  expect_snapshot(dplyr::pull(x))
+})
+
 test_that("R Formula works", {
   sc <- use_test_spark_connect()
-  tbl_mtcars <- use_test_table_mtcars()
   expect_snapshot(class(ft_r_formula(ml_pipeline(sc))))
   expect_snapshot(class(ft_r_formula(sc)))
   expect_snapshot(
     ft_r_formula(
-      tbl_mtcars,
+      use_test_table_mtcars(),
       mpg ~ .,
       features_col = "test"
     ) %>%

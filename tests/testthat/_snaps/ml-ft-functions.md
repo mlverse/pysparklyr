@@ -3199,6 +3199,132 @@
           setosa versicolor  virginica 
               50         50         50 
 
+# Interaction works
+
+    Code
+      class(ft_interaction(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ft_interaction(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
+---
+
+    Code
+      dplyr::pull(x)
+    Output
+      [[1]]
+      DenseVector([55.02])
+      
+      [[2]]
+      DenseVector([60.375])
+      
+      [[3]]
+      DenseVector([52.896])
+      
+      [[4]]
+      DenseVector([68.801])
+      
+      [[5]]
+      DenseVector([64.328])
+      
+      [[6]]
+      DenseVector([62.626])
+      
+      [[7]]
+      DenseVector([51.051])
+      
+      [[8]]
+      DenseVector([77.836])
+      
+      [[9]]
+      DenseVector([71.82])
+      
+      [[10]]
+      DenseVector([66.048])
+      
+      [[11]]
+      DenseVector([61.232])
+      
+      [[12]]
+      DenseVector([66.748])
+      
+      [[13]]
+      DenseVector([64.529])
+      
+      [[14]]
+      DenseVector([57.456])
+      
+      [[15]]
+      DenseVector([54.6])
+      
+      [[16]]
+      DenseVector([56.4096])
+      
+      [[17]]
+      DenseVector([78.5715])
+      
+      [[18]]
+      DenseVector([71.28])
+      
+      [[19]]
+      DenseVector([49.096])
+      
+      [[20]]
+      DenseVector([62.2065])
+      
+      [[21]]
+      DenseVector([52.9975])
+      
+      [[22]]
+      DenseVector([54.56])
+      
+      [[23]]
+      DenseVector([52.212])
+      
+      [[24]]
+      DenseVector([51.072])
+      
+      [[25]]
+      DenseVector([73.824])
+      
+      [[26]]
+      DenseVector([52.8255])
+      
+      [[27]]
+      DenseVector([55.64])
+      
+      [[28]]
+      DenseVector([45.9952])
+      
+      [[29]]
+      DenseVector([50.086])
+      
+      [[30]]
+      DenseVector([54.569])
+      
+      [[31]]
+      DenseVector([53.55])
+      
+      [[32]]
+      DenseVector([59.492])
+      
+
 # R Formula works
 
     Code
@@ -3219,7 +3345,8 @@
 ---
 
     Code
-      ft_r_formula(tbl_mtcars, mpg ~ ., features_col = "test") %>% colnames()
+      ft_r_formula(use_test_table_mtcars(), mpg ~ ., features_col = "test") %>%
+        colnames()
     Output
        [1] "mpg"   "cyl"   "disp"  "hp"    "drat"  "wt"    "qsec"  "vs"    "am"   
       [10] "gear"  "carb"  "test"  "label"

@@ -106,6 +106,38 @@ test_that("Feature Hasher works", {
   expect_snapshot(dplyr::pull(x))
 })
 
+test_that("Hashing TF works", {
+  sc <- use_test_spark_connect()
+  tbl_reviews <- use_test_table_reviews()
+  expect_snapshot(class(ft_hashing_tf(ml_pipeline(sc))))
+  expect_snapshot(class(ft_hashing_tf(sc)))
+  x <- tbl_reviews %>%
+    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+    ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
+    ft_hashing_tf(
+      input_col = "stop_x",
+      output_col = "hashed_x",
+      binary = TRUE,
+      num_features = 1024
+    )
+  expect_snapshot(class(x))
+  expect_snapshot(dplyr::pull(x, hashed_x))
+})
+
+test_that("IDF works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_idf(sc, "a", "b")))
+  expect_snapshot(class(ft_idf(ml_pipeline(sc), "a", "b")))
+  x <- use_test_table_iris() %>%
+    ft_vector_assembler(
+      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
+      output_col = "vec_x"
+    ) %>%
+    ft_idf("vec_x", "idf_x")
+  expect_snapshot(class(x))
+  expect_snapshot(dplyr::pull(x))
+})
+
 test_that("R Formula works", {
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()
@@ -141,24 +173,6 @@ test_that("Stop words remover works", {
     ft_stop_words_remover(input_col = "token_x", output_col = "stop_x")
   expect_snapshot(class(x))
   expect_snapshot(dplyr::pull(x, stop_x))
-})
-
-test_that("Hashing TF works", {
-  sc <- use_test_spark_connect()
-  tbl_reviews <- use_test_table_reviews()
-  expect_snapshot(class(ft_hashing_tf(ml_pipeline(sc))))
-  expect_snapshot(class(ft_hashing_tf(sc)))
-  x <- tbl_reviews %>%
-    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-    ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
-    ft_hashing_tf(
-      input_col = "stop_x",
-      output_col = "hashed_x",
-      binary = TRUE,
-      num_features = 1024
-    )
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x, hashed_x))
 })
 
 test_that("Normalizer works", {

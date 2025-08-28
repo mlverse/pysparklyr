@@ -94,6 +94,32 @@ ft_feature_hasher.pyspark_connection <- ft_feature_hasher_impl
 #' @export
 ft_feature_hasher.tbl_pyspark <- ft_feature_hasher_impl
 
+# ----------------------- Hashing term frequencies  ----------------------------
+
+ft_hashing_tf_impl <- function(
+    x, input_col = NULL, output_col = NULL, binary = FALSE,
+    num_features = 2^18, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "HashingTF", FALSE)
+}
+#' @export
+ft_hashing_tf.ml_connect_pipeline <- ft_hashing_tf_impl
+#' @export
+ft_hashing_tf.pyspark_connection <- ft_hashing_tf_impl
+#' @export
+ft_hashing_tf.tbl_pyspark <- ft_hashing_tf_impl
+
+# -------------------- Inverse document frequency  -----------------------------
+ft_idf_impl <- function(
+    x, input_col = NULL, output_col = NULL, min_doc_freq = 0, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "IDF", TRUE)
+}
+#' @export
+ft_idf.ml_connect_pipeline <- ft_idf_impl
+#' @export
+ft_idf.pyspark_connection <- ft_idf_impl
+#' @export
+ft_idf.tbl_pyspark <- ft_idf_impl
+
 # ----------------------------- RFormula ---------------------------------------
 
 ft_r_formula_impl <- function(
@@ -136,20 +162,6 @@ ft_stop_words_remover.ml_connect_pipeline <- ft_stop_words_remover_impl
 ft_stop_words_remover.pyspark_connection <- ft_stop_words_remover_impl
 #' @export
 ft_stop_words_remover.tbl_pyspark <- ft_stop_words_remover_impl
-
-# ----------------------- Hashing term frequencies  ----------------------------
-
-ft_hashing_tf_impl <- function(
-    x, input_col = NULL, output_col = NULL, binary = FALSE,
-    num_features = 2^18, uid = NULL, ...) {
-  ml_process_fn(c(as.list(environment()), list(...)), "HashingTF", FALSE)
-}
-#' @export
-ft_hashing_tf.ml_connect_pipeline <- ft_hashing_tf_impl
-#' @export
-ft_hashing_tf.pyspark_connection <- ft_hashing_tf_impl
-#' @export
-ft_hashing_tf.tbl_pyspark <- ft_hashing_tf_impl
 
 # ------------------------------ Normalizer  -----------------------------------
 

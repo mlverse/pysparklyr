@@ -2629,6 +2629,519 @@
       SparseVector(262144, {64741: 1.0, 101777: 3.0, 156275: 5.1})
       
 
+# Hashing TF works
+
+    Code
+      class(ft_hashing_tf(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_hashing_tf(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
+---
+
+    Code
+      dplyr::pull(x, hashed_x)
+    Output
+      [[1]]
+      SparseVector(1024, {26: 1.0, 139: 1.0, 515: 1.0, 713: 1.0, 723: 1.0, 750: 1.0, 806: 1.0})
+      
+
+# IDF works
+
+    Code
+      class(ft_idf(sc, "a", "b"))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ft_idf(ml_pipeline(sc), "a", "b"))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(x)
+    Output
+      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
+
+---
+
+    Code
+      dplyr::pull(x)
+    Output
+      [[1]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[2]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[3]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[4]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[5]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[6]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[7]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[8]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[9]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[10]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[11]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[12]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[13]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[14]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[15]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[16]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[17]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[18]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[19]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[20]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[21]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[22]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[23]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[24]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[25]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[26]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[27]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[28]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[29]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[30]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[31]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[32]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[33]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[34]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[35]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[36]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[37]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[38]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[39]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[40]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[41]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[42]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[43]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[44]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[45]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[46]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[47]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[48]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[49]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[50]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[51]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[52]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[53]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[54]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[55]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[56]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[57]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[58]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[59]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[60]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[61]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[62]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[63]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[64]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[65]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[66]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[67]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[68]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[69]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[70]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[71]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[72]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[73]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[74]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[75]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[76]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[77]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[78]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[79]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[80]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[81]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[82]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[83]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[84]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[85]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[86]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[87]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[88]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[89]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[90]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[91]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[92]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[93]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[94]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[95]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[96]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[97]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[98]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[99]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[100]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[101]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[102]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[103]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[104]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[105]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[106]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[107]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[108]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[109]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[110]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[111]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[112]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[113]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[114]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[115]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[116]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[117]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[118]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[119]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[120]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[121]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[122]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[123]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[124]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[125]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[126]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[127]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[128]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[129]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[130]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[131]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[132]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[133]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[134]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[135]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[136]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[137]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[138]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[139]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[140]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[141]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[142]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[143]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[144]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[145]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[146]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[147]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[148]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[149]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+      [[150]]
+      DenseVector([0.0, 0.0, 0.0])
+      
+
 # R Formula works
 
     Code
@@ -2719,39 +3232,6 @@
     Output
       [[1]]
       [1] "best"    "tv"      "ever"    "used."   "great"   "screen," "sound." 
-      
-
-# Hashing TF works
-
-    Code
-      class(ft_hashing_tf(ml_pipeline(sc)))
-    Output
-      [1] "ml_connect_pipeline"       "ml_pipeline"              
-      [3] "ml_connect_estimator"      "ml_estimator"             
-      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
-
----
-
-    Code
-      class(ft_hashing_tf(sc))
-    Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
-
----
-
-    Code
-      class(x)
-    Output
-      [1] "tbl_pyspark" "tbl_spark"   "tbl_sql"     "tbl_lazy"    "tbl"        
-
----
-
-    Code
-      dplyr::pull(x, hashed_x)
-    Output
-      [[1]]
-      SparseVector(1024, {26: 1.0, 139: 1.0, 515: 1.0, 713: 1.0, 723: 1.0, 750: 1.0, 806: 1.0})
       
 
 # Normalizer works

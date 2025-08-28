@@ -18,7 +18,7 @@
 #' @importFrom sparklyr ml_random_forest_classifier ml_random_forest_regressor ft_string_indexer
 #' @importFrom sparklyr ft_bucketed_random_projection_lsh ft_count_vectorizer ft_dct
 #' @importFrom sparklyr ft_discrete_cosine_transform ft_vector_assembler ft_elementwise_product
-#' @importFrom sparklyr ft_feature_hasher
+#' @importFrom sparklyr ft_feature_hasher ft_idf
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by

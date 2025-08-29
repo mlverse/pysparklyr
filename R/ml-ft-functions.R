@@ -353,7 +353,6 @@ ft_tokenizer.pyspark_connection <- ft_tokenizer_impl
 ft_tokenizer.tbl_pyspark <- ft_tokenizer_impl
 
 # -------------------------- Vector Assembler ----------------------------------
-
 ft_vector_assembler_impl <- function(
     x, input_cols = NULL, output_col = NULL, uid = NULL, ...) {
   ml_process_fn(c(as.list(environment()), list(...)), "VectorAssembler", FALSE)
@@ -364,3 +363,16 @@ ft_vector_assembler.ml_connect_pipeline <- ft_vector_assembler_impl
 ft_vector_assembler.pyspark_connection <- ft_vector_assembler_impl
 #' @export
 ft_vector_assembler.tbl_pyspark <- ft_vector_assembler_impl
+
+# ---------------------------- Vector Indexer ----------------------------------
+ft_vector_indexer_impl <- function(
+    x, input_col = NULL, output_col = NULL, handle_invalid = "error",
+    max_categories = 20, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "VectorIndexer", TRUE)
+}
+#' @export
+ft_vector_indexer.ml_connect_pipeline <- ft_vector_indexer_impl
+#' @export
+ft_vector_indexer.pyspark_connection <- ft_vector_indexer_impl
+#' @export
+ft_vector_indexer.tbl_pyspark <- ft_vector_indexer_impl

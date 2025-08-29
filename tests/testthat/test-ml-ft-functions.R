@@ -337,3 +337,16 @@ test_that("Vector assembler works", {
       use_test_pull()
   )
 })
+
+test_that("Vector assembler works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_vector_indexer(ml_pipeline(sc))))
+  expect_snapshot(class(ft_vector_indexer(sc)))
+  expect_equal(
+    use_test_mtcars_va() %>%
+      ft_vector_indexer("vec_x", "index_x") %>%
+      use_test_pull() %>%
+      nrow(),
+    32
+  )
+})

@@ -72,8 +72,8 @@ test_that("Discrete Cosine works", {
 
 test_that("Elementwise Product works", {
   sc <- use_test_spark_connect()
-  expect_snapshot(class(ft_elementwise_product(sc, "a", "b")))
-  expect_snapshot(class(ft_elementwise_product(ml_pipeline(sc), "a", "b")))
+  expect_snapshot(class(ft_elementwise_product(sc)))
+  expect_snapshot(class(ft_elementwise_product(ml_pipeline(sc))))
   expect_snapshot(
     use_test_mtcars_va() %>%
       ft_elementwise_product("vec_x", "elm_x", scaling_vec = c(1:3)) %>%
@@ -279,6 +279,17 @@ test_that("Robust Scaler works", {
   )
 })
 
+test_that("SQL transformer works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_sql_transformer(sc)))
+  expect_snapshot(class(ft_sql_transformer(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_mtcars_va() %>%
+      ft_sql_transformer("select * from __THIS__ where mpg > 20") %>%
+      use_test_pull()
+  )
+})
+
 test_that("Tokenizer works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_tokenizer(ml_pipeline(sc))))
@@ -292,8 +303,7 @@ test_that("Tokenizer works", {
 
 test_that("Stop words remover works", {
   sc <- use_test_spark_connect()
-  tbl_reviews <-
-    expect_snapshot(class(ft_tokenizer(ml_pipeline(sc))))
+  expect_snapshot(class(ft_tokenizer(ml_pipeline(sc))))
   expect_snapshot(class(ft_tokenizer(sc)))
   expect_snapshot(
     use_test_table_reviews() %>%

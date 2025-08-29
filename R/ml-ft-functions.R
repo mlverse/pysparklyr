@@ -299,6 +299,18 @@ ft_robust_scaler.pyspark_connection <- ft_robust_scaler_impl
 #' @export
 ft_robust_scaler.tbl_pyspark <- ft_robust_scaler_impl
 
+# --------------------------------- SQL  ---------------------------------------
+ft_sql_transformer_impl <- function(x, statement = NULL, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "SQLTransformer", FALSE)
+}
+#' @export
+ft_sql_transformer.ml_connect_pipeline <- ft_sql_transformer_impl
+#' @export
+ft_sql_transformer.pyspark_connection <- ft_sql_transformer_impl
+#' @export
+ft_sql_transformer.tbl_pyspark <- ft_sql_transformer_impl
+
+
 # ----------------------------- Tokenizer --------------------------------------
 ft_tokenizer_impl <- function(
     x, input_col = NULL, output_col = NULL, uid = NULL, ...) {

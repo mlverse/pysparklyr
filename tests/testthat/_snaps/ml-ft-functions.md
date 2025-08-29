@@ -220,7 +220,7 @@
 # Elementwise Product works
 
     Code
-      class(ft_elementwise_product(sc, "a", "b"))
+      class(ft_elementwise_product(sc))
     Output
       [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
       [4] "ml_pipeline_stage"   
@@ -228,7 +228,7 @@
 ---
 
     Code
-      class(ft_elementwise_product(ml_pipeline(sc), "a", "b"))
+      class(ft_elementwise_product(ml_pipeline(sc)))
     Output
       [1] "ml_connect_pipeline"       "ml_pipeline"              
       [3] "ml_connect_estimator"      "ml_estimator"             
@@ -915,6 +915,45 @@
       30    0.0657894736842105, -0.402714932126697, 0
       31   -0.552631578947368, 0.321266968325792, 0.5
       32  0.289473684210526, -0.393665158371041, -0.5
+
+# SQL transformer works
+
+    Code
+      class(ft_sql_transformer(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ft_sql_transformer(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      use_test_mtcars_va() %>% ft_sql_transformer(
+        "select * from __THIS__ where mpg > 20") %>% use_test_pull()
+    Output
+                      x
+      1     21, 2.62, 6
+      2    21, 2.875, 6
+      3   22.8, 2.32, 4
+      4  21.4, 3.215, 6
+      5   24.4, 3.19, 4
+      6   22.8, 3.15, 4
+      7    32.4, 2.2, 4
+      8  30.4, 1.615, 4
+      9  33.9, 1.835, 4
+      10 21.5, 2.465, 4
+      11 27.3, 1.935, 4
+      12    26, 2.14, 4
+      13 30.4, 1.513, 4
+      14  21.4, 2.78, 4
 
 # Tokenizer works
 

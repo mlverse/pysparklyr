@@ -220,6 +220,18 @@ ft_one_hot_encoder.pyspark_connection <- ft_one_hot_encoder_impl
 #' @export
 ft_one_hot_encoder.tbl_pyspark <- ft_one_hot_encoder_impl
 
+# --------------------------------- PCA  ---------------------------------------
+ft_pca_impl <- function(
+    x, input_col = NULL, output_col = NULL, k = NULL, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "PCA", TRUE)
+}
+#' @export
+ft_pca.ml_connect_pipeline <- ft_pca_impl
+#' @export
+ft_pca.pyspark_connection <- ft_pca_impl
+#' @export
+ft_pca.tbl_pyspark <- ft_pca_impl
+
 # ----------------------------- RFormula ---------------------------------------
 ft_r_formula_impl <- function(
     x, formula = NULL, features_col = "features", label_col = "label",

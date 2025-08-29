@@ -218,6 +218,16 @@ test_that("One hot encoder works", {
   )
 })
 
+test_that("PCA works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_pca(sc)))
+  expect_snapshot(class(ft_pca(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_mtcars_va() %>%
+      ft_pca("vec_x", "pca_x", k = 2) %>%
+      use_test_pull()
+  )
+})
 
 test_that("R Formula works", {
   sc <- use_test_spark_connect()

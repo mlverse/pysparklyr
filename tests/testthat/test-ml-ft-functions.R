@@ -182,6 +182,42 @@ test_that("N-gram works", {
   )
 })
 
+test_that("Normalizer works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_hashing_tf(ml_pipeline(sc))))
+  expect_snapshot(class(ft_hashing_tf(sc)))
+  expect_snapshot(
+    use_test_table_reviews() %>%
+      ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+      ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
+      ft_hashing_tf(
+        input_col = "stop_x",
+        output_col = "hashed_x",
+        binary = TRUE,
+        num_features = 1024
+      ) %>%
+      ft_normalizer(
+        input_col = "hashed_x",
+        output_col = "normal_x"
+      ) %>%
+      use_test_pull()
+  )
+})
+
+test_that("One hot encoder works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_one_hot_encoder(sc)))
+  expect_snapshot(class(ft_one_hot_encoder(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_table(
+      x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5),
+      name = "imputer"
+    ) %>%
+      ft_one_hot_encoder(list(c("y")), list(c("ohe_x"))) %>%
+      use_test_pull()
+  )
+})
+
 
 test_that("R Formula works", {
   sc <- use_test_spark_connect()
@@ -216,28 +252,6 @@ test_that("Stop words remover works", {
       ft_tokenizer(input_col = "x", output_col = "token_x") %>%
       ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
       dplyr::pull()
-  )
-})
-
-test_that("Normalizer works", {
-  sc <- use_test_spark_connect()
-  expect_snapshot(class(ft_hashing_tf(ml_pipeline(sc))))
-  expect_snapshot(class(ft_hashing_tf(sc)))
-  expect_snapshot(
-    use_test_table_reviews() %>%
-      ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-      ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
-      ft_hashing_tf(
-        input_col = "stop_x",
-        output_col = "hashed_x",
-        binary = TRUE,
-        num_features = 1024
-      ) %>%
-      ft_normalizer(
-        input_col = "hashed_x",
-        output_col = "normal_x"
-      ) %>%
-      use_test_pull()
   )
 })
 

@@ -195,6 +195,30 @@ ft_ngram.pyspark_connection <- ft_ngram_impl
 #' @export
 ft_ngram.tbl_pyspark <- ft_ngram_impl
 
+# ------------------------------ Normalizer  -----------------------------------
+ft_normalizer_impl <- function(
+    x, input_col = NULL, output_col = NULL, p = 2, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "Normalizer", FALSE)
+}
+#' @export
+ft_normalizer.ml_connect_pipeline <- ft_normalizer_impl
+#' @export
+ft_normalizer.pyspark_connection <- ft_normalizer_impl
+#' @export
+ft_normalizer.tbl_pyspark <- ft_normalizer_impl
+
+# --------------------------- One hot encoder  ---------------------------------
+ft_one_hot_encoder_impl <- function(
+    x, input_cols = NULL, output_cols = NULL,
+    handle_invalid = NULL, drop_last = TRUE, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "OneHotEncoder", TRUE)
+}
+#' @export
+ft_one_hot_encoder.ml_connect_pipeline <- ft_one_hot_encoder_impl
+#' @export
+ft_one_hot_encoder.pyspark_connection <- ft_one_hot_encoder_impl
+#' @export
+ft_one_hot_encoder.tbl_pyspark <- ft_one_hot_encoder_impl
 
 # ----------------------------- RFormula ---------------------------------------
 ft_r_formula_impl <- function(
@@ -236,19 +260,6 @@ ft_stop_words_remover.ml_connect_pipeline <- ft_stop_words_remover_impl
 ft_stop_words_remover.pyspark_connection <- ft_stop_words_remover_impl
 #' @export
 ft_stop_words_remover.tbl_pyspark <- ft_stop_words_remover_impl
-
-# ------------------------------ Normalizer  -----------------------------------
-
-ft_normalizer_impl <- function(
-    x, input_col = NULL, output_col = NULL, p = 2, uid = NULL, ...) {
-  ml_process_fn(c(as.list(environment()), list(...)), "Normalizer", FALSE)
-}
-#' @export
-ft_normalizer.ml_connect_pipeline <- ft_normalizer_impl
-#' @export
-ft_normalizer.pyspark_connection <- ft_normalizer_impl
-#' @export
-ft_normalizer.tbl_pyspark <- ft_normalizer_impl
 
 # ---------------------------- String Indexer  ---------------------------------
 

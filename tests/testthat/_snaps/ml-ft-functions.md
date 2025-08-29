@@ -579,6 +579,65 @@
        [9] "used. great"   "great screen," "screen, and"   "and sound."   
       
 
+# Normalizer works
+
+    Code
+      class(ft_hashing_tf(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_hashing_tf(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      use_test_table_reviews() %>% ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+        ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
+        ft_hashing_tf(input_col = "stop_x", output_col = "hashed_x", binary = TRUE,
+          num_features = 1024) %>% ft_normalizer(input_col = "hashed_x", output_col = "normal_x") %>%
+        use_test_pull()
+    Output
+                                                                                                                                          x
+      1 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227
+
+# One hot encoder works
+
+    Code
+      class(ft_one_hot_encoder(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ft_one_hot_encoder(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      use_test_table(x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5), name = "imputer") %>%
+        ft_one_hot_encoder(list(c("y")), list(c("ohe_x"))) %>% use_test_pull()
+    Output
+        x
+      1 1
+      2 1
+      3 1
+      4 1
+      5  
+
 # R Formula works
 
     Code
@@ -691,35 +750,6 @@
       [[1]]
       [1] "best"    "tv"      "ever"    "used."   "great"   "screen," "sound." 
       
-
-# Normalizer works
-
-    Code
-      class(ft_hashing_tf(ml_pipeline(sc)))
-    Output
-      [1] "ml_connect_pipeline"       "ml_pipeline"              
-      [3] "ml_connect_estimator"      "ml_estimator"             
-      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
-
----
-
-    Code
-      class(ft_hashing_tf(sc))
-    Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
-
----
-
-    Code
-      use_test_table_reviews() %>% ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-        ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
-        ft_hashing_tf(input_col = "stop_x", output_col = "hashed_x", binary = TRUE,
-          num_features = 1024) %>% ft_normalizer(input_col = "hashed_x", output_col = "normal_x") %>%
-        use_test_pull()
-    Output
-                                                                                                                                          x
-      1 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227
 
 # String indexer works
 

@@ -20,6 +20,7 @@
 #' @importFrom sparklyr ft_discrete_cosine_transform ft_vector_assembler ft_elementwise_product
 #' @importFrom sparklyr ft_feature_hasher ft_idf ft_imputer ft_index_to_string
 #' @importFrom sparklyr ft_interaction ft_min_max_scaler ft_minhash_lsh ft_ngram
+#' @importFrom sparklyr ft_one_hot_encoder
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by

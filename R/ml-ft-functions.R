@@ -146,7 +146,7 @@ ft_index_to_string.pyspark_connection <- ft_index_to_string_impl
 ft_index_to_string.tbl_pyspark <- ft_index_to_string_impl
 
 # ----------------------------- Interaction  -----------------------------------
-ft_interaction_impl <- function(x, input_cols = NULL, output_col = NULL ,
+ft_interaction_impl <- function(x, input_cols = NULL, output_col = NULL,
                                 uid = NULL, ...) {
   ml_process_fn(c(as.list(environment()), list(...)), "Interaction", FALSE)
 }
@@ -171,7 +171,7 @@ ft_min_max_scaler.tbl_pyspark <- ft_min_max_scaler_impl
 
 # --------------------------- Min Hash LSH  ----------------------------------
 ft_minhash_lsh_impl <- function(
-    x, input_col = NULL, output_col = NULL,num_hash_tables = 1L, seed = NULL,
+    x, input_col = NULL, output_col = NULL, num_hash_tables = 1L, seed = NULL,
     uid = NULL, ...) {
   ml_process_fn(c(as.list(environment()), list(...)), "MinHashLSH", TRUE)
 }
@@ -231,6 +231,18 @@ ft_pca.ml_connect_pipeline <- ft_pca_impl
 ft_pca.pyspark_connection <- ft_pca_impl
 #' @export
 ft_pca.tbl_pyspark <- ft_pca_impl
+
+# ------------------------- Polynomial Expansion  ------------------------------
+ft_polynomial_expansion_impl <- function(
+    x, input_col = NULL, output_col = NULL, degree = 2, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "PolynomialExpansion", FALSE)
+}
+#' @export
+ft_polynomial_expansion.ml_connect_pipeline <- ft_polynomial_expansion_impl
+#' @export
+ft_polynomial_expansion.pyspark_connection <- ft_polynomial_expansion_impl
+#' @export
+ft_polynomial_expansion.tbl_pyspark <- ft_polynomial_expansion_impl
 
 # ----------------------------- RFormula ---------------------------------------
 ft_r_formula_impl <- function(

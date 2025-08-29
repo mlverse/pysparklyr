@@ -229,6 +229,17 @@ test_that("PCA works", {
   )
 })
 
+test_that("Polynomial expansion works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_polynomial_expansion(sc)))
+  expect_snapshot(class(ft_polynomial_expansion(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_mtcars_va() %>%
+      ft_polynomial_expansion("vec_x", "pe_x", degree = 2) %>%
+      use_test_pull()
+  )
+})
+
 test_that("R Formula works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_r_formula(ml_pipeline(sc))))

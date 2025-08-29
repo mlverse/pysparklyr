@@ -109,69 +109,65 @@ test_that("Hashing TF works", {
   )
 })
 
-skip("for now")
-
 test_that("IDF works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_idf(sc, "a", "b")))
   expect_snapshot(class(ft_idf(ml_pipeline(sc), "a", "b")))
-  x <- use_test_table_iris() %>%
-    ft_vector_assembler(
-      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
-      output_col = "vec_x"
-    ) %>%
-    ft_idf("vec_x", "idf_x")
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x))
+  expect_snapshot(
+    use_test_mtcars_va() %>%
+      ft_idf("vec_x", "idf_x") %>%
+      use_test_pull()
+  )
 })
 
 test_that("Imputer works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_imputer(sc)))
   expect_snapshot(class(ft_imputer(ml_pipeline(sc))))
-  x <- use_test_table(
-    x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5),
-    name = "imputer"
-  ) %>%
-    ft_imputer(list(c("x")), list(c("new_x")))
-  expect_snapshot(class(x))
-  expect_equal(dplyr::pull(x), c(2, 2, 4, 3, 4))
+  expect_snapshot(
+    use_test_table(
+      x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5),
+      name = "imputer"
+    ) %>%
+      ft_imputer(list(c("x")), list(c("new_x"))) %>%
+      use_test_pull()
+  )
 })
 
 test_that("Index-to-string works", {
   sc <- use_test_spark_connect()
-  tbl_iris <- use_test_table_iris()
   expect_snapshot(class(ft_index_to_string(ml_pipeline(sc))))
   expect_snapshot(class(ft_index_to_string(sc)))
-  x <- tbl_iris %>%
-    ft_string_indexer("Species", "species_idx") %>%
-    ft_index_to_string("species_idx", "species_x")
-  expect_snapshot(class(x))
-  expect_snapshot(table(dplyr::pull(x)))
+  expect_snapshot(
+    use_test_table_iris() %>%
+      ft_string_indexer("Species", "species_idx") %>%
+      ft_index_to_string("species_idx", "species_x") %>%
+      use_test_pull(TRUE)
+  )
 })
 
 test_that("Interaction works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_interaction(sc)))
   expect_snapshot(class(ft_interaction(ml_pipeline(sc))))
-  x <- use_test_table_mtcars() %>%
-    ft_interaction(c("mpg", "wt"), c("mpg_wt"))
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x))
+  expect_snapshot(
+    use_test_table_mtcars() %>%
+      ft_interaction(c("mpg", "wt"), c("mpg_wt")) %>%
+      use_test_pull()
+  )
 })
 
 test_that("Min Hash LSH works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_minhash_lsh(sc)))
   expect_snapshot(class(ft_minhash_lsh(ml_pipeline(sc))))
-  x <- use_test_table_iris() %>%
-    ft_vector_assembler(
-      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
-      output_col = "vec_x"
-    ) %>%
-    ft_minhash_lsh("vec_x", "hash_x")
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x))
+  expect_snapshot(
+    use_test_iris_va () %>%
+      ft_minhash_lsh("vec_x", "hash_x") %>%
+      use_test_pull() %>%
+      round() %>%
+      table()
+  )
 })
 
 test_that("R Formula works", {
@@ -179,36 +175,38 @@ test_that("R Formula works", {
   expect_snapshot(class(ft_r_formula(ml_pipeline(sc))))
   expect_snapshot(class(ft_r_formula(sc)))
   expect_snapshot(
-    ft_r_formula(
-      use_test_table_mtcars(),
-      mpg ~ .,
-      features_col = "test"
-    ) %>%
-      colnames()
+    use_test_table_mtcars() %>%
+      ft_r_formula(mpg ~ ., features_col = "test") %>%
+      dplyr::select(test) %>%
+      use_test_pull()
   )
 })
 
 test_that("Tokenizer works", {
   sc <- use_test_spark_connect()
-  tbl_reviews <- use_test_table_reviews()
   expect_snapshot(class(ft_tokenizer(ml_pipeline(sc))))
   expect_snapshot(class(ft_tokenizer(sc)))
-  x <- ft_tokenizer(tbl_reviews, input_col = "x", output_col = "token_x")
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x, token_x))
+  expect_snapshot(
+    use_test_table_reviews() %>%
+      ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+      dplyr::pull()
+  )
 })
 
 test_that("Stop words remover works", {
   sc <- use_test_spark_connect()
-  tbl_reviews <- use_test_table_reviews()
+  tbl_reviews <-
   expect_snapshot(class(ft_tokenizer(ml_pipeline(sc))))
   expect_snapshot(class(ft_tokenizer(sc)))
-  x <- tbl_reviews %>%
-    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-    ft_stop_words_remover(input_col = "token_x", output_col = "stop_x")
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x, stop_x))
+  expect_snapshot(
+    use_test_table_reviews() %>%
+      ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+      ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
+      dplyr::pull()
+  )
 })
+
+skip("for now")
 
 test_that("Normalizer works", {
   sc <- use_test_spark_connect()

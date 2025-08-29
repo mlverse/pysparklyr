@@ -290,17 +290,6 @@ test_that("SQL transformer works", {
   )
 })
 
-test_that("Tokenizer works", {
-  sc <- use_test_spark_connect()
-  expect_snapshot(class(ft_tokenizer(ml_pipeline(sc))))
-  expect_snapshot(class(ft_tokenizer(sc)))
-  expect_snapshot(
-    use_test_table_reviews() %>%
-      ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-      dplyr::pull()
-  )
-})
-
 test_that("Stop words remover works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_tokenizer(ml_pipeline(sc))))
@@ -321,6 +310,17 @@ test_that("String indexer works", {
     use_test_table_iris() %>%
       ft_string_indexer("Species", "species_idx") %>%
       use_test_pull(TRUE)
+  )
+})
+
+test_that("Tokenizer works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_tokenizer(ml_pipeline(sc))))
+  expect_snapshot(class(ft_tokenizer(sc)))
+  expect_snapshot(
+    use_test_table_reviews() %>%
+      ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+      dplyr::pull()
   )
 })
 

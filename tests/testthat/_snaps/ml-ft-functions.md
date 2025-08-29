@@ -955,34 +955,6 @@
       13 30.4, 1.513, 4
       14  21.4, 2.78, 4
 
-# Tokenizer works
-
-    Code
-      class(ft_tokenizer(ml_pipeline(sc)))
-    Output
-      [1] "ml_connect_pipeline"       "ml_pipeline"              
-      [3] "ml_connect_estimator"      "ml_estimator"             
-      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
-
----
-
-    Code
-      class(ft_tokenizer(sc))
-    Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
-
----
-
-    Code
-      use_test_table_reviews() %>% ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-        dplyr::pull()
-    Output
-      [[1]]
-       [1] "this"    "has"     "been"    "the"     "best"    "tv"      "i've"   
-       [8] "ever"    "used."   "great"   "screen," "and"     "sound." 
-      
-
 # Stop words remover works
 
     Code
@@ -1037,6 +1009,34 @@
       x
        0  1  2 
       50 50 50 
+
+# Tokenizer works
+
+    Code
+      class(ft_tokenizer(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_tokenizer(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      use_test_table_reviews() %>% ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+        dplyr::pull()
+    Output
+      [[1]]
+       [1] "this"    "has"     "been"    "the"     "best"    "tv"      "i've"   
+       [8] "ever"    "used."   "great"   "screen," "and"     "sound." 
+      
 
 # Vector assembler works
 

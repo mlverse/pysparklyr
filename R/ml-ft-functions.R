@@ -310,19 +310,6 @@ ft_sql_transformer.pyspark_connection <- ft_sql_transformer_impl
 #' @export
 ft_sql_transformer.tbl_pyspark <- ft_sql_transformer_impl
 
-
-# ----------------------------- Tokenizer --------------------------------------
-ft_tokenizer_impl <- function(
-    x, input_col = NULL, output_col = NULL, uid = NULL, ...) {
-  ml_process_fn(c(as.list(environment()), list(...)), "Tokenizer", FALSE)
-}
-#' @export
-ft_tokenizer.ml_connect_pipeline <- ft_tokenizer_impl
-#' @export
-ft_tokenizer.pyspark_connection <- ft_tokenizer_impl
-#' @export
-ft_tokenizer.tbl_pyspark <- ft_tokenizer_impl
-
 # -------------------------- Stop words remover --------------------------------
 
 ft_stop_words_remover_impl <- function(
@@ -353,6 +340,17 @@ ft_string_indexer.pyspark_connection <- ft_string_indexer_impl
 #' @export
 ft_string_indexer.tbl_pyspark <- ft_string_indexer_impl
 
+# ----------------------------- Tokenizer --------------------------------------
+ft_tokenizer_impl <- function(
+    x, input_col = NULL, output_col = NULL, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "Tokenizer", FALSE)
+}
+#' @export
+ft_tokenizer.ml_connect_pipeline <- ft_tokenizer_impl
+#' @export
+ft_tokenizer.pyspark_connection <- ft_tokenizer_impl
+#' @export
+ft_tokenizer.tbl_pyspark <- ft_tokenizer_impl
 
 # -------------------------- Vector Assembler ----------------------------------
 

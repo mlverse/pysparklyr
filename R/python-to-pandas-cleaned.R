@@ -20,21 +20,6 @@ to_pandas_cleaned <- function(x) {
     }
   )
 
-  # list_types <- col_types == "list"
-  # list_vars <- col_types[list_types]
-  # orig_vars <- orig_types[list_types]
-  #
-  # for (i in seq_along(list_vars)) {
-  #   if (orig_vars[[i]] != "array") {
-  #     cur_var <- names(list_vars[i])
-  #     cur <- collected[[cur_var]]
-  #     cur_null <- map_lgl(cur, is.null)
-  #     cur <- as.character(cur)
-  #     cur[cur_null] <- NA
-  #     collected[[cur_var]] <- cur
-  #   }
-  # }
-
   for (i in seq_len(ncol(collected))) {
     if (orig_types[i] == "date") {
       to_date <- collected[, i] %>%

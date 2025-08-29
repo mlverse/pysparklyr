@@ -173,20 +173,19 @@ test_that("Interaction works", {
   expect_snapshot(dplyr::pull(x))
 })
 
-test_that("Min-max scaler works", {
+test_that("Min Hash LSH works", {
   sc <- use_test_spark_connect()
-  expect_snapshot(class(ft_min_max_scaler(sc, "a", "b")))
-  expect_snapshot(class(ft_min_max_scaler(ml_pipeline(sc), "a", "b")))
+  expect_snapshot(class(ft_minhash_lsh(sc)))
+  expect_snapshot(class(ft_minhash_lsh(ml_pipeline(sc))))
   x <- use_test_table_iris() %>%
     ft_vector_assembler(
       input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
       output_col = "vec_x"
     ) %>%
-    ft_min_max_scaler("vec_x", "scaler_x")
+    ft_minhash_lsh("vec_x", "hash_x")
   expect_snapshot(class(x))
   expect_snapshot(dplyr::pull(x))
 })
-
 
 test_that("R Formula works", {
   sc <- use_test_spark_connect()

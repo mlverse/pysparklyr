@@ -169,6 +169,18 @@ ft_min_max_scaler.pyspark_connection <- ft_min_max_scaler_impl
 #' @export
 ft_min_max_scaler.tbl_pyspark <- ft_min_max_scaler_impl
 
+# --------------------------- Min Hash LSH  ----------------------------------
+ft_minhash_lsh_impl <- function(
+    x, input_col = NULL, output_col = NULL,num_hash_tables = 1L, seed = NULL,
+    uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "MinHashLSH", TRUE)
+}
+#' @export
+ft_minhash_lsh.ml_connect_pipeline <- ft_minhash_lsh_impl
+#' @export
+ft_minhash_lsh.pyspark_connection <- ft_minhash_lsh_impl
+#' @export
+ft_minhash_lsh.tbl_pyspark <- ft_minhash_lsh_impl
 
 # ----------------------------- RFormula ---------------------------------------
 ft_r_formula_impl <- function(

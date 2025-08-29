@@ -7,7 +7,9 @@ use_test_pull <- function(x, table = FALSE) {
     x <- as.double(map(x, as.vector))
   }
   if(inherits(x[[1]], "pyspark.ml.linalg.SparseVector")) {
-    x <- map(x, function(x) x$values)
+    x <- data.frame(
+      x = map_chr(x, function(x) paste(as.vector(x$values), collapse = ", "))
+    )
   }
   if(inherits(x[[1]], "pyspark.ml.linalg.DenseVector")) {
     x <- data.frame(

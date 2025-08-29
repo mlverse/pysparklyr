@@ -70,49 +70,46 @@ test_that("Discrete Cosine works", {
   )
 })
 
-skip("for now")
-
 test_that("Elementwise Product works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_elementwise_product(sc, "a", "b")))
   expect_snapshot(class(ft_elementwise_product(ml_pipeline(sc), "a", "b")))
-  x <- use_test_table_iris() %>%
-    ft_vector_assembler(
-      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
-      output_col = "vec_x"
-    ) %>%
-    ft_elementwise_product("vec_x", "elm_x", scaling_vec = c(1:3))
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x))
+  expect_snapshot(
+    use_test_mtcars_va() %>%
+      ft_elementwise_product("vec_x", "elm_x", scaling_vec = c(1:3)) %>%
+      use_test_pull()
+  )
 })
 
 test_that("Feature Hasher works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_feature_hasher(sc)))
   expect_snapshot(class(ft_feature_hasher(ml_pipeline(sc))))
-  x <- use_test_table_iris() %>%
-    ft_feature_hasher(c("Species", "Sepal_Width", "Petal_Length"), "hash_x")
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x))
-})
+  expect_snapshot(
+    use_test_table_mtcars() %>%
+      ft_feature_hasher(c("mpg", "wt", "cyl")) %>%
+      use_test_pull()
+  )
+ })
 
 test_that("Hashing TF works", {
   sc <- use_test_spark_connect()
-  tbl_reviews <- use_test_table_reviews()
   expect_snapshot(class(ft_hashing_tf(ml_pipeline(sc))))
   expect_snapshot(class(ft_hashing_tf(sc)))
-  x <- tbl_reviews %>%
-    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-    ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
-    ft_hashing_tf(
-      input_col = "stop_x",
-      output_col = "hashed_x",
-      binary = TRUE,
-      num_features = 1024
-    )
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x, hashed_x))
+  expect_snapshot(
+    use_test_table_reviews() %>%
+      ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+      ft_hashing_tf(
+        input_col = "token_x",
+        output_col = "hashed_x",
+        binary = TRUE,
+        num_features = 1024
+      ) %>%
+      use_test_pull()
+  )
 })
+
+skip("for now")
 
 test_that("IDF works", {
   sc <- use_test_spark_connect()

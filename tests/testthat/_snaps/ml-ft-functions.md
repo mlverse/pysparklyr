@@ -101,9 +101,8 @@
       use_test_table_reviews() %>% ft_tokenizer(input_col = "x", output_col = "token_x") %>%
         ft_count_vectorizer("token_x", "cv_x") %>% use_test_pull()
     Output
-      [[1]]
-       [1] 1 1 1 1 1 1 1 1 1 1 1 1 1
-      
+                                            x
+      1 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 
 # DCT works
 
@@ -217,4 +216,145 @@
       30  16.4371621638286, 9.6873629022557, 8.23028553575148
       31 15.3401966523684, 4.94974746830583, 6.47481788675687
       32 16.2697305857637, 12.3036579926459, 8.09964608280304
+
+# Elementwise Product works
+
+    Code
+      class(ft_elementwise_product(sc, "a", "b"))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ft_elementwise_product(ml_pipeline(sc), "a", "b"))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      use_test_mtcars_va() %>% ft_elementwise_product("vec_x", "elm_x", scaling_vec = c(
+        1:3)) %>% use_test_pull()
+    Output
+                        x
+      1      21, 5.24, 18
+      2      21, 5.75, 18
+      3    22.8, 4.64, 12
+      4    21.4, 6.43, 18
+      5    18.7, 6.88, 24
+      6    18.1, 6.92, 18
+      7    14.3, 7.14, 24
+      8    24.4, 6.38, 12
+      9     22.8, 6.3, 12
+      10   19.2, 6.88, 18
+      11   17.8, 6.88, 18
+      12   16.4, 8.14, 24
+      13   17.3, 7.46, 24
+      14   15.2, 7.56, 24
+      15   10.4, 10.5, 24
+      16 10.4, 10.848, 24
+      17  14.7, 10.69, 24
+      18    32.4, 4.4, 12
+      19   30.4, 3.23, 12
+      20   33.9, 3.67, 12
+      21   21.5, 4.93, 12
+      22   15.5, 7.04, 24
+      23   15.2, 6.87, 24
+      24   13.3, 7.68, 24
+      25   19.2, 7.69, 24
+      26   27.3, 3.87, 12
+      27     26, 4.28, 12
+      28  30.4, 3.026, 12
+      29   15.8, 6.34, 24
+      30   19.7, 5.54, 18
+      31     15, 7.14, 24
+      32   21.4, 5.56, 12
+
+# Feature Hasher works
+
+    Code
+      class(ft_feature_hasher(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ft_feature_hasher(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      use_test_table_mtcars() %>% ft_feature_hasher(c("mpg", "wt", "cyl")) %>%
+        use_test_pull()
+    Output
+                      x
+      1     2.62, 6, 21
+      2    2.875, 6, 21
+      3   2.32, 4, 22.8
+      4  3.215, 6, 21.4
+      5   3.44, 8, 18.7
+      6   3.46, 6, 18.1
+      7   3.57, 8, 14.3
+      8   3.19, 4, 24.4
+      9   3.15, 4, 22.8
+      10  3.44, 6, 19.2
+      11  3.44, 6, 17.8
+      12  4.07, 8, 16.4
+      13  3.73, 8, 17.3
+      14  3.78, 8, 15.2
+      15  5.25, 8, 10.4
+      16 5.424, 8, 10.4
+      17 5.345, 8, 14.7
+      18   2.2, 4, 32.4
+      19 1.615, 4, 30.4
+      20 1.835, 4, 33.9
+      21 2.465, 4, 21.5
+      22  3.52, 8, 15.5
+      23 3.435, 8, 15.2
+      24  3.84, 8, 13.3
+      25 3.845, 8, 19.2
+      26 1.935, 4, 27.3
+      27    2.14, 4, 26
+      28 1.513, 4, 30.4
+      29  3.17, 8, 15.8
+      30  2.77, 6, 19.7
+      31    3.57, 8, 15
+      32  2.78, 4, 21.4
+
+# Hashing TF works
+
+    Code
+      class(ft_hashing_tf(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_hashing_tf(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      use_test_table_reviews() %>% ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+        ft_hashing_tf(input_col = "token_x", output_col = "hashed_x", binary = TRUE,
+          num_features = 1024) %>% use_test_pull()
+    Output
+                                            x
+      1 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 

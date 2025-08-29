@@ -125,10 +125,7 @@ test_that("Imputer works", {
   expect_snapshot(class(ft_imputer(sc)))
   expect_snapshot(class(ft_imputer(ml_pipeline(sc))))
   expect_snapshot(
-    use_test_table(
-      x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5),
-      name = "imputer"
-    ) %>%
+    use_test_table_simple() %>%
       ft_imputer(list(c("x")), list(c("new_x"))) %>%
       use_test_pull()
   )
@@ -209,10 +206,7 @@ test_that("One hot encoder works", {
   expect_snapshot(class(ft_one_hot_encoder(sc)))
   expect_snapshot(class(ft_one_hot_encoder(ml_pipeline(sc))))
   expect_snapshot(
-    use_test_table(
-      x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5),
-      name = "imputer"
-    ) %>%
+    use_test_table_simple() %>%
       ft_one_hot_encoder(list(c("y")), list(c("ohe_x"))) %>%
       use_test_pull()
   )
@@ -245,10 +239,7 @@ test_that("Quantile discretizer works", {
   expect_snapshot(class(ft_quantile_discretizer(sc)))
   expect_snapshot(class(ft_quantile_discretizer(ml_pipeline(sc))))
   expect_snapshot(
-    use_test_table(
-      x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5),
-      name = "imputer"
-    ) %>%
+    use_test_table_simple() %>%
       ft_quantile_discretizer(c("y"), c("ohe_x")) %>%
       use_test_pull()
   )
@@ -263,6 +254,17 @@ test_that("R Formula works", {
       ft_r_formula(mpg ~ ., features_col = "test") %>%
       dplyr::select(test) %>%
       use_test_pull()
+  )
+})
+
+test_that("Regex Tokenizer works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_regex_tokenizer(sc)))
+  expect_snapshot(class(ft_regex_tokenizer(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_table_reviews() %>%
+      ft_regex_tokenizer("x", "new_x") %>%
+      dplyr::pull()
   )
 })
 

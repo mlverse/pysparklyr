@@ -118,6 +118,13 @@ use_test_table <- function(x, name) {
   ret
 }
 
+use_test_table_simple <- function() {
+  use_test_table(
+    x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5),
+    name = "simple_table"
+  )
+}
+
 use_test_table_reviews <- function() {
   reviews <- data.frame(
     x = "This has been the best TV I've ever used. Great screen, and sound."

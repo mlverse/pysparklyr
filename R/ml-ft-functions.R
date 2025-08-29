@@ -272,6 +272,19 @@ ft_r_formula.pyspark_connection <- ft_r_formula_impl
 #' @export
 ft_r_formula.tbl_pyspark <- ft_r_formula_impl
 
+# --------------------------- Regex Tokenizer  ---------------------------------
+ft_regex_tokenizer_impl <- function(
+    x, input_col = NULL, output_col = NULL, gaps = TRUE, min_token_length = 1,
+    pattern = "\\s+", to_lower_case = NULL, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "RegexTokenizer", FALSE)
+}
+#' @export
+ft_regex_tokenizer.ml_connect_pipeline <- ft_regex_tokenizer_impl
+#' @export
+ft_regex_tokenizer.pyspark_connection <- ft_regex_tokenizer_impl
+#' @export
+ft_regex_tokenizer.tbl_pyspark <- ft_regex_tokenizer_impl
+
 # ----------------------------- Tokenizer --------------------------------------
 ft_tokenizer_impl <- function(
     x, input_col = NULL, output_col = NULL, uid = NULL, ...) {

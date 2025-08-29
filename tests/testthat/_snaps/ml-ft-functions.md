@@ -434,8 +434,8 @@
 ---
 
     Code
-      use_test_table(x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5), name = "imputer") %>%
-        ft_imputer(list(c("x")), list(c("new_x"))) %>% use_test_pull()
+      use_test_table_simple() %>% ft_imputer(list(c("x")), list(c("new_x"))) %>%
+        use_test_pull()
     Output
       [1] 2 2 4 3 4
 
@@ -628,8 +628,8 @@
 ---
 
     Code
-      use_test_table(x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5), name = "imputer") %>%
-        ft_one_hot_encoder(list(c("y")), list(c("ohe_x"))) %>% use_test_pull()
+      use_test_table_simple() %>% ft_one_hot_encoder(list(c("y")), list(c("ohe_x"))) %>%
+        use_test_pull()
     Output
         x
       1 1
@@ -771,8 +771,8 @@
 ---
 
     Code
-      use_test_table(x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5), name = "imputer") %>%
-        ft_quantile_discretizer(c("y"), c("ohe_x")) %>% use_test_pull()
+      use_test_table_simple() %>% ft_quantile_discretizer(c("y"), c("ohe_x")) %>%
+        use_test_pull()
     Output
       [1] 0 0 1 1 1
 
@@ -832,6 +832,33 @@
       30   6, 145, 175, 3.62, 2.77, 15.5, 0, 1, 5, 6
       31   8, 301, 335, 3.54, 3.57, 14.6, 0, 1, 5, 8
       32   4, 121, 109, 4.11, 2.78, 18.6, 1, 1, 4, 2
+
+# Regex Tokenizer works
+
+    Code
+      class(ft_regex_tokenizer(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ft_regex_tokenizer(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      use_test_table_reviews() %>% ft_regex_tokenizer("x", "new_x") %>% dplyr::pull()
+    Output
+      [[1]]
+       [1] "this"    "has"     "been"    "the"     "best"    "tv"      "i've"   
+       [8] "ever"    "used."   "great"   "screen," "and"     "sound." 
+      
 
 # Tokenizer works
 

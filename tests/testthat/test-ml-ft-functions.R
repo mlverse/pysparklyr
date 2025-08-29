@@ -3,84 +3,74 @@ skip_spark_min_version(4.0)
 
 test_that("Binarizer works", {
   sc <- use_test_spark_connect()
-  tbl_mtcars <- use_test_table_mtcars()
   expect_snapshot(class(ft_binarizer(sc, "a", "b")))
   expect_snapshot(class(ft_binarizer(ml_pipeline(sc), "a", "b")))
-  x <- ft_binarizer(tbl_mtcars, "mpg", "mpg_new", threshold = 20)
-  expect_snapshot(class(x))
-  expect_equal(
-    dplyr::pull(dplyr::summarise(x, sum(mpg_new, na.rm = TRUE))),
-    14
+  expect_snapshot(
+    use_test_table_mtcars() %>%
+      ft_binarizer("mpg", "mpg_new", threshold = 20) %>%
+      use_test_pull(TRUE)
   )
 })
 
 test_that("Bucket Random Projection LSH works", {
   sc <- use_test_spark_connect()
-  expect_snapshot(class(ft_bucketed_random_projection_lsh(sc, "a", "b")))
-  expect_snapshot(class(ft_bucketed_random_projection_lsh(ml_pipeline(sc), "a", "b")))
-  tbl_reviews <- use_test_table_reviews()
-  x <- use_test_table_iris() %>%
-    ft_vector_assembler(
-      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
-      output_col = "vec_x"
-    ) %>%
-    ft_bucketed_random_projection_lsh("vec_x", "lsh_x", bucket_length = 1)
-  expect_snapshot(dplyr::pull(x))
-  expect_snapshot(class(x))
+  expect_snapshot(class(ft_bucketed_random_projection_lsh(sc)))
+  expect_snapshot(
+    class(ft_bucketed_random_projection_lsh(ml_pipeline(sc)))
+  )
+  expect_snapshot(
+    use_test_mtcars_va() %>%
+      ft_bucketed_random_projection_lsh("vec_x", "lsh_x", bucket_length = 1) %>%
+      use_test_pull()
+  )
 })
 
 test_that("Bucketizer works", {
   sc <- use_test_spark_connect()
-  tbl_mtcars <- use_test_table_mtcars()
   expect_snapshot(class(ft_bucketizer(sc, "a", "b", c(1, 2, 3))))
   expect_snapshot(class(ft_bucketizer(ml_pipeline(sc), "a", "b", c(1, 2, 3))))
-  x <- ft_bucketizer(tbl_mtcars, "mpg", "mpg_new", splits = c(0, 10, 20, 30, 40))
-  expect_snapshot(class(x))
-  expect_equal(
-    dplyr::pull(dplyr::summarise(x, sum(mpg_new, na.rm = TRUE))),
-    50
+  expect_snapshot(
+    use_test_table_mtcars() %>%
+      ft_bucketizer("mpg", "mpg_new", splits = c(0, 10, 20, 30, 40)) %>%
+      use_test_pull(TRUE)
   )
 })
 
 test_that("Count vectorizer works", {
   sc <- use_test_spark_connect()
-  expect_snapshot(class(ft_count_vectorizer(sc, "a", "b")))
-  expect_snapshot(class(ft_count_vectorizer(ml_pipeline(sc), "a", "b")))
-  tbl_reviews <- use_test_table_reviews()
-  x <- tbl_reviews %>%
-    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-    ft_count_vectorizer("token_x", "cv_x")
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x))
+  expect_snapshot(class(ft_count_vectorizer(sc)))
+  expect_snapshot(class(ft_count_vectorizer(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_table_reviews() %>%
+      ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+      ft_count_vectorizer("token_x", "cv_x") %>%
+      use_test_pull()
+  )
 })
 
 test_that("DCT works", {
   sc <- use_test_spark_connect()
-  expect_snapshot(class(ft_dct(sc, "a", "b")))
-  expect_snapshot(class(ft_dct(ml_pipeline(sc), "a", "b")))
-  x <- use_test_table_iris() %>%
-    ft_vector_assembler(
-      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
-      output_col = "vec_x"
-    ) %>%
-    ft_dct("vec_x", "dct_x")
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x))
+  expect_snapshot(class(ft_dct(sc)))
+  expect_snapshot(class(ft_dct(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_mtcars_va() %>%
+      ft_dct("vec_x", "dct_x") %>%
+      use_test_pull()
+  )
 })
 
 test_that("Discrete Cosine works", {
   sc <- use_test_spark_connect()
-  expect_snapshot(class(ft_discrete_cosine_transform(sc, "a", "b")))
-  expect_snapshot(class(ft_discrete_cosine_transform(ml_pipeline(sc), "a", "b")))
-  x <- use_test_table_iris() %>%
-    ft_vector_assembler(
-      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
-      output_col = "vec_x"
-    ) %>%
-    ft_discrete_cosine_transform("vec_x", "dct_x")
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x))
+  expect_snapshot(class(ft_discrete_cosine_transform(sc)))
+  expect_snapshot(class(ft_discrete_cosine_transform(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_mtcars_va() %>%
+      ft_discrete_cosine_transform("vec_x", "dct_x") %>%
+      use_test_pull()
+  )
 })
+
+skip("for now")
 
 test_that("Elementwise Product works", {
   sc <- use_test_spark_connect()

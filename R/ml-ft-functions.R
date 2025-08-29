@@ -376,3 +376,15 @@ ft_vector_indexer.ml_connect_pipeline <- ft_vector_indexer_impl
 ft_vector_indexer.pyspark_connection <- ft_vector_indexer_impl
 #' @export
 ft_vector_indexer.tbl_pyspark <- ft_vector_indexer_impl
+
+# ---------------------------- Vector Slicer ----------------------------------
+ft_vector_slicer_impl <- function(
+    x, input_col = NULL, output_col = NULL, indices = NULL, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "VectorSlicer", FALSE)
+}
+#' @export
+ft_vector_slicer.ml_connect_pipeline <- ft_vector_slicer_impl
+#' @export
+ft_vector_slicer.pyspark_connection <- ft_vector_slicer_impl
+#' @export
+ft_vector_slicer.tbl_pyspark <- ft_vector_slicer_impl

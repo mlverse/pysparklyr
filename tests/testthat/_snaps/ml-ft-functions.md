@@ -1095,7 +1095,7 @@
       31    15, 3.57, 8
       32  21.4, 2.78, 4
 
----
+# Vector indexer works
 
     Code
       class(ft_vector_indexer(ml_pipeline(sc)))
@@ -1111,4 +1111,61 @@
     Output
       [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
       [4] "ml_pipeline_stage"   
+
+# Vector slicer works
+
+    Code
+      class(ft_vector_slicer(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_vector_slicer(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      use_test_mtcars_va() %>% ft_vector_slicer("vec_x", "index_x", indices = list(1L)) %>%
+        use_test_pull()
+    Output
+             x
+      1   2.62
+      2  2.875
+      3   2.32
+      4  3.215
+      5   3.44
+      6   3.46
+      7   3.57
+      8   3.19
+      9   3.15
+      10  3.44
+      11  3.44
+      12  4.07
+      13  3.73
+      14  3.78
+      15  5.25
+      16 5.424
+      17 5.345
+      18   2.2
+      19 1.615
+      20 1.835
+      21 2.465
+      22  3.52
+      23 3.435
+      24  3.84
+      25 3.845
+      26 1.935
+      27  2.14
+      28 1.513
+      29  3.17
+      30  2.77
+      31  3.57
+      32  2.78
 

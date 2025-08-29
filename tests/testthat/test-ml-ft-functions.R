@@ -338,7 +338,7 @@ test_that("Vector assembler works", {
   )
 })
 
-test_that("Vector assembler works", {
+test_that("Vector indexer works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_vector_indexer(ml_pipeline(sc))))
   expect_snapshot(class(ft_vector_indexer(sc)))
@@ -348,5 +348,16 @@ test_that("Vector assembler works", {
       use_test_pull() %>%
       nrow(),
     32
+  )
+})
+
+test_that("Vector slicer works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_vector_slicer(ml_pipeline(sc))))
+  expect_snapshot(class(ft_vector_slicer(sc)))
+  expect_snapshot(
+    use_test_mtcars_va() %>%
+      ft_vector_slicer("vec_x", "index_x", indices = list(1L)) %>%
+      use_test_pull()
   )
 })

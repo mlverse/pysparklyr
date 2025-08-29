@@ -182,6 +182,20 @@ ft_minhash_lsh.pyspark_connection <- ft_minhash_lsh_impl
 #' @export
 ft_minhash_lsh.tbl_pyspark <- ft_minhash_lsh_impl
 
+# -------------------------------- N-gram  -------------------------------------
+ft_ngram_impl <- function(
+    x, input_col = NULL, output_col = NULL, n = 2,
+    uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "NGram", FALSE)
+}
+#' @export
+ft_ngram.ml_connect_pipeline <- ft_ngram_impl
+#' @export
+ft_ngram.pyspark_connection <- ft_ngram_impl
+#' @export
+ft_ngram.tbl_pyspark <- ft_ngram_impl
+
+
 # ----------------------------- RFormula ---------------------------------------
 ft_r_formula_impl <- function(
     x, formula = NULL, features_col = "features", label_col = "label",

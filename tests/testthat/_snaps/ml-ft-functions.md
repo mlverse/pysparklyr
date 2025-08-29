@@ -550,6 +550,35 @@
       225592966 
             150 
 
+# N-gram works
+
+    Code
+      class(ft_ngram(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ft_ngram(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      use_test_table_reviews() %>% ft_tokenizer("x", "token_x") %>% ft_ngram(
+        "token_x", "ngram_x") %>% dplyr::pull()
+    Output
+      [[1]]
+       [1] "this has"      "has been"      "been the"      "the best"     
+       [5] "best tv"       "tv i've"       "i've ever"     "ever used."   
+       [9] "used. great"   "great screen," "screen, and"   "and sound."   
+      
+
 # R Formula works
 
     Code

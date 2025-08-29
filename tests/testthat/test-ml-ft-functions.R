@@ -170,6 +170,19 @@ test_that("Min Hash LSH works", {
   )
 })
 
+test_that("N-gram works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_ngram(sc)))
+  expect_snapshot(class(ft_ngram(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_table_reviews() %>%
+      ft_tokenizer("x", "token_x") %>%
+      ft_ngram("token_x", "ngram_x") %>%
+      dplyr::pull()
+  )
+})
+
+
 test_that("R Formula works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_r_formula(ml_pipeline(sc))))

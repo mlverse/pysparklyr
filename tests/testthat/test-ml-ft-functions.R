@@ -90,7 +90,7 @@ test_that("Feature Hasher works", {
       ft_feature_hasher(c("mpg", "wt", "cyl")) %>%
       use_test_pull()
   )
- })
+})
 
 test_that("Hashing TF works", {
   sc <- use_test_spark_connect()
@@ -162,7 +162,7 @@ test_that("Min Hash LSH works", {
   expect_snapshot(class(ft_minhash_lsh(sc)))
   expect_snapshot(class(ft_minhash_lsh(ml_pipeline(sc))))
   expect_snapshot(
-    use_test_iris_va () %>%
+    use_test_iris_va() %>%
       ft_minhash_lsh("vec_x", "hash_x") %>%
       use_test_pull() %>%
       round() %>%
@@ -196,7 +196,7 @@ test_that("Tokenizer works", {
 test_that("Stop words remover works", {
   sc <- use_test_spark_connect()
   tbl_reviews <-
-  expect_snapshot(class(ft_tokenizer(ml_pipeline(sc))))
+    expect_snapshot(class(ft_tokenizer(ml_pipeline(sc))))
   expect_snapshot(class(ft_tokenizer(sc)))
   expect_snapshot(
     use_test_table_reviews() %>%
@@ -206,50 +206,49 @@ test_that("Stop words remover works", {
   )
 })
 
-skip("for now")
-
 test_that("Normalizer works", {
   sc <- use_test_spark_connect()
-  tbl_reviews <- use_test_table_reviews()
   expect_snapshot(class(ft_hashing_tf(ml_pipeline(sc))))
   expect_snapshot(class(ft_hashing_tf(sc)))
-  x <- tbl_reviews %>%
-    ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-    ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
-    ft_hashing_tf(
-      input_col = "stop_x",
-      output_col = "hashed_x",
-      binary = TRUE,
-      num_features = 1024
-    ) %>%
-    ft_normalizer(
-      input_col = "hashed_x",
-      output_col = "normal_x"
-    )
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x, normal_x))
+  expect_snapshot(
+    use_test_table_reviews() %>%
+      ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+      ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
+      ft_hashing_tf(
+        input_col = "stop_x",
+        output_col = "hashed_x",
+        binary = TRUE,
+        num_features = 1024
+      ) %>%
+      ft_normalizer(
+        input_col = "hashed_x",
+        output_col = "normal_x"
+      ) %>%
+      use_test_pull()
+  )
 })
 
 test_that("String indexer works", {
   sc <- use_test_spark_connect()
-  tbl_iris <- use_test_table_iris()
   expect_snapshot(class(ft_string_indexer(ml_pipeline(sc))))
   expect_snapshot(class(ft_string_indexer(sc)))
-  x <- tbl_iris %>%
-    ft_string_indexer("Species", "species_idx")
-  expect_snapshot(class(x))
-  expect_snapshot(table(dplyr::pull(x)))
+  expect_snapshot(
+    use_test_table_iris() %>%
+      ft_string_indexer("Species", "species_idx") %>%
+      use_test_pull(TRUE)
+  )
 })
 
 test_that("Vector assembler works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_vector_assembler(ml_pipeline(sc))))
   expect_snapshot(class(ft_vector_assembler(sc)))
-  x <- use_test_table_iris() %>%
-    ft_vector_assembler(
-      input_cols = c("Sepal_Length", "Sepal_Width", "Petal_Length"),
-      output_col = "vec_x"
-    )
-  expect_snapshot(class(x))
-  expect_snapshot(dplyr::pull(x))
+  expect_snapshot(
+    use_test_table_mtcars() %>%
+      ft_vector_assembler(
+        input_cols = c("mpg", "wt", "cyl"),
+        output_col = "vec_x"
+      ) %>%
+      use_test_pull()
+  )
 })

@@ -663,3 +663,116 @@
       [1] "best"    "tv"      "ever"    "used."   "great"   "screen," "sound." 
       
 
+# Normalizer works
+
+    Code
+      class(ft_hashing_tf(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_hashing_tf(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      use_test_table_reviews() %>% ft_tokenizer(input_col = "x", output_col = "token_x") %>%
+        ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
+        ft_hashing_tf(input_col = "stop_x", output_col = "hashed_x", binary = TRUE,
+          num_features = 1024) %>% ft_normalizer(input_col = "hashed_x", output_col = "normal_x") %>%
+        use_test_pull()
+    Output
+                                                                                                                                          x
+      1 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227
+
+# String indexer works
+
+    Code
+      class(ft_string_indexer(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_string_indexer(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      use_test_table_iris() %>% ft_string_indexer("Species", "species_idx") %>%
+        use_test_pull(TRUE)
+    Output
+      x
+       0  1  2 
+      50 50 50 
+
+# Vector assembler works
+
+    Code
+      class(ft_vector_assembler(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ft_vector_assembler(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      use_test_table_mtcars() %>% ft_vector_assembler(input_cols = c("mpg", "wt",
+        "cyl"), output_col = "vec_x") %>% use_test_pull()
+    Output
+                      x
+      1     21, 2.62, 6
+      2    21, 2.875, 6
+      3   22.8, 2.32, 4
+      4  21.4, 3.215, 6
+      5   18.7, 3.44, 8
+      6   18.1, 3.46, 6
+      7   14.3, 3.57, 8
+      8   24.4, 3.19, 4
+      9   22.8, 3.15, 4
+      10  19.2, 3.44, 6
+      11  17.8, 3.44, 6
+      12  16.4, 4.07, 8
+      13  17.3, 3.73, 8
+      14  15.2, 3.78, 8
+      15  10.4, 5.25, 8
+      16 10.4, 5.424, 8
+      17 14.7, 5.345, 8
+      18   32.4, 2.2, 4
+      19 30.4, 1.615, 4
+      20 33.9, 1.835, 4
+      21 21.5, 2.465, 4
+      22  15.5, 3.52, 8
+      23 15.2, 3.435, 8
+      24  13.3, 3.84, 8
+      25 19.2, 3.845, 8
+      26 27.3, 1.935, 4
+      27    26, 2.14, 4
+      28 30.4, 1.513, 4
+      29  15.8, 3.17, 8
+      30  19.7, 2.77, 6
+      31    15, 3.57, 8
+      32  21.4, 2.78, 4
+

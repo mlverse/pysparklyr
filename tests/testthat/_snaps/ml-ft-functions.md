@@ -751,6 +751,31 @@
       31             15, 225, 3.57, 53.55, 12.7449, 8, 120, 28.56, 64
       32       21.4, 457.96, 2.78, 59.492, 7.7284, 4, 85.6, 11.12, 16
 
+# Quantile discretizer works
+
+    Code
+      class(ft_quantile_discretizer(sc))
+    Output
+      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ft_quantile_discretizer(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      use_test_table(x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5), name = "imputer") %>%
+        ft_quantile_discretizer(c("y"), c("ohe_x")) %>% use_test_pull()
+    Output
+      [1] 0 0 1 1 1
+
 # R Formula works
 
     Code

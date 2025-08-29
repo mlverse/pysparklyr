@@ -5,6 +5,7 @@
 * Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
 ML functions now supported are:
   * New in Spark 4.0
+    * `ft_quantile_discretizer()`
     * `ft_polynomial_expansion()`
     * `ft_pca()`
     * `ft_one_hot_encoder()`

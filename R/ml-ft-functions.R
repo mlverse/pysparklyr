@@ -244,6 +244,21 @@ ft_polynomial_expansion.pyspark_connection <- ft_polynomial_expansion_impl
 #' @export
 ft_polynomial_expansion.tbl_pyspark <- ft_polynomial_expansion_impl
 
+# ----------------------- Quantile Discretizer  ---------------------------------
+ft_quantile_discretizer_impl <- function(
+    x, input_col = NULL, output_col = NULL, num_buckets = 2, input_cols = NULL,
+    output_cols = NULL, num_buckets_array = NULL, handle_invalid = "error",
+    relative_error = 0.001, uid = NULL, weight_column = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "QuantileDiscretizer", TRUE)
+}
+#' @export
+ft_quantile_discretizer.ml_connect_pipeline <- ft_quantile_discretizer_impl
+#' @export
+ft_quantile_discretizer.pyspark_connection <- ft_quantile_discretizer_impl
+#' @export
+ft_quantile_discretizer.tbl_pyspark <- ft_quantile_discretizer_impl
+
+
 # ----------------------------- RFormula ---------------------------------------
 ft_r_formula_impl <- function(
     x, formula = NULL, features_col = "features", label_col = "label",

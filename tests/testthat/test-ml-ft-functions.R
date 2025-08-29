@@ -240,6 +240,20 @@ test_that("Polynomial expansion works", {
   )
 })
 
+test_that("Quantile discretizer works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_quantile_discretizer(sc)))
+  expect_snapshot(class(ft_quantile_discretizer(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_table(
+      x = data.frame(x = c(2, 2, 4, NA, 4), y = 1:5),
+      name = "imputer"
+    ) %>%
+      ft_quantile_discretizer(c("y"), c("ohe_x")) %>%
+      use_test_pull()
+  )
+})
+
 test_that("R Formula works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_r_formula(ml_pipeline(sc))))

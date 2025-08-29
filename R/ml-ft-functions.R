@@ -285,6 +285,20 @@ ft_regex_tokenizer.pyspark_connection <- ft_regex_tokenizer_impl
 #' @export
 ft_regex_tokenizer.tbl_pyspark <- ft_regex_tokenizer_impl
 
+# --------------------------- Robust Scaler  -----------------------------------
+ft_robust_scaler_impl <- function(
+    x, input_col = NULL, output_col = NULL,
+    lower = 0.25, upper = 0.75, with_centering = TRUE,
+    with_scaling = TRUE, relative_error = 0.001, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "RobustScaler", TRUE)
+}
+#' @export
+ft_robust_scaler.ml_connect_pipeline <- ft_robust_scaler_impl
+#' @export
+ft_robust_scaler.pyspark_connection <- ft_robust_scaler_impl
+#' @export
+ft_robust_scaler.tbl_pyspark <- ft_robust_scaler_impl
+
 # ----------------------------- Tokenizer --------------------------------------
 ft_tokenizer_impl <- function(
     x, input_col = NULL, output_col = NULL, uid = NULL, ...) {

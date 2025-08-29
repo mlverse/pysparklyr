@@ -111,8 +111,8 @@ test_that("Hashing TF works", {
 
 test_that("IDF works", {
   sc <- use_test_spark_connect()
-  expect_snapshot(class(ft_idf(sc, "a", "b")))
-  expect_snapshot(class(ft_idf(ml_pipeline(sc), "a", "b")))
+  expect_snapshot(class(ft_idf(sc)))
+  expect_snapshot(class(ft_idf(ml_pipeline(sc))))
   expect_snapshot(
     use_test_mtcars_va() %>%
       ft_idf("vec_x", "idf_x") %>%
@@ -265,6 +265,17 @@ test_that("Regex Tokenizer works", {
     use_test_table_reviews() %>%
       ft_regex_tokenizer("x", "new_x") %>%
       dplyr::pull()
+  )
+})
+
+test_that("Robust Scaler works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_robust_scaler(sc)))
+  expect_snapshot(class(ft_robust_scaler(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_mtcars_va() %>%
+      ft_robust_scaler("vec_x", "rs_x") %>%
+      use_test_pull()
   )
 })
 

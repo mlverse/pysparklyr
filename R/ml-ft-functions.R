@@ -388,3 +388,17 @@ ft_vector_slicer.ml_connect_pipeline <- ft_vector_slicer_impl
 ft_vector_slicer.pyspark_connection <- ft_vector_slicer_impl
 #' @export
 ft_vector_slicer.tbl_pyspark <- ft_vector_slicer_impl
+
+# ------------------------------- Word2Vec -------------------------------------
+ft_word2vec_impl <- function(
+    x, input_col = NULL, output_col = NULL, vector_size = 100, min_count = 5,
+    max_sentence_length = 1000, num_partitions = 1, step_size = 0.025,
+    max_iter = 1, seed = NULL, uid = NULL, ...) {
+  ml_process_fn(c(as.list(environment()), list(...)), "Word2Vec", TRUE)
+}
+#' @export
+ft_word2vec.ml_connect_pipeline <- ft_word2vec_impl
+#' @export
+ft_word2vec.pyspark_connection <- ft_word2vec_impl
+#' @export
+ft_word2vec.tbl_pyspark <- ft_word2vec_impl

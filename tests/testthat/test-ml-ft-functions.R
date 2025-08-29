@@ -361,3 +361,15 @@ test_that("Vector slicer works", {
       use_test_pull()
   )
 })
+
+test_that("Word2Vec works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_word2vec(ml_pipeline(sc))))
+  expect_snapshot(class(ft_word2vec(sc)))
+  expect_snapshot(
+    use_test_table_reviews() %>%
+      ft_tokenizer("x", "token_x") %>%
+      ft_word2vec("token_x", "word_x", min_count = 1) %>%
+      use_test_pull()
+  )
+})

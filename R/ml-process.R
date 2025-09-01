@@ -52,7 +52,9 @@ ml_process_fn <- function(args, fn, has_fit = TRUE, ml_type = "feature", ml_fn =
       arg_formula <- args[["formula"]]
     }
     arg_label_col <- args[["label_col"]]
-    arg_features_col <- args[["input_col"]] %||% args[["features_col"]]
+    arg_features_col <- args[["input_col"]] %||%
+      args[["features_col"]] %||%
+      args[["raw_prediction_col"]]
     new_obj <- ml_process_tbl(
       x = x,
       stage = stage,
@@ -92,6 +94,9 @@ ml_process_tbl <- function(x, stage, formula, label_col, features_col,
       as_df = FALSE
     )
     ret <- tbl_pyspark_temp(ret, conn)
+  } else if (ml_type == "evaluation") {
+    # TODO: Output will probably need to be expanded to a tbl
+    ret <- invoke(stage, "evaluate", python_obj_get(x))
   } else {
     attrs <- attributes(tbl_prep)
     ret <- structure(

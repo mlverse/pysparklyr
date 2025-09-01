@@ -30,6 +30,16 @@ invoke.ml_connect_transformer <- function(jobj, method, ...) {
 }
 
 #' @export
+invoke.ml_connect_estimator <- function(jobj, method, ...) {
+  invoke_conn(
+    jobj = jobj,
+    context = jobj,
+    method = method,
+    ... = ...
+  )
+}
+
+#' @export
 invoke.tbl_pyspark <- function(jobj, method, ...) {
   invoke_conn(
     jobj = jobj,

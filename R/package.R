@@ -23,6 +23,7 @@
 #' @importFrom sparklyr ft_one_hot_encoder ft_pca ft_polynomial_expansion
 #' @importFrom sparklyr ft_quantile_discretizer ft_regex_tokenizer ft_robust_scaler
 #' @importFrom sparklyr ft_sql_transformer ft_vector_indexer ft_vector_slicer ft_word2vec
+#' @importFrom sparklyr ml_binary_classification_evaluator
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by

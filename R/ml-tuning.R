@@ -3,7 +3,7 @@ ml_cross_validator.pyspark_connection <- function(
     x, estimator = NULL, estimator_param_maps = NULL, evaluator = NULL,
     num_folds = 3, collect_sub_models = FALSE, parallelism = 1, seed = NULL,
     uid = NULL, ...) {
-  if(!inherits(estimator, "ml_connect_pipeline")) {
+  if (!inherits(estimator, "ml_connect_pipeline")) {
     abort("Only ML Pipelines are supported at this time")
   }
   tuning <- import("pyspark.ml.tuning")
@@ -36,7 +36,7 @@ ml_cross_validator.pyspark_connection <- function(
     invoke("build")
   cv_estimator <- ml_process_fn(
     args = list(
-      x = sc,
+      x = x,
       estimator = python_obj_get(estimator),
       estimator_param_maps = python_obj_get(built_grid),
       evaluator = python_obj_get(evaluator),
@@ -49,8 +49,13 @@ ml_cross_validator.pyspark_connection <- function(
     ml_type = "tuning",
     has_fit = TRUE
   )
+  metric_name <- try(invoke(evaluator, "getMetricName"), silent = TRUE)
+  if (inherits(metric_name, "try-error")) {
+    metric_name <- NULL
+  }
+  cv_estimator$metric_name <- metric_name
   class(cv_estimator) <- c(
     "ml_connect_cross_validator", "ml_cross_validator", class(cv_estimator)
-    )
+  )
   cv_estimator
 }

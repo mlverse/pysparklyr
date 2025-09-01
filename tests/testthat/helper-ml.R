@@ -1,20 +1,20 @@
 use_test_pull <- function(x, table = FALSE) {
   x <- dplyr::pull(x)
-  if(table) {
+  if (table) {
     x <- table(x)
   }
-  if(inherits(x[[1]], "array")) {
+  if (inherits(x[[1]], "array")) {
     x <- as.double(map(x, as.vector))
   }
-  if(inherits(x[[1]], "pyspark.ml.linalg.SparseVector")) {
+  if (inherits(x[[1]], "pyspark.ml.linalg.SparseVector")) {
     x <- data.frame(
       x = map_chr(x, function(x) paste(as.vector(x$values), collapse = ", "))
     )
   }
-  if(inherits(x[[1]], "pyspark.ml.linalg.DenseVector")) {
+  if (inherits(x[[1]], "pyspark.ml.linalg.DenseVector")) {
     x <- data.frame(
       x = map_chr(x, function(x) paste(as.vector(x$array), collapse = ", "))
-      )
+    )
   }
   x
 }

@@ -3,6 +3,9 @@ ml_cross_validator.pyspark_connection <- function(
     x, estimator = NULL, estimator_param_maps = NULL, evaluator = NULL,
     num_folds = 3, collect_sub_models = FALSE, parallelism = 1, seed = NULL,
     uid = NULL, ...) {
+  if(!inherits(estimator, "ml_connect_pipeline")) {
+    abort("Only ML Pipelines are supported at this time")
+  }
   tuning <- import("pyspark.ml.tuning")
   pipeline <- python_obj_get(estimator)
   stages <- pipeline$getStages()
@@ -47,6 +50,8 @@ ml_cross_validator.pyspark_connection <- function(
     has_fit = TRUE
   )
 
-  class(cv_estimator) <- c(class(cv_estimator), "ml_cross_validator")
+  class(cv_estimator) <- c(
+    "ml_connect_cross_validator", "ml_cross_validator", class(cv_estimator)
+    )
   cv_estimator
 }

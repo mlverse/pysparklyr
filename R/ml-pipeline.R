@@ -20,6 +20,11 @@ ml_fit.ml_connect_pipeline <- function(x, dataset, ...) {
   as_pipeline_model(fitted, stages)
 }
 
+#' @export
+ml_fit.ml_connect_cross_validator <- function(x, dataset, ...) {
+  ml_fit_impl(x, dataset)
+}
+
 ml_fit_impl <- function(x, dataset) {
   ml_installed()
   py_dataset <- python_obj_get(dataset)

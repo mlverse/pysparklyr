@@ -22,7 +22,29 @@ ml_fit.ml_connect_pipeline <- function(x, dataset, ...) {
 
 #' @export
 ml_fit.ml_connect_cross_validator <- function(x, dataset, ...) {
-  ml_fit_impl(x, dataset)
+  fitted <- ml_fit_impl(x, dataset)
+  x <- python_obj_get(fitted)
+  metrics <- x$avgMetrics %>%
+    purrr::map2(x$getEstimatorParamMaps(), function(x, y) c(list(score = x),y)) %>%
+    purrr::map(dplyr::as_tibble) %>%
+    purrr::list_rbind()
+  metric_names <- metrics %>%
+    colnames() %>%
+    strsplit("__") %>%
+    map(unlist) %>%
+    map_chr(function(x) x[length(x)])
+  colnames(metrics) <- metric_names
+  structure(
+    list(
+      uid = invoke(fitted, "uid"),
+      param_map = list(),
+      .jobj = fitted,
+      avg_metrics_df = metrics
+    ),
+    class = c(
+      "ml_cross_validator_model"
+    )
+  )
 }
 
 ml_fit_impl <- function(x, dataset) {

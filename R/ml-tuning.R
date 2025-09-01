@@ -49,7 +49,6 @@ ml_cross_validator.pyspark_connection <- function(
     ml_type = "tuning",
     has_fit = TRUE
   )
-
   class(cv_estimator) <- c(
     "ml_connect_cross_validator", "ml_cross_validator", class(cv_estimator)
     )

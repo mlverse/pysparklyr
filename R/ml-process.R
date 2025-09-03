@@ -70,6 +70,63 @@ ml_process_fn <- function(args, fn, has_fit = TRUE, ml_type = "feature", ml_fn =
   abort("Object not recognized")
 }
 
+ml_process_transformer <- function(args, fn, has_fit = TRUE) {
+  ml_installed()
+  x <- args$x
+  conn <- spark_connection(x)
+  args <- args[names(args) != "x"]
+  if (!is.null(args[["formula"]])) {
+    if (rlang::is_formula(args[["formula"]])) {
+      args[["formula"]] <- deparse(args[["formula"]])
+    }
+  }
+  jobj <- ml_execute(
+    args = args,
+    python_library = "pyspark.ml.feature",
+    fn = fn,
+    sc = conn
+  )
+  prep_obj <- list(
+      uid = invoke(jobj, "uid"),
+      param_map = ml_get_params(jobj),
+      .jobj = jobj
+    )
+  obj_class <- "ml_pipeline_stage"
+  stage <- structure(
+    prep_obj,
+    class = obj_class
+  )
+  if (inherits(x, "pyspark_connection")) {
+    caller <- deparse(rlang::caller_call())
+    ml_fn <- unlist(strsplit(caller, "\\."))[1]
+    class(stage) <- c(ml_fn, "ml_transformer", class(stage))
+    return(stage)
+  }
+  if (inherits(x, "ml_connect_pipeline")) {
+    return(ml_connect_add_stage(x, stage))
+  }
+  if (inherits(x, "tbl_pyspark")) {
+    tbl_prep <- ml_prep_dataset(
+      x = x,
+      label_col = args[["label_col"]],
+      features_col = args[["input_col"]],
+      lf = "all"
+    )
+    if (has_fit) {
+      stage <- ml_fit_impl(stage, tbl_prep)
+    }
+    ret <- transform_impl(
+      x = stage,
+      dataset = tbl_prep,
+      prep = FALSE,
+      conn = conn,
+      as_df = TRUE
+    )
+  }
+  return(ret)
+}
+
+
 ml_process_tbl <- function(x, stage, formula, label_col, features_col,
                            has_fit, ml_type = "feature", ml_fn) {
   tbl_prep <- ml_prep_dataset(

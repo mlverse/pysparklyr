@@ -3,8 +3,7 @@
     Code
       class(ft_binarizer(sc, "a", "b"))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_binarizer"      "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -30,8 +29,8 @@
     Code
       class(ft_bucketed_random_projection_lsh(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_bucketed_random_projection_lsh" "ml_transformer"                   
+      [3] "ml_pipeline_stage"                
 
 ---
 
@@ -56,8 +55,7 @@
     Code
       class(ft_bucketizer(sc, "a", "b", c(1, 2, 3)))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_bucketizer"     "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -83,8 +81,7 @@
     Code
       class(ft_count_vectorizer(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_count_vectorizer" "ml_transformer"      "ml_pipeline_stage"  
 
 ---
 
@@ -109,8 +106,7 @@
     Code
       class(ft_dct(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_dct"            "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -165,8 +161,7 @@
     Code
       class(ft_discrete_cosine_transform(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_dct"            "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -222,8 +217,7 @@
     Code
       class(ft_elementwise_product(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_elementwise_product" "ml_transformer"         "ml_pipeline_stage"     
 
 ---
 
@@ -279,8 +273,7 @@
     Code
       class(ft_feature_hasher(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_feature_hasher" "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -345,8 +338,7 @@
     Code
       class(ft_hashing_tf(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_hashing_tf"     "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -363,8 +355,7 @@
     Code
       class(ft_idf(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_idf"            "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -419,8 +410,7 @@
     Code
       class(ft_imputer(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_imputer"        "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -453,8 +443,7 @@
     Code
       class(ft_index_to_string(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_index_to_string" "ml_transformer"     "ml_pipeline_stage" 
 
 ---
 
@@ -471,8 +460,7 @@
     Code
       class(ft_interaction(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_interaction"    "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -528,8 +516,7 @@
     Code
       class(ft_minhash_lsh(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_minhash_lsh"    "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -555,8 +542,7 @@
     Code
       class(ft_ngram(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_ngram"          "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -593,8 +579,7 @@
     Code
       class(ft_hashing_tf(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_hashing_tf"     "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -613,8 +598,7 @@
     Code
       class(ft_one_hot_encoder(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_one_hot_encoder" "ml_transformer"     "ml_pipeline_stage" 
 
 ---
 
@@ -643,8 +627,7 @@
     Code
       class(ft_pca(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_pca"            "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -699,8 +682,8 @@
     Code
       class(ft_polynomial_expansion(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_polynomial_expansion" "ml_transformer"         
+      [3] "ml_pipeline_stage"      
 
 ---
 
@@ -756,8 +739,8 @@
     Code
       class(ft_quantile_discretizer(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_quantile_discretizer" "ml_transformer"         
+      [3] "ml_pipeline_stage"      
 
 ---
 
@@ -790,8 +773,7 @@
     Code
       class(ft_r_formula(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_r_formula"      "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -838,8 +820,7 @@
     Code
       class(ft_regex_tokenizer(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_regex_tokenizer" "ml_transformer"     "ml_pipeline_stage" 
 
 ---
 
@@ -865,8 +846,7 @@
     Code
       class(ft_robust_scaler(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_robust_scaler"  "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -921,8 +901,7 @@
     Code
       class(ft_sql_transformer(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_sql_transformer" "ml_transformer"     "ml_pipeline_stage" 
 
 ---
 
@@ -969,8 +948,7 @@
     Code
       class(ft_tokenizer(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_tokenizer"      "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -997,8 +975,7 @@
     Code
       class(ft_string_indexer(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_string_indexer" "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -1024,8 +1001,7 @@
     Code
       class(ft_tokenizer(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_tokenizer"      "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -1052,8 +1028,7 @@
     Code
       class(ft_vector_assembler(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_vector_assembler" "ml_transformer"      "ml_pipeline_stage"  
 
 ---
 
@@ -1109,8 +1084,7 @@
     Code
       class(ft_vector_indexer(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_vector_indexer" "ml_transformer"    "ml_pipeline_stage"
 
 # Vector slicer works
 
@@ -1126,8 +1100,7 @@
     Code
       class(ft_vector_slicer(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_vector_slicer"  "ml_transformer"    "ml_pipeline_stage"
 
 ---
 
@@ -1183,8 +1156,7 @@
     Code
       class(ft_word2vec(sc))
     Output
-      [1] "ml_transformer"       "ml_connect_estimator" "ml_estimator"        
-      [4] "ml_pipeline_stage"   
+      [1] "ft_word2vec"       "ml_transformer"    "ml_pipeline_stage"
 
 ---
 

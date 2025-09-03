@@ -1,20 +1,9 @@
-ml_process_fn <- function(args, fn, has_fit = TRUE, ml_type = "feature", ml_fn = NULL) {
+ml_process_fn <- function(args, fn, has_fit = TRUE, ml_type = "", ml_fn = NULL) {
   ml_installed()
   x <- args$x
   args <- args[names(args) != "x"]
-  if (ml_type == "feature") {
-    if (!is.null(args[["formula"]])) {
-      if (rlang::is_formula(args[["formula"]])) {
-        args[["formula"]] <- deparse(args[["formula"]])
-      }
-    }
-    exec_args <- args
-  } else {
-    exec_args <- args[names(args) != "formula"]
-  }
-
   jobj <- ml_execute(
-    args = exec_args,
+    args = args[names(args) != "formula"],
     python_library = glue("pyspark.ml.{ml_type}"),
     fn = fn,
     sc = spark_connection(x)
@@ -28,19 +17,16 @@ ml_process_fn <- function(args, fn, has_fit = TRUE, ml_type = "feature", ml_fn =
     )
   )
   obj_class <- c(
+    glue("ml_{ml_fn}"),
     "ml_connect_estimator",
     "ml_estimator",
     "ml_pipeline_stage"
   )
-  if (ml_type != "feature") {
-    obj_class <- c(obj_class, glue("ml_{ml_fn}"))
-  }
   stage <- structure(
     prep_obj,
     class = obj_class
   )
   if (inherits(x, "pyspark_connection")) {
-    class(stage) <- c("ml_transformer", class(stage))
     return(stage)
   }
   if (inherits(x, "ml_connect_pipeline")) {

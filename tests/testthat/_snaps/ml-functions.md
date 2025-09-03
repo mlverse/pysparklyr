@@ -12,9 +12,8 @@
     Code
       class(ml_random_forest_classifier(sc))
     Output
-      [1] "ml_transformer"              "ml_connect_estimator"       
+      [1] "ml_random_forest_classifier" "ml_connect_estimator"       
       [3] "ml_estimator"                "ml_pipeline_stage"          
-      [5] "ml_random_forest_classifier"
 
 ---
 
@@ -48,9 +47,8 @@
     Code
       class(ml_random_forest_regressor(sc))
     Output
-      [1] "ml_transformer"             "ml_connect_estimator"      
+      [1] "ml_random_forest_regressor" "ml_connect_estimator"      
       [3] "ml_estimator"               "ml_pipeline_stage"         
-      [5] "ml_random_forest_regressor"
 
 ---
 

@@ -19,7 +19,8 @@ ml_cross_validator.pyspark_connection <- function(
     tolower()
   for (map_name in map_names) {
     stage_match <- startsWith(stages_name, map_name)
-    if (sum(stage_match) == 1) {
+    matches <- sum(stage_match)
+    if (matches == 1) {
       curr_stage <- stages[stage_match][[1]]
       curr_map <- estimator_param_maps[map_name == map_names][[1]]
       list_map <- imap(curr_map, function(x, y) list(name = y, values = x))
@@ -29,6 +30,8 @@ ml_cross_validator.pyspark_connection <- function(
           values = param$values
         )
       }
+    } else if (matches == 0) {
+      abort(glue("Could not match `{map_name}` to a function in the pipeline"))
     }
   }
   built_grid <- grid %>%

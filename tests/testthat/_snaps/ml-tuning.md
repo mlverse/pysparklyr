@@ -12,8 +12,10 @@
     Code
       metrics
     Output
-      # A tibble: 1 x 1
-        areaUnderROC
-               <dbl>
-      1            1
+      # A tibble: 3 x 2
+        areaUnderROC regParam
+               <dbl>    <dbl>
+      1        1          0  
+      2        0.984      0.5
+      3        0.984      1  
 

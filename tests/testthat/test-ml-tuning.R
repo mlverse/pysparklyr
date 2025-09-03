@@ -9,8 +9,7 @@ test_that("Cross validator works", {
     ml_logistic_regression()
 
   grid <- list(
-    linear_regression = list(
-      elastic_net_param = 10^seq(-3, 0, length = 3),
+    logistic_regression = list(
       reg_param = seq(0, 1, length = 3)
     )
   )
@@ -32,4 +31,20 @@ test_that("Cross validator works", {
   metrics <- ml_validation_metrics(tuning_model)
 
   expect_snapshot(metrics)
+
+  grid2 <- list(
+    linear_regression = list(
+      reg_param = seq(0, 1, length = 3)
+    )
+  )
+
+  expect_error(
+    cv <- ml_cross_validator(
+      x = sc,
+      estimator = pipeline,
+      estimator_param_maps = grid2,
+      evaluator = ml_binary_classification_evaluator(sc),
+      seed = 100
+    )
+  )
 })

@@ -29,8 +29,8 @@
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by
 #' @importFrom dplyr filter mutate
-#' @importFrom purrr map_lgl map_chr map pmap_chr imap iwalk
-#' @importFrom purrr map_chr discard transpose reduce
+#' @importFrom purrr map_lgl map_chr map pmap_chr imap iwalk walk imap_chr as_mapper
+#' @importFrom purrr map_chr discard transpose reduce map2 list_rbind flatten
 #' @importFrom rlang enquo `!!` `!!!` quo_is_null sym warn abort `%||%`
 #' @importFrom rlang is_string is_character parse_exprs set_names
 #' @importFrom rlang exec arg_match as_utf8_character

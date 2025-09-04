@@ -77,7 +77,7 @@ ml_print_params <- function(x, sc = NULL) {
   }
   x_params <- x_params %>%
     map_chr(paste, collapse = ", ") %>%
-    purrr::imap_chr(function(x, y) glue("{y}: {x}")) %>%
+    imap_chr(function(x, y) glue("{y}: {x}")) %>%
     paste0(collapse = "\n")
   name_label <- paste0("<", capture.output(py_x), ">")
   class_1 <- ml_get_last_item(class(py_x)[[1]])

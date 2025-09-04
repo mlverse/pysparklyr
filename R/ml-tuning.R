@@ -64,8 +64,8 @@ ml_cross_validator.pyspark_connection <- function(
 }
 
 #' @export
-print.ml_connect_cross_validator_model <- function(x) {
-  print(py_repr(python_obj_get(tuning_model)))
+print.ml_connect_cross_validator_model <- function(x, ...) {
+  print(py_repr(python_obj_get(x)))
 }
 
 #' @export
@@ -74,12 +74,12 @@ ml_fit.ml_connect_cross_validator <- function(x, dataset, ...) {
   metric_name <- x$metric_name
   x <- python_obj_get(fitted)
   metrics <- x$avgMetrics %>%
-    purrr::map2(
+    map2(
       x$getEstimatorParamMaps(),
       function(x, y) c(set_names(x, metric_name), y)
     ) %>%
-    purrr::map(dplyr::as_tibble) %>%
-    purrr::list_rbind()
+    map(dplyr::as_tibble) %>%
+    list_rbind()
   metric_names <- metrics %>%
     colnames() %>%
     strsplit("__") %>%

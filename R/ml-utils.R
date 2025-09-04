@@ -2,7 +2,7 @@ ml_formula <- function(f, data) {
   col_data <- colnames(data)
 
   temp_tbl <- rep(1, times = length(col_data)) %>%
-    purrr::set_names(col_data) %>%
+    set_names(col_data) %>%
     as.list() %>%
     as.data.frame()
 
@@ -152,7 +152,7 @@ ml_get_params <- function(x) {
       out <- ifelse(inherits(tr, "try-error"), list(), list(tr))
       set_names(out, .x$name)
     }) %>%
-    purrr::flatten() %>%
+    flatten() %>%
     discard(is.null)
 }
 

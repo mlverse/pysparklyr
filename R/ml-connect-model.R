@@ -182,7 +182,7 @@ print_summary <- function(x) {
     ),
     "\n"
   )
-  purrr::walk(out, cat)
+  walk(out, cat)
 }
 
 two_col_print <- function(x) {

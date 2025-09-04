@@ -3,7 +3,7 @@
     Code
       class(ml_logistic_regression(sc, max_iter = 10))
     Output
-      [1] "ml_connect_estimator"   "ml_logistic_regression" "ml_estimator"          
+      [1] "ml_logistic_regression" "ml_connect_estimator"   "ml_estimator"          
       [4] "ml_pipeline_stage"     
 
 # Logistic Regression works with `tbl_spark`

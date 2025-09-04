@@ -155,3 +155,12 @@ ml_get_params <- function(x) {
     purrr::flatten() %>%
     discard(is.null)
 }
+
+#' @export
+print.ml_connect_estimator <- function(x, ...) {
+  pyobj <- python_obj_get(x)
+  msg <- ml_get_last_item(class(pyobj)[[1]])
+  cli_div(theme = cli_colors())
+  cli_inform("<{.header {msg}}>")
+  cli_end()
+}

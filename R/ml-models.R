@@ -23,6 +23,33 @@ ml_linear_regression.ml_connect_pipeline <- ml_linear_regression_impl
 #' @export
 ml_linear_regression.tbl_pyspark <- ml_linear_regression_impl
 
+
+# ------------------------- Logistic Regression  -------------------------------
+ml_logistic_regression_impl <- function(
+    x, formula = NULL, fit_intercept = NULL,
+    elastic_net_param = NULL, reg_param = NULL, max_iter = 100,
+    threshold = NULL, thresholds = NULL, tol = 1e-06,
+    weight_col = NULL, aggregation_depth = NULL,
+    lower_bounds_on_coefficients = NULL, lower_bounds_on_intercepts = NULL,
+    upper_bounds_on_coefficients = NULL, upper_bounds_on_intercepts = NULL,
+    features_col = "features", label_col = "label", family = NULL,
+    prediction_col = "prediction", probability_col = "probability",
+    raw_prediction_col = NULL, uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "LogisticRegression",
+    has_fit = TRUE,
+    ml_type = "classification",
+    ml_fn = "logistic_regression"
+  )
+}
+#' @export
+ml_logistic_regression.pyspark_connection <- ml_logistic_regression_impl
+#' @export
+ml_logistic_regression.ml_connect_pipeline <- ml_logistic_regression_impl
+#' @export
+ml_logistic_regression.tbl_pyspark <- ml_logistic_regression_impl
+
 # ----------------------- Random Forest Classifier  ----------------------------
 
 ml_random_forest_classifier_impl <- function(

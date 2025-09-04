@@ -157,6 +157,18 @@ ft_interaction.pyspark_connection <- ft_interaction_impl
 #' @export
 ft_interaction.tbl_pyspark <- ft_interaction_impl
 
+# --------------------------- Max Abs Scaler  ----------------------------------
+ft_max_abs_scaler_impl <- function(
+    x, input_col = NULL, output_col = NULL, min = 0, max = 1, uid = NULL, ...) {
+  ml_process_transformer(c(as.list(environment()), list(...)), "MaxAbsScaler", TRUE)
+}
+#' @export
+ft_max_abs_scaler.ml_connect_pipeline <- ft_max_abs_scaler_impl
+#' @export
+ft_max_abs_scaler.pyspark_connection <- ft_max_abs_scaler_impl
+#' @export
+ft_max_abs_scaler.tbl_pyspark <- ft_max_abs_scaler_impl
+
 # --------------------------- Min Max Scaler  ----------------------------------
 ft_min_max_scaler_impl <- function(
     x, input_col = NULL, output_col = NULL, min = 0, max = 1, uid = NULL, ...) {
@@ -309,6 +321,19 @@ ft_sql_transformer.ml_connect_pipeline <- ft_sql_transformer_impl
 ft_sql_transformer.pyspark_connection <- ft_sql_transformer_impl
 #' @export
 ft_sql_transformer.tbl_pyspark <- ft_sql_transformer_impl
+
+# -------------------------- Standard Scaler  ----------------------------------
+ft_standard_scaler_impl <- function(
+    x, input_col = NULL, output_col = NULL, with_mean = NULL, with_std = NULL,
+    uid = NULL, ...) {
+  ml_process_transformer(c(as.list(environment()), list(...)), "StandardScaler", TRUE)
+}
+#' @export
+ft_standard_scaler.ml_connect_pipeline <- ft_standard_scaler_impl
+#' @export
+ft_standard_scaler.pyspark_connection <- ft_standard_scaler_impl
+#' @export
+ft_standard_scaler.tbl_pyspark <- ft_standard_scaler_impl
 
 # -------------------------- Stop words remover --------------------------------
 

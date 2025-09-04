@@ -77,9 +77,14 @@ ml_process_transformer <- function(args, fn, has_fit = TRUE) {
       args[["formula"]] <- deparse(args[["formula"]])
     }
   }
+  if (spark_version(conn) >= "4.0.0") {
+    python_library <- "pyspark.ml.feature"
+  } else {
+    python_library <- "pyspark.ml.connect.feature"
+  }
   jobj <- ml_execute(
     args = args,
-    python_library = "pyspark.ml.feature",
+    python_library = python_library,
     fn = fn,
     sc = conn
   )

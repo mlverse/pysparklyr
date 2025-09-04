@@ -1,47 +1,86 @@
-# Linear Regression works with Spark Connection
+# Linear regression works
 
     Code
-      class(ml_linear_regression(sc, max_iter = 10))
+      class(ml_linear_regression(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ml_linear_regression(sc))
     Output
       [1] "ml_linear_regression" "ml_connect_estimator" "ml_estimator"        
       [4] "ml_pipeline_stage"   
 
-# Linear Regression works with `tbl_spark`
+---
 
     Code
-      model$features
+      class(model)
     Output
-       [1] "cyl"  "disp" "hp"   "drat" "wt"   "qsec" "vs"   "am"   "gear" "carb"
+      [1] "ml_connect_model"           "ml_model_linear_regression"
+      [3] "ml_model_regression"        "ml_model_prediction"       
+      [5] "ml_model"                  
 
 ---
 
     Code
-      model$label
+      model
+    Message
+      
+      -- MLib model: LinearRegressionModel --
+      
+      -- Coefficients: 
     Output
-      [1] "mpg"
+      [x] Intercept:   -0.231   [x] qsec:         0.2  
+      [x] mpg:         -0.042   [x] vs:          -0.066
+      [x] cyl:         -0.057   [x] am:           0.018
+      [x] disp:         0.007   [x] gear:        -0.094
+      [x] hp:          -0.003   [x] carb:         0.249
+      [x] drat:        -0.09    
+    Message
+      
+      -- Summary: 
+    Output
+      [x] coefficientStandardErrors:  0.021, 0.11, 0.001, 0.002, ...
+      [x] devianceResiduals:          -0.348, 0.548                 
+      [x] explainedVariance:          0.876                         
+      [x] featuresCol:                features                      
+      [x] labelCol:                   label                         
+      [x] meanAbsoluteError:          0.185                         
+      [x] meanSquaredError:           0.052                         
+      [x] objectiveHistory:           0                             
+      [x] pValues:                    0.063, 0.608, 0, 0.166, 0.6...
+      [x] predictionCol:              prediction                    
+      [x] r2:                         0.944                         
+      [x] r2adj:                      0.918                         
+      [x] rootMeanSquaredError:       0.227                         
+      [x] tValues:                    -1.961, -0.521, 5.382, -1.4...
 
 ---
 
     Code
-      model %>% ml_predict(tbl_mtcars) %>% colnames()
+      table(fitted)
     Output
-       [1] "mpg"        "cyl"        "disp"       "hp"         "drat"      
-       [6] "wt"         "qsec"       "vs"         "am"         "gear"      
-      [11] "carb"       "prediction"
-
-# Linear Regression works with Pipeline
-
-    Code
-      cap_out[c(1, 3:4, 6:18)]
-    Output
-       [1] "Pipeline (Estimator) with 1 stage"   "  Stages "                          
-       [3] "  |--1 LinearRegression (Regressor)" "  |    (Parameters)"                
-       [5] "  |    aggregationDepth: 2"          "  |    elasticNetParam: 0"          
-       [7] "  |    epsilon: 1.35"                "  |    featuresCol: features"       
-       [9] "  |    fitIntercept: TRUE"           "  |    labelCol: label"             
-      [11] "  |    loss: squaredError"           "  |    maxBlockSizeInMB: 0"         
-      [13] "  |    maxIter: 100"                 "  |    predictionCol: prediction"   
-      [15] "  |    regParam: 0"                  "  |    solver: auto"                
+      fitted
+      1.55900135411341 1.81067617246545 1.84756092218193 1.93861174657084 
+                     1                1                1                1 
+      1.94832530351745 1.94886255642784  2.2053314288641 2.52216054899614 
+                     1                1                1                1 
+      2.69540024678001 2.81892062711135 2.83745176991162 2.94919486694395 
+                     1                1                1                1 
+      3.01952852412384 3.20180775134582 3.20559666785169 3.37986510841766 
+                     1                1                1                1 
+      3.40705494638848 3.49811137556416 3.52456457067068 3.55135115238746 
+                     1                1                1                1 
+      3.55375986616591  3.6109221660483 3.64134326346231 3.70283265417869 
+                     1                1                1                1 
+      3.72107527942338 3.75130603504419 3.75874266561439 3.91657343494422 
+                     1                1                1                1 
+      3.96169497242361 4.79663776498836 5.25849019580687 5.40924406126582 
+                     1                1                1                1 
 
 # Logistic regression works
 
@@ -59,6 +98,45 @@
     Output
       [1] "ml_logistic_regression" "ml_connect_estimator"   "ml_estimator"          
       [4] "ml_pipeline_stage"     
+
+---
+
+    Code
+      model
+    Message
+      
+      -- MLib model: LogisticRegressionModel --
+      
+      -- Coefficients: 
+    Output
+      [x] Intercept:    111.69   [x] wt:          -14.256
+      [x] mpg:          0.032    [x] qsec:        -9.07  
+      [x] cyl:         -5.49     [x] vs:          -15.41 
+      [x] disp:        -0.065    [x] gear:         22.211
+      [x] hp:           0.099    [x] carb:        -4.855 
+      [x] drat:         16.286   
+    Message
+      
+      -- Summary: 
+    Output
+      [x] accuracy:                   1                             
+      [x] areaUnderROC:               1                             
+      [x] falsePositiveRateByLabel:   0, 0                          
+      [x] featuresCol:                features                      
+      [x] labelCol:                   label                         
+      [x] labels:                     0, 1                          
+      [x] objectiveHistory:           0.675, 0.314, 0.201, 0.13, ...
+      [x] precisionByLabel:           1, 1                          
+      [x] predictionCol:              prediction                    
+      [x] probabilityCol:             probability                   
+      [x] recallByLabel:              1, 1                          
+      [x] scoreCol:                   probability                   
+      [x] truePositiveRateByLabel:    1, 1                          
+      [x] weightCol:                  weightCol                     
+      [x] weightedFalsePositiveRate:  0                             
+      [x] weightedPrecision:          1                             
+      [x] weightedRecall:             1                             
+      [x] weightedTruePositiveRate:   1                             
 
 ---
 
@@ -98,6 +176,31 @@
 ---
 
     Code
+      model
+    Message
+      
+      -- MLib model: RandomForestClassificationModel --
+      
+      -- Summary: 
+    Output
+      [x] accuracy:                   0.987      
+      [x] falsePositiveRateByLabel:   0, 0, 0.02 
+      [x] labelCol:                   label      
+      [x] labels:                     0, 1, 2    
+      [x] objectiveHistory:           0          
+      [x] precisionByLabel:           1, 1, 0.962
+      [x] predictionCol:              prediction 
+      [x] recallByLabel:              1, 0.96, 1 
+      [x] truePositiveRateByLabel:    1, 0.96, 1 
+      [x] weightCol:                  weightCol  
+      [x] weightedFalsePositiveRate:  0.007      
+      [x] weightedPrecision:          0.987      
+      [x] weightedRecall:             0.987      
+      [x] weightedTruePositiveRate:   0.987      
+
+---
+
+    Code
       class(model)
     Output
       [1] "ml_connect_model"                  "ml_model_random_forest_classifier"
@@ -129,6 +232,25 @@
     Output
       [1] "ml_random_forest_regressor" "ml_connect_estimator"      
       [3] "ml_estimator"               "ml_pipeline_stage"         
+
+---
+
+    Code
+      model
+    Message
+      
+      -- MLib model: RandomForestRegressionModel --
+      
+    Output
+      [x] bootstrap:                TRUE         [x] maxDepth:                 5         
+      [x] cacheNodeIds:             FALSE        [x] maxMemoryInMB:            256       
+      [x] checkpointInterval:       10           [x] minInfoGain:              0         
+      [x] featureSubsetStrategy:    auto         [x] minInstancesPerNode:      1         
+      [x] featuresCol:              features     [x] minWeightFractionPerNode: 0         
+      [x] impurity:                 variance     [x] numTrees:                 20        
+      [x] labelCol:                 label        [x] predictionCol:            prediction
+      [x] leafCol:                               [x] seed:                     100       
+      [x] maxBins:                  32           [x] subsamplingRate:          1         
 
 ---
 

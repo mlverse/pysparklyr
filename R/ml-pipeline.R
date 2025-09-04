@@ -46,6 +46,7 @@ ml_fit.ml_connect_cross_validator <- function(x, dataset, ...) {
       avg_metrics_df = metrics
     ),
     class = c(
+      "ml_connect_cross_validator_model",
       "ml_cross_validator_model"
     )
   )

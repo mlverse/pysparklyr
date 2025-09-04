@@ -10,6 +10,13 @@
 ---
 
     Code
+      class(tuning_model)
+    Output
+      [1] "ml_connect_cross_validator_model" "ml_cross_validator_model"        
+
+---
+
+    Code
       metrics
     Output
       # A tibble: 3 x 2

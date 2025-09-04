@@ -62,3 +62,9 @@ ml_cross_validator.pyspark_connection <- function(
   )
   cv_estimator
 }
+
+
+#' @export
+print.ml_connect_cross_validator_model <- function(x) {
+  print(py_repr(python_obj_get(tuning_model)))
+}

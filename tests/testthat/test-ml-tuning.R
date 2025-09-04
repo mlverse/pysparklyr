@@ -25,8 +25,7 @@ test_that("Cross validator works", {
   expect_snapshot(class(cv))
 
   tuning_model <- ml_fit(cv, tbl_mtcars)
-  # TODO: fix printout of CV estimator
-  # expect_snapshot(class(tuning_model))
+  expect_snapshot(class(tuning_model))
 
   metrics <- ml_validation_metrics(tuning_model)
 

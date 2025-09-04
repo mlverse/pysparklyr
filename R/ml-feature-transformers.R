@@ -158,8 +158,7 @@ ft_interaction.pyspark_connection <- ft_interaction_impl
 ft_interaction.tbl_pyspark <- ft_interaction_impl
 
 # --------------------------- Max Abs Scaler  ----------------------------------
-ft_max_abs_scaler_impl <- function(
-    x, input_col = NULL, output_col = NULL, min = 0, max = 1, uid = NULL, ...) {
+ft_max_abs_scaler_impl <- function(x, input_col = NULL, output_col = NULL, uid = NULL, ...) {
   ml_process_transformer(c(as.list(environment()), list(...)), "MaxAbsScaler", TRUE)
 }
 #' @export

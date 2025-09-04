@@ -154,6 +154,17 @@ test_that("Interaction works", {
   )
 })
 
+test_that("Max Abs Scaler works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_max_abs_scaler(sc)))
+  expect_snapshot(class(ft_max_abs_scaler(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_mtcars_va() %>%
+      ft_max_abs_scaler("vec_x", "rs_x") %>%
+      use_test_pull()
+  )
+})
+
 test_that("Min Hash LSH works", {
   sc <- use_test_spark_connect()
   expect_snapshot(class(ft_minhash_lsh(sc)))
@@ -265,6 +276,17 @@ test_that("Regex Tokenizer works", {
     use_test_table_reviews() %>%
       ft_regex_tokenizer("x", "new_x") %>%
       dplyr::pull()
+  )
+})
+
+test_that("Standard Scaler works", {
+  sc <- use_test_spark_connect()
+  expect_snapshot(class(ft_standard_scaler(sc)))
+  expect_snapshot(class(ft_standard_scaler(ml_pipeline(sc))))
+  expect_snapshot(
+    use_test_mtcars_va() %>%
+      ft_standard_scaler("vec_x", "rs_x") %>%
+      use_test_pull()
   )
 })
 

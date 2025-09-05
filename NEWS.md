@@ -5,6 +5,8 @@
 * Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
 ML functions now supported are:
   * New in Spark 4.0
+    * `ml_decision_tree_classifier()`
+    * `ml_cross_validator()`
     * `ft_word2vec()`
     * `ft_vector_slicer()`
     * `ft_vector_indexer()`

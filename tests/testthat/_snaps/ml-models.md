@@ -261,3 +261,56 @@
       [3] "ml_model_regression"              "ml_model_prediction"             
       [5] "ml_model"                        
 
+# Decision Tree Classifier works
+
+    Code
+      class(ml_decision_tree_classifier(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ml_decision_tree_classifier(sc))
+    Output
+      [1] "ml_decision_tree_classifier" "ml_connect_estimator"       
+      [3] "ml_estimator"                "ml_pipeline_stage"          
+
+---
+
+    Code
+      model
+    Message
+      
+      -- MLib model: DecisionTreeClassificationModel --
+      
+    Output
+      [x] cacheNodeIds:             FALSE           [x] maxMemoryInMB:            256          
+      [x] checkpointInterval:       10              [x] minInfoGain:              0            
+      [x] featuresCol:              features        [x] minInstancesPerNode:      1            
+      [x] impurity:                 gini            [x] minWeightFractionPerNode: 0            
+      [x] labelCol:                 label           [x] predictionCol:            prediction   
+      [x] leafCol:                                  [x] probabilityCol:           probability  
+      [x] maxBins:                  32              [x] rawPredictionCol:         rawPrediction
+      [x] maxDepth:                 5               [x] seed:                     100          
+
+---
+
+    Code
+      class(model)
+    Output
+      [1] "ml_connect_model"                  "ml_model_decision_tree_classifier"
+      [3] "ml_model_classification"           "ml_model_prediction"              
+      [5] "ml_model"                         
+
+---
+
+    Code
+      table(x$prediction)
+    Output
+      
+       0  1  2 
+      50 49 51 
+

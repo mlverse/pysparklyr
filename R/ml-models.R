@@ -51,7 +51,6 @@ ml_logistic_regression.ml_connect_pipeline <- ml_logistic_regression_impl
 ml_logistic_regression.tbl_pyspark <- ml_logistic_regression_impl
 
 # ----------------------- Random Forest Classifier  ----------------------------
-
 ml_random_forest_classifier_impl <- function(
     x, formula = NULL, num_trees = 10, subsampling_rate = 1,
     max_depth = 5, min_instances_per_node = 1,
@@ -100,3 +99,26 @@ ml_random_forest_regressor.ml_connect_pipeline <- ml_random_forest_regressor_imp
 #' @export
 ml_random_forest_regressor.tbl_pyspark <- ml_random_forest_regressor_impl
 #' @export
+
+# ----------------------- Decision Tree Classifier  ----------------------------
+ml_decision_tree_classifier_impl <- function(
+    x, formula = NULL, max_depth = 5, max_bins = 32, min_instances_per_node = 1,
+    min_info_gain = 0, impurity = "gini", seed = NULL, thresholds = NULL,
+    cache_node_ids = FALSE, checkpoint_interval = 10, max_memory_in_mb = NULL,
+    features_col = "features", label_col = "label", prediction_col = "prediction",
+    probability_col = "probability", raw_prediction_col = "rawPrediction",
+    uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "DecisionTreeClassifier",
+    has_fit = TRUE,
+    ml_type = "classification",
+    ml_fn = "decision_tree_classifier"
+  )
+}
+#' @export
+ml_decision_tree_classifier.pyspark_connection <- ml_decision_tree_classifier_impl
+#' @export
+ml_decision_tree_classifier.ml_connect_pipeline <- ml_decision_tree_classifier_impl
+#' @export
+ml_decision_tree_classifier.tbl_pyspark <- ml_decision_tree_classifier_impl

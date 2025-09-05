@@ -314,6 +314,49 @@
        0  1  2 
       50 49 51 
 
+# Decision Tree Regressor works
+
+    Code
+      class(ml_decision_tree_regressor(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ml_decision_tree_regressor(sc))
+    Output
+      [1] "ml_decision_tree_regressor" "ml_connect_estimator"      
+      [3] "ml_estimator"               "ml_pipeline_stage"         
+
+---
+
+    Code
+      model
+    Message
+      
+      -- MLib model: DecisionTreeRegressionModel --
+      
+    Output
+      [x] cacheNodeIds:             FALSE        [x] maxDepth:                 5         
+      [x] checkpointInterval:       10           [x] maxMemoryInMB:            256       
+      [x] featuresCol:              features     [x] minInfoGain:              0         
+      [x] impurity:                 variance     [x] minInstancesPerNode:      1         
+      [x] labelCol:                 label        [x] minWeightFractionPerNode: 0         
+      [x] leafCol:                               [x] predictionCol:            prediction
+      [x] maxBins:                  32           [x] seed:                     100       
+
+---
+
+    Code
+      class(model)
+    Output
+      [1] "ml_connect_model"                 "ml_model_decision_tree_regressor"
+      [3] "ml_model_regression"              "ml_model_prediction"             
+      [5] "ml_model"                        
+
 # Kmeans works
 
     Code

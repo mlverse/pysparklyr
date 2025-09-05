@@ -80,6 +80,21 @@ test_that("Decision Tree Classifier works", {
   expect_snapshot(table(x$prediction))
 })
 
+test_that("Decision Tree Regressor works", {
+  sc <- use_test_spark_connect()
+  tbl_mtcars <- use_test_table_mtcars()
+  expect_snapshot(class(ml_decision_tree_regressor(ml_pipeline(sc))))
+  expect_snapshot(class(ml_decision_tree_regressor(sc)))
+  model <- tbl_mtcars %>%
+    ml_decision_tree_regressor(mpg ~ ., seed = 100)
+  expect_snapshot(model)
+  expect_snapshot(class(model))
+  x <- tbl_mtcars %>%
+    ml_predict(model, .) %>%
+    collect()
+  expect_true("prediction" %in% names(x))
+})
+
 test_that("Kmeans works", {
   sc <- use_test_spark_connect()
   tbl_iris <- use_test_table_iris()

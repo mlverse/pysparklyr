@@ -123,6 +123,28 @@ ml_decision_tree_classifier.ml_connect_pipeline <- ml_decision_tree_classifier_i
 #' @export
 ml_decision_tree_classifier.tbl_pyspark <- ml_decision_tree_classifier_impl
 
+# ----------------------- Decision Tree Regressor  ----------------------------
+ml_decision_tree_regressor_impl <- function(
+    x, formula = NULL, max_depth = 5, max_bins = 32, min_instances_per_node = 1,
+    min_info_gain = 0, impurity = "variance", seed = NULL, cache_node_ids = FALSE,
+    checkpoint_interval = 10, max_memory_in_mb = NULL, variance_col = NULL,
+    features_col = "features", label_col = "label", prediction_col = "prediction",
+    uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "DecisionTreeRegressor",
+    has_fit = TRUE,
+    ml_type = "regression",
+    ml_fn = "decision_tree_regressor"
+  )
+}
+#' @export
+ml_decision_tree_regressor.pyspark_connection <- ml_decision_tree_regressor_impl
+#' @export
+ml_decision_tree_regressor.ml_connect_pipeline <- ml_decision_tree_regressor_impl
+#' @export
+ml_decision_tree_regressor.tbl_pyspark <- ml_decision_tree_regressor_impl
+
 # --------------------------------- Kmeans  ------------------------------------
 ml_kmeans_impl <- function(
     x, formula = NULL, k = 2, max_iter = 20, tol = 1e-4, init_steps = 2,

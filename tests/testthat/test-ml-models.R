@@ -137,3 +137,33 @@ test_that("AFT Survival works", {
     collect()
   expect_true("prediction" %in% names(x))
 })
+
+test_that("GBT classifiers works", {
+  sc <- use_test_spark_connect()
+  tbl_mtcars <- use_test_table_mtcars()
+  expect_snapshot(class(ml_gbt_classifier(ml_pipeline(sc))))
+  expect_snapshot(class(ml_gbt_classifier(sc)))
+  model <- tbl_mtcars %>%
+    ml_gbt_classifier(am ~ .)
+  expect_snapshot(model)
+  expect_snapshot(class(model))
+  x <- tbl_mtcars %>%
+    ml_predict(model, .) %>%
+    use_test_pull()
+  expect_snapshot(table(x))
+})
+
+test_that("GBT Regressor works", {
+  sc <- use_test_spark_connect()
+  tbl_mtcars <- use_test_table_mtcars()
+  expect_snapshot(class(ml_gbt_regressor(ml_pipeline(sc))))
+  expect_snapshot(class(ml_gbt_regressor(sc)))
+  model <- tbl_mtcars %>%
+    ml_gbt_regressor(mpg ~ ., seed = 100)
+  expect_snapshot(model)
+  expect_snapshot(class(model))
+  x <- tbl_mtcars %>%
+    ml_predict(model, .) %>%
+    collect()
+  expect_true("prediction" %in% names(x))
+})

@@ -207,3 +207,50 @@ ml_aft_survival_regression.pyspark_connection <- ml_aft_survival_regression_impl
 ml_aft_survival_regression.ml_connect_pipeline <- ml_aft_survival_regression_impl
 #' @export
 ml_aft_survival_regression.tbl_pyspark <- ml_aft_survival_regression_impl
+
+# ------------------------------ GBT Classifier  -------------------------------
+ml_gbt_classifier_impl <- function(
+    x, formula = NULL, max_iter = 20, max_depth = 5, step_size = 0.1,
+    subsampling_rate = 1, feature_subset_strategy = "auto", min_instances_per_node = 1L,
+    max_bins = 32, min_info_gain = 0, loss_type = "logistic", seed = NULL,
+    thresholds = NULL, checkpoint_interval = 10, cache_node_ids = FALSE,
+    max_memory_in_mb = NULL, features_col = "features", label_col = "label",
+    prediction_col = "prediction", probability_col = NULL,
+    raw_prediction_col = NULL, uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "GBTClassifier",
+    has_fit = TRUE,
+    ml_type = "classification",
+    ml_fn = "gbt_classifier"
+  )
+}
+#' @export
+ml_gbt_classifier.pyspark_connection <- ml_gbt_classifier_impl
+#' @export
+ml_gbt_classifier.ml_connect_pipeline <- ml_gbt_classifier_impl
+#' @export
+ml_gbt_classifier.tbl_pyspark <- ml_gbt_classifier_impl
+
+# ------------------------------- GBT Regressor  -------------------------------
+ml_gbt_regressor_impl <- function(
+    x, formula = NULL, max_iter = 20, max_depth = 5, step_size = 0.1,
+    subsampling_rate = 1, feature_subset_strategy = "auto",
+    min_instances_per_node = 1, max_bins = 32, min_info_gain = 0, loss_type = "squared",
+    seed = NULL, checkpoint_interval = 10, cache_node_ids = FALSE,
+    max_memory_in_mb = NULL, features_col = "features", label_col = "label",
+    prediction_col = "prediction", uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "GBTRegressor",
+    has_fit = TRUE,
+    ml_type = "regression",
+    ml_fn = "gbt_regressor"
+  )
+}
+#' @export
+ml_gbt_regressor.pyspark_connection <- ml_gbt_regressor_impl
+#' @export
+ml_gbt_regressor.ml_connect_pipeline <- ml_gbt_regressor_impl
+#' @export
+ml_gbt_regressor.tbl_pyspark <- ml_gbt_regressor_impl

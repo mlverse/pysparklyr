@@ -164,3 +164,23 @@ ml_kmeans.pyspark_connection <- ml_kmeans_impl
 ml_kmeans.ml_connect_pipeline <- ml_kmeans_impl
 #' @export
 ml_kmeans.tbl_pyspark <- ml_kmeans_impl
+
+# --------------------------------- Kmeans  ------------------------------------
+ml_bisecting_kmeans_impl <- function(
+    x, formula = NULL, k = 4, max_iter = 20, seed = NULL,
+    min_divisible_cluster_size = 1, features_col = "features",
+    prediction_col = "prediction", uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "BisectingKMeans",
+    has_fit = TRUE,
+    ml_type = "clustering",
+    ml_fn = "bisecting_kmeans"
+  )
+}
+#' @export
+ml_bisecting_kmeans.pyspark_connection <- ml_bisecting_kmeans_impl
+#' @export
+ml_bisecting_kmeans.ml_connect_pipeline <- ml_bisecting_kmeans_impl
+#' @export
+ml_bisecting_kmeans.tbl_pyspark <- ml_bisecting_kmeans_impl

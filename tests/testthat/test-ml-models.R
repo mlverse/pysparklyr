@@ -108,3 +108,17 @@ test_that("Kmeans works", {
     table()
   expect_snapshot(preds)
 })
+
+test_that("Bisecting Kmeans works", {
+  sc <- use_test_spark_connect()
+  tbl_iris <- use_test_table_iris()
+  expect_snapshot(class(ml_bisecting_kmeans(sc)))
+  expect_snapshot(class(ml_bisecting_kmeans(ml_pipeline(sc))))
+  model <- tbl_iris %>%
+    ml_bisecting_kmeans(Species ~ .)
+  preds <- model %>%
+    ml_predict(tbl_iris) %>%
+    dplyr::pull() %>%
+    table()
+  expect_snapshot(preds)
+})

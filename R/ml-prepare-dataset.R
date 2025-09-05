@@ -57,11 +57,11 @@ ml_prep_dataset <- function(
     features = NULL,
     label_col = "label",
     features_col = "features",
-    lf = c("only", "all")) {
+    lf = c("only", "all"),
+    additional = NULL
+    ) {
   lf <- match.arg(lf)
-
   pyspark <- import("pyspark")
-
   if (!is.null(formula)) {
     f <- ml_formula(formula, x)
     features <- f$features
@@ -71,9 +71,7 @@ ml_prep_dataset <- function(
       return(x)
     }
   }
-
   ret <- python_obj_get(x)
-
   if (spark_version(spark_connection(x)) >= "4.0.0") {
     va <- pyspark$ml$feature$VectorAssembler()
     vector_assembler <- va$copy()
@@ -84,20 +82,18 @@ ml_prep_dataset <- function(
     features_array <- pyspark$sql$functions$array(features)
     ret <- ret$withColumn(features_col, features_array)
   }
-
   if (!is.null(label) && !is.null(label_col)) {
     ret <- ret$withColumn(label_col, ret[label])
   }
-
+  select_cols <- c(features_col, additional)
   if (lf == "only") {
     if(!is.null(label_col)) {
-      ret <- ret$select(c(label_col, features_col))
+      select_cols <- c(label_col, select_cols)
       if (!is.null(label)) {
         attr(ret, "label") <- label
       }
-    } else {
-      ret <- ret$select(features_col)
     }
+    ret <- ret$select(select_cols)
     attr(ret, "features") <- features
   }
   ret

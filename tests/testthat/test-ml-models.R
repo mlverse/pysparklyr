@@ -122,3 +122,18 @@ test_that("Bisecting Kmeans works", {
     table()
   expect_snapshot(preds)
 })
+
+test_that("AFT Survival works", {
+  sc <- use_test_spark_connect()
+  tbl_ovarian <- use_test_table_ovarian()
+  expect_snapshot(class(ml_aft_survival_regression(ml_pipeline(sc))))
+  expect_snapshot(class(ml_aft_survival_regression(sc)))
+  model <- tbl_ovarian %>%
+    ml_aft_survival_regression(futime ~ ecog_ps + rx + age + resid_ds, censor_col = "fustat")
+  expect_snapshot(model)
+  expect_snapshot(class(model))
+  x <- tbl_ovarian %>%
+    ml_predict(model, .) %>%
+    collect()
+  expect_true("prediction" %in% names(x))
+})

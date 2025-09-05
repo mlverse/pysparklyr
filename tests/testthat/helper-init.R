@@ -98,6 +98,13 @@ use_test_table_mtcars <- function() {
   ret
 }
 
+use_test_table_ovarian <- function() {
+  use_test_table(
+    x = readRDS(test_path("_data/ovarian.rds")),
+    name = "ovarian"
+    )
+}
+
 use_test_table_iris <- function() {
   sc <- use_test_spark_connect()
   if (!"iris" %in% dbListTables(sc)) {

@@ -86,7 +86,6 @@ print_parameters <- function(x) {
     as.character() %>%
     strsplit("\\.") %>%
     map(~ .x[[1]])
-
   p_names <- map_chr(p, ~ .x$name)
   p_values <- p %>%
     map(~ {
@@ -94,6 +93,9 @@ print_parameters <- function(x) {
       .x$value
     }) %>%
     as.character()
+  p_values[nchar(p_values) >= 20] <- paste0(
+    substr(p_values[nchar(p_values) >= 20], 1, 17), "..."
+    )
   out <- paste0(
     cli::col_blue(cli::symbol$square_small_filled),
     " ",
@@ -139,6 +141,7 @@ print_coefficients <- function(x) {
     )
   )
   two_col_print(out)
+  cat("\n")
 }
 
 print_summary <- function(x) {

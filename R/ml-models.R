@@ -165,7 +165,7 @@ ml_kmeans.ml_connect_pipeline <- ml_kmeans_impl
 #' @export
 ml_kmeans.tbl_pyspark <- ml_kmeans_impl
 
-# --------------------------------- Kmeans  ------------------------------------
+# --------------------------- Bisecting Kmeans  --------------------------------
 ml_bisecting_kmeans_impl <- function(
     x, formula = NULL, k = 4, max_iter = 20, seed = NULL,
     min_divisible_cluster_size = 1, features_col = "features",
@@ -184,3 +184,26 @@ ml_bisecting_kmeans.pyspark_connection <- ml_bisecting_kmeans_impl
 ml_bisecting_kmeans.ml_connect_pipeline <- ml_bisecting_kmeans_impl
 #' @export
 ml_bisecting_kmeans.tbl_pyspark <- ml_bisecting_kmeans_impl
+
+# --------------------------- AFT Survival  ------------------------------------
+ml_aft_survival_regression_impl <- function(
+    x, formula = NULL, censor_col = "censor", quantile_probabilities = c(
+      0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99
+    ), fit_intercept = TRUE,
+    max_iter = 100L, tol = 1e-06, aggregation_depth = 2, quantiles_col = NULL,
+    features_col = "features", label_col = "label", prediction_col = "prediction",
+    uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "AFTSurvivalRegression",
+    has_fit = TRUE,
+    ml_type = "regression",
+    ml_fn = "aft_survival_regressor"
+  )
+}
+#' @export
+ml_aft_survival_regression.pyspark_connection <- ml_aft_survival_regression_impl
+#' @export
+ml_aft_survival_regression.ml_connect_pipeline <- ml_aft_survival_regression_impl
+#' @export
+ml_aft_survival_regression.tbl_pyspark <- ml_aft_survival_regression_impl

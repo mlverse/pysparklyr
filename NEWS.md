@@ -5,6 +5,7 @@
 * Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
 ML functions now supported are:
   * New in Spark 4.0
+    * `ml_aft_survival_regression()`
     * `ml_bisecting_kmeans()`
     * `ml_decision_tree_regressor()`
     * `ml_multiclass_classification_evaluator()`

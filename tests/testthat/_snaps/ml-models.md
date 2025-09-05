@@ -409,3 +409,48 @@
        0  1  2  3 
       24 29 59 38 
 
+# AFT Survival works
+
+    Code
+      class(ml_aft_survival_regression(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ml_aft_survival_regression(sc))
+    Output
+      [1] "ml_aft_survival_regressor" "ml_connect_estimator"     
+      [3] "ml_estimator"              "ml_pipeline_stage"        
+
+---
+
+    Code
+      model
+    Message
+      
+      -- MLib model: AFTSurvivalRegressionModel --
+      
+      -- Coefficients: 
+    Output
+      [x] Intercept:    10.632   [x] age:         -0.065 
+      [x] ecog_ps:     -0.067    [x] resid_ds:    -0.521 
+      [x] rx:           0.521    
+      [x] aggregationDepth:      2                      [x] maxBlockSizeInMB:      0                   
+      [x] censorCol:             fustat                 [x] maxIter:               100                 
+      [x] featuresCol:           features               [x] predictionCol:         prediction          
+      [x] fitIntercept:          TRUE                   [x] quantileProbabilities: c(0.01, 0.05, 0.1...
+      [x] labelCol:              label                  [x] tol:                   1e-06               
+
+---
+
+    Code
+      class(model)
+    Output
+      [1] "ml_connect_model"                "ml_model_aft_survival_regressor"
+      [3] "ml_model_regression"             "ml_model_prediction"            
+      [5] "ml_model"                       
+

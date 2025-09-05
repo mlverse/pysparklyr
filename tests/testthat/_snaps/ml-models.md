@@ -314,3 +314,29 @@
        0  1  2 
       50 49 51 
 
+# Kmeans works
+
+    Code
+      class(ml_kmeans(sc))
+    Output
+      [1] "ml_kmeans"            "ml_connect_estimator" "ml_estimator"        
+      [4] "ml_pipeline_stage"   
+
+---
+
+    Code
+      class(ml_kmeans(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      preds
+    Output
+      .
+       0  1 
+      53 97 
+

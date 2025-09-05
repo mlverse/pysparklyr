@@ -85,16 +85,20 @@ ml_prep_dataset <- function(
     ret <- ret$withColumn(features_col, features_array)
   }
 
-  if (!is.null(label)) {
+  if (!is.null(label) && !is.null(label_col)) {
     ret <- ret$withColumn(label_col, ret[label])
   }
 
   if (lf == "only") {
-    ret <- ret$select(c(label_col, features_col))
-    attr(ret, "features") <- features
-    if (!is.null(label)) {
-      attr(ret, "label") <- label
+    if(!is.null(label_col)) {
+      ret <- ret$select(c(label_col, features_col))
+      if (!is.null(label)) {
+        attr(ret, "label") <- label
+      }
+    } else {
+      ret <- ret$select(features_col)
     }
+    attr(ret, "features") <- features
   }
   ret
 }

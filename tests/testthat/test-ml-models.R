@@ -79,3 +79,17 @@ test_that("Decision Tree Classifier works", {
     collect()
   expect_snapshot(table(x$prediction))
 })
+
+test_that("Kmeans works", {
+  sc <- use_test_spark_connect()
+  tbl_iris <- use_test_table_iris()
+  expect_snapshot(class(ml_kmeans(sc)))
+  expect_snapshot(class(ml_kmeans(ml_pipeline(sc))))
+  model <- tbl_iris %>%
+    ml_kmeans(Species ~ .)
+  preds <- model %>%
+    ml_predict(tbl_iris) %>%
+    dplyr::pull() %>%
+    table()
+  expect_snapshot(preds)
+})

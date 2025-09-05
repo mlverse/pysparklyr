@@ -35,9 +35,11 @@ transform_impl <- function(x, dataset, prep = TRUE,
 
   if (remove) {
     if (inherits(x, "ml_connect_model")) {
-      label_col <- invoke(x, "getLabelCol")
+      if(invoke(x, "hasParam", "labelCol")) {
+        label_col <- invoke(x, "getLabelCol")
+        ret <- invoke(ret, "drop", label_col)
+      }
       features_col <- invoke(x, "getFeaturesCol")
-      ret <- invoke(ret, "drop", label_col)
       ret <- invoke(ret, "drop", features_col)
     } else {
       stages <- invoke(py_object, "stages")

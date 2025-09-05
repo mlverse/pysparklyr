@@ -25,6 +25,7 @@
 #' @importFrom sparklyr ft_sql_transformer ft_vector_indexer ft_vector_slicer ft_word2vec
 #' @importFrom sparklyr ml_binary_classification_evaluator ml_cross_validator
 #' @importFrom sparklyr ml_multiclass_classification_evaluator ml_decision_tree_classifier
+#' @importFrom sparklyr ml_clustering_evaluator ml_regression_evaluator ml_kmeans
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by

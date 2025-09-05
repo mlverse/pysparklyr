@@ -122,3 +122,23 @@ ml_decision_tree_classifier.pyspark_connection <- ml_decision_tree_classifier_im
 ml_decision_tree_classifier.ml_connect_pipeline <- ml_decision_tree_classifier_impl
 #' @export
 ml_decision_tree_classifier.tbl_pyspark <- ml_decision_tree_classifier_impl
+
+# --------------------------------- Kmeans  ------------------------------------
+ml_kmeans_impl <- function(
+    x, formula = NULL, k = 2, max_iter = 20, tol = 1e-4, init_steps = 2,
+    init_mode = "k-means||", seed = NULL, features_col = "features",
+    prediction_col = "prediction", uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "KMeans",
+    has_fit = TRUE,
+    ml_type = "clustering",
+    ml_fn = "kmeans"
+  )
+}
+#' @export
+ml_kmeans.pyspark_connection <- ml_kmeans_impl
+#' @export
+ml_kmeans.ml_connect_pipeline <- ml_kmeans_impl
+#' @export
+ml_kmeans.tbl_pyspark <- ml_kmeans_impl

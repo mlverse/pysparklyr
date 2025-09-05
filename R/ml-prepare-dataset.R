@@ -58,8 +58,7 @@ ml_prep_dataset <- function(
     label_col = "label",
     features_col = "features",
     lf = c("only", "all"),
-    additional = NULL
-    ) {
+    additional = NULL) {
   lf <- match.arg(lf)
   pyspark <- import("pyspark")
   if (!is.null(formula)) {
@@ -87,7 +86,7 @@ ml_prep_dataset <- function(
   }
   select_cols <- c(features_col, additional)
   if (lf == "only") {
-    if(!is.null(label_col)) {
+    if (!is.null(label_col)) {
       select_cols <- c(label_col, select_cols)
       if (!is.null(label)) {
         attr(ret, "label") <- label

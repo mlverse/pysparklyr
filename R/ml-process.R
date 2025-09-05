@@ -49,7 +49,6 @@ ml_process_fn <- function(args, fn, has_fit = TRUE, ml_type = "", ml_fn = NULL) 
         invoke("evaluate", python_obj_get(x)) %>%
         python_obj_get() %>%
         py_to_r()
-
     } else {
       attrs <- attributes(tbl_prep)
       ret <- structure(

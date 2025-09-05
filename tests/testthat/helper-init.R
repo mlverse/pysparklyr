@@ -102,7 +102,7 @@ use_test_table_ovarian <- function() {
   use_test_table(
     x = readRDS(test_path("_data/ovarian.rds")),
     name = "ovarian"
-    )
+  )
 }
 
 use_test_table_iris <- function() {

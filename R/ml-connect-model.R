@@ -35,7 +35,7 @@ transform_impl <- function(x, dataset, prep = TRUE,
 
   if (remove) {
     if (inherits(x, "ml_connect_model")) {
-      if(invoke(x, "hasParam", "labelCol")) {
+      if (invoke(x, "hasParam", "labelCol")) {
         label_col <- invoke(x, "getLabelCol")
         ret <- invoke(ret, "drop", label_col)
       }
@@ -95,7 +95,7 @@ print_parameters <- function(x) {
     as.character()
   p_values[nchar(p_values) >= 20] <- paste0(
     substr(p_values[nchar(p_values) >= 20], 1, 17), "..."
-    )
+  )
   out <- paste0(
     cli::col_blue(cli::symbol$square_small_filled),
     " ",

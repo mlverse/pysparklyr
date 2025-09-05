@@ -98,7 +98,6 @@ ml_random_forest_regressor.pyspark_connection <- ml_random_forest_regressor_impl
 ml_random_forest_regressor.ml_connect_pipeline <- ml_random_forest_regressor_impl
 #' @export
 ml_random_forest_regressor.tbl_pyspark <- ml_random_forest_regressor_impl
-#' @export
 
 # ----------------------- Decision Tree Classifier  ----------------------------
 ml_decision_tree_classifier_impl <- function(

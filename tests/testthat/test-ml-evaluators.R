@@ -31,7 +31,7 @@ test_that("Multiclass evaluation works", {
   model <- tbl_iris %>%
     ml_random_forest_classifier(
       species_idx ~ Sepal_Length + Sepal_Width + Petal_Length + Petal_Width
-      )
+    )
   preds <- ml_predict(model, tbl_iris)
   expect_snapshot(
     ml_multiclass_classification_evaluator(preds, label_col = "species_idx")

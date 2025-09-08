@@ -573,3 +573,31 @@
       [3] "ml_model_regression"         "ml_model_prediction"        
       [5] "ml_model"                   
 
+# Generalized linear regression works
+
+    Code
+      class(ml_generalized_linear_regression(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ml_generalized_linear_regression(sc))
+    Output
+      [1] "ml_generalized_linear_regressor" "ml_connect_estimator"           
+      [3] "ml_estimator"                    "ml_pipeline_stage"              
+
+---
+
+    Code
+      class(model)
+    Output
+      [1] "ml_connect_model"                     
+      [2] "ml_model_generalized_linear_regressor"
+      [3] "ml_model_regression"                  
+      [4] "ml_model_prediction"                  
+      [5] "ml_model"                             
+

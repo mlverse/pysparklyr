@@ -28,6 +28,7 @@
 #' @importFrom sparklyr ml_clustering_evaluator ml_regression_evaluator ml_kmeans
 #' @importFrom sparklyr ml_decision_tree_regressor ml_bisecting_kmeans ml_aft_survival_regression
 #' @importFrom sparklyr ml_gbt_classifier ml_gbt_regressor ml_isotonic_regression
+#' @importFrom sparklyr ml_generalized_linear_regression
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by

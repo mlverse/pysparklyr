@@ -181,3 +181,17 @@ test_that("Isotonic regression works", {
     collect()
   expect_true("prediction" %in% names(x))
 })
+
+test_that("Generalized linear regression works", {
+  sc <- use_test_spark_connect()
+  tbl_mtcars <- use_test_table_mtcars()
+  expect_snapshot(class(ml_generalized_linear_regression(ml_pipeline(sc))))
+  expect_snapshot(class(ml_generalized_linear_regression(sc)))
+  model <- tbl_mtcars %>%
+    ml_generalized_linear_regression(mpg ~ .)
+  expect_snapshot(class(model))
+  x <- tbl_mtcars %>%
+    ml_predict(model, .) %>%
+    collect()
+  expect_true("prediction" %in% names(x))
+})

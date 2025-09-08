@@ -273,3 +273,25 @@ ml_isotonic_regression.pyspark_connection <- ml_isotonic_regression_impl
 ml_isotonic_regression.ml_connect_pipeline <- ml_isotonic_regression_impl
 #' @export
 ml_isotonic_regression.tbl_pyspark <- ml_isotonic_regression_impl
+
+# ----------------------- Generalized Linear Regression  -----------------------
+ml_generalized_linear_regression_impl <- function(
+    x, formula = NULL, family = "gaussian", link = NULL, fit_intercept = TRUE,
+    offset_col = NULL, link_power = NULL, link_prediction_col = NULL,
+    reg_param = 0, max_iter = 25, weight_col = NULL, solver = "irls", tol = 1e-6,
+    variance_power = 0, features_col = "features", label_col = "label",
+    prediction_col = "prediction", uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "GeneralizedLinearRegression",
+    has_fit = TRUE,
+    ml_type = "regression",
+    ml_fn = "generalized_linear_regressor"
+  )
+}
+#' @export
+ml_generalized_linear_regression.pyspark_connection <- ml_generalized_linear_regression_impl
+#' @export
+ml_generalized_linear_regression.ml_connect_pipeline <- ml_generalized_linear_regression_impl
+#' @export
+ml_generalized_linear_regression.tbl_pyspark <- ml_generalized_linear_regression_impl

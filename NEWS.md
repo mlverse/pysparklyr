@@ -5,6 +5,7 @@
 * Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
 ML functions now supported are:
   * New in Spark 4.0
+    * `ml_isotonic_regression()`
     * `ml_gbt_classifier()`
     * `ml_gbt_regressor()`
     * `ml_aft_survival_regression()`

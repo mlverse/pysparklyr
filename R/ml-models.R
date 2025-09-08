@@ -253,3 +253,23 @@ ml_gbt_regressor.pyspark_connection <- ml_gbt_regressor_impl
 ml_gbt_regressor.ml_connect_pipeline <- ml_gbt_regressor_impl
 #' @export
 ml_gbt_regressor.tbl_pyspark <- ml_gbt_regressor_impl
+
+# --------------------------- Isotonic Regression  -----------------------------
+ml_isotonic_regression_impl <- function(
+    x, formula = NULL, feature_index = 0, isotonic = TRUE, weight_col = NULL,
+    features_col = "features", label_col = "label", prediction_col = "prediction",
+    uid = NULL, ...) {
+  ml_process_fn(
+    args = c(as.list(environment()), list(...)),
+    fn = "IsotonicRegression",
+    has_fit = TRUE,
+    ml_type = "regression",
+    ml_fn = "isotonic_regressor"
+  )
+}
+#' @export
+ml_isotonic_regression.pyspark_connection <- ml_isotonic_regression_impl
+#' @export
+ml_isotonic_regression.ml_connect_pipeline <- ml_isotonic_regression_impl
+#' @export
+ml_isotonic_regression.tbl_pyspark <- ml_isotonic_regression_impl

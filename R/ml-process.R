@@ -39,7 +39,8 @@ ml_process_fn <- function(args, fn, has_fit = TRUE, ml_type = "", ml_fn = NULL) 
       label_col = args[["label_col"]],
       features_col = args[["features_col"]] %||% args[["raw_prediction_col"]],
       lf = "only",
-      additional = args[["censor_col"]]
+      additional = args[["censor_col"]],
+      fitting = TRUE
     )
     if (has_fit) {
       stage <- ml_fit_impl(stage, tbl_prep)

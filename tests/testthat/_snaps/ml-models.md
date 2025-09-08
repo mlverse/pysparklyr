@@ -474,27 +474,6 @@
 ---
 
     Code
-      model
-    Message
-      
-      -- MLib model: GBTClassificationModel --
-      
-    Output
-      [x] cacheNodeIds:             FALSE           [x] maxMemoryInMB:            256          
-      [x] checkpointInterval:       10              [x] minInfoGain:              0            
-      [x] featureSubsetStrategy:    auto            [x] minInstancesPerNode:      1            
-      [x] featuresCol:              features        [x] minWeightFractionPerNode: 0            
-      [x] impurity:                 variance        [x] predictionCol:            prediction   
-      [x] labelCol:                 label           [x] probabilityCol:           probability  
-      [x] leafCol:                                  [x] rawPredictionCol:         rawPrediction
-      [x] lossType:                 logistic        [x] seed:                     -1231988307  
-      [x] maxBins:                  32              [x] stepSize:                 0.1          
-      [x] maxDepth:                 5               [x] subsamplingRate:          1            
-      [x] maxIter:                  20              [x] validationTol:            0.01         
-
----
-
-    Code
       class(model)
     Output
       [1] "ml_connect_model"        "ml_model_gbt_classifier"
@@ -554,4 +533,43 @@
     Output
       [1] "ml_connect_model"       "ml_model_gbt_regressor" "ml_model_regression"   
       [4] "ml_model_prediction"    "ml_model"              
+
+# Isotonic regression works
+
+    Code
+      class(ml_isotonic_regression(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ml_isotonic_regression(sc))
+    Output
+      [1] "ml_isotonic_regressor" "ml_connect_estimator"  "ml_estimator"         
+      [4] "ml_pipeline_stage"    
+
+---
+
+    Code
+      model
+    Message
+      
+      -- MLib model: IsotonicRegressionModel --
+      
+    Output
+      [x] featureIndex:  0            [x] labelCol:      label     
+      [x] featuresCol:   features     [x] predictionCol: prediction
+      [x] isotonic:      TRUE         
+
+---
+
+    Code
+      class(model)
+    Output
+      [1] "ml_connect_model"            "ml_model_isotonic_regressor"
+      [3] "ml_model_regression"         "ml_model_prediction"        
+      [5] "ml_model"                   
 

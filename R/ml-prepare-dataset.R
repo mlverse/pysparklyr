@@ -58,7 +58,8 @@ ml_prep_dataset <- function(
     label_col = "label",
     features_col = "features",
     lf = c("only", "all"),
-    additional = NULL) {
+    additional = NULL,
+    fitting = FALSE) {
   lf <- match.arg(lf)
   pyspark <- import("pyspark")
   if (!is.null(formula)) {
@@ -75,6 +76,9 @@ ml_prep_dataset <- function(
     va <- pyspark$ml$feature$VectorAssembler()
     vector_assembler <- va$copy()
     vector_assembler$setOutputCol(features_col)
+    if(fitting && length(features) == 1) {
+      features <- list(features)
+    }
     vector_assembler$setInputCols(features)
     ret <- vector_assembler$transform(ret)
   } else {

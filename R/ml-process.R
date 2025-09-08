@@ -1,10 +1,18 @@
 ml_process_fn <- function(args, fn, has_fit = TRUE, ml_type = "", ml_fn = NULL) {
   ml_installed()
   x <- args$x
+  conn <- spark_connection(x)
+  if (spark_version(conn) >= "4.0.0") {
+    python_library <- glue("pyspark.ml.{ml_type}")
+  } else {
+    python_library <- glue("pyspark.ml.connect.{ml_type}")
+  }
+
+  x <- args$x
   args <- args[names(args) != "x"]
   jobj <- ml_execute(
     args = args[names(args) != "formula"],
-    python_library = glue("pyspark.ml.{ml_type}"),
+    python_library = python_library,
     fn = fn,
     sc = spark_connection(x)
   )

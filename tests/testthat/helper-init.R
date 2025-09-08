@@ -159,10 +159,15 @@ use_test_python_environment <- function(use_uv = TRUE) {
     {
       version <- use_test_version_spark()
       if (use_uv) {
+        python_version <- Sys.getenv("PYTHON_VERSION", unset = NA)
+        if(is.na(python_version)) {
+          python_version <- NULL
+        }
         env <- use_envname(
           backend = "pyspark",
           version = version,
           messages = TRUE,
+          python_version = python_version,
           ask_if_not_installed = FALSE
         )
         reticulate::import("pyspark")
@@ -198,7 +203,14 @@ use_test_ml_installed <- function() {
 
 use_test_install_ml <- function() {
   if (!use_test_ml_installed()) {
-    py_install(pysparklyr_env$ml_libraries)
+    try(
+      py_install(pysparklyr_env$ml_libraries),
+      silent = TRUE
+    )
+    try(
+      py_require(pysparklyr_env$ml_libraries),
+      silent = TRUE
+    )
   }
 }
 

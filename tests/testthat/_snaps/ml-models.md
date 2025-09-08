@@ -1,3 +1,38 @@
+# Logistic regression works
+
+    Code
+      class(ml_logistic_regression(ml_pipeline(sc)))
+    Output
+      [1] "ml_connect_pipeline"       "ml_pipeline"              
+      [3] "ml_connect_estimator"      "ml_estimator"             
+      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
+
+---
+
+    Code
+      class(ml_logistic_regression(sc))
+    Output
+      [1] "ml_logistic_regression" "ml_connect_estimator"   "ml_estimator"          
+      [4] "ml_pipeline_stage"     
+
+---
+
+    Code
+      class(model)
+    Output
+      [1] "ml_connect_model"             "ml_model_logistic_regression"
+      [3] "ml_model_classification"      "ml_model_prediction"         
+      [5] "ml_model"                    
+
+---
+
+    Code
+      table(fitted)
+    Output
+      fitted
+       0  1 
+      19 13 
+
 # Linear regression works
 
     Code
@@ -81,80 +116,6 @@
                      1                1                1                1 
       3.96169497242361 4.79663776498836 5.25849019580687 5.40924406126582 
                      1                1                1                1 
-
-# Logistic regression works
-
-    Code
-      class(ml_logistic_regression(ml_pipeline(sc)))
-    Output
-      [1] "ml_connect_pipeline"       "ml_pipeline"              
-      [3] "ml_connect_estimator"      "ml_estimator"             
-      [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
-
----
-
-    Code
-      class(ml_logistic_regression(sc))
-    Output
-      [1] "ml_logistic_regression" "ml_connect_estimator"   "ml_estimator"          
-      [4] "ml_pipeline_stage"     
-
----
-
-    Code
-      model
-    Message
-      
-      -- MLib model: LogisticRegressionModel --
-      
-      -- Coefficients: 
-    Output
-      [x] Intercept:    111.69   [x] wt:          -14.256
-      [x] mpg:          0.032    [x] qsec:        -9.07  
-      [x] cyl:         -5.49     [x] vs:          -15.41 
-      [x] disp:        -0.065    [x] gear:         22.211
-      [x] hp:           0.099    [x] carb:        -4.855 
-      [x] drat:         16.286   
-    Message
-      
-      -- Summary: 
-    Output
-      [x] accuracy:                   1                             
-      [x] areaUnderROC:               1                             
-      [x] falsePositiveRateByLabel:   0, 0                          
-      [x] featuresCol:                features                      
-      [x] labelCol:                   label                         
-      [x] labels:                     0, 1                          
-      [x] objectiveHistory:           0.675, 0.314, 0.201, 0.13, ...
-      [x] precisionByLabel:           1, 1                          
-      [x] predictionCol:              prediction                    
-      [x] probabilityCol:             probability                   
-      [x] recallByLabel:              1, 1                          
-      [x] scoreCol:                   probability                   
-      [x] truePositiveRateByLabel:    1, 1                          
-      [x] weightCol:                  weightCol                     
-      [x] weightedFalsePositiveRate:  0                             
-      [x] weightedPrecision:          1                             
-      [x] weightedRecall:             1                             
-      [x] weightedTruePositiveRate:   1                             
-
----
-
-    Code
-      class(model)
-    Output
-      [1] "ml_connect_model"             "ml_model_logistic_regression"
-      [3] "ml_model_classification"      "ml_model_prediction"         
-      [5] "ml_model"                    
-
----
-
-    Code
-      table(fitted)
-    Output
-      fitted
-       0  1 
-      19 13 
 
 # Random Forest Classifier works
 

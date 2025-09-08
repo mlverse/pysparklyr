@@ -1,3 +1,5 @@
+skip_spark_min_version(4)
+
 test_that("Cross validator works", {
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()

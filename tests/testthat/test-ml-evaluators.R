@@ -1,3 +1,5 @@
+skip_spark_min_version(4)
+
 test_that("Binary evaluation works", {
   sc <- use_test_spark_connect()
   tbl_iris <- use_test_table_iris()

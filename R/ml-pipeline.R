@@ -3,10 +3,10 @@ ml_pipeline.pyspark_connection <- function(x, ..., uid = NULL) {
   ml_installed()
   if (spark_version(x) > "4.0") {
     ml <- import("pyspark.ml")
-    pipeline <- ml$Pipeline()
   } else {
-    pipeline <- import("pyspark.ml.connect.pipeline")
+    ml <- import("pyspark.ml.connect")
   }
+  pipeline <- ml$Pipeline()
   pipeline %>%
     as_spark_pyobj(x) %>%
     as_pipeline()

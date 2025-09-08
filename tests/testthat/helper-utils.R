@@ -46,7 +46,16 @@ skip_spark_min_version <- function(version) {
   sp_version <- spark_version(sc)
   comp_ver <- compareVersion(as.character(version), sp_version)
   if (comp_ver != -1) {
-    skip(glue("Skips on Spark version {version}"))
+    skip(glue("Skips on Spark version {sp_version}"))
+  }
+}
+
+skip_spark_max_version <- function(version) {
+  sc <- use_test_spark_connect()
+  sp_version <- spark_version(sc)
+  comp_ver <- compareVersion(as.character(version), sp_version)
+  if (comp_ver != 1) {
+    skip(glue("Skips on Spark version {sp_version}"))
   }
 }
 

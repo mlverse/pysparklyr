@@ -7,6 +7,7 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 # Sys.setenv("CODE_COVERAGE" = "true")
+# Sys.setenv("SPARK_VERSION" = "3.5.6"); Sys.setenv("SCALA_VERSION" = "2.12"); Sys.setenv("PYTHON_VERSION" = "3.11")
 if (identical(Sys.getenv("CODE_COVERAGE"), "true")) {
   library(testthat)
   library(pysparklyr)

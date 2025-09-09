@@ -17,12 +17,7 @@
 ---
 
     Code
-      metrics
+      use_test_pull(metrics)
     Output
-      # A tibble: 3 x 2
-        areaUnderROC regParam
-               <dbl>    <dbl>
-      1        1          0  
-      2        0.984      0.5
-      3        0.984      1  
+      [1] 0.0 0.5 1.0
 

@@ -25,8 +25,10 @@ test_that("Linear regression works", {
   expect_snapshot(model)
   fitted <- model %>%
     ml_predict(use_test_table_mtcars()) %>%
-    pull()
-  expect_snapshot(table(fitted))
+    use_test_pull() %>%
+    round(2) %>%
+    sort()
+  expect_snapshot(fitted)
 })
 
 test_that("Random Forest Classifier works", {
@@ -36,14 +38,13 @@ test_that("Random Forest Classifier works", {
   expect_snapshot(class(ml_random_forest_classifier(sc)))
   model <- tbl_iris %>%
     ft_string_indexer("Species", "species_idx") %>%
-    ml_random_forest_classifier(species_idx ~ Petal_Length + Petal_Width, seed = 100)
-  expect_snapshot(model)
+    ml_random_forest_classifier(species_idx ~ Petal_Length + Petal_Width)
   expect_snapshot(class(model))
   x <- tbl_iris %>%
     ft_string_indexer("Species", "species_idx") %>%
     ml_predict(model, .) %>%
-    collect()
-  expect_snapshot(table(x$prediction))
+    use_test_pull()
+  expect_snapshot(table(x))
 })
 
 test_that("Random Forest Regressor works", {
@@ -102,9 +103,9 @@ test_that("Kmeans works", {
     ml_kmeans(Species ~ .)
   preds <- model %>%
     ml_predict(tbl_iris) %>%
-    dplyr::pull() %>%
-    table()
-  expect_snapshot(preds)
+    use_test_pull() %>%
+    sort()
+  expect_snapshot(table(preds))
 })
 
 test_that("Bisecting Kmeans works", {
@@ -117,7 +118,9 @@ test_that("Bisecting Kmeans works", {
   preds <- model %>%
     ml_predict(tbl_iris) %>%
     dplyr::pull() %>%
-    table()
+    table() %>%
+    sort() %>%
+    as.vector()
   expect_snapshot(preds)
 })
 

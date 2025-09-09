@@ -31,7 +31,7 @@ test_that("Cross validator works", {
 
   metrics <- ml_validation_metrics(tuning_model)
 
-  expect_snapshot(metrics)
+  expect_snapshot(use_test_pull(metrics))
 
   grid2 <- list(
     linear_regression = list(

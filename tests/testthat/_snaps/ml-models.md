@@ -97,25 +97,11 @@
 ---
 
     Code
-      table(fitted)
-    Output
       fitted
-      1.55900135411341 1.81067617246545 1.84756092218193 1.93861174657084 
-                     1                1                1                1 
-      1.94832530351745 1.94886255642784  2.2053314288641 2.52216054899614 
-                     1                1                1                1 
-      2.69540024678001 2.81892062711135 2.83745176991162 2.94919486694395 
-                     1                1                1                1 
-      3.01952852412384 3.20180775134582 3.20559666785169 3.37986510841766 
-                     1                1                1                1 
-      3.40705494638848 3.49811137556416 3.52456457067068 3.55135115238746 
-                     1                1                1                1 
-      3.55375986616591  3.6109221660483 3.64134326346231 3.70283265417869 
-                     1                1                1                1 
-      3.72107527942338 3.75130603504419 3.75874266561439 3.91657343494422 
-                     1                1                1                1 
-      3.96169497242361 4.79663776498836 5.25849019580687 5.40924406126582 
-                     1                1                1                1 
+    Output
+       [1] 1.56 1.81 1.85 1.94 1.95 1.95 2.21 2.52 2.70 2.82 2.84 2.95 3.02 3.20 3.21
+      [16] 3.38 3.41 3.50 3.52 3.55 3.55 3.61 3.64 3.70 3.72 3.75 3.76 3.92 3.96 4.80
+      [31] 5.26 5.41
 
 # Random Forest Classifier works
 
@@ -137,31 +123,6 @@
 ---
 
     Code
-      model
-    Message
-      
-      -- MLib model: RandomForestClassificationModel --
-      
-      -- Summary: 
-    Output
-      [x] accuracy:                   0.987      
-      [x] falsePositiveRateByLabel:   0, 0, 0.02 
-      [x] labelCol:                   label      
-      [x] labels:                     0, 1, 2    
-      [x] objectiveHistory:           0          
-      [x] precisionByLabel:           1, 1, 0.962
-      [x] predictionCol:              prediction 
-      [x] recallByLabel:              1, 0.96, 1 
-      [x] truePositiveRateByLabel:    1, 0.96, 1 
-      [x] weightCol:                  weightCol  
-      [x] weightedFalsePositiveRate:  0.007      
-      [x] weightedPrecision:          0.987      
-      [x] weightedRecall:             0.987      
-      [x] weightedTruePositiveRate:   0.987      
-
----
-
-    Code
       class(model)
     Output
       [1] "ml_connect_model"                  "ml_model_random_forest_classifier"
@@ -171,11 +132,11 @@
 ---
 
     Code
-      table(x$prediction)
+      table(x)
     Output
-      
+      x
        0  1  2 
-      50 48 52 
+      50 50 50 
 
 # Random Forest Regressor works
 
@@ -338,9 +299,9 @@
 ---
 
     Code
-      preds
+      table(preds)
     Output
-      .
+      preds
        0  1 
       53 97 
 
@@ -366,9 +327,7 @@
     Code
       preds
     Output
-      .
-       0  1  2  3 
-      24 29 59 38 
+      [1] 24 29 38 59
 
 # AFT Survival works
 

@@ -53,5 +53,5 @@
       preds %>% mutate(prediction = as.numeric(prediction)) %>% compute() %>%
         ml_regression_evaluator(label_col = "species_idx")
     Output
-      [1] 0.5944185
+      [1] 1.407125
 

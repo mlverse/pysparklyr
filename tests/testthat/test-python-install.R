@@ -196,6 +196,7 @@ test_that("Databricks installation works", {
 skip_on_ci()
 
 test_that("Databricks installations work", {
+  skip_if_not_databricks()
   env_paths <- map(1:3, ~ fs::path(tempdir(), random_table_name("env")))
   baseenv <- "r-sparklyr-databricks"
   version_1 <- "14.3"

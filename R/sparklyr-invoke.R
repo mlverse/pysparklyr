@@ -30,6 +30,16 @@ invoke.ml_connect_transformer <- function(jobj, method, ...) {
 }
 
 #' @export
+invoke.ml_connect_estimator <- function(jobj, method, ...) {
+  invoke_conn(
+    jobj = jobj,
+    context = jobj,
+    method = method,
+    ... = ...
+  )
+}
+
+#' @export
 invoke.tbl_pyspark <- function(jobj, method, ...) {
   invoke_conn(
     jobj = jobj,
@@ -59,8 +69,16 @@ invoke.spark_pyobj <- function(jobj, method, ...) {
   )
 }
 
+invoke_simple <- function(jobj, method, ...) {
+  invoke_conn(
+    jobj = jobj,
+    context = jobj,
+    method = method,
+    ...
+  )
+}
+
 invoke_conn <- function(jobj, context, method, ...) {
-  py_jobj <- python_obj_get(jobj)
   py_method <- python_obj_get(method)
   py_context <- python_obj_get(context)
 
@@ -79,6 +97,9 @@ invoke_conn <- function(jobj, context, method, ...) {
 
     if (is.null(out)) {
       conn <- spark_connection(jobj)
+      if (is.null(conn)) {
+        stop("invoke cannot have a NULL connection")
+      }
       out <- as_spark_pyobj(run_x, conn)
     }
   }

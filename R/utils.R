@@ -104,7 +104,7 @@ py_check_installed <- function(
   find_libs <- map_lgl(libraries, ~ .x %in% installed_libraries)
   if (!all(find_libs)) {
     missing_lib <- libraries[!find_libs]
-    if(is_uv_env()) {
+    if (is_uv_env()) {
       reticulate::py_require(missing_lib)
       return(invisible())
     }
@@ -133,10 +133,10 @@ py_check_installed <- function(
 is_uv_env <- function() {
   is_uv <- FALSE
   base_exe <- path_dir(py_exe())
-  if(path_file(base_exe) == "bin") {
+  if (path_file(base_exe) == "bin") {
     py_base <- path_dir(base_exe)
     cfg_file <- path(py_base, "pyvenv.cfg")
-    if(file_exists(cfg_file)) {
+    if (file_exists(cfg_file)) {
       cfg_contents <- readLines(cfg_file)
       is_uv <- any(grepl("uv = ", cfg_contents))
     }

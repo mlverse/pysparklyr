@@ -1,5 +1,5 @@
 skip_on_ci()
-skip_spark_max_version("3.5.99")
+skip_spark_min_version("4")
 
 test_that("Functions work", {
   reticulate::py_require("torch")
@@ -7,7 +7,7 @@ test_that("Functions work", {
   model <- use_test_lr_model()
   expect_length(
     suppressMessages(capture.output(print(model))),
-    6
+    24
   )
 
   expect_s3_class(spark_jobj(model), "spark_pyobj")

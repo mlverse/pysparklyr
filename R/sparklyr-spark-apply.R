@@ -214,7 +214,7 @@ sa_function_to_string <- function(
     paste0("col_names <- c(", .colnames, ")"),
     fn_r
   )
-  fn <- purrr::as_mapper(.f = .f, ... = ...)
+  fn <- as_mapper(.f = .f, ... = ...)
   fn_str <- paste0(deparse(fn), collapse = "\n")
   if (inherits(fn, "rlang_lambda_function")) {
     fn_str <- paste0(

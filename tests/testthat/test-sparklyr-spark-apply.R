@@ -1,5 +1,4 @@
 test_that("spark_apply() works", {
-  py_install("rpy2")
   tbl_mtcars <- use_test_table_mtcars()
   expect_s3_class(
     spark_apply(tbl_mtcars, nrow, group_by = "am", columns = "am double, x long"),

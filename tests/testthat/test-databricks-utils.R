@@ -13,9 +13,13 @@ test_that("DBR error code returns as expected", {
   expect_snapshot_error(databricks_dbr_error(""))
 })
 
-skip_if_not_databricks()
+#skip_if_not_databricks()
 
 test_that("Databricks Host works", {
+  skip_if(
+    inherits(try(databricks_host(), silent = TRUE), "try-error"),
+    "No Databricks Host available"
+  )
   expect_true(nchar(databricks_host()) > 5)
 
   expect_named(databricks_host("thisisatest"), "argument")
@@ -42,6 +46,10 @@ test_that("Databricks Host works", {
 })
 
 test_that("Databricks Token works", {
+  skip_if(
+    inherits(try(databricks_token(), silent = TRUE), "try-error"),
+    "No Databricks Token available"
+  )
   expect_true(nchar(databricks_token()) > 5)
 
   expect_named(databricks_token("thisisatest"), "argument")
@@ -68,6 +76,7 @@ test_that("Databricks Token works", {
 })
 
 test_that("Get cluster version", {
+  skip_if_no_cluster_id()
   expect_message(
     x <- databricks_dbr_version(
       cluster_id = Sys.getenv("DATABRICKS_CLUSTER_ID", unset = NA),
@@ -79,6 +88,7 @@ test_that("Get cluster version", {
 })
 
 test_that("Cluster info runs as expected", {
+  skip_if_no_cluster_id()
   expect_error(databricks_dbr_version(""))
 })
 

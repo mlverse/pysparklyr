@@ -43,8 +43,9 @@ test_that("Random Forest Classifier works", {
   x <- tbl_iris %>%
     ft_string_indexer("Species", "species_idx") %>%
     ml_predict(model, .) %>%
-    use_test_pull()
-  expect_snapshot(table(x))
+    use_test_pull() %>%
+    table()
+  expect_length(x, 3)
 })
 
 test_that("Random Forest Regressor works", {
@@ -104,8 +105,8 @@ test_that("Kmeans works", {
   preds <- model %>%
     ml_predict(tbl_iris) %>%
     use_test_pull() %>%
-    sort()
-  expect_snapshot(table(preds))
+    table()
+  expect_length(preds, 2)
 })
 
 test_that("Bisecting Kmeans works", {

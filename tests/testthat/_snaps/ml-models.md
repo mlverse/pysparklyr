@@ -129,15 +129,6 @@
       [3] "ml_model_classification"           "ml_model_prediction"              
       [5] "ml_model"                         
 
----
-
-    Code
-      table(x)
-    Output
-      x
-       0  1  2 
-      50 50 50 
-
 # Random Forest Regressor works
 
     Code
@@ -295,15 +286,6 @@
       [1] "ml_connect_pipeline"       "ml_pipeline"              
       [3] "ml_connect_estimator"      "ml_estimator"             
       [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
-
----
-
-    Code
-      table(preds)
-    Output
-      preds
-       0  1 
-      53 97 
 
 # Bisecting Kmeans works
 

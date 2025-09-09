@@ -28,3 +28,10 @@ skip_if_not_databricks <- function() {
   .test_env$databricks <- bad_dbr
   skip_if(bad_dbr, "Cluster could not be contacted")
 }
+
+skip_if_no_cluster_id <- function() {
+  skip_if(
+    is.na(Sys.getenv("DATABRICKS_CLUSTER_ID", unset = NA)),
+    "No Databricks Cluster ID available"
+  )
+}

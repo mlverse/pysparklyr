@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {spark: '3.5.5', pyspark: '3.5.5', hadoop: '3', name: 'PySpark 3.5'}
+          - {spark: '4.0.1', pyspark: '4.0.1', hadoop: '3', name: 'PySpark 3.5'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -41,14 +41,8 @@ jobs:
             any::arrow
           needs: check
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Venv
-        run: |
-          sudo apt-get install python3-venv
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
 
       - name: Cache Spark
         id: cache-spark

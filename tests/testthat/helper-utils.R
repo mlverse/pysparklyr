@@ -112,11 +112,17 @@ test_databricks_cluster_id <- function() {
 
 test_databricks_cluster_version <- function() {
   if (is.null(.test_env$dbr)) {
-    dbr <- databricks_dbr_version(
-      cluster_id = test_databricks_cluster_id(),
-      host = databricks_host(),
-      token = databricks_token()
+    dbr <- try(
+      databricks_dbr_version(
+        cluster_id = test_databricks_cluster_id(),
+        host = databricks_host(),
+        token = databricks_token()
+      ),
+      silent = TRUE
     )
+    if(inherits(dbr, "try-error")) {
+      dbr <- "99.9"
+    }
     .test_env$dbr <- dbr
   }
   .test_env$dbr

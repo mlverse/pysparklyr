@@ -10,3 +10,11 @@
     Spark connection error
     * 
 
+# Misc tests
+
+    Code
+      allowed_serverless_configs()
+    Output
+      [1] "spark.sql.legacy.timeParserPolicy" "spark.sql.session.timeZone"       
+      [3] "spark.sql.shuffle.partitions"      "spark.sql.ansi.enabled"           
+

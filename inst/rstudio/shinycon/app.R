@@ -211,16 +211,16 @@ connection_spark_server <- function(input, output, session) {
     )
     sel_env <- "default"
     env_folders <- c(".venv", ".virtualenv")
-    # active_project <- try(rstudioapi::getActiveProject(), silent = TRUE)
-    # if (!inherits(active_project, "try-error")) {
-    #   env_folders <- c(env_folders, file.path(active_project, env_folders))
-    # }
-    # for (folder in env_folders) {
-    #   if (is_virtualenv(folder)) {
-    #     sel_env <- folder
-    #     env <- c(env, folder)
-    #   }
-    # }
+    active_project <- try(rstudioapi::getActiveProject(), silent = TRUE)
+    if (!inherits(active_project, "try-error")) {
+      env_folders <- c(env_folders, file.path(active_project, env_folders))
+    }
+    for (folder in env_folders) {
+      if (is_virtualenv(folder)) {
+        sel_env <- folder
+        env <- c(env, folder)
+      }
+    }
 
     version <- input$dbr_ver %||% dbr_version()
     try_version <- try(pysparklyr:::version_prep(version), silent = TRUE)

@@ -15,19 +15,18 @@ import_check <- function(x, envname, silent = FALSE) {
 
   cli_msg <- "Attempting to load {.emph '{envname}'}"
 
+  env_is_file <- FALSE
   if (envname == "") {
     env_path <- ""
     is_reticulate <- TRUE
     uv_managed <- "false"
     envname <- "Deferring to {reticulate}"
     cli_msg <- NULL
-    env_is_file <- FALSE
   } else {
-    if (file.exists(envname)) {
-      env_is_file <- TRUE
+    if (file_exists(envname)) {
+      env_is_file <- is_file(envname)
       env_path <- envname
     } else {
-      env_is_file <- FALSE
       env_path <- env_python(envname)
       if (is.na(env_path)) {
         env_path <- ""
@@ -76,9 +75,12 @@ import_check <- function(x, envname, silent = FALSE) {
           envir_type <- ""
         }
         if (envir_type == "virtualenv") {
-          try(use_virtualenv(envname), silent = TRUE)
+          try_load <- try(use_virtualenv(envname), silent = TRUE)
         } else {
-          try(use_condaenv(envname), silent = TRUE)
+          try_load <- try(use_condaenv(envname), silent = TRUE)
+        }
+        if (!inherits(try_load, "try-error")) {
+          env_loaded <- TRUE
         }
       }
     }

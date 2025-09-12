@@ -185,7 +185,8 @@ connection_spark_server <- function(input, output, session) {
 
   output$get_version <- reactive({
     ret <- ""
-    if (input$cluster_id != "" && host != "") {
+    host_url <- input$host_url %||% ""
+    if (input$cluster_id != "" && host_url != "") {
       version <- try(pysparklyr:::databricks_dbr_version(
         cluster_id = input$cluster_id,
         host = input$host_url,
@@ -261,7 +262,7 @@ connection_spark_server <- function(input, output, session) {
       }
     }
     if (!is.null(envname)) {
-      if(envname == "reticulate") {
+      if (envname == "reticulate") {
         envname <- ""
       }
       if (envname != "default") {

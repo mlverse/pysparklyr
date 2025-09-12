@@ -7,11 +7,14 @@ rsApiUpdateDialog <- function(code) {
   }
 }
 
+is_windows <- function() {
+  identical(.Platform$OS.type, "windows")
+}
 
 # Copied from reticulate
 is_virtualenv <- function(dir) {
   # check for expected files for virtualenv / venv
-  subdir <- if (identical(.Platform$OS.type, "windows")) "Scripts" else "bin"
+  subdir <- if (is_windows()) "Scripts" else "bin"
   files <- c(
     file.path(subdir, "activate_this.py"),
     file.path(subdir, "pyvenv.cfg"),
@@ -32,7 +35,7 @@ connection_spark_ui <- function() {
     cluster_label <- ""
   }
 
-  elementSpacing <- if (.Platform$OS.type == "windows") 2 else 7
+  elementSpacing <- if (is_windows()) 2 else 7
 
   tags$div(
     tags$style(
@@ -193,7 +196,7 @@ connection_spark_server <- function(input, output, session) {
         ret <- paste0("✓ Found - Cluster's DBR is ", version)
       } else {
         dbr_version("")
-        if(token != "") {
+        if (token != "") {
           ret <- "✘ Could not verify cluster version"
         }
       }
@@ -203,21 +206,21 @@ connection_spark_server <- function(input, output, session) {
 
   output$get_env <- renderUI({
     env <- c(
-      "Default (Create temporary UV Virtual Environment)" = "default",
-      "Let `reticulate` choose Python environment" = "reticulate"
-      )
-
+      "Create a temporary UV environment" = "default",
+      "Let {reticulate} find an environment" = "reticulate"
+    )
+    sel_env <- "default"
     env_folders <- c(".venv", ".virtualenv")
-    active_project <- try(rstudioapi::getActiveProject(), silent = TRUE)
-    if(!inherits(active_project, "try-error")) {
-      env_folders <- c(env_folders, file.path(active_project, env_folders))
-    }
-    for(folder in env_folders) {
-      if(is_virtualenv(folder)) {
-        sel_env <- folder
-        env <- c(env, folder)
-      }
-    }
+    # active_project <- try(rstudioapi::getActiveProject(), silent = TRUE)
+    # if (!inherits(active_project, "try-error")) {
+    #   env_folders <- c(env_folders, file.path(active_project, env_folders))
+    # }
+    # for (folder in env_folders) {
+    #   if (is_virtualenv(folder)) {
+    #     sel_env <- folder
+    #     env <- c(env, folder)
+    #   }
+    # }
 
     version <- input$dbr_ver %||% dbr_version()
     try_version <- try(pysparklyr:::version_prep(version), silent = TRUE)
@@ -246,19 +249,24 @@ connection_spark_server <- function(input, output, session) {
     dbr_label <- NULL
     envname_label <- NULL
 
-    if(is.null(host_url)) {
+    if (is.null(host_url)) {
       host_url <- ""
     }
     if (host != "" && host != host_url) {
       host <- paste0("    master = \"", host_url, "\",")
     }
     if (!is.null(dbr)) {
-      if(dbr != "") {
+      if (dbr != "") {
         dbr_label <- paste0("    version = \"", dbr, "\",")
       }
     }
     if (!is.null(envname)) {
-      envname_label <- paste0("    envname = \"", envname, "\",")
+      if(envname == "reticulate") {
+        envname <- ""
+      }
+      if (envname != "default") {
+        envname_label <- paste0("    envname = \"", envname, "\",")
+      }
     }
     code_lines <- c(
       "library(sparklyr)",
@@ -284,7 +292,7 @@ connection_spark_server <- function(input, output, session) {
       host_url = input$host_url,
       dbr = input$dbr_ver %||% dbr_version(),
       envname = input$py_env
-      )
+    )
   })
 
   observe({

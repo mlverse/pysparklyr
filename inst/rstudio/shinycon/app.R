@@ -1,4 +1,5 @@
 library(rlang)
+library(fs)
 
 rsApiUpdateDialog <- function(code) {
   if (exists(".rs.api.updateDialog")) {
@@ -214,15 +215,19 @@ connection_spark_server <- function(input, output, session) {
     env_folders <- c(".venv", ".virtualenv")
     active_project <- try(rstudioapi::getActiveProject(), silent = TRUE)
     if (!inherits(active_project, "try-error")) {
-      env_folders <- c(env_folders, file.path(active_project, env_folders))
+      project_folders <- path(active_project, env_folders)
+    } else {
+      project_folders <- NULL
     }
+    home_folders <- path_abs(path("~", env_folders))
+    home_folders <- home_folders[file_exists(home_folders)]
+    env_folders <- c(env_folders, home_folders, project_folders)
     for (folder in env_folders) {
       if (is_virtualenv(folder)) {
         sel_env <- folder
         env <- c(env, folder)
       }
     }
-
     version <- input$dbr_ver %||% dbr_version()
     try_version <- try(pysparklyr:::version_prep(version), silent = TRUE)
     err_version <- inherits(try_version, "try-error")

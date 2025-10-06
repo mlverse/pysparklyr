@@ -3,29 +3,38 @@ import_check <- function(x, envname, silent = FALSE) {
   env_found <- !is.na(envname)
   env_loaded <- NA
   is_uv <- FALSE
+  is_reticulate <- FALSE
   uv_managed <- NA
   look_for_env <- TRUE
 
   env_found_names <- names(env_found) %||% ""
 
-  if(env_found_names == "unavailable") {
+  if (env_found_names == "unavailable") {
     env_found <- FALSE
   }
 
   cli_msg <- "Attempting to load {.emph '{envname}'}"
 
-  if (file.exists(envname)) {
-    env_is_file <- TRUE
-    env_path <- envname
+  env_is_file <- FALSE
+  if (envname == "") {
+    env_path <- ""
+    is_reticulate <- TRUE
+    uv_managed <- "false"
+    envname <- "Deferring to {reticulate}"
+    cli_msg <- NULL
   } else {
-    env_is_file <- FALSE
-    env_path <- env_python(envname)
-    if (is.na(env_path)) {
-      env_path <- ""
-      is_uv <- TRUE
-      uv_managed <- "true"
-      envname <- "Managed `uv` environment"
-      cli_msg <- NULL
+    if (file_exists(envname)) {
+      env_is_file <- is_file(envname)
+      env_path <- envname
+    } else {
+      env_path <- env_python(envname)
+      if (is.na(env_path)) {
+        env_path <- ""
+        is_uv <- TRUE
+        uv_managed <- "true"
+        envname <- "Managed `uv` environment"
+        cli_msg <- NULL
+      }
     }
   }
 
@@ -66,16 +75,19 @@ import_check <- function(x, envname, silent = FALSE) {
           envir_type <- ""
         }
         if (envir_type == "virtualenv") {
-          try(use_virtualenv(envname), silent = TRUE)
+          try_load <- try(use_virtualenv(envname), silent = TRUE)
         } else {
-          try(use_condaenv(envname), silent = TRUE)
+          try_load <- try(use_condaenv(envname), silent = TRUE)
+        }
+        if (!inherits(try_load, "try-error")) {
+          env_loaded <- TRUE
         }
       }
     }
   }
 
-  if(is.na(env_loaded)) {
-    if(env_path != "") {
+  if (is.na(env_loaded)) {
+    if (env_path != "") {
       py_executable <- py_exe() %||% ""
       env_loaded <- env_path == py_executable
     } else {
@@ -103,14 +115,18 @@ import_check <- function(x, envname, silent = FALSE) {
         cli_progress_done(result = "failed")
         cli_abort(c(
           "{.emph '{x}' }{.header is not available current Python environment.}",
-          paste(
-            "{.header - The }{.emph '{envname}'} {.header Python",
-            " environment is installed, but it is not loaded.}"
-          ),
-          paste(
-            "{.header - Restart your R session, and avoid",
-            " initializing Python before using} {.emph '{x}'}"
-          )
+          if (!is_reticulate) {
+            c(
+              paste(
+                "{.header - The }{.emph '{envname}'} {.header Python",
+                " environment is installed, but it is not loaded.}"
+              ),
+              paste(
+                "{.header - Restart your R session, and avoid",
+                " initializing Python before using} {.emph '{x}'}"
+              )
+            )
+          }
         ), call = NULL)
       }
     } else {
@@ -121,7 +137,7 @@ import_check <- function(x, envname, silent = FALSE) {
     }
     cli_alert_danger(glue("`reticulate` error:\n {out[[1]]}"))
   } else {
-    if (!env_loaded && !is_uv) {
+    if (!env_loaded && !is_uv && !is_reticulate) {
       cli_progress_done(result = "failed")
       cli_bullets(c(
         " " = "{.header A different Python is already loaded: }{.emph '{py_exe()}'}",
@@ -130,7 +146,6 @@ import_check <- function(x, envname, silent = FALSE) {
       cli_end()
     }
   }
-
   out
 }
 

@@ -30,7 +30,7 @@
 #' @importFrom vctrs vec_as_names
 #' @importFrom processx process
 #' @importFrom rstudioapi jobRunScript showQuestion getSourceEditorContext
-#' @importFrom stats terms
+#' @importFrom stats terms setNames
 #' @importFrom utils capture.output installed.packages menu
 #' @importFrom magrittr %>%
 #' @import reticulate

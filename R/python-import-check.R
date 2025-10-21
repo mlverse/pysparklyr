@@ -24,7 +24,11 @@ import_check <- function(x, envname, silent = FALSE) {
     cli_msg <- NULL
   } else {
     if (file_exists(envname)) {
-      env_is_file <- is_file(envname)
+      env_contents <- try(dir_ls(envname), silent = TRUE)
+      # Workaround to fs::is_file() not working
+      if (inherits(env_contents, "try-error")) {
+        env_is_file <- TRUE
+      }
       env_path <- envname
     } else {
       env_path <- env_python(envname)

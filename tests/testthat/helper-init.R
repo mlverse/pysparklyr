@@ -154,44 +154,47 @@ use_test_lr_model <- function() {
 }
 
 use_test_python_environment <- function(use_uv = TRUE) {
-  withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
-    {
-      version <- use_test_version_spark()
-      if (use_uv) {
-        python_version <- Sys.getenv("PYTHON_VERSION", unset = NA)
-        if(is.na(python_version)) {
-          python_version <- NULL
-        }
-        env <- use_envname(
-          backend = "pyspark",
-          version = version,
-          messages = TRUE,
-          python_version = python_version,
-          ask_if_not_installed = FALSE
-        )
-        reticulate::import("pyspark")
-        target <- reticulate::py_exe()
-      } else {
-        env_avail <- names(env)
-        target <- path(use_test_env(), env)
-        if (!dir_exists(target)) {
-          if (env_avail != "exact") {
-            cli_h1("Creating Python environment")
-            install_pyspark(
-              version = version,
-              as_job = FALSE,
-              python = Sys.which("python"),
-              install_ml = FALSE
-            )
-            env <- use_envname(backend = "pyspark", version = version)
+  if(is.null(.test_env$target)) {
+    withr::with_envvar(
+      new = c("WORKON_HOME" = use_test_env()),
+      {
+        version <- use_test_version_spark()
+        if (use_uv) {
+          python_version <- Sys.getenv("PYTHON_VERSION", unset = NA)
+          if(is.na(python_version)) {
+            python_version <- NULL
           }
+          env <- use_envname(
+            backend = "pyspark",
+            version = version,
+            messages = TRUE,
+            python_version = python_version,
+            ask_if_not_installed = FALSE
+          )
+          reticulate::import("pyspark")
+          target <- reticulate::py_exe()
+        } else {
+          env_avail <- names(env)
+          target <- path(use_test_env(), env)
+          if (!dir_exists(target)) {
+            if (env_avail != "exact") {
+              cli_h1("Creating Python environment")
+              install_pyspark(
+                version = version,
+                as_job = FALSE,
+                python = Sys.which("python"),
+                install_ml = FALSE
+              )
+              env <- use_envname(backend = "pyspark", version = version)
+            }
+          }
+          target <- path(env, "bin", "python")
         }
-        target <- path(env, "bin", "python")
       }
-    }
-  )
-  target
+    )
+    .test_env$target <- target
+  }
+  .test_env$target
 }
 
 use_test_ml_installed <- function() {

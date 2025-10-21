@@ -6,13 +6,13 @@
 \title{Starts and stops Spark Connect locally}
 \usage{
 spark_connect_service_start(
-  version = "3.5",
-  scala_version = "2.12",
+  version = "4.0",
+  scala_version = "2.13",
   include_args = TRUE,
   ...
 )
 
-spark_connect_service_stop(version = "3.5", ...)
+spark_connect_service_stop(version = "4.0", ...)
 }
 \arguments{
 \item{version}{Spark version to use (3.4 or above)}

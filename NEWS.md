@@ -59,6 +59,15 @@ ML functions now supported are:
     * `ml_pipeline()`
     * `ml_save()`
 
+# pysparklyr 0.1.9
+
+### Improvements
+
+* Databricks connections app:
+  * Adds a dropdown to the Python Environment to make it more flexible
+  * Check for the existence of a Virtual Environment folder inside the current 
+    RStudio project, adds it to the dropdown choices and makes it the default
+
 * Adds support for spark_write_delta() (#146)
 
 ### Fixes

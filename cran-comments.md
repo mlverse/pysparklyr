@@ -1,29 +1,27 @@
 ## Package submission
 
-In this version:
+* Databricks connections app:
+  * Adds a dropdown to the Python Environment to make it more flexible
+  * Check for the existence of a Virtual Environment folder inside the
+  current RStudio project, adds it to the dropdown choices and makes it the default
 
-* Avoids installing `rpy2` automatically for `uv`-based environments. It will
-also install `rpy2` via `py_require()` when `spark_apply()` is called.
+* Adds support for spark_write_delta() (#146)
 
-* Fixes issue with resetting the connection label (#144)
-
-* Restores Databricks Host name sanitation 
+* Gets token from Databricks SDK if one cannot be found. (#148)
 
 ## Test environments
 
-- Ubuntu 24.04, R 4.5.0, Spark 3.5 (GH Actions)
-
-- Local Mac OS M3 (aarch64-apple-darwin23), R 4.4.2, Spark 3.5 (Local)
+- Spark 3.5: Ubuntu 24.04.3 LTS (x86_64, linux-gnu), R version 4.5.1 (2025-06-13)
 
 ## R CMD check environments
 
-- Mac OS M3 (aarch64-apple-darwin23), R 4.4.2 (Local)
+- Mac OS M3 (aarch64-apple-darwin23), R 4.5.0 (Local)
 
-- Mac OS aarch64-apple-darwin20 (64-bit), R 4.5.0 (GH Actions)
-- Windows x86_64-w64-mingw32 (64-bit), R 4.5.0 (GH Actions)
-- Linux x86_64-pc-linux-gnu (64-bit), R dev (GH Actions)
-- Linux x86_64-pc-linux-gnu (64-bit), R 4.5.0 (GH Actions)
-- Linux x86_64-pc-linux-gnu (64-bit), R 4.4.3 (old release) (GH Actions)
+- Ubuntu 24.04.3 LTS (x86_64, linux-gnu), R Under development (unstable) (2025-10-03 r88899)
+- Ubuntu 24.04.3 LTS (x86_64, linux-gnu), R version 4.4.3 (2025-02-28)
+- Ubuntu 24.04.3 LTS (x86_64, linux-gnu), R version 4.5.1 (2025-06-13)
+- macOS Sequoia 15.6.1 (aarch64, darwin20), R version 4.5.1 (2025-06-13)
+- Windows Server 2022 x64 (build 26100) (x86_64, mingw32), R version 4.5.1 (2025-06-13 ucrt)
 
 ## R CMD check results
 

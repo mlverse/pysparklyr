@@ -41,6 +41,7 @@ test_that("Databricks Host works", {
 })
 
 test_that("Databricks Token works", {
+  skip_if_no_db_host()
   skip_if(
     inherits(try(databricks_token(), silent = TRUE), "try-error"),
     "No Databricks Token available"

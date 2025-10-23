@@ -1,4 +1,4 @@
-test_that("Rare cases for finding environments works", {
+test_that("Find environments works", {
   withr::with_envvar(
     new = c("WORKON_HOME" = use_test_env()),
     {
@@ -19,7 +19,7 @@ test_that("Rare cases for finding environments works", {
   )
 })
 
-test_that("Rare cases for finding environments works", {
+test_that("Tests deploy_databricks() happy path cases", {
   withr::with_envvar(
     new = c(
       "WORKON_HOME" = use_test_env(),
@@ -29,11 +29,38 @@ test_that("Rare cases for finding environments works", {
     {
       env_path <- test_databricks_stump_env()
       local_mocked_bindings(
-        deploy = function(...) return(NULL),
-        databricks_dbr_version = function(...) return("17.3")
+        deploy = function(...) {
+          return(list(...))
+        },
+        databricks_dbr_version = function(...) {
+          return("17.3")
+        }
       )
-      expect_null(deploy_databricks())
-      expect_null(deploy_databricks(host = "another"))
+      expect_snapshot(deploy_databricks())
+      expect_snapshot(deploy_databricks(host = "another", token = "token"))
+    }
+  )
+})
+
+test_that("Tests deploy_databricks() error cases", {
+  withr::with_envvar(
+    new = c(
+      "WORKON_HOME" = use_test_env(),
+      "DATABRICKS_HOST" = NA,
+      "DATABRICKS_TOKEN" = NA
+    ),
+    {
+      env_path <- test_databricks_stump_env()
+      local_mocked_bindings(
+        deploy = function(...) {
+          return(list(...))
+        },
+        databricks_dbr_version = function(...) {
+          return("17.3")
+        }
+      )
+      expect_snapshot_error(deploy_databricks())
+      expect_snapshot_error(deploy_databricks(host = "another"))
     }
   )
 })

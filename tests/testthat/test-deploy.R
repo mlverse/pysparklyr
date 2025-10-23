@@ -1,3 +1,43 @@
+test_that("Rare cases for finding environments works", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_test_env()),
+    {
+      env_path <- test_databricks_stump_env()
+      local_mocked_bindings(
+        py_exe = function(...) {
+          return(NULL)
+        }
+      )
+      expect_equal(
+        deploy_find_environment(python = env_path),
+        env_path
+      )
+      expect_error(
+        deploy_find_environment()
+      )
+    }
+  )
+})
+
+test_that("Rare cases for finding environments works", {
+  withr::with_envvar(
+    new = c(
+      "WORKON_HOME" = use_test_env(),
+      "DATABRICKS_HOST" = "test",
+      "DATABRICKS_TOKEN" = "test"
+    ),
+    {
+      env_path <- test_databricks_stump_env()
+      local_mocked_bindings(
+        deploy = function(...) return(NULL),
+        databricks_dbr_version = function(...) return("17.3")
+      )
+      expect_null(deploy_databricks())
+      expect_null(deploy_databricks(host = "another"))
+    }
+  )
+})
+
 skip_if_not_databricks()
 
 test_databricks_deploy_output <- function() {
@@ -45,9 +85,15 @@ test_that("Basic use, passing DBR version works", {
   )
 })
 
+
+
 test_that("Basic use, passing the cluster's ID", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
+    new = c(
+      "WORKON_HOME" = use_test_env(),
+      "DATABRICKS_HOST" = "",
+      "DATABRICKS_TOKEN" = ""
+    ),
     {
       local_mocked_bindings(
         deployApp = function(...) list(...),
@@ -212,26 +258,7 @@ test_that("Simulates interactive session, selects 3 for both prompts", {
   )
 })
 
-test_that("Rare cases for finding environments works", {
-  withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
-    {
-      env_path <- test_databricks_stump_env()
-      local_mocked_bindings(
-        py_exe = function(...) {
-          return(NULL)
-        }
-      )
-      expect_equal(
-        deploy_find_environment(python = env_path),
-        env_path
-      )
-      expect_error(
-        deploy_find_environment()
-      )
-    }
-  )
-})
+
 
 test_that("Misc deploy tests", {
   expect_error(deploy(), "'backend'")

@@ -10,7 +10,7 @@ jobs:
   test-coverage:
     timeout-minutes: 30
     runs-on: ubuntu-latest
-     name: ${{ matrix.config.name }}
+    name: ${{ matrix.config.name }}
 
     strategy:
       fail-fast: false

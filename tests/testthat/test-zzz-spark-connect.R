@@ -5,7 +5,7 @@ test_that("Databricks Connect", {
       "WORKON_HOME" = use_test_env(),
       "DATABRICKS_HOST" = "testhost",
       "DATABRICKS_TOKEN" = "testtoken"
-      ),
+    ),
     {
       local_mocked_bindings(
         initialize_connection = function(...) {
@@ -13,13 +13,31 @@ test_that("Databricks Connect", {
         },
         databricks_dbr_info = function(...) {
           return(list(cluster_name = "test_host"))
+        },
+        import_check = function(...) {
+          out <- list()
+          out$DatabricksSession$builder$sdkConfig <- function(...) {
+            x <- list()
+            x$userAgent <- function(...) {
+              return(list())
+            }
+            x
+          }
+          out$core$Config <- function(...) {
+            x <- list()
+            x$token <- "testtoken"
+          }
+          out
+        },
+        databricks_sdk_client = function(...) {
+          return(NULL)
         }
       )
-      py_require("databricks-connect")
+
       sc_out <- spark_connect_method.spark_method_databricks_connect(
         method = "databricks_connect",
         master = NULL,
-        envname = py_exe(),
+        envname = use_test_python_environment(),
         version = "17.1",
         cluster_id = "test_cluster"
       )
@@ -28,4 +46,3 @@ test_that("Databricks Connect", {
     }
   )
 })
-

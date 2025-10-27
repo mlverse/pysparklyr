@@ -1,6 +1,10 @@
 test_that("Find environments works", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
+    new = c(
+      "WORKON_HOME" = use_test_env(),
+      "DATABRICKS_HOST" = "testhost",
+      "DATABRICKS_TOKEN" = "testtoken"
+    ),
     {
       env_path <- test_databricks_stump_env()
       local_mocked_bindings(

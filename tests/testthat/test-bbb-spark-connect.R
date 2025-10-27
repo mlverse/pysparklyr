@@ -1,3 +1,4 @@
+skip_spark_min_version("4")
 test_that("Databricks Connect", {
   withr::with_envvar(
     new = c(

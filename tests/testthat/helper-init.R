@@ -31,19 +31,30 @@ use_test_scala_spark <- function() {
   version
 }
 
+use_test_python_version <- function() {
+  version <- Sys.getenv("PYTHON_VERSION", unset = NA)
+  if (is.na(version)) version <- "3.10"
+  version
+}
+
 use_test_connect_start <- function() {
   if (is.null(.test_env$started)) {
     env_path <- use_test_python_environment()
     version <- use_test_version_spark()
-    cli_h1("Starting Spark Connect service version {version}")
-    cli_h3("PYTHON_VERSION_MISMATCH: {env_path}")
-    cli_h3("PYSPARK_PYTHON: {env_path}")
-    cli_h3("WORKON_HOME: {use_test_env()}")
+    cli_h2("Spark Connect: {version}")
+    cli_inform("PYTHON_VERSION_MISMATCH: {env_path}")
+    cli_inform("PYSPARK_PYTHON: {env_path}")
+    cli_inform("WORKON_HOME: {use_test_env()}")
+    cli_inform("SCALA_VERSION: {use_test_scala_spark()}")
+    cli_inform("PYTHON_VERSION: {use_test_python_version()}")
+    cli_h2("")
+
     withr::with_envvar(
       new = c(
         "PYSPARK_PYTHON" = env_path,
         "PYTHON_VERSION_MISMATCH" = env_path,
-        "PYSPARK_DRIVER_PYTHON" = env_path
+        "PYSPARK_DRIVER_PYTHON" = env_path,
+        "PYTHON_VERSION" = use_test_python_version()
       ),
       {
         spark_connect_service_start(
@@ -160,15 +171,12 @@ use_test_python_environment <- function(use_uv = TRUE) {
       {
         version <- use_test_version_spark()
         if (use_uv) {
-          python_version <- Sys.getenv("PYTHON_VERSION", unset = NA)
-          if(is.na(python_version)) {
-            python_version <- NULL
-          }
+          reticulate::py_require("torch")
           env <- use_envname(
             backend = "pyspark",
             version = version,
             messages = TRUE,
-            python_version = python_version,
+            python_version = use_test_python_version(),
             ask_if_not_installed = FALSE
           )
           reticulate::import("pyspark")

@@ -26,6 +26,7 @@ jobs:
       PYSPARK_VERSION: ${{ matrix.config.pyspark }}
       PYTHON_VERSION:  ${{ matrix.config.python }}
       SCALA_VERSION:   ${{ matrix.config.scala }}
+      CODE_COVERAGE:   'true'
 
     steps:
       - uses: actions/checkout@v3

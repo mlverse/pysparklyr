@@ -34,6 +34,6 @@ test_that("Pipeline fits and predicts", {
       loaded <- ml_connect_load(sc, fitted_folder)
       expect_s3_class(loaded, "ml_connect_pipeline_model")
       expect_snapshot(colnames(ml_transform(loaded, prepd)))
-    })
-
+    }
+  )
 })

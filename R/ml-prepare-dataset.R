@@ -76,7 +76,7 @@ ml_prep_dataset <- function(
     va <- pyspark$ml$feature$VectorAssembler()
     vector_assembler <- va$copy()
     vector_assembler$setOutputCol(features_col)
-    if(fitting && length(features) == 1) {
+    if (fitting && length(features) == 1) {
       features <- list(features)
     }
     vector_assembler$setInputCols(features)

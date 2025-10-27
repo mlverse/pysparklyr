@@ -90,7 +90,6 @@ test_that("Get cluster version", {
       expect_true(nchar(x) == 4)
     }
   )
-
 })
 
 test_that("Get cluster version", {
@@ -114,7 +113,6 @@ test_that("Get cluster version", {
       )
     }
   )
-
 })
 
 test_that("Cluster info runs as expected", {

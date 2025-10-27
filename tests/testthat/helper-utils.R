@@ -120,7 +120,7 @@ test_databricks_cluster_version <- function() {
       ),
       silent = TRUE
     )
-    if(inherits(dbr, "try-error")) {
+    if (inherits(dbr, "try-error")) {
       dbr <- "99.9"
     }
     .test_env$dbr <- dbr

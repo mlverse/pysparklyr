@@ -59,6 +59,8 @@ ML functions now supported are:
     * `ml_pipeline()`
     * `ml_save()`
 
+* Tests switch over to using `uv` for setup 
+
 # pysparklyr 0.1.9
 
 ### Improvements

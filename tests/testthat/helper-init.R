@@ -165,7 +165,7 @@ use_test_lr_model <- function() {
 }
 
 use_test_python_environment <- function(use_uv = TRUE) {
-  if(is.null(.test_env$target)) {
+  if (is.null(.test_env$target)) {
     withr::with_envvar(
       new = c("WORKON_HOME" = use_test_env()),
       {

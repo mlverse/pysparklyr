@@ -121,7 +121,11 @@ test_databricks_deploy_file <- function() {
 
 test_that("Simulates interactive session, selects Yes (1) for both prompts", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
+    new = c(
+      "WORKON_HOME" = use_test_env(),
+      "DATABRICKS_HOST" = "testhost",
+      "DATABRICKS_TOKEN" = "testtoken"
+    ),
     {
       deploy_file <- test_databricks_deploy_file()
       local_mocked_bindings(

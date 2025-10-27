@@ -1,6 +1,10 @@
 test_that("Databricks Connect", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
+    new = c(
+      "WORKON_HOME" = use_test_env(),
+      "DATABRICKS_HOST" = "testhost",
+      "DATABRICKS_TOKEN" = "testtoken"
+      ),
     {
       local_mocked_bindings(
         initialize_connection = function(...) {

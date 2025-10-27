@@ -50,8 +50,7 @@ spark_connect_service_start <- function(version = "4.0",
 
 #' @rdname spark_connect_service_start
 #' @export
-spark_connect_service_stop <- function(version = "4.0",
-                                       ...) {
+spark_connect_service_stop <- function(version = "4.0", ...) {
   get_version <- spark_install_find(version = version)
   cmd <- path(get_version$sparkVersionDir, "sbin", "stop-connect-server.sh")
   cli_div(theme = cli_colors())

@@ -144,7 +144,12 @@ test_that(
 
 
 test_that("installed_components() output properly", {
-  expect_message(installed_components())
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_new_test_env()),
+    {
+      expect_message(installed_components())
+    }
+  )
 })
 
 test_that("Can get pypy.org info", {
@@ -196,6 +201,7 @@ test_that("Databricks installation works", {
 skip_on_ci()
 
 test_that("Databricks installations work", {
+  skip_if_not_databricks()
   env_paths <- map(1:3, ~ fs::path(tempdir(), random_table_name("env")))
   baseenv <- "r-sparklyr-databricks"
   version_1 <- "14.3"
@@ -255,4 +261,16 @@ test_that("Databricks installations work", {
   )
 
   map(env_paths, fs::dir_delete)
+})
+
+test_that("Tests install_databricks()", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_new_test_env()),
+    {
+      local_mocked_bindings(install_as_job = function(...) list(...))
+      expect_snapshot(
+        install_databricks("17.1", python_version = "3.12")
+      )
+    }
+  )
 })

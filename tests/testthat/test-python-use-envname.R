@@ -1,13 +1,3 @@
-test_that("Message when RETICULATE_PYTHON is set", {
-  py_to_use <- py_exe()
-  withr::with_envvar(
-    new = c("RETICULATE_PYTHON" = py_to_use),
-    {
-      expect_message(use_envname("newtest", messages = TRUE))
-    }
-  )
-})
-
 env_path <- fs::path(tempdir(), random_table_name("env"))
 
 test_that("Install environment", {

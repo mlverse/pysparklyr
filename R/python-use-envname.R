@@ -219,7 +219,12 @@ python_requirements <- function(
   packages <- c(
     paste0(main_library, "==", version),
     if (length(requires_dist)) {
-      requires_dist[!grepl("extra", requires_dist)]
+      with_extra <- grepl("; extra", requires_dist)
+      extra_str <- strsplit(requires_dist[with_extra], "; extra")
+      extra_str <- lapply(extra_str, function(x) x[[1]])
+      extra_str <- as.character(extra_str)
+      extra_str <- unique(extra_str)
+      c(requires_dist[!with_extra], extra_str)
     } else {
       c(
         "pandas!=2.1.0", # deprecation warnings

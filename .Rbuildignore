@@ -9,3 +9,4 @@
 ^CRAN-SUBMISSION$
 ^requirements\.txt$
 ^spark-warehouse$
+^derby\.log$

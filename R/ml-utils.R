@@ -2,7 +2,7 @@ ml_formula <- function(f, data) {
   col_data <- colnames(data)
 
   temp_tbl <- rep(1, times = length(col_data)) %>%
-    purrr::set_names(col_data) %>%
+    set_names(col_data) %>%
     as.list() %>%
     as.data.frame()
 
@@ -75,14 +75,13 @@ ml_connect_not_supported <- function(args, not_supported = c()) {
   }
 }
 
-ml_execute <- function(args, python_library, fn) {
+ml_execute <- function(args, python_library, fn, sc) {
   py_lib <- import(python_library)
 
   # Removes any variable with a "." prefix
   args <- args[substr(names(args), 1, 1) != "."]
 
   args$x <- NULL
-  args$formula <- NULL
 
   args <- discard(args, is.null)
 
@@ -99,7 +98,7 @@ ml_execute <- function(args, python_library, fn) {
     )
   )
 
-  jobj
+  as_spark_pyobj(jobj, sc)
 }
 
 get_params <- function(x) {
@@ -135,4 +134,33 @@ ml_installed <- function(envname = NULL) {
     libraries = pysparklyr_env$ml_libraries,
     msg = "Required Python libraries to run ML functions are missing"
   )
+}
+
+ml_get_params <- function(x) {
+  py_x <- get_spark_pyobj(x)
+  params <- invoke(py_x, "params")
+  params %>%
+    map(~ {
+      nm <- .x$name
+      nm <- paste0("get", toupper(substr(nm, 1, 1)), substr(nm, 2, nchar(nm)))
+      tr <- try(invoke(py_x, nm), silent = TRUE)
+      if (inherits(tr, "spark_pyobj")) {
+        tr <- tr %>%
+          python_obj_get() %>%
+          py_to_r()
+      }
+      out <- ifelse(inherits(tr, "try-error"), list(), list(tr))
+      set_names(out, .x$name)
+    }) %>%
+    flatten() %>%
+    discard(is.null)
+}
+
+#' @export
+print.ml_connect_estimator <- function(x, ...) {
+  pyobj <- python_obj_get(x)
+  msg <- ml_get_last_item(class(pyobj)[[1]])
+  cli_div(theme = cli_colors())
+  cli_inform("<{.header {msg}}>")
+  cli_end()
 }

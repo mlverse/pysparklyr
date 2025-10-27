@@ -16,15 +16,16 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {spark: '4.0.1', pyspark: '4.0.1', hadoop: '3', python: '3.10', name: 'PySpark 4'}
+          - {spark: '4.0.1', pyspark: '4.0.1', hadoop: '3', scala: '2.13', python: '3.10', name: 'PySpark 4'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      SPARK_VERSION:  ${{ matrix.config.spark }}
-      HADOOP_VERSION: ${{ matrix.config.hadoop }}
-      PYSPARK_VERSION:  ${{ matrix.config.pyspark }}
+      SPARK_VERSION:   ${{ matrix.config.spark }}
+      HADOOP_VERSION:  ${{ matrix.config.hadoop }}
+      PYSPARK_VERSION: ${{ matrix.config.pyspark }}
       PYTHON_VERSION:  ${{ matrix.config.python }}
+      SCALA_VERSION:   ${{ matrix.config.scala }}
 
     steps:
       - uses: actions/checkout@v3
@@ -39,6 +40,7 @@ jobs:
           extra-packages: |
             any::devtools
             any::arrow
+            any::covr
           needs: check
 
       - name: Install uv

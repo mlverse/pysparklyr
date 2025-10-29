@@ -5,7 +5,7 @@ use_envname <- function(
     messages = FALSE,
     match_first = FALSE,
     ignore_reticulate_python = FALSE,
-    ask_if_not_installed = interactive(),
+    ask_if_not_installed = FALSE,
     main_library = NULL,
     python_version = NULL) {
   if (is.null(main_library) && !is.null(backend)) {
@@ -13,13 +13,12 @@ use_envname <- function(
       main_library <- "pyspark"
     } else if (backend == "databricks") {
       main_library <- "databricks.connect"
+    } else if (backend == "snowflake") {
+      main_library <- "snowflake-snowpark-python"
+    } else {
+      cli_abort("Backend `{backend}` not valid")
     }
-  } else if (backend == "snowflake") {
-    main_library <- "snowflake-snowpark-python"
-  } else {
-    cli_abort("Backend `{backend}` not valid")
   }
-
   cli_div(theme = cli_colors())
 
   ret_python <- reticulate_python_check(ignore_reticulate_python, unset = FALSE)
@@ -53,6 +52,9 @@ use_envname <- function(
     lib_info <- python_library_info(main_library, fail = FALSE, verbose = FALSE)
     if (!is.null(lib_info)) {
       latest_ver <- lib_info$version
+      if(version == "latest") {
+        version <- latest_ver
+      }
       vers <- compareVersion(latest_ver, version)
       install_recent <- vers == 1
       # For cases when the cluster's version is higher than the latest library

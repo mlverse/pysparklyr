@@ -192,25 +192,20 @@ spark_connect_method.spark_method_snowflake_connect <- function(
     method,
     master,
     spark_home,
-    config = pyspark_config(),
+    config = NULL,
     app_name,
     version = NULL,
     hadoop_version,
     extensions,
     scala_version,
     ...) {
-  version <- version %||% Sys.getenv("SPARK_VERSION")
-
-  if (version == "") {
-    cli_abort("Spark `version` is required, please provide")
-  }
 
   args <- list(...)
   envname <- args$envname
 
   envname <- use_envname(
-    backend = "pyspark",
-    version = version,
+    backend = "snowflake",
+    version = version %||% "latest",
     envname = envname,
     messages = TRUE,
     match_first = TRUE,
@@ -221,11 +216,18 @@ spark_connect_method.spark_method_snowflake_connect <- function(
     return(invisible())
   }
 
-  pyspark <- import_check("pyspark", envname)
-  pyspark_sql <- pyspark$sql
-  conn <- pyspark_sql$SparkSession$builder$remote(master)
+  pyspark <- import_check("snowflake.snowpark", envname)
+
+  conn <- pyspark$Session$builder$configs(
+    list(
+      account = master,
+      user = args$user,
+      password = args$password
+    )
+  )
+
   con_class <- "connect_spark"
-  master_label <- glue("Spark Connect - {master}")
+  master_label <- glue("Snowpark Connect - {master}")
 
   initialize_connection(
     conn = conn,
@@ -238,7 +240,7 @@ spark_connect_method.spark_method_snowflake_connect <- function(
 }
 
 setOldClass(
-  c("connect_spark", "pyspark_connection", "spark_connection")
+  c("connect_snowflake", "pyspark_connection", "spark_connection")
 )
 
 initialize_connection <- function(

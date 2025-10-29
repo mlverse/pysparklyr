@@ -404,6 +404,9 @@ query_pypi <- function(library_name, library_version = NULL, timeout) {
 }
 
 version_prep <- function(version) {
+  if(version == "latest") {
+    return(version)
+  }
   version <- as.character(version)
   ver <- version %>%
     strsplit("\\.") %>%

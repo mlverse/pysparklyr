@@ -14,6 +14,10 @@ use_envname <- function(
     } else if (backend == "databricks") {
       main_library <- "databricks.connect"
     }
+  } else if (backend == "snowflake") {
+    main_library <- "snowflake-snowpark-python"
+  } else {
+    cli_abort("Backend `{backend}` not valid")
   }
 
   cli_div(theme = cli_colors())

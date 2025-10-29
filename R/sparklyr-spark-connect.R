@@ -235,7 +235,7 @@ spark_connect_method.spark_method_snowflake_connect <- function(
     con_class = con_class,
     cluster_id = NULL,
     method = method,
-    config = config
+    config = NULL
   )
 }
 

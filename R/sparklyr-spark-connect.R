@@ -226,7 +226,7 @@ spark_connect_method.spark_method_snowflake_connect <- function(
     )
   )
 
-  con_class <- "connect_spark"
+  con_class <- "connect_snowflake"
   master_label <- glue("Snowpark Connect - {master}")
 
   initialize_connection(
@@ -235,7 +235,14 @@ spark_connect_method.spark_method_snowflake_connect <- function(
     con_class = con_class,
     cluster_id = NULL,
     method = method,
-    config = NULL
+    config = NULL,
+    misc = list(
+      sql_catalogs = "show databases",
+      sql_tables_schema = "show tables in {schema}",
+      sql_tables_catalog_schema = "show tables in {catalog}.{schema}",
+      sql_schemas_catalog = "show schemas in database {catalog}",
+      sql_schemas = "show schemas"
+    )
   )
 }
 
@@ -250,7 +257,9 @@ initialize_connection <- function(
     cluster_id = NULL,
     serverless = FALSE,
     method = NULL,
-    config = NULL) {
+    config = NULL,
+    misc = NULL
+    ) {
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",
@@ -321,6 +330,7 @@ initialize_connection <- function(
       session = session,
       state = spark_context,
       serverless = serverless,
+      misc = misc,
       con = structure(list(), class = c("spark_connection", "DBIConnection"))
     ),
     class = c(
@@ -337,7 +347,9 @@ initialize_connection <- function(
 python_conn <- function(x) {
   py_object <- "python.builtin.object"
   ret <- NULL
-  if (inherits(x$state$spark_context, py_object)) ret <- x$state$spark_context
+  if (inherits(x$state$spark_context, py_object))  {
+    ret <- x$state$spark_context
+  }
   if (is.null(ret) && inherits(x[[1]]$session$sparkSession, py_object)) {
     ret <- x[[1]]$session$sparkSession
   }

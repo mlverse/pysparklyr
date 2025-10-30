@@ -5,10 +5,14 @@ to_pandas_cleaned <- function(x) {
   dec_types <- map_lgl(orig_types, ~ grepl("decimal\\(", .x))
 
   if (sum(dec_types) > 0) {
-    sf <- import("pyspark.sql.functions")
-    for (field in fields[dec_types]) {
-      fn <- field[[1]]
-      x <- x$withColumn(fn, sf$col(fn)$cast("double"))
+    # Has to check if SQL functions can be imported because some backend
+    # connection Python packages does not include it
+    sf <- try(import("pyspark.sql.functions"), silent = TRUE)
+    if(!inherits(sf, "try-error")) {
+      for (field in fields[dec_types]) {
+        fn <- field[[1]]
+        x <- x$withColumn(fn, sf$col(fn)$cast("double"))
+      }
     }
   }
 
@@ -30,6 +34,9 @@ to_pandas_cleaned <- function(x) {
   }
 
   out <- tibble(collected)
+
+  # Snowflake returns field names in double quotes
+  colnames(out) <- gsub("\"", "", colnames(out))
 
   attr(out, "pandas.index") <- NULL
   out

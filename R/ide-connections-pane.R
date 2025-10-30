@@ -59,9 +59,11 @@ catalog_python <- function(
   )
   sc_catalog <- python_conn(con)$catalog
   if (is.null(catalog) && is.null(schema)) {
-    catalogs <- dbGetQuery(con, "show catalogs")
+    sql_catalogs <- con[["misc"]][["sql_catalogs"]] %||% "show catalogs"
+    catalogs <- dbGetQuery(con, sql_catalogs)
     if (nrow(catalogs) > 0) {
-      out <- data.frame(name = catalogs$catalog, type = "catalog")
+      catalog_name <- ifelse("catalog" %in% colnames(catalogs), "catalog", "name")
+      out <- data.frame(name = catalogs[[catalog_name]], type = "catalog")
     }
     if (!is.na(limit)) {
       out <- head(out, limit)
@@ -71,17 +73,20 @@ catalog_python <- function(
       out <- rs_get_databases(con, limit, catalog)
     } else {
       if (is.null(catalog)) {
-        sql_schema <- "show tables in `{schema}`"
+        sql_schema <- con[["misc"]][["sql_tables_schema"]] %||% "show tables in `{schema}`"
       } else {
-        sql_schema <- "show tables in `{catalog}`.`{schema}`"
+        sql_schema <- con[["misc"]][["sql_tables_catalog_schema"]] %||% "show tables in `{catalog}`.`{schema}`"
       }
       tables <- dbGetQuery(con, glue(sql_schema))
+      tables_name <- ifelse("tableName" %in% colnames(tables), "tableName", "name")
       out <- df_tables
       if (nrow(tables) > 0) {
-        tables <- tables[!tables$isTemporary, ]
+        if("isTemporary" %in% colnames(tables)) {
+          tables <- tables[!tables$isTemporary, ]
+        }
         if (nrow(tables) > 0) {
           out <- data.frame(
-            name = tables$tableName,
+            name = tables[[tables_name]],
             schema = schema,
             type = "table"
           )
@@ -99,12 +104,13 @@ catalog_python <- function(
 rs_get_databases <- function(con, limit = NA, catalog = NULL) {
   out <- data.frame()
   if (!is.null(catalog)) {
-    databases <- dbGetQuery(con, glue("show databases in `{catalog}`"))
+    sql_databases <- con[["misc"]][["sql_schemas_catalog"]] %||% "show databases in `{catalog}`"
   } else {
-    databases <- dbGetQuery(con, glue("show databases"))
+    sql_databases <- con[["misc"]][["sql_schemas"]] %||% "show databases"
   }
+  databases <- dbGetQuery(con, glue(sql_databases))
   if (nrow(databases) > 0) {
-    db_names <- databases$databaseName %||% databases$namespace
+    db_names <- databases$databaseName %||% databases$namespace %||% databases$name
     out <- data.frame(name = db_names, type = "schema")
     if (!is.na(limit)) {
       out <- head(out, limit)

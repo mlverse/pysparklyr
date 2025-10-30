@@ -187,7 +187,7 @@ setOldClass(
 )
 
 #' @export
-spark_connect_method.spark_method_snowflake_connect <- function(
+spark_connect_method.spark_method_snowpark_connect <- function(
     x,
     method,
     master,
@@ -202,6 +202,8 @@ spark_connect_method.spark_method_snowflake_connect <- function(
 
   args <- list(...)
   envname <- args$envname
+  connection_parameters <- args$connection_parameters
+  connection_parameters["account"] <- master
 
   envname <- use_envname(
     backend = "snowflake",
@@ -218,13 +220,7 @@ spark_connect_method.spark_method_snowflake_connect <- function(
 
   pyspark <- import_check("snowflake.snowpark", envname)
 
-  conn <- pyspark$Session$builder$configs(
-    list(
-      account = master,
-      user = args$user,
-      password = args$password
-    )
-  )
+  conn <- pyspark$Session$builder$configs(connection_parameters)
 
   con_class <- "connect_snowflake"
   master_label <- glue("Snowpark Connect - {master}")

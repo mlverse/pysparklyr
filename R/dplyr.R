@@ -85,22 +85,23 @@ sdf_copy_to.pyspark_connection <- function(sc,
                                            overwrite = FALSE,
                                            struct_columns,
                                            ...) {
-  context <- python_conn(sc)
-  if (context$catalog$tableExists(name)) {
-    if (overwrite) {
-      context$catalog$dropTempView(name)
-    } else {
-      cli_abort(
-        "Temp table {name} already exists, use `overwrite = TRUE` to replace"
-      )
-    }
-  }
   col_names <- colnames(x)
   col_names <- gsub("\\.", "_", col_names)
   colnames(x) <- col_names
-
-  df_copy <- context$createDataFrame(r_to_py(x))
-
+  x <- as.list(x) |> transpose()
+  context <- python_conn(sc)
+  if (memory) {
+    if (context$catalog$tableExists(name, schema = col_names)) {
+      if (overwrite) {
+        context$catalog$dropTempView(name)
+      } else {
+        cli_abort(
+          "Temp table {name} already exists, use `overwrite = TRUE` to replace"
+        )
+      }
+    }
+  }
+  df_copy <- context$createDataFrame(r_to_py(x), schema = col_names)
   repartition <- as.integer(repartition)
   if (repartition > 0) {
     df_copy$createTempView(name)
@@ -280,7 +281,7 @@ tbl_pyspark_temp <- function(x, conn, tmp_name = NULL) {
   }
   py_x <- python_obj_get(x)
   py_x$createOrReplaceTempView(tmp_name)
-  tbl(sc, tmp_name)
+  tbl(sc, I(tmp_name))
 }
 
 setOldClass(c("tbl_pyspark", "tbl_spark"))

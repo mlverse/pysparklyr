@@ -4,7 +4,7 @@ head.tbl_pyspark <- function(x, n = 6L, ...) {
     sdf <- tbl_pyspark_sdf(x)
     sdf_limit <- sdf$limit(as.integer(n))
     x <- python_obj_tbl_set(x, sdf_limit)
-    x[[2]] <- lazy_select_query(x[[2]], limit = n)
+    # x[[2]] <- lazy_select_query(x[[2]], limit = n)
     NextMethod()
   } else {
     NextMethod()
@@ -70,7 +70,9 @@ collect.tbl_pyspark <- function(x, ...) {
 spark_dataframe.tbl_pyspark <- function(x, ...) {
   conn <- x[[1]]
   query <- x[[2]]
-  qry <- sql_render(query, conn)
+  qry <- query %>%
+    sql_render(conn) %>%
+    query_cleanup(conn)
   invoke(conn, "sql", qry)
 }
 
@@ -136,7 +138,8 @@ tbl.pyspark_connection <- function(src, from, ...) {
     subclass = "pyspark",
     src = src,
     from = from,
-    vars = vars
+    vars = vars,
+    ...
   )
   out_class <- class(out)
   new_class <- c(out_class[1], "tbl_spark", out_class[2:length(out_class)])
@@ -165,7 +168,9 @@ tbl_pyspark_sdf <- function(x) {
   out <- python_sdf(x)
   if (is.null(out)) {
     con <- python_conn(x[[1]])
-    qry <- remote_query(x)
+    qry <- x %>%
+      remote_query() %>%
+      query_cleanup(con)
     out <- con$sql(qry)
   }
   out
@@ -194,9 +199,12 @@ sdf_register.spark_pyobj <- function(x, name = NULL) {
 python_sdf <- function(x) {
   pyobj <- python_obj_get(x)
   class_pyobj <- class(pyobj)
-  name <- remote_name(x)
+  # Removing remote name check for now
+  # name <- remote_name(x)
   out <- NULL
-  if (!is.null(name) && any(grepl("dataframe", class_pyobj))) {
+  # Removing remote name check for now
+  # if (!is.null(name) && any(grepl("dataframe", class_pyobj))) {
+  if (any(grepl("dataframe", class_pyobj))) {
     out <- pyobj
   }
   out
@@ -296,4 +304,11 @@ setOldClass(c("tbl_pyspark", "tbl_spark"))
     return(tbl(sc, tmp_name))
   }
   NextMethod()
+}
+
+query_cleanup <- function(x, con) {
+  if (inherits(con, "connect_snowflake")) {
+    x <- gsub("`", "", x)
+  }
+  x
 }

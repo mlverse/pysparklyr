@@ -119,18 +119,11 @@ rs_get_databases <- function(con, limit = NA, catalog = NULL) {
   out
 }
 
-rs_get_table <- function(con, catalog, schema, table) {
-  from <- NULL
-  if (!is.null(catalog)) {
-    from <- in_catalog(catalog, schema, table)
-  }
-  if (!is.null(schema) && is.null(from)) {
-    from <- in_schema(schema, table)
-  }
-  if (is.null(from)) {
-    from <- table
-  }
-  tbl(con, from)
+rs_get_table <- function(con, catalog = NULL, schema = NULL, table = NULL) {
+  cq <- ifelse(is.null(con$quote), "`", con$quote)
+  from <- c(catalog, schema, table)
+  from <- paste0(cq, from, cq, collapse = ".")
+  tbl(con, I(from))
 }
 
 rs_type <- function(x) {

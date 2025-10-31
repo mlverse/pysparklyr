@@ -238,7 +238,8 @@ spark_connect_method.spark_method_snowpark_connect <- function(
       sql_tables_catalog_schema = "show tables in {catalog}.{schema}",
       sql_schemas_catalog = "show schemas in database {catalog}",
       sql_schemas = "show schemas"
-    )
+    ),
+    quote = ""
   )
 }
 
@@ -254,7 +255,8 @@ initialize_connection <- function(
     serverless = FALSE,
     method = NULL,
     config = NULL,
-    misc = NULL
+    misc = NULL,
+    quote = NULL
     ) {
   warnings <- import("warnings")
   warnings$filterwarnings(
@@ -327,6 +329,7 @@ initialize_connection <- function(
       state = spark_context,
       serverless = serverless,
       misc = misc,
+      quote = quote,
       con = structure(list(), class = c("spark_connection", "DBIConnection"))
     ),
     class = c(

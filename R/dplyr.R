@@ -85,13 +85,20 @@ sdf_copy_to.pyspark_connection <- function(sc,
                                            overwrite = FALSE,
                                            struct_columns,
                                            ...) {
+  context <- python_conn(sc)
   col_names <- colnames(x)
   col_names <- gsub("\\.", "_", col_names)
   colnames(x) <- col_names
-  x <- as.list(x) |> transpose()
-  context <- python_conn(sc)
-  if (memory) {
-    if (context$catalog$tableExists(name, schema = col_names)) {
+  schema <- NULL
+  if (is_snowflake(sc)) {
+    if (memory) {
+      cli_abort("Snowflake's Snowpark does not support `memory = TRUE` please set to FALSE")
+    }
+    x <- as.list(x) |> transpose()
+    schema <- col_names
+  }
+  if (!is_snowflake(sc) && memory) {
+    if (context$catalog$tableExists(name)) {
       if (overwrite) {
         context$catalog$dropTempView(name)
       } else {
@@ -200,12 +207,9 @@ sdf_register.spark_pyobj <- function(x, name = NULL) {
 python_sdf <- function(x) {
   pyobj <- python_obj_get(x)
   class_pyobj <- class(pyobj)
-  # Removing remote name check for now
-  # name <- remote_name(x)
+  name <- remote_name(x)
   out <- NULL
-  # Removing remote name check for now
-  # if (!is.null(name) && any(grepl("dataframe", class_pyobj))) {
-  if (any(grepl("dataframe", class_pyobj))) {
+  if (!is.null(name) && any(grepl("dataframe", class_pyobj))) {
     out <- pyobj
   }
   out
@@ -281,6 +285,9 @@ tbl_pyspark_temp <- function(x, conn, tmp_name = NULL) {
   }
   py_x <- python_obj_get(x)
   py_x$createOrReplaceTempView(tmp_name)
+  if (!is_snowflake(sc)) {
+    tmp_name <- dbQuoteIdentifier(sc, tmp_name)
+  }
   tbl(sc, I(tmp_name))
 }
 
@@ -308,8 +315,13 @@ setOldClass(c("tbl_pyspark", "tbl_spark"))
 }
 
 query_cleanup <- function(x, con) {
-  if (inherits(con, "connect_snowflake")) {
+  if (is_snowflake(con)) {
     x <- gsub("`", "", x)
   }
   x
+}
+
+is_snowflake <- function(sc) {
+  inherits(sc, "connect_snowflake") ||
+    inherits(sc, "snowflake.snowpark.session.Session")
 }

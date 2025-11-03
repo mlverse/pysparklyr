@@ -9,15 +9,7 @@ use_envname <- function(
     main_library = NULL,
     python_version = NULL) {
   if (is.null(main_library) && !is.null(backend)) {
-    if (backend == "pyspark") {
-      main_library <- "pyspark"
-    } else if (backend == "databricks") {
-      main_library <- "databricks.connect"
-    } else if (backend == "snowflake") {
-      main_library <- "snowflake-snowpark-python"
-    } else {
-      cli_abort("Backend `{backend}` not valid")
-    }
+    cli_abort("Backend `{backend}` not valid")
   }
   cli_div(theme = cli_colors())
 
@@ -52,7 +44,7 @@ use_envname <- function(
     lib_info <- python_library_info(main_library, fail = FALSE, verbose = FALSE)
     if (!is.null(lib_info)) {
       latest_ver <- lib_info$version
-      if(version == "latest") {
+      if (version == "latest") {
         version <- latest_ver
       }
       vers <- compareVersion(latest_ver, version)

@@ -4,7 +4,6 @@ head.tbl_pyspark <- function(x, n = 6L, ...) {
     sdf <- tbl_pyspark_sdf(x)
     sdf_limit <- sdf$limit(as.integer(n))
     x <- python_obj_tbl_set(x, sdf_limit)
-    # x[[2]] <- lazy_select_query(x[[2]], limit = n)
     NextMethod()
   } else {
     NextMethod()
@@ -92,7 +91,7 @@ sdf_copy_to.pyspark_connection <- function(sc,
   schema <- NULL
   if (is_snowflake(sc)) {
     if (memory) {
-      cli_abort("Snowflake's Snowpark does not support `memory = TRUE` please set to FALSE")
+      cli_abort("Snowflake's Snowpark does not support `memory = TRUE` please use `memory = FALSE`")
     }
     x <- as.list(x) |> transpose()
     schema <- col_names
@@ -108,7 +107,7 @@ sdf_copy_to.pyspark_connection <- function(sc,
       }
     }
   }
-  df_copy <- context$createDataFrame(r_to_py(x), schema = col_names)
+  df_copy <- context$createDataFrame(r_to_py(x), schema = schema)
   repartition <- as.integer(repartition)
   if (repartition > 0) {
     df_copy$createTempView(name)
@@ -286,7 +285,9 @@ tbl_pyspark_temp <- function(x, conn, tmp_name = NULL) {
   py_x <- python_obj_get(x)
   py_x$createOrReplaceTempView(tmp_name)
   if (!is_snowflake(sc)) {
-    tmp_name <- dbQuoteIdentifier(sc, tmp_name)
+    tmp_name <- sc %>%
+      dbQuoteIdentifier(tmp_name) %>%
+      as.character()
   }
   tbl(sc, I(tmp_name))
 }

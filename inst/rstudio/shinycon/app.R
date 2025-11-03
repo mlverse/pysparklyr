@@ -236,6 +236,7 @@ connection_spark_server <- function(input, output, session) {
         verified <- pysparklyr:::use_envname(
           version = version,
           backend = "databricks",
+          main_library = "databricks-connect",
           messages = FALSE,
           match_first = FALSE,
           ignore_reticulate_python = TRUE

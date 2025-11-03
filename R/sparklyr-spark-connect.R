@@ -22,6 +22,7 @@ spark_connect_method.spark_method_spark_connect <- function(
 
   envname <- use_envname(
     backend = "pyspark",
+    main_library = "pyspark",
     version = version,
     envname = envname,
     messages = TRUE,
@@ -99,6 +100,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
   # load python env
   envname <- use_envname(
     backend = "databricks",
+    main_library = "databricks.connect",
     version = version,
     envname = envname,
     messages = !silent,
@@ -199,7 +201,6 @@ spark_connect_method.spark_method_snowpark_connect <- function(
     extensions,
     scala_version,
     ...) {
-
   args <- list(...)
   envname <- args$envname
   connection_parameters <- args$connection_parameters
@@ -207,6 +208,7 @@ spark_connect_method.spark_method_snowpark_connect <- function(
 
   envname <- use_envname(
     backend = "snowflake",
+    main_library = "snowflake-snowpark-python",
     version = version %||% "latest",
     envname = envname,
     messages = TRUE,
@@ -256,8 +258,7 @@ initialize_connection <- function(
     method = NULL,
     config = NULL,
     misc = NULL,
-    quote = NULL
-    ) {
+    quote = NULL) {
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",
@@ -346,7 +347,7 @@ initialize_connection <- function(
 python_conn <- function(x) {
   py_object <- "python.builtin.object"
   ret <- NULL
-  if (inherits(x$state$spark_context, py_object))  {
+  if (inherits(x$state$spark_context, py_object)) {
     ret <- x$state$spark_context
   }
   if (is.null(ret) && inherits(x[[1]]$session$sparkSession, py_object)) {
@@ -449,4 +450,3 @@ pyspark_config <- function() {
     "spark.sql.execution.arrow.sparkr.enabled" = "true"
   )
 }
-

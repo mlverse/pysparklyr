@@ -46,3 +46,41 @@ test_that("Databricks Connect", {
     }
   )
 })
+
+test_that("Snowpark Connect (Snowflake)", {
+  withr::with_envvar(
+    new = c(
+      "WORKON_HOME" = use_test_env()
+    ),
+    {
+      local_mocked_bindings(
+        initialize_connection = function(...) {
+          return(list(...))
+        },
+        import_check = function(...) {
+          out <- list()
+          out$Session$builder$configs <- function(...) {
+            list(...)
+          }
+          out
+        },
+        databricks_sdk_client = function(...) {
+          return(NULL)
+        }
+      )
+      sc_out <- spark_connect_method.spark_method_snowpark_connect(
+        method = "snowpark_connect",
+        master = NULL,
+        connection_parameters = list(
+          user = "test@user.com",
+          password = "testtoken",
+          warehouse = "testwh",
+          database = "testdb",
+          schema = "testschema"
+        )
+      )
+      expect_snapshot(sc_out)
+    }
+  )
+})
+

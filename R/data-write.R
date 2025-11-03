@@ -40,18 +40,19 @@ spark_write_table.tbl_pyspark <- function(x,
 
 #' @export
 spark_write_csv.tbl_pyspark <- function(
-    x,
-    path,
-    header = TRUE,
-    delimiter = ",",
-    quote = "\"",
-    escape = "\\",
-    charset = "UTF-8",
-    null_value = NULL,
-    options = list(),
-    mode = NULL,
-    partition_by = NULL,
-    ...) {
+  x,
+  path,
+  header = TRUE,
+  delimiter = ",",
+  quote = "\"",
+  escape = "\\",
+  charset = "UTF-8",
+  null_value = NULL,
+  options = list(),
+  mode = NULL,
+  partition_by = NULL,
+  ...
+) {
   pyspark_write_generic(
     x = x,
     path = path,
@@ -70,12 +71,13 @@ spark_write_csv.tbl_pyspark <- function(
 
 #' @export
 spark_write_parquet.tbl_pyspark <- function(
-    x,
-    path,
-    mode = NULL,
-    options = list(),
-    partition_by = NULL,
-    ...) {
+  x,
+  path,
+  mode = NULL,
+  options = list(),
+  partition_by = NULL,
+  ...
+) {
   pyspark_write_generic(
     x = x,
     path = path,
@@ -89,12 +91,13 @@ spark_write_parquet.tbl_pyspark <- function(
 
 #' @export
 spark_write_text.tbl_pyspark <- function(
-    x,
-    path,
-    mode = NULL,
-    options = list(),
-    partition_by = NULL,
-    ...) {
+  x,
+  path,
+  mode = NULL,
+  options = list(),
+  partition_by = NULL,
+  ...
+) {
   pyspark_write_generic(
     x = x,
     path = path,
@@ -108,12 +111,13 @@ spark_write_text.tbl_pyspark <- function(
 
 #' @export
 spark_write_orc.tbl_pyspark <- function(
-    x,
-    path,
-    mode = NULL,
-    options = list(),
-    partition_by = NULL,
-    ...) {
+  x,
+  path,
+  mode = NULL,
+  options = list(),
+  partition_by = NULL,
+  ...
+) {
   pyspark_write_generic(
     x = x,
     path = path,
@@ -127,12 +131,13 @@ spark_write_orc.tbl_pyspark <- function(
 
 #' @export
 spark_write_json.tbl_pyspark <- function(
-    x,
-    path,
-    mode = NULL,
-    options = list(),
-    partition_by = NULL,
-    ...) {
+  x,
+  path,
+  mode = NULL,
+  options = list(),
+  partition_by = NULL,
+  ...
+) {
   pyspark_write_generic(
     x = x,
     path = path,
@@ -145,15 +150,16 @@ spark_write_json.tbl_pyspark <- function(
 }
 
 pyspark_write_generic <- function(
-    x,
-    path,
-    format = NULL,
-    mode,
-    partition_by,
-    options,
-    args,
-    save_action = "save",
-    expand_path = TRUE) {
+  x,
+  path,
+  format = NULL,
+  mode,
+  partition_by,
+  options,
+  args,
+  save_action = "save",
+  expand_path = TRUE
+) {
   query <- tbl_pyspark_sdf(x)
 
   if (is.null(partition_by)) {

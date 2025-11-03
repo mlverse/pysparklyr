@@ -1,21 +1,17 @@
 use_envname <- function(
-    envname = NULL,
-    backend = "pyspark",
-    version = NULL,
-    messages = FALSE,
-    match_first = FALSE,
-    ignore_reticulate_python = FALSE,
-    ask_if_not_installed = interactive(),
-    main_library = NULL,
-    python_version = NULL) {
+  envname = NULL,
+  backend = "pyspark",
+  version = NULL,
+  messages = FALSE,
+  match_first = FALSE,
+  ignore_reticulate_python = FALSE,
+  ask_if_not_installed = FALSE,
+  main_library = NULL,
+  python_version = NULL
+) {
   if (is.null(main_library) && !is.null(backend)) {
-    if (backend == "pyspark") {
-      main_library <- "pyspark"
-    } else if (backend == "databricks") {
-      main_library <- "databricks.connect"
-    }
+    cli_abort("Backend `{backend}` not valid")
   }
-
   cli_div(theme = cli_colors())
 
   ret_python <- reticulate_python_check(ignore_reticulate_python, unset = FALSE)
@@ -49,6 +45,9 @@ use_envname <- function(
     lib_info <- python_library_info(main_library, fail = FALSE, verbose = FALSE)
     if (!is.null(lib_info)) {
       latest_ver <- lib_info$version
+      if (version == "latest") {
+        version <- latest_ver
+      }
       vers <- compareVersion(latest_ver, version)
       install_recent <- vers == 1
       # For cases when the cluster's version is higher than the latest library
@@ -173,13 +172,14 @@ find_environments <- function(x) {
 }
 
 python_requirements <- function(
-    backend = NULL,
-    main_library = NULL,
-    ml_version = NULL,
-    version = NULL,
-    python_version = NULL,
-    install_ml = FALSE,
-    add_torch = FALSE) {
+  backend = NULL,
+  main_library = NULL,
+  ml_version = NULL,
+  version = NULL,
+  python_version = NULL,
+  install_ml = FALSE,
+  add_torch = FALSE
+) {
   cli_div(theme = cli_colors())
 
   if (is.null(python_version) && backend == "databricks") {

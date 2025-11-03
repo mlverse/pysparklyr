@@ -19,6 +19,7 @@ test_that("Use first one", {
     {
       expect_message(
         x <- use_envname(
+          main_library = "pyspark",
           version = "1.1",
           messages = TRUE,
           match_first = TRUE,
@@ -79,6 +80,7 @@ test_that("'Ask to install', simulates menu selection 'Yes'", {
       )
       expect_equal(
         use_envname(
+          main_library = "pyspark",
           version = "1.1",
           messages = TRUE,
           match_first = FALSE,
@@ -104,6 +106,7 @@ test_that("'Ask to install', simulates menu selection 'No'", {
       )
       expect_equal(
         use_envname(
+          main_library = "pyspark",
           version = "1.1",
           messages = TRUE,
           match_first = FALSE,

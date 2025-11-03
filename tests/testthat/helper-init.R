@@ -174,6 +174,7 @@ use_test_python_environment <- function(use_uv = TRUE) {
           reticulate::py_require("torch")
           env <- use_envname(
             backend = "pyspark",
+            main_library = "pyspark",
             version = version,
             messages = TRUE,
             python_version = use_test_python_version(),
@@ -193,7 +194,11 @@ use_test_python_environment <- function(use_uv = TRUE) {
                 python = Sys.which("python"),
                 install_ml = FALSE
               )
-              env <- use_envname(backend = "pyspark", version = version)
+              env <- use_envname(
+                backend = "pyspark",
+                main_library = "pyspark",
+                version = version
+              )
             }
           }
           target <- path(env, "bin", "python")

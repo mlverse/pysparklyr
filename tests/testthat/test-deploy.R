@@ -182,9 +182,6 @@ test_that("Basic use, passing DBR version works", {
 })
 
 
-
-
-
 test_that("Use the Cluster ID from environment variable", {
   withr::with_envvar(
     new = c("WORKON_HOME" = use_test_env()),
@@ -267,7 +264,6 @@ test_that("Fails if no host/token is found", {
 })
 
 
-
 test_that("Simulates interactive session, selects 3 for both prompts", {
   withr::with_envvar(
     new = c("WORKON_HOME" = use_test_env()),
@@ -302,7 +298,6 @@ test_that("Simulates interactive session, selects 3 for both prompts", {
     }
   )
 })
-
 
 
 test_that("Misc deploy tests", {

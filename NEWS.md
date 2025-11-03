@@ -2,6 +2,9 @@
 
 ### Improvements
 
+* Adds support for Snowflake's [Snowpark Connect](https://docs.snowflake.com/en/developer-guide/snowpark-connect/snowpark-connect-overview).
+New method name is `snowpark_connect`.
+
 * Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
 ML functions now supported are:
   * New in Spark 4.0

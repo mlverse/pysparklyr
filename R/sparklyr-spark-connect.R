@@ -1,16 +1,17 @@
 #' @export
 spark_connect_method.spark_method_spark_connect <- function(
-    x,
-    method,
-    master,
-    spark_home,
-    config = pyspark_config(),
-    app_name,
-    version = NULL,
-    hadoop_version,
-    extensions,
-    scala_version,
-    ...) {
+  x,
+  method,
+  master,
+  spark_home,
+  config = pyspark_config(),
+  app_name,
+  version = NULL,
+  hadoop_version,
+  extensions,
+  scala_version,
+  ...
+) {
   version <- version %||% Sys.getenv("SPARK_VERSION")
 
   if (version == "") {
@@ -22,6 +23,7 @@ spark_connect_method.spark_method_spark_connect <- function(
 
   envname <- use_envname(
     backend = "pyspark",
+    main_library = "pyspark",
     version = version,
     envname = envname,
     messages = TRUE,
@@ -49,19 +51,24 @@ spark_connect_method.spark_method_spark_connect <- function(
   )
 }
 
+setOldClass(
+  c("connect_spark", "pyspark_connection", "spark_connection")
+)
+
 #' @export
 spark_connect_method.spark_method_databricks_connect <- function(
-    x,
-    method,
-    master,
-    spark_home,
-    config = pyspark_config(),
-    app_name,
-    version = NULL,
-    hadoop_version,
-    extensions,
-    scala_version,
-    ...) {
+  x,
+  method,
+  master,
+  spark_home,
+  config = pyspark_config(),
+  app_name,
+  version = NULL,
+  hadoop_version,
+  extensions,
+  scala_version,
+  ...
+) {
   args <- list(...)
   cluster_id <- args$cluster_id
   serverless <- args$serverless %||% FALSE
@@ -95,6 +102,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
   # load python env
   envname <- use_envname(
     backend = "databricks",
+    main_library = "databricks.connect",
     version = version,
     envname = envname,
     messages = !silent,
@@ -178,14 +186,83 @@ spark_connect_method.spark_method_databricks_connect <- function(
   )
 }
 
-initialize_connection <- function(
-    conn,
-    master_label,
-    con_class,
+setOldClass(
+  c("connect_databricks", "pyspark_connection", "spark_connection")
+)
+
+#' @export
+spark_connect_method.spark_method_snowpark_connect <- function(
+  x,
+  method,
+  master,
+  spark_home,
+  config = NULL,
+  app_name,
+  version = NULL,
+  hadoop_version,
+  extensions,
+  scala_version,
+  ...
+) {
+  args <- list(...)
+  envname <- args$envname
+  connection_parameters <- args$connection_parameters
+  connection_parameters["account"] <- master
+
+  envname <- use_envname(
+    backend = "snowflake",
+    main_library = "snowflake-snowpark-python",
+    version = version %||% "latest",
+    envname = envname,
+    messages = TRUE,
+    match_first = TRUE,
+    python_version = args$python_version
+  )
+
+  if (is.null(envname)) {
+    return(invisible())
+  }
+
+  pyspark <- import_check("snowflake.snowpark", envname)
+
+  conn <- pyspark$Session$builder$configs(connection_parameters)
+
+  con_class <- "connect_snowflake"
+  master_label <- glue("Snowpark Connect - {master}")
+
+  initialize_connection(
+    conn = conn,
+    master_label = master_label,
+    con_class = con_class,
     cluster_id = NULL,
-    serverless = FALSE,
-    method = NULL,
-    config = NULL) {
+    method = method,
+    config = NULL,
+    misc = list(
+      sql_catalogs = "show databases",
+      sql_tables_schema = "show tables in {schema}",
+      sql_tables_catalog_schema = "show tables in {catalog}.{schema}",
+      sql_schemas_catalog = "show schemas in database {catalog}",
+      sql_schemas = "show schemas"
+    ),
+    quote = ""
+  )
+}
+
+setOldClass(
+  c("connect_snowflake", "pyspark_connection", "spark_connection")
+)
+
+initialize_connection <- function(
+  conn,
+  master_label,
+  con_class,
+  cluster_id = NULL,
+  serverless = FALSE,
+  method = NULL,
+  config = NULL,
+  misc = NULL,
+  quote = NULL
+) {
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",
@@ -256,6 +333,8 @@ initialize_connection <- function(
       session = session,
       state = spark_context,
       serverless = serverless,
+      misc = misc,
+      quote = quote,
       con = structure(list(), class = c("spark_connection", "DBIConnection"))
     ),
     class = c(
@@ -268,22 +347,13 @@ initialize_connection <- function(
 
   sc
 }
-# setOldClass(
-#   c("Hive", "spark_connection")
-# )
-
-setOldClass(
-  c("connect_spark", "pyspark_connection", "spark_connection")
-)
-
-setOldClass(
-  c("connect_databricks", "pyspark_connection", "spark_connection")
-)
 
 python_conn <- function(x) {
   py_object <- "python.builtin.object"
   ret <- NULL
-  if (inherits(x$state$spark_context, py_object)) ret <- x$state$spark_context
+  if (inherits(x$state$spark_context, py_object)) {
+    ret <- x$state$spark_context
+  }
   if (is.null(ret) && inherits(x[[1]]$session$sparkSession, py_object)) {
     ret <- x[[1]]$session$sparkSession
   }

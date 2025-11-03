@@ -69,12 +69,13 @@ databricks_token <- function(token = NULL, fail = FALSE) {
 }
 
 databricks_sdk_client <- function(
-    sdk,
-    host,
-    token,
-    serverless = FALSE,
-    cluster_id = NULL,
-    profile = NULL) {
+  sdk,
+  host,
+  token,
+  serverless = FALSE,
+  cluster_id = NULL,
+  profile = NULL
+) {
   # SDK behaviour
   # https://databricks-sdk-py.readthedocs.io/en/latest/authentication.html#default-authentication-flow
   if (token == "") {
@@ -104,11 +105,12 @@ databricks_sdk_client <- function(
 }
 
 databricks_dbr_version_name <- function(
-    cluster_id,
-    client = NULL,
-    host = NULL,
-    token = NULL,
-    silent = FALSE) {
+  cluster_id,
+  client = NULL,
+  host = NULL,
+  token = NULL,
+  silent = FALSE
+) {
   bullets <- NULL
   version <- NULL
   cluster_info <- databricks_dbr_info(
@@ -137,11 +139,12 @@ databricks_extract_version <- function(x) {
 }
 
 databricks_dbr_info <- function(
-    cluster_id,
-    client = NULL,
-    host = NULL,
-    token = NULL,
-    silent = FALSE) {
+  cluster_id,
+  client = NULL,
+  host = NULL,
+  token = NULL,
+  silent = FALSE
+) {
   cli_div(theme = cli_colors())
 
   if (!silent) {
@@ -201,10 +204,11 @@ databricks_dbr_info <- function(
 }
 
 databricks_dbr_version <- function(
-    cluster_id,
-    client = NULL,
-    host = NULL,
-    token = NULL) {
+  cluster_id,
+  client = NULL,
+  host = NULL,
+  token = NULL
+) {
   vn <- databricks_dbr_version_name(
     cluster_id = cluster_id,
     client = client,
@@ -215,10 +219,11 @@ databricks_dbr_version <- function(
 }
 
 databricks_cluster_get <- function(
-    cluster_id,
-    client = NULL,
-    host = NULL,
-    token = NULL) {
+  cluster_id,
+  client = NULL,
+  host = NULL,
+  token = NULL
+) {
   if (!is.null(client)) {
     try(
       client$clusters$get(cluster_id = cluster_id)$as_dict(),

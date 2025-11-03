@@ -142,7 +142,6 @@ test_that(
 )
 
 
-
 test_that("installed_components() output properly", {
   withr::with_envvar(
     new = c("WORKON_HOME" = use_new_test_env()),

@@ -18,6 +18,9 @@
       $backend
       [1] "databricks"
       
+      $main_library
+      [1] "databricks-connect"
+      
       $envVars
       [1] "DATABRICKS_HOST"  "DATABRICKS_TOKEN"
       
@@ -54,6 +57,9 @@
       
       $backend
       [1] "databricks"
+      
+      $main_library
+      [1] "databricks-connect"
       
       $envVars
       [1] "CONNECT_DATABRICKS_HOST"  "CONNECT_DATABRICKS_TOKEN"

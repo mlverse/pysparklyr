@@ -10,10 +10,11 @@
 #' list of Python libraries.
 #' @export
 requirements_write <- function(
-    envname = NULL,
-    destfile = "requirements.txt",
-    overwrite = FALSE,
-    ...) {
+  envname = NULL,
+  destfile = "requirements.txt",
+  overwrite = FALSE,
+  ...
+) {
   cli_div(theme = cli_colors())
 
   if (file_exists(destfile)) {

@@ -23,14 +23,15 @@
 #' @param ... Added for backwards compatibility. Not in use today.
 #' @export
 ml_prepare_dataset <- function(
-    x,
-    formula = NULL,
-    label = NULL,
-    features = NULL,
-    label_col = "label",
-    features_col = "features",
-    keep_original = TRUE,
-    ...) {
+  x,
+  formula = NULL,
+  label = NULL,
+  features = NULL,
+  label_col = "label",
+  features_col = "features",
+  keep_original = TRUE,
+  ...
+) {
   if (keep_original) {
     lf <- "all"
   } else {
@@ -51,15 +52,16 @@ ml_prepare_dataset <- function(
 }
 
 ml_prep_dataset <- function(
-    x,
-    formula = NULL,
-    label = NULL,
-    features = NULL,
-    label_col = "label",
-    features_col = "features",
-    lf = c("only", "all"),
-    additional = NULL,
-    fitting = FALSE) {
+  x,
+  formula = NULL,
+  label = NULL,
+  features = NULL,
+  label_col = "label",
+  features_col = "features",
+  lf = c("only", "all"),
+  additional = NULL,
+  fitting = FALSE
+) {
   lf <- match.arg(lf)
   pyspark <- import("pyspark")
   if (!is.null(formula)) {

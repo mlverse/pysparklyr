@@ -1,10 +1,11 @@
 #' @export
 spark_ide_objects.pyspark_connection <- function(
-    con,
-    catalog = NULL,
-    schema = NULL,
-    name = NULL,
-    type = NULL) {
+  con,
+  catalog = NULL,
+  schema = NULL,
+  name = NULL,
+  type = NULL
+) {
   catalog_python(
     con = con,
     catalog = catalog,
@@ -16,11 +17,12 @@ spark_ide_objects.pyspark_connection <- function(
 
 #' @export
 spark_ide_columns.pyspark_connection <- function(
-    con,
-    table = NULL,
-    view = NULL,
-    catalog = NULL,
-    schema = NULL) {
+  con,
+  table = NULL,
+  view = NULL,
+  catalog = NULL,
+  schema = NULL
+) {
   tbl_df <- rs_get_table(con, catalog, schema, table)
 
   tbl_sample <- collect(head(tbl_df))
@@ -35,22 +37,24 @@ spark_ide_columns.pyspark_connection <- function(
 
 #' @export
 spark_ide_preview.pyspark_connection <- function(
-    con,
-    rowLimit,
-    table = NULL,
-    view = NULL,
-    catalog = NULL,
-    schema = NULL) {
+  con,
+  rowLimit,
+  table = NULL,
+  view = NULL,
+  catalog = NULL,
+  schema = NULL
+) {
   tbl_df <- rs_get_table(con, catalog, schema, table)
   collect(head(tbl_df, rowLimit))
 }
 
 catalog_python <- function(
-    con,
-    catalog = NULL,
-    schema = NULL,
-    name = NULL,
-    type = NULL) {
+  con,
+  catalog = NULL,
+  schema = NULL,
+  name = NULL,
+  type = NULL
+) {
   df_catalogs <- data.frame()
   df_tables <- data.frame()
 
@@ -81,7 +85,7 @@ catalog_python <- function(
       tables_name <- ifelse("tableName" %in% colnames(tables), "tableName", "name")
       out <- df_tables
       if (nrow(tables) > 0) {
-        if("isTemporary" %in% colnames(tables)) {
+        if ("isTemporary" %in% colnames(tables)) {
           tables <- tables[!tables$isTemporary, ]
         }
         if (nrow(tables) > 0) {

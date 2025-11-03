@@ -1,16 +1,17 @@
 #' @export
 spark_connect_method.spark_method_spark_connect <- function(
-    x,
-    method,
-    master,
-    spark_home,
-    config = pyspark_config(),
-    app_name,
-    version = NULL,
-    hadoop_version,
-    extensions,
-    scala_version,
-    ...) {
+  x,
+  method,
+  master,
+  spark_home,
+  config = pyspark_config(),
+  app_name,
+  version = NULL,
+  hadoop_version,
+  extensions,
+  scala_version,
+  ...
+) {
   version <- version %||% Sys.getenv("SPARK_VERSION")
 
   if (version == "") {
@@ -56,17 +57,18 @@ setOldClass(
 
 #' @export
 spark_connect_method.spark_method_databricks_connect <- function(
-    x,
-    method,
-    master,
-    spark_home,
-    config = pyspark_config(),
-    app_name,
-    version = NULL,
-    hadoop_version,
-    extensions,
-    scala_version,
-    ...) {
+  x,
+  method,
+  master,
+  spark_home,
+  config = pyspark_config(),
+  app_name,
+  version = NULL,
+  hadoop_version,
+  extensions,
+  scala_version,
+  ...
+) {
   args <- list(...)
   cluster_id <- args$cluster_id
   serverless <- args$serverless %||% FALSE
@@ -190,17 +192,18 @@ setOldClass(
 
 #' @export
 spark_connect_method.spark_method_snowpark_connect <- function(
-    x,
-    method,
-    master,
-    spark_home,
-    config = NULL,
-    app_name,
-    version = NULL,
-    hadoop_version,
-    extensions,
-    scala_version,
-    ...) {
+  x,
+  method,
+  master,
+  spark_home,
+  config = NULL,
+  app_name,
+  version = NULL,
+  hadoop_version,
+  extensions,
+  scala_version,
+  ...
+) {
   args <- list(...)
   envname <- args$envname
   connection_parameters <- args$connection_parameters
@@ -250,15 +253,16 @@ setOldClass(
 )
 
 initialize_connection <- function(
-    conn,
-    master_label,
-    con_class,
-    cluster_id = NULL,
-    serverless = FALSE,
-    method = NULL,
-    config = NULL,
-    misc = NULL,
-    quote = NULL) {
+  conn,
+  master_label,
+  con_class,
+  cluster_id = NULL,
+  serverless = FALSE,
+  method = NULL,
+  config = NULL,
+  misc = NULL,
+  quote = NULL
+) {
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",

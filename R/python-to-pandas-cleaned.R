@@ -8,7 +8,7 @@ to_pandas_cleaned <- function(x) {
     # Has to check if SQL functions can be imported because some backend
     # connection Python packages does not include it
     sf <- try(import("pyspark.sql.functions"), silent = TRUE)
-    if(!inherits(sf, "try-error")) {
+    if (!inherits(sf, "try-error")) {
       for (field in fields[dec_types]) {
         fn <- field[[1]]
         x <- x$withColumn(fn, sf$col(fn)$cast("double"))

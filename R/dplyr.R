@@ -12,11 +12,12 @@ head.tbl_pyspark <- function(x, n = 6L, ...) {
 
 #' @export
 sample_n.tbl_pyspark <- function(
-    tbl,
-    size,
-    replace = FALSE,
-    weight = NULL,
-    .env = NULL, ...) {
+  tbl,
+  size,
+  replace = FALSE,
+  weight = NULL,
+  .env = NULL, ...
+) {
   slice_sample(
     .data = tbl,
     n = size,

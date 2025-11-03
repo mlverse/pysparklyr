@@ -36,18 +36,19 @@
 #' @returns No value is returned to R. Only output to the console.
 #' @export
 deploy_databricks <- function(
-    appDir = NULL,
-    python = NULL,
-    account = NULL,
-    server = NULL,
-    lint = FALSE,
-    forceGeneratePythonEnvironment = TRUE,
-    version = NULL,
-    cluster_id = NULL,
-    host = NULL,
-    token = NULL,
-    confirm = interactive(),
-    ...) {
+  appDir = NULL,
+  python = NULL,
+  account = NULL,
+  server = NULL,
+  lint = FALSE,
+  forceGeneratePythonEnvironment = TRUE,
+  version = NULL,
+  cluster_id = NULL,
+  host = NULL,
+  token = NULL,
+  confirm = interactive(),
+  ...
+) {
   cli_div(theme = cli_colors())
 
   cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
@@ -120,6 +121,7 @@ deploy_databricks <- function(
     python = python,
     version = version,
     backend = "databricks",
+    main_library = "databricks-connect",
     envVars = env_vars,
     env_var_message = env_var_message,
     account = account,
@@ -130,17 +132,19 @@ deploy_databricks <- function(
 }
 
 deploy <- function(
-    appDir = NULL,
-    account = NULL,
-    server = NULL,
-    lint = FALSE,
-    envVars = NULL,
-    python = NULL,
-    version = NULL,
-    backend = NULL,
-    env_var_message = NULL,
-    confirm,
-    ...) {
+  appDir = NULL,
+  account = NULL,
+  server = NULL,
+  lint = FALSE,
+  envVars = NULL,
+  python = NULL,
+  version = NULL,
+  backend = NULL,
+  main_library = NULL,
+  env_var_message = NULL,
+  confirm,
+  ...
+) {
   if (is.null(backend)) {
     abort("'backend' is empty, please provide one")
   }
@@ -179,7 +183,8 @@ deploy <- function(
   python <- deploy_find_environment(
     python = python,
     version = version,
-    backend = backend
+    backend = backend,
+    main_library = main_library
   )
   cli_inform(c(
     "i" = "{.header Posit server:} {.emph {server}}",
@@ -233,9 +238,11 @@ deploy <- function(
 }
 
 deploy_find_environment <- function(
-    version = NULL,
-    python = NULL,
-    backend = NULL) {
+  version = NULL,
+  python = NULL,
+  backend = NULL,
+  main_library = NULL
+) {
   ret <- NULL
   failed <- NULL
   env_name <- ""
@@ -244,7 +251,8 @@ deploy_find_environment <- function(
     if (!is.null(version)) {
       env_name <- use_envname(
         version = version,
-        backend = backend
+        backend = backend,
+        main_library = main_library
       )
       if (names(env_name) == "exact") {
         check_conda <- try(conda_python(env_name), silent = TRUE)

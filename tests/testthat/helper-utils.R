@@ -131,7 +131,8 @@ test_databricks_cluster_version <- function() {
 test_databricks_stump_env <- function() {
   env_name <- use_envname(
     version = test_databricks_cluster_version(),
-    backend = "databricks"
+    backend = "databricks",
+    main_library = "databricks-connect"
   )
   env_path <- path(use_test_env(), env_name)
   if (names(env_name) != "exact") {

@@ -1,19 +1,20 @@
 #' @export
 spark_apply.tbl_pyspark <- function(
-    x,
-    f,
-    columns = NULL,
-    memory = TRUE,
-    group_by = NULL,
-    packages = NULL,
-    context = NULL,
-    name = NULL,
-    barrier = NULL,
-    fetch_result_as_sdf = TRUE,
-    partition_index_param = "",
-    arrow_max_records_per_batch = NULL,
-    auto_deps = FALSE,
-    ...) {
+  x,
+  f,
+  columns = NULL,
+  memory = TRUE,
+  group_by = NULL,
+  packages = NULL,
+  context = NULL,
+  name = NULL,
+  barrier = NULL,
+  fetch_result_as_sdf = TRUE,
+  partition_index_param = "",
+  arrow_max_records_per_batch = NULL,
+  auto_deps = FALSE,
+  ...
+) {
   rpy2_installed()
   cli_div(theme = cli_colors())
   if (!is.null(packages)) {
@@ -63,16 +64,17 @@ spark_apply.tbl_pyspark <- function(
 }
 
 sa_in_pandas <- function(
-    x,
-    .f,
-    ...,
-    .schema = NULL,
-    .schema_arg = "columns",
-    .group_by = NULL,
-    .as_sdf = TRUE,
-    .name = NULL,
-    .context = NULL,
-    .barrier = NULL) {
+  x,
+  .f,
+  ...,
+  .schema = NULL,
+  .schema_arg = "columns",
+  .group_by = NULL,
+  .as_sdf = TRUE,
+  .name = NULL,
+  .context = NULL,
+  .barrier = NULL
+) {
   schema_msg <- FALSE
   if (is.null(.schema)) {
     r_fn <- .f %>%
@@ -174,12 +176,13 @@ sa_in_pandas <- function(
 }
 
 sa_function_to_string <- function(
-    .f,
-    .group_by = NULL,
-    .r_only = FALSE,
-    .colnames = NULL,
-    .context = NULL,
-    ...) {
+  .f,
+  .group_by = NULL,
+  .r_only = FALSE,
+  .colnames = NULL,
+  .context = NULL,
+  ...
+) {
   path_scripts <- system.file("udf", package = "pysparklyr")
   # path_scripts <- "inst/udf"
   if (dir_exists("inst/udf")) {

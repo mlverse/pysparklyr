@@ -1,13 +1,14 @@
 use_envname <- function(
-    envname = NULL,
-    backend = "pyspark",
-    version = NULL,
-    messages = FALSE,
-    match_first = FALSE,
-    ignore_reticulate_python = FALSE,
-    ask_if_not_installed = FALSE,
-    main_library = NULL,
-    python_version = NULL) {
+  envname = NULL,
+  backend = "pyspark",
+  version = NULL,
+  messages = FALSE,
+  match_first = FALSE,
+  ignore_reticulate_python = FALSE,
+  ask_if_not_installed = FALSE,
+  main_library = NULL,
+  python_version = NULL
+) {
   if (is.null(main_library) && !is.null(backend)) {
     cli_abort("Backend `{backend}` not valid")
   }
@@ -171,13 +172,14 @@ find_environments <- function(x) {
 }
 
 python_requirements <- function(
-    backend = NULL,
-    main_library = NULL,
-    ml_version = NULL,
-    version = NULL,
-    python_version = NULL,
-    install_ml = FALSE,
-    add_torch = FALSE) {
+  backend = NULL,
+  main_library = NULL,
+  ml_version = NULL,
+  version = NULL,
+  python_version = NULL,
+  install_ml = FALSE,
+  add_torch = FALSE
+) {
   cli_div(theme = cli_colors())
 
   if (is.null(python_version) && backend == "databricks") {

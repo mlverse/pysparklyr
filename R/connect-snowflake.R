@@ -49,6 +49,7 @@ spark_connect_method.spark_method_snowpark_connect <- function(
       }
     }
   }
+  print(connection_parameters)
   conn <- pyspark$Session$builder$configs(connection_parameters)
 
   con_class <- "connect_snowflake"

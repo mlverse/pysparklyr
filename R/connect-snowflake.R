@@ -12,36 +12,43 @@ spark_connect_method.spark_method_snowpark_connect <- function(
   scala_version,
   ...
 ) {
-  if(missing(master) || is.null(master)) {
+  if (missing(master) || is.null(master)) {
     master <- Sys.getenv("SNOWFLAKE_ACCOUNT", unset = NA)
-    if(is.na(master)) {
+    if (is.na(master)) {
       cli_abort(paste(
         "Please provide a `master` argument. It needs to be your Snowflake's",
         "'Account Identifier', which can be found in the portal."
-        ))
+      ))
     }
   }
   args <- list(...)
-  envname <- args$envname
-  connection_parameters <- args$connection_parameters
-  connection_parameters["account"] <- master
-
   envname <- use_envname(
     backend = "snowflake",
     main_library = "snowflake-snowpark-python",
     version = version %||% "latest",
-    envname = envname,
+    envname = args$envname,
     messages = TRUE,
     match_first = TRUE,
     python_version = args$python_version
   )
-
   if (is.null(envname)) {
     return(invisible())
   }
-
   pyspark <- import_check("snowflake.snowpark", envname)
-
+  connection_parameters <- args$connection_parameters
+  connection_parameters["account"] <- master
+  if (is.null(connection_parameters["password"])) {
+    # Checks to see if there is a Posit Workbench token available
+    snowflake_home <- Sys.getenv("SNOWFLAKE_HOME", unset = NA)
+    if (!is.na(snowflake_home)) {
+      if (grepl("workbench", snowflake_home)) {
+        token <- try(workbench_snowflake_token(master, snowflake_home), silent = TRUE)
+        if (!inherits("try-error")) {
+          connection_parameters["password"] <- token
+        }
+      }
+    }
+  }
   conn <- pyspark$Session$builder$configs(connection_parameters)
 
   con_class <- "connect_snowflake"

@@ -43,7 +43,7 @@ spark_connect_method.spark_method_snowpark_connect <- function(
     if (!is.na(snowflake_home)) {
       if (grepl("workbench", snowflake_home)) {
         token <- try(workbench_snowflake_token(master, snowflake_home), silent = TRUE)
-        if (!inherits("try-error")) {
+        if (!inherits(token, "try-error")) {
           connection_parameters[["password"]] <- token
         }
       }

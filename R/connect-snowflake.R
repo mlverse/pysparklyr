@@ -37,14 +37,14 @@ spark_connect_method.spark_method_snowpark_connect <- function(
   pyspark <- import_check("snowflake.snowpark", envname)
   connection_parameters <- args$connection_parameters
   connection_parameters["account"] <- master
-  if (is.null(connection_parameters["password"])) {
+  if (is.null(connection_parameters[["password"]])) {
     # Checks to see if there is a Posit Workbench token available
     snowflake_home <- Sys.getenv("SNOWFLAKE_HOME", unset = NA)
     if (!is.na(snowflake_home)) {
       if (grepl("workbench", snowflake_home)) {
         token <- try(workbench_snowflake_token(master, snowflake_home), silent = TRUE)
         if (!inherits("try-error")) {
-          connection_parameters["password"] <- token
+          connection_parameters[["password"]] <- token
         }
       }
     }

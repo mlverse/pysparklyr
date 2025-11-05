@@ -20,9 +20,13 @@
       $conn[[1]]$schema
       [1] "testschema"
       
+      $conn[[1]]$account
+      [1] "testaccount"
+      
       
       
       $master_label
+      Snowpark Connect - testaccount
       
       $con_class
       [1] "connect_snowflake"

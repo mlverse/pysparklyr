@@ -50,6 +50,25 @@ spark_connect_method.spark_method_snowpark_connect <- function(
       }
     }
   }
+  missing_path <- NULL
+  if (is.null(connection_parameters$warehouse)) {
+    missing_path <- "warehouse"
+  }
+  if (is.null(connection_parameters$database)) {
+    missing_path <- c(missing_path, "database")
+  }
+  if (is.null(connection_parameters$schema)) {
+    missing_path <- c(missing_path, "schema")
+  }
+  if (!is.null(missing_path)) {
+    missing_path <- paste0("'", missing_path, "'")
+    cli_alert_warning(
+      "Argument{?s} {.pkg {missing_path}} will be needed to easily navigate Snowflake"
+    )
+    cli_bullets(
+      c(" " = "Please use the `connection_parameters` argument to pass them.")
+    )
+  }
   conn <- pyspark$Session$builder$configs(connection_parameters)
   con_class <- "connect_snowflake"
   master_label <- glue("Snowpark Connect - {master}")

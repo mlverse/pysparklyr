@@ -44,17 +44,15 @@ spark_connect_method.spark_method_snowpark_connect <- function(
       if (grepl("workbench", snowflake_home)) {
         token <- try(workbench_snowflake_token(master, snowflake_home), silent = TRUE)
         if (!inherits(token, "try-error")) {
-          connection_parameters[["password"]] <- token
+          connection_parameters[["authenticator"]] <- "oauth"
+          connection_parameters[["token"]] <- token
         }
       }
     }
   }
-  print(connection_parameters)
   conn <- pyspark$Session$builder$configs(connection_parameters)
-
   con_class <- "connect_snowflake"
   master_label <- glue("Snowpark Connect - {master}")
-
   initialize_connection(
     conn = conn,
     master_label = master_label,

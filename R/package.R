@@ -37,7 +37,7 @@
 #' @importFrom purrr map_chr discard transpose reduce map2 list_rbind flatten
 #' @importFrom rlang enquo `!!` `!!!` quo_is_null sym warn abort `%||%`
 #' @importFrom rlang is_string is_character parse_exprs set_names
-#' @importFrom rlang exec arg_match as_utf8_character
+#' @importFrom rlang exec arg_match as_utf8_character is_missing
 #' @importFrom rsconnect accounts deployApp deployments
 #' @importFrom methods new is setOldClass
 #' @importFrom tidyselect matches

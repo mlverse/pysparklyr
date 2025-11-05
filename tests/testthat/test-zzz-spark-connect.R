@@ -70,7 +70,7 @@ test_that("Snowpark Connect (Snowflake)", {
       )
       sc_out <- spark_connect_method.spark_method_snowpark_connect(
         method = "snowpark_connect",
-        master = NULL,
+        master = "testaccount",
         connection_parameters = list(
           user = "test@user.com",
           password = "testtoken",
@@ -80,6 +80,18 @@ test_that("Snowpark Connect (Snowflake)", {
         )
       )
       expect_snapshot(sc_out)
+      expect_error(
+        spark_connect_method.spark_method_snowpark_connect(
+          method = "snowpark_connect",
+          connection_parameters = list(
+            user = "test@user.com",
+            password = "testtoken",
+            warehouse = "testwh",
+            database = "testdb",
+            schema = "testschema"
+          )
+        )
+      )
     }
   )
 })

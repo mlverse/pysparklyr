@@ -64,7 +64,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
 
   if (token == "") {
     sdk_config <- db_sdk$core$Config()
-    token <- sdk_config$token
+    token <- sdk_config$token %||% ""
   }
 
   # create workspace client

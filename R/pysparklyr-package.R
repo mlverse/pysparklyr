@@ -14,7 +14,6 @@
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom glue glue
 #' @importFrom lifecycle deprecated
-#' @importFrom magrittr %>%
 #' @importFrom methods new is setOldClass
 #' @importFrom processx process
 #' @importFrom purrr map_chr discard transpose reduce map2 list_rbind flatten

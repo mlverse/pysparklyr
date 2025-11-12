@@ -26,7 +26,6 @@ Imports:
     sparklyr,
     tidyselect,
     fs,
-    magrittr,
     tidyr,
     vctrs,
     processx,

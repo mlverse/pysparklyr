@@ -44,3 +44,5 @@ Suggests:
     tibble
 Config/testthat/edition: 3
 Config/usethis/last-upkeep: 2025-11-12
+Depends: 
+    R (>= 4.1)

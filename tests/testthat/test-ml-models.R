@@ -179,7 +179,7 @@ test_that("Isotonic regression works", {
   expect_snapshot(model)
   expect_snapshot(class(model))
   x <- tbl_iris |>
-    ml_predict(model, dataset =  _) |>
+    ml_predict(model, dataset = _) |>
     collect()
   expect_true("prediction" %in% names(x))
 })

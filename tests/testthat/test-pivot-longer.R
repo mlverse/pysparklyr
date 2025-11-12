@@ -57,10 +57,12 @@ test_that("can handle missing combinations", {
       "A",    1,    2,  "a",
       "B",    3,    4,  "b",
     ),
-    function(.x) .x |> tidyr::pivot_longer(
-      -id,
-      names_to = c(".value", "n"), names_sep = "_"
-    )
+    function(.x) {
+      .x |> tidyr::pivot_longer(
+        -id,
+        names_to = c(".value", "n"), names_sep = "_"
+      )
+    }
   )
 })
 
@@ -71,10 +73,12 @@ test_that("original col order is preserved", {
       "A", 1, 2, 3, 4, 5, 6,
       "B", 7, 8, 9, 10, 11, 12,
     ),
-    function(.x) .x |> tidyr::pivot_longer(
-      -id,
-      names_to = c(".value", "n"), names_sep = "_"
-    )
+    function(.x) {
+      .x |> tidyr::pivot_longer(
+        -id,
+        names_to = c(".value", "n"), names_sep = "_"
+      )
+    }
   )
 })
 
@@ -143,8 +147,10 @@ test_that("reporting data type mismatch", {
 test_that("grouping is preserved", {
   expect_same_remote_result(
     tibble::tibble(g = 1, x1 = 1, x2 = 2),
-    function(.x) .x |>
-      dplyr::group_by(g) %>%
-      tidyr::pivot_longer(x1:x2, names_to = "x", values_to = "v")
+    function(.x) {
+      .x |>
+        dplyr::group_by(g) %>%
+        tidyr::pivot_longer(x1:x2, names_to = "x", values_to = "v")
+    }
   )
 })

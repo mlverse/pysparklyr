@@ -95,4 +95,3 @@ test_that("Snowpark Connect (Snowflake)", {
     }
   )
 })
-

@@ -5,8 +5,8 @@ ml_predict.ml_connect_model <- function(x, dataset, ...) {
 }
 
 ml_get_last_item <- function(x) {
-  classes <- x %>%
-    strsplit("\\.") %>%
+  classes <- x |>
+    strsplit("\\.") |>
     unlist()
 
   classes[length(classes)]
@@ -29,8 +29,8 @@ transform_impl <- function(x, dataset, prep = TRUE,
 
   py_object <- python_obj_get(x)
 
-  ret <- x %>%
-    get_spark_pyobj() %>%
+  ret <- x |>
+    get_spark_pyobj() |>
     invoke("transform", ml_df)
 
   if (remove) {
@@ -81,17 +81,17 @@ print.ml_connect_model <- function(x, ...) {
 
 print_parameters <- function(x) {
   p <- get_params(x)
-  p_descriptions <- p %>%
-    map_chr(~ .x$description) %>%
-    as.character() %>%
-    strsplit("\\.") %>%
+  p_descriptions <- p |>
+    map_chr(~ .x$description) |>
+    as.character() |>
+    strsplit("\\.") |>
     map(~ .x[[1]])
   p_names <- map_chr(p, ~ .x$name)
-  p_values <- p %>%
+  p_values <- p |>
     map(~ {
       cl <- class(.x$value)
       .x$value
-    }) %>%
+    }) |>
     as.character()
   p_values[nchar(p_values) >= 20] <- paste0(
     substr(p_values[nchar(p_values) >= 20], 1, 17), "..."
@@ -158,11 +158,11 @@ print_summary <- function(x) {
   py_x <- python_obj_get(x)
   summary_names <- names(py_x$summary)
   summary_values <- map(summary_names, function(x) py_x$summary[[x]])
-  summary_valid <- summary_values %>%
+  summary_valid <- summary_values |>
     map_lgl(function(x) inherits(x, "numeric") | inherits(x, "character"))
   summary_names <- summary_names[summary_valid]
   summary_values <- summary_values[summary_valid]
-  summary_values <- summary_values %>%
+  summary_values <- summary_values |>
     map(function(x) {
       if (is.numeric(x)) {
         x <- round(x, 3)

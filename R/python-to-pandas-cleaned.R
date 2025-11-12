@@ -26,8 +26,8 @@ to_pandas_cleaned <- function(x) {
 
   for (i in seq_len(ncol(collected))) {
     if (orig_types[i] == "date") {
-      to_date <- collected[, i] %>%
-        as.integer() %>%
+      to_date <- collected[, i] |>
+        as.integer() |>
         as.Date(origin = "1970-01-01")
       collected[, i] <- to_date
     }

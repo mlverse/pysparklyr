@@ -4,10 +4,10 @@ test_that("Cross validator works", {
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()
 
-  pipeline <- sc %>%
-    ml_pipeline() %>%
-    ft_binarizer("mpg", "mpg2", 20) %>%
-    ft_r_formula(mpg2 ~ .) %>%
+  pipeline <- sc |>
+    ml_pipeline() |>
+    ft_binarizer("mpg", "mpg2", 20) |>
+    ft_r_formula(mpg2 ~ .) |>
     ml_logistic_regression()
 
   grid <- list(

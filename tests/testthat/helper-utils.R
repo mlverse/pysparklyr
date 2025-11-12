@@ -10,8 +10,8 @@ expect_same_remote_result <- function(.data, pipeline) {
   local <- pipeline(.data)
 
   remote <- try(
-    spark_data %>%
-      pipeline() %>%
+    spark_data |>
+      pipeline() |>
       collect()
   )
 

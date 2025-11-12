@@ -183,15 +183,15 @@ pyspark_write_generic <- function(
   }
 
   invisible(
-    x %>%
-      py_invoke_options(options = opts) %>%
+    x |>
+      py_invoke_options(options = opts) |>
       py_invoke(save_action, path)
   )
 }
 
 py_invoke <- function(x, fun, ...) {
-  x %>%
-    py_get_attr(fun) %>%
+  x |>
+    py_get_attr(fun) |>
     py_call(...)
 }
 

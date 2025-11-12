@@ -50,8 +50,8 @@
 ---
 
     Code
-      preds %>% mutate(prediction = as.numeric(prediction)) %>% compute() %>%
-        ml_regression_evaluator(label_col = "species_idx")
+      ml_regression_evaluator(compute(mutate(preds, prediction = as.numeric(
+        prediction))), label_col = "species_idx")
     Output
       [1] 1.407125
 

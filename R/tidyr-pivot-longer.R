@@ -35,8 +35,8 @@ pivot_longer.tbl_pyspark <- function(
   # operate the piped commands first.
   temp_name <- tbl_temp_name()
   te_df <- tbl_pyspark_temp(spark_df, data, temp_name)
-  col_names <- te_df %>%
-    select(!!enquo(cols)) %>%
+  col_names <- te_df |>
+    select(!!enquo(cols)) |>
     colnames()
 
   if (length(col_names) == 0) {

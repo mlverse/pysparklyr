@@ -17,8 +17,8 @@
 ---
 
     Code
-      use_test_table_mtcars() %>% ft_binarizer("mpg", "mpg_new", threshold = 20) %>%
-        use_test_pull(TRUE)
+      use_test_pull(ft_binarizer(use_test_table_mtcars(), "mpg", "mpg_new",
+      threshold = 20), TRUE)
     Output
       x
        0  1 
@@ -44,8 +44,8 @@
 ---
 
     Code
-      use_test_mtcars_va() %>% ft_bucketed_random_projection_lsh("vec_x", "lsh_x",
-        bucket_length = 1) %>% use_test_pull()
+      use_test_pull(ft_bucketed_random_projection_lsh(use_test_mtcars_va(), "vec_x",
+      "lsh_x", bucket_length = 1))
     Output
        [1] -1 -1  0 -1 -3 -1 -3  1  1 -1 -1 -3 -3 -3 -3 -3 -2  1  1  1  0 -3 -3 -3 -2
       [26]  1  1  1 -3 -1 -3  0
@@ -69,8 +69,8 @@
 ---
 
     Code
-      use_test_table_mtcars() %>% ft_bucketizer("mpg", "mpg_new", splits = c(0, 10,
-        20, 30, 40)) %>% use_test_pull(TRUE)
+      use_test_pull(ft_bucketizer(use_test_table_mtcars(), "mpg", "mpg_new", splits = c(
+        0, 10, 20, 30, 40)), TRUE)
     Output
       x
        1  2  3 
@@ -95,8 +95,8 @@
 ---
 
     Code
-      use_test_table_reviews() %>% ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-        ft_count_vectorizer("token_x", "cv_x") %>% use_test_pull()
+      use_test_pull(ft_count_vectorizer(ft_tokenizer(use_test_table_reviews(),
+      input_col = "x", output_col = "token_x"), "token_x", "cv_x"))
     Output
                                             x
       1 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
@@ -120,7 +120,7 @@
 ---
 
     Code
-      use_test_mtcars_va() %>% ft_dct("vec_x", "dct_x") %>% use_test_pull()
+      use_test_pull(ft_dct(use_test_mtcars_va(), "vec_x", "dct_x"))
     Output
                                                             x
       1  17.1011149733967, 10.6066017177982, 8.88348280049366
@@ -175,8 +175,8 @@
 ---
 
     Code
-      use_test_mtcars_va() %>% ft_discrete_cosine_transform("vec_x", "dct_x") %>%
-        use_test_pull()
+      use_test_pull(ft_discrete_cosine_transform(use_test_mtcars_va(), "vec_x",
+      "dct_x"))
     Output
                                                             x
       1  17.1011149733967, 10.6066017177982, 8.88348280049366
@@ -231,8 +231,8 @@
 ---
 
     Code
-      use_test_mtcars_va() %>% ft_elementwise_product("vec_x", "elm_x", scaling_vec = c(
-        1:3)) %>% use_test_pull()
+      use_test_pull(ft_elementwise_product(use_test_mtcars_va(), "vec_x", "elm_x",
+      scaling_vec = c(1:3)))
     Output
                         x
       1      21, 5.24, 18
@@ -287,8 +287,7 @@
 ---
 
     Code
-      use_test_table_mtcars() %>% ft_feature_hasher(c("mpg", "wt", "cyl")) %>%
-        use_test_pull()
+      use_test_pull(ft_feature_hasher(use_test_table_mtcars(), c("mpg", "wt", "cyl")))
     Output
                       x
       1     2.62, 6, 21
@@ -343,9 +342,9 @@
 ---
 
     Code
-      use_test_table_reviews() %>% ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-        ft_hashing_tf(input_col = "token_x", output_col = "hashed_x", binary = TRUE,
-          num_features = 1024) %>% use_test_pull()
+      use_test_pull(ft_hashing_tf(ft_tokenizer(use_test_table_reviews(), input_col = "x",
+      output_col = "token_x"), input_col = "token_x", output_col = "hashed_x",
+      binary = TRUE, num_features = 1024))
     Output
                                             x
       1 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
@@ -369,7 +368,7 @@
 ---
 
     Code
-      use_test_mtcars_va() %>% ft_idf("vec_x", "idf_x") %>% use_test_pull()
+      use_test_pull(ft_idf(use_test_mtcars_va(), "vec_x", "idf_x"))
     Output
                x
       1  0, 0, 0
@@ -424,8 +423,7 @@
 ---
 
     Code
-      use_test_table_simple() %>% ft_imputer(list(c("x")), list(c("new_x"))) %>%
-        use_test_pull()
+      use_test_pull(ft_imputer(use_test_table_simple(), list(c("x")), list(c("new_x"))))
     Output
       [1] 2 2 4 3 4
 
@@ -448,8 +446,8 @@
 ---
 
     Code
-      use_test_table_iris() %>% ft_string_indexer("Species", "species_idx") %>%
-        ft_index_to_string("species_idx", "species_x") %>% use_test_pull(TRUE)
+      use_test_pull(ft_index_to_string(ft_string_indexer(use_test_table_iris(),
+      "Species", "species_idx"), "species_idx", "species_x"), TRUE)
     Output
       x
           setosa versicolor  virginica 
@@ -474,8 +472,8 @@
 ---
 
     Code
-      use_test_table_mtcars() %>% ft_interaction(c("mpg", "wt"), c("mpg_wt")) %>%
-        use_test_pull()
+      use_test_pull(ft_interaction(use_test_table_mtcars(), c("mpg", "wt"), c(
+        "mpg_wt")))
     Output
                x
       1    55.02
@@ -530,7 +528,7 @@
 ---
 
     Code
-      use_test_mtcars_va() %>% ft_max_abs_scaler("vec_x", "rs_x") %>% use_test_pull()
+      use_test_pull(ft_max_abs_scaler(use_test_mtcars_va(), "vec_x", "rs_x"))
     Output
                                                   x
       1  0.619469026548673, 0.483038348082596, 0.75
@@ -585,10 +583,9 @@
 ---
 
     Code
-      use_test_iris_va() %>% ft_minhash_lsh("vec_x", "hash_x") %>% use_test_pull() %>%
-        round() %>% table()
+      table(round(use_test_pull(ft_minhash_lsh(use_test_iris_va(), "vec_x", "hash_x"))))
     Output
-      .
+      
       225592966 
             150 
 
@@ -611,8 +608,8 @@
 ---
 
     Code
-      use_test_table_reviews() %>% ft_tokenizer("x", "token_x") %>% ft_ngram(
-        "token_x", "ngram_x") %>% dplyr::pull()
+      dplyr::pull(ft_ngram(ft_tokenizer(use_test_table_reviews(), "x", "token_x"),
+      "token_x", "ngram_x"))
     Output
       [[1]]
        [1] "this has"      "has been"      "been the"      "the best"     
@@ -639,11 +636,11 @@
 ---
 
     Code
-      use_test_table_reviews() %>% ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-        ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
-        ft_hashing_tf(input_col = "stop_x", output_col = "hashed_x", binary = TRUE,
-          num_features = 1024) %>% ft_normalizer(input_col = "hashed_x", output_col = "normal_x") %>%
-        use_test_pull()
+      use_test_pull(ft_normalizer(ft_hashing_tf(ft_stop_words_remover(ft_tokenizer(
+        use_test_table_reviews(), input_col = "x", output_col = "token_x"),
+      input_col = "token_x", output_col = "stop_x"), input_col = "stop_x",
+      output_col = "hashed_x", binary = TRUE, num_features = 1024), input_col = "hashed_x",
+      output_col = "normal_x"))
     Output
                                                                                                                                           x
       1 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227, 0.377964473009227
@@ -667,8 +664,8 @@
 ---
 
     Code
-      use_test_table_simple() %>% ft_one_hot_encoder(list(c("y")), list(c("ohe_x"))) %>%
-        use_test_pull()
+      use_test_pull(ft_one_hot_encoder(use_test_table_simple(), list(c("y")), list(c(
+        "ohe_x"))))
     Output
         x
       1 1
@@ -696,7 +693,7 @@
 ---
 
     Code
-      use_test_mtcars_va() %>% ft_pca("vec_x", "pca_x", k = 2) %>% use_test_pull()
+      use_test_pull(ft_pca(use_test_mtcars_va(), "vec_x", "pca_x", k = 2))
     Output
                                             x
       1  -18.2965611382428, -11.4130761774528
@@ -752,8 +749,8 @@
 ---
 
     Code
-      use_test_mtcars_va() %>% ft_polynomial_expansion("vec_x", "pe_x", degree = 2) %>%
-        use_test_pull()
+      use_test_pull(ft_polynomial_expansion(use_test_mtcars_va(), "vec_x", "pe_x",
+      degree = 2))
     Output
                                                                     x
       1               21, 441, 2.62, 55.02, 6.8644, 6, 126, 15.72, 36
@@ -809,8 +806,8 @@
 ---
 
     Code
-      use_test_table_simple() %>% ft_quantile_discretizer(c("y"), c("ohe_x")) %>%
-        use_test_pull()
+      use_test_pull(ft_quantile_discretizer(use_test_table_simple(), c("y"), c(
+        "ohe_x")))
     Output
       [1] 0 0 1 1 1
 
@@ -833,8 +830,8 @@
 ---
 
     Code
-      use_test_table_mtcars() %>% ft_r_formula(mpg ~ ., features_col = "test") %>%
-        dplyr::select(test) %>% use_test_pull()
+      use_test_pull(dplyr::select(ft_r_formula(use_test_table_mtcars(), mpg ~ .,
+      features_col = "test"), test))
     Output
                                                    x
       1    6, 160, 110, 3.9, 2.62, 16.46, 0, 1, 4, 4
@@ -889,7 +886,7 @@
 ---
 
     Code
-      use_test_table_reviews() %>% ft_regex_tokenizer("x", "new_x") %>% dplyr::pull()
+      dplyr::pull(ft_regex_tokenizer(use_test_table_reviews(), "x", "new_x"))
     Output
       [[1]]
        [1] "this"    "has"     "been"    "the"     "best"    "tv"      "i've"   
@@ -915,7 +912,7 @@
 ---
 
     Code
-      use_test_mtcars_va() %>% ft_standard_scaler("vec_x", "rs_x") %>% use_test_pull()
+      use_test_pull(ft_standard_scaler(use_test_mtcars_va(), "vec_x", "rs_x"))
     Output
                                                             x
       1  3.48435058980155, 2.67768416375324, 3.35960987440766
@@ -970,7 +967,7 @@
 ---
 
     Code
-      use_test_mtcars_va() %>% ft_robust_scaler("vec_x", "rs_x") %>% use_test_pull()
+      use_test_pull(ft_robust_scaler(use_test_mtcars_va(), "vec_x", "rs_x"))
     Output
                                                     x
       1      0.236842105263158, -0.538461538461538, 0
@@ -1025,8 +1022,8 @@
 ---
 
     Code
-      use_test_mtcars_va() %>% ft_sql_transformer(
-        "select * from __THIS__ where mpg > 20") %>% use_test_pull()
+      use_test_pull(ft_sql_transformer(use_test_mtcars_va(),
+      "select * from __THIS__ where mpg > 20"))
     Output
                       x
       1     21, 2.62, 6
@@ -1063,9 +1060,8 @@
 ---
 
     Code
-      use_test_table_reviews() %>% ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-        ft_stop_words_remover(input_col = "token_x", output_col = "stop_x") %>%
-        dplyr::pull()
+      dplyr::pull(ft_stop_words_remover(ft_tokenizer(use_test_table_reviews(),
+      input_col = "x", output_col = "token_x"), input_col = "token_x", output_col = "stop_x"))
     Output
       [[1]]
       [1] "best"    "tv"      "ever"    "used."   "great"   "screen," "sound." 
@@ -1090,8 +1086,8 @@
 ---
 
     Code
-      use_test_table_iris() %>% ft_string_indexer("Species", "species_idx") %>%
-        use_test_pull(TRUE)
+      use_test_pull(ft_string_indexer(use_test_table_iris(), "Species", "species_idx"),
+      TRUE)
     Output
       x
        0  1  2 
@@ -1116,8 +1112,7 @@
 ---
 
     Code
-      use_test_table_reviews() %>% ft_tokenizer(input_col = "x", output_col = "token_x") %>%
-        dplyr::pull()
+      dplyr::pull(ft_tokenizer(use_test_table_reviews(), input_col = "x", output_col = "token_x"))
     Output
       [[1]]
        [1] "this"    "has"     "been"    "the"     "best"    "tv"      "i've"   
@@ -1143,8 +1138,8 @@
 ---
 
     Code
-      use_test_table_mtcars() %>% ft_vector_assembler(input_cols = c("mpg", "wt",
-        "cyl"), output_col = "vec_x") %>% use_test_pull()
+      use_test_pull(ft_vector_assembler(use_test_table_mtcars(), input_cols = c("mpg",
+        "wt", "cyl"), output_col = "vec_x"))
     Output
                       x
       1     21, 2.62, 6
@@ -1215,8 +1210,8 @@
 ---
 
     Code
-      use_test_mtcars_va() %>% ft_vector_slicer("vec_x", "index_x", indices = list(1L)) %>%
-        use_test_pull()
+      use_test_pull(ft_vector_slicer(use_test_mtcars_va(), "vec_x", "index_x",
+      indices = list(1L)))
     Output
              x
       1   2.62
@@ -1271,8 +1266,8 @@
 ---
 
     Code
-      use_test_table_reviews() %>% ft_tokenizer("x", "token_x") %>% ft_word2vec(
-        "token_x", "word_x", min_count = 1) %>% use_test_pull()
+      use_test_pull(ft_word2vec(ft_tokenizer(use_test_table_reviews(), "x", "token_x"),
+      "token_x", "word_x", min_count = 1))
     Output
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     x
       1 -0.000531821245273862, 2.87797257232551e-05, 0.000321923441683444, -0.00116792274415135, 0.0018563932658603, -0.000691230547650216, -0.000506935649459942, 0.000527734944346146, -0.000328580250005381, -0.000934628285064649, -0.000482672994761602, -0.000827300625342804, 0.00126375624229415, -5.48736066915668e-05, 0.00168445348306425, -0.000352569557995034, -0.000513210823275865, 0.000202558406342108, -0.000862651411108135, -0.000905816547366647, -0.00201053482193786, -0.00122663175436453, 0.000451401140218457, 0.000780278955622075, 0.000412269618559199, -0.00121334992134227, 0.000827190340854801, -0.00084872925127946, -0.00132582205920838, 0.000591056622887174, -0.000124608336661298, -0.000912917811057504, -0.000596025975447936, 0.000170287439267178, -0.000523491957350276, 0.000243636025026297, 0.000122112506337894, 0.000812719607403359, -0.00037477997606262, -0.000110702164909946, 0.000453274159763868, -0.000296597458565464, -0.00136085508991248, 0.000851060313065178, 0.000408009364036843, -0.000502796543654628, 0.00015331868976668, -0.000103490806168338, -9.49914672394068e-05, -0.000633853422746492, 0.00188561831600964, -0.000470921006826057, -0.0008461579026726, -0.000732502476939072, 0.000836329118241198, -0.00085868240477374, 0.000515915831783786, -0.00120057451959628, 0.000814994485363758, 0.000272133058528058, -0.00107306796529044, 0.000599933211700633, 0.00171649625050262, 0.000126637753475314, -0.000173345715246307, 0.000670591693890926, -0.00026847384120069, -0.000764289679444538, 0.000747123666000194, -0.000129344743282463, -0.000745931577582199, -0.000999176085875101, 4.38131162529596e-05, -0.00190603450307837, -0.000435707759886729, 0.000309345746735254, -0.000648837076509013, 0.00157399509379712, -0.000670189769432629, 0.000585019230269469, 0.000278188050008164, -0.000622744295889369, -0.000541551822187522, 0.0011775005656668, 0.00100577290868387, -0.000340000569569663, 0.000178938187533416, 0.000672833973882147, 0.000660490457308837, 0.000841295278335635, -0.000842030193710413, 0.000408156504888141, -0.00159174362152743, 0.000663293624081864, 0.000272497346696372, 0.000547883340354579, -0.000447699847147585, 0.00108423169764977, 0.000854817550414457, 0.00121290954680612

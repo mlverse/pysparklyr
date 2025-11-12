@@ -176,8 +176,8 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
   }
 
   if (is.null(py_obj)) {
-    x <- python_conn(sc)$read %>%
-      py_invoke_options(options = opts) %>%
+    x <- python_conn(sc)$read |>
+      py_invoke_options(options = opts) |>
       py_invoke(format, path_expand(path))
   } else {
     x <- py_obj
@@ -213,8 +213,8 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
       x$persist(storage_level$StorageLevel$MEMORY_AND_DISK)
       out <- tbl(sc, name)
     } else {
-      out <- x %>%
-        tbl_pyspark_temp(sc) %>%
+      out <- x |>
+        tbl_pyspark_temp(sc) |>
         cache_query(name = name)
     }
   } else {
@@ -227,8 +227,8 @@ pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
 }
 
 gen_sdf_name <- function(path) {
-  x <- path %>%
-    path_file() %>%
+  x <- path |>
+    path_file() |>
     path_ext_remove()
 
   random_string(gsub("[[:punct:]]", "", x))

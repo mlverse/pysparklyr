@@ -234,11 +234,11 @@ databricks_cluster_get <- function(
       paste0(
         host,
         "/api/2.0/clusters/get"
-      ) %>%
-        request() %>%
-        req_auth_bearer_token(token) %>%
-        req_body_json(list(cluster_id = cluster_id)) %>%
-        req_perform() %>%
+      ) |>
+        request() |>
+        req_auth_bearer_token(token) |>
+        req_body_json(list(cluster_id = cluster_id)) |>
+        req_perform() |>
         resp_body_json(),
       silent = TRUE
     )
@@ -246,9 +246,9 @@ databricks_cluster_get <- function(
 }
 
 databricks_dbr_error <- function(error) {
-  error_split <- error %>%
-    as.character() %>%
-    strsplit("\n\t") %>%
+  error_split <- error |>
+    as.character() |>
+    strsplit("\n\t") |>
     unlist()
 
   error_start <- substr(error_split, 1, 9)

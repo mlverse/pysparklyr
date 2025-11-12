@@ -32,14 +32,15 @@ Imports:
     processx,
     httr2,
     rstudioapi,
-    rsconnect
+    rsconnect,
+    lifecycle,
+    withr
 URL: https://github.com/mlverse/pysparklyr
 BugReports: https://github.com/mlverse/pysparklyr/issues
 Suggests: 
     crayon,
     R6,
     testthat (>= 3.0.0),
-    tibble,
-    withr
+    tibble
 Config/testthat/edition: 3
 Config/usethis/last-upkeep: 2025-11-12

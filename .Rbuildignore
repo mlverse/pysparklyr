@@ -10,3 +10,5 @@
 ^requirements\.txt$
 ^spark-warehouse$
 ^derby\.log$
+^[.]?air[.]toml$
+^\.vscode$

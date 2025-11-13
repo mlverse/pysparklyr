@@ -203,11 +203,11 @@ un_pivot <- function(x, ids,
 
 check_same_types <- function(x, col_names) {
   dtypes <- x$select(col_names)$dtypes
-  char_types <- map_chr(dtypes, ~ .x[[2]])
+  char_types <- map_chr(dtypes, \(.x) .x[[2]])
   char_match <- length(unique(char_types)) == 1
 
   if (!char_match) {
-    type_names <- map_chr(dtypes, ~ paste0(.x[[1]], " <", .x[[2]], ">"))
+    type_names <- map_chr(dtypes, \(.x) paste0(.x[[1]], " <", .x[[2]], ">"))
     abort(glue(
       "There is a data type mismatch: {paste0(type_names, collapse = ' ')}"
     ))

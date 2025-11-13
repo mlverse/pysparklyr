@@ -82,13 +82,13 @@ print.ml_connect_model <- function(x, ...) {
 print_parameters <- function(x) {
   p <- get_params(x)
   p_descriptions <- p |>
-    map_chr(~ .x$description) |>
+    map_chr(\(.x) .x$description) |>
     as.character() |>
     strsplit("\\.") |>
-    map(~ .x[[1]])
-  p_names <- map_chr(p, ~ .x$name)
+    map(\(.x) .x[[1]])
+  p_names <- map_chr(p, \(.x) .x$name)
   p_values <- p |>
-    map(~ {
+    map(\(.x) {
       cl <- class(.x$value)
       .x$value
     }) |>

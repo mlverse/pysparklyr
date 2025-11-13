@@ -217,7 +217,7 @@ use_test_python_environment <- function(use_uv = TRUE) {
 use_test_ml_installed <- function() {
   ml_libraries <- pysparklyr_env$ml_libraries
   installed_libraries <- py_list_packages()$package
-  find_ml <- map_lgl(ml_libraries, ~ .x %in% installed_libraries)
+  find_ml <- map_lgl(ml_libraries, \(.x) .x %in% installed_libraries)
   all(find_ml)
 }
 

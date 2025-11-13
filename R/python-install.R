@@ -459,7 +459,7 @@ build_job_code <- function(args) {
   args$as_job <- NULL
   args$method <- args$method[[1]]
   arg_list <- args |>
-    imap(~ {
+    imap(\(.x, .y) {
       if (inherits(.x, "character")) {
         x <- paste0("\"", .x, "\"")
       } else {

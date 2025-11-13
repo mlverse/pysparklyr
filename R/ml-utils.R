@@ -50,7 +50,7 @@ snake_to_camel <- function(x) {
 ml_connect_not_supported <- function(args, not_supported = c()) {
   x <- map(
     not_supported,
-    ~ {
+    \(.x) {
       if (.x %in% names(args)) {
         arg <- args[names(args) == .x]
         if (!is.null(arg[[1]])) {
@@ -108,16 +108,16 @@ get_params <- function(x) {
   m_map_names <- m_map |>
     names() |>
     strsplit("__") |>
-    map(~ .x[[2]]) |>
+    map(\(.x) .x[[2]]) |>
     as.character() |>
     sort()
 
   m_param_names <- m_params |>
-    map(~ .x$name) |>
+    map(\(.x) .x$name) |>
     as.character()
 
   m_map_names |>
-    map(~ {
+    map(\(.x) {
       c_param_name <- m_params[which(.x == m_param_names)]
       c_map_name <- m_map[which(.x == m_map_names)]
       list(
@@ -140,7 +140,7 @@ ml_get_params <- function(x) {
   py_x <- get_spark_pyobj(x)
   params <- invoke(py_x, "params")
   params |>
-    map(~ {
+    map(\(.x) {
       nm <- .x$name
       nm <- paste0("get", toupper(substr(nm, 1, 1)), substr(nm, 2, nchar(nm)))
       tr <- try(invoke(py_x, nm), silent = TRUE)

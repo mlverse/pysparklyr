@@ -89,7 +89,7 @@ py_check_installed <- function(
   msg = ""
 ) {
   installed_libraries <- py_list_packages(envname = envname)$package
-  find_libs <- map_lgl(libraries, ~ .x %in% installed_libraries)
+  find_libs <- map_lgl(libraries, \(.x) .x %in% installed_libraries)
   if (!all(find_libs)) {
     missing_lib <- libraries[!find_libs]
     if (is_uv_env()) {

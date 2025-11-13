@@ -100,7 +100,7 @@ sa_in_pandas <- function(
     col_names <- gsub("\\.", "_", col_names)
     colnames(r_exec) <- col_names
     .schema <- r_exec |>
-      imap(~ {
+      imap(\(.x, .y) {
         x_class <- class(.x)
         if ("POSIXt" %in% x_class) x_class <- "timestamp"
         if (x_class == "character") x_class <- "string"
@@ -112,7 +112,7 @@ sa_in_pandas <- function(
     schema_msg <- TRUE
   } else {
     fields <- unlist(strsplit(.schema, ","))
-    col_names <- map_chr(fields, ~ unlist(strsplit(trimws(.x), " "))[[1]])
+    col_names <- map_chr(fields, \(.x) unlist(strsplit(trimws(.x), " "))[[1]])
     col_names <- gsub("\\.", "_", col_names)
   }
   .f |>

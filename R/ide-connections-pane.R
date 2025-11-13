@@ -27,7 +27,7 @@ spark_ide_columns.pyspark_connection <- function(
 
   tbl_sample <- collect(head(tbl_df))
 
-  tbl_info <- map_chr(tbl_sample, ~ paste0(rs_type(.x), " ", rs_vals(.x)))
+  tbl_info <- map_chr(tbl_sample, \(.x) paste0(rs_type(.x), " ", rs_vals(.x)))
 
   data.frame(
     name = names(tbl_info),

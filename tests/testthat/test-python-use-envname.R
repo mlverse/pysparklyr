@@ -1,14 +1,11 @@
 test_that("Install environment", {
   withr::with_envvar(
     new = c(
-      "WORKON_HOME" = use_new_temp_env(),
-      RETICULATE_USE_MANAGED_VENV = "no"
+      "WORKON_HOME" = use_new_temp_env()
     ),
     {
       expect_output(
-        install_pyspark("3.4", as_job = FALSE, python = Sys.which("python")),
-        as_job = FALSE,
-        python = Sys.which("python")
+        install_pyspark("3.4", as_job = FALSE)
       )
     }
   )

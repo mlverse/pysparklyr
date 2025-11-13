@@ -94,7 +94,6 @@ jobs:
 
       - name: R Tests
         run: |
-          reticulate::install_python("3.10")
           devtools::load_all()
           devtools::test(reporter = sparklyr_reporter())
         shell: Rscript {0}

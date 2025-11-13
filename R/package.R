@@ -9,18 +9,35 @@
 #' @importFrom sparklyr spark_read_json spark_read_orc
 #' @importFrom sparklyr spark_write_csv spark_write_parquet spark_write_text
 #' @importFrom sparklyr spark_write_orc spark_write_json spark_write_table
+#' @importFrom sparklyr spark_write_delta
 #' @importFrom sparklyr ml_pipeline ml_predict ml_transform ml_fit
 #' @importFrom sparklyr ml_logistic_regression ft_standard_scaler ft_max_abs_scaler
 #' @importFrom sparklyr ml_save ml_load spark_jobj spark_install_find spark_apply
+#' @importFrom sparklyr ml_linear_regression ft_r_formula ft_binarizer ft_bucketizer
+#' @importFrom sparklyr ft_tokenizer ft_stop_words_remover ft_hashing_tf ft_normalizer
+#' @importFrom sparklyr ml_random_forest_classifier ml_random_forest_regressor ft_string_indexer
+#' @importFrom sparklyr ft_bucketed_random_projection_lsh ft_count_vectorizer ft_dct
+#' @importFrom sparklyr ft_discrete_cosine_transform ft_vector_assembler ft_elementwise_product
+#' @importFrom sparklyr ft_feature_hasher ft_idf ft_imputer ft_index_to_string
+#' @importFrom sparklyr ft_interaction ft_min_max_scaler ft_minhash_lsh ft_ngram
+#' @importFrom sparklyr ft_one_hot_encoder ft_pca ft_polynomial_expansion
+#' @importFrom sparklyr ft_quantile_discretizer ft_regex_tokenizer ft_robust_scaler
+#' @importFrom sparklyr ft_sql_transformer ft_vector_indexer ft_vector_slicer ft_word2vec
+#' @importFrom sparklyr ml_binary_classification_evaluator ml_cross_validator
+#' @importFrom sparklyr ml_multiclass_classification_evaluator ml_decision_tree_classifier
+#' @importFrom sparklyr ml_clustering_evaluator ml_regression_evaluator ml_kmeans
+#' @importFrom sparklyr ml_decision_tree_regressor ml_bisecting_kmeans ml_aft_survival_regression
+#' @importFrom sparklyr ml_gbt_classifier ml_gbt_regressor ml_isotonic_regression
+#' @importFrom sparklyr ml_generalized_linear_regression
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom dplyr tbl collect tibble same_src compute as_tibble group_vars
 #' @importFrom dplyr sample_n sample_frac slice_sample select tbl_ptype group_by
 #' @importFrom dplyr filter mutate
-#' @importFrom purrr map_lgl map_chr map pmap_chr imap
-#' @importFrom purrr map_chr discard transpose reduce
+#' @importFrom purrr map_lgl map_chr map pmap_chr imap iwalk walk imap_chr as_mapper
+#' @importFrom purrr map_chr discard transpose reduce map2 list_rbind flatten
 #' @importFrom rlang enquo `!!` `!!!` quo_is_null sym warn abort `%||%`
 #' @importFrom rlang is_string is_character parse_exprs set_names
-#' @importFrom rlang exec arg_match as_utf8_character
+#' @importFrom rlang exec arg_match as_utf8_character is_missing
 #' @importFrom rsconnect accounts deployApp deployments
 #' @importFrom methods new is setOldClass
 #' @importFrom tidyselect matches
@@ -29,7 +46,7 @@
 #' @importFrom vctrs vec_as_names
 #' @importFrom processx process
 #' @importFrom rstudioapi jobRunScript showQuestion getSourceEditorContext
-#' @importFrom stats terms
+#' @importFrom stats terms setNames
 #' @importFrom utils capture.output installed.packages menu
 #' @importFrom magrittr %>%
 #' @import reticulate

@@ -8,3 +8,5 @@
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
 ^requirements\.txt$
+^spark-warehouse$
+^derby\.log$

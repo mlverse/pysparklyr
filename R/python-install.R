@@ -29,14 +29,15 @@
 #' query.
 #' @export
 install_pyspark <- function(
-    version = NULL,
-    envname = NULL,
-    python_version = NULL,
-    new_env = TRUE,
-    method = c("auto", "virtualenv", "conda"),
-    as_job = TRUE,
-    install_ml = FALSE,
-    ...) {
+  version = NULL,
+  envname = NULL,
+  python_version = NULL,
+  new_env = TRUE,
+  method = c("auto", "virtualenv", "conda"),
+  as_job = TRUE,
+  install_ml = FALSE,
+  ...
+) {
   install_as_job(
     main_library = "pyspark",
     spark_method = "pyspark_connect",
@@ -62,15 +63,16 @@ install_pyspark <- function(
 #' @rdname install_pyspark
 #' @export
 install_databricks <- function(
-    version = NULL,
-    cluster_id = NULL,
-    envname = NULL,
-    python_version = NULL,
-    new_env = TRUE,
-    method = c("auto", "virtualenv", "conda"),
-    as_job = TRUE,
-    install_ml = FALSE,
-    ...) {
+  version = NULL,
+  cluster_id = NULL,
+  envname = NULL,
+  python_version = NULL,
+  new_env = TRUE,
+  method = c("auto", "virtualenv", "conda"),
+  as_job = TRUE,
+  install_ml = FALSE,
+  ...
+) {
   if (!is.null(version) && !is.null(cluster_id)) {
     cli_div(theme = cli_colors())
     cli_alert_warning(
@@ -109,18 +111,19 @@ install_databricks <- function(
 }
 
 install_as_job <- function(
-    main_library = NULL,
-    spark_method = NULL,
-    backend = NULL,
-    ml_version = NULL,
-    version = NULL,
-    envname = NULL,
-    python_version = NULL,
-    new_env = NULL,
-    method = c("auto", "virtualenv", "conda"),
-    as_job = TRUE,
-    install_ml = TRUE,
-    ...) {
+  main_library = NULL,
+  spark_method = NULL,
+  backend = NULL,
+  ml_version = NULL,
+  version = NULL,
+  envname = NULL,
+  python_version = NULL,
+  new_env = NULL,
+  method = c("auto", "virtualenv", "conda"),
+  as_job = TRUE,
+  install_ml = TRUE,
+  ...
+) {
   args <- c(as.list(environment()), list(...))
   if (as_job && check_rstudio()) {
     install_code <- build_job_code(args)
@@ -151,18 +154,19 @@ install_as_job <- function(
 }
 
 install_environment <- function(
-    main_library = NULL,
-    spark_method = NULL,
-    backend = NULL,
-    ml_version = NULL,
-    version = NULL,
-    envname = NULL,
-    python_version = NULL,
-    new_env = NULL,
-    method = c("auto", "virtualenv", "conda"),
-    install_ml = FALSE,
-    install_packages = NULL,
-    ...) {
+  main_library = NULL,
+  spark_method = NULL,
+  backend = NULL,
+  ml_version = NULL,
+  version = NULL,
+  envname = NULL,
+  python_version = NULL,
+  new_env = NULL,
+  method = c("auto", "virtualenv", "conda"),
+  install_ml = FALSE,
+  install_packages = NULL,
+  ...
+) {
   cli_div(theme = cli_colors())
   library_info <- python_library_info(main_library, version)
 
@@ -204,7 +208,9 @@ install_environment <- function(
     envname <- use_envname(
       backend = backend,
       version = ver_name,
-      ask_if_not_installed = FALSE
+      main_library = main_library,
+      ask_if_not_installed = FALSE,
+      python_version = python_version
     )
   }
   cli_alert_success(
@@ -217,7 +223,8 @@ install_environment <- function(
     "PyArrow",
     "grpcio",
     "google-api-python-client",
-    "grpcio_status"
+    "grpcio_status",
+    "databricks-sdk"
   )
 
   if (add_torch && install_ml) {
@@ -275,7 +282,7 @@ install_environment <- function(
     method = method,
     python_version = python_version,
     pip = TRUE,
-    ... = ...
+    ...
   )
 }
 
@@ -313,11 +320,12 @@ installed_components <- function(list_all = FALSE) {
 }
 
 python_library_info <- function(
-    library_name,
-    library_version = NULL,
-    verbose = TRUE,
-    fail = TRUE,
-    timeout = 2) {
+  library_name,
+  library_version = NULL,
+  verbose = TRUE,
+  fail = TRUE,
+  timeout = 2
+) {
   msg_fail <- NULL
   msg_done <- NULL
   ret <- NULL
@@ -326,7 +334,7 @@ python_library_info <- function(
     cli_progress_step(
       "{.header Retrieving version from PyPi.org}",
       msg_done = paste0(
-        "{.header Using:} {.emph '{ret$name}'} {.header version} {ret$version},",
+        "{.header PyPi specs:} {.emph '{ret$name}'} {.header version} {ret$version},",
         " {.header requires Python }{ret$requires_python}"
       ),
       msg_failed = "{.header {msg_fail}}"
@@ -402,6 +410,9 @@ query_pypi <- function(library_name, library_version = NULL, timeout) {
 }
 
 version_prep <- function(version) {
+  if (version == "latest") {
+    return(version)
+  }
   version <- as.character(version)
   ver <- version %>%
     strsplit("\\.") %>%

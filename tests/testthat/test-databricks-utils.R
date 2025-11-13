@@ -13,9 +13,8 @@ test_that("DBR error code returns as expected", {
   expect_snapshot_error(databricks_dbr_error(""))
 })
 
-skip_if_not_databricks()
-
 test_that("Databricks Host works", {
+  skip_if_no_db_host()
   expect_true(nchar(databricks_host()) > 5)
 
   expect_named(databricks_host("thisisatest"), "argument")
@@ -42,6 +41,11 @@ test_that("Databricks Host works", {
 })
 
 test_that("Databricks Token works", {
+  skip_if_no_db_host()
+  skip_if(
+    inherits(try(databricks_token(), silent = TRUE), "try-error"),
+    "No Databricks Token available"
+  )
   expect_true(nchar(databricks_token()) > 5)
 
   expect_named(databricks_token("thisisatest"), "argument")
@@ -68,18 +72,62 @@ test_that("Databricks Token works", {
 })
 
 test_that("Get cluster version", {
-  expect_message(
-    x <- databricks_dbr_version(
-      cluster_id = Sys.getenv("DATABRICKS_CLUSTER_ID", unset = NA),
-      host = databricks_host(),
-      token = databricks_token()
-    )
+  withr::with_envvar(
+    new = c("DATABRICKS_HOST" = "xxxxx", "DATABRICKS_TOKEN" = "xxxxx"),
+    {
+      local_mocked_bindings(
+        databricks_cluster_get = function(...) {
+          readRDS(test_path("_mock/cluster_get.rds"))
+        }
+      )
+      expect_message(
+        x <- databricks_dbr_version(
+          cluster_id = "xxxxx",
+          host = databricks_host(),
+          token = databricks_token()
+        )
+      )
+      expect_true(nchar(x) == 4)
+    }
   )
-  expect_true(nchar(x) == 4)
+})
+
+test_that("Get cluster version", {
+  withr::with_envvar(
+    new = c("DATABRICKS_HOST" = "xxxxx", "DATABRICKS_TOKEN" = "xxxxx"),
+    {
+      local_mocked_bindings(
+        databricks_cluster_get = function(...) {
+          readRDS(test_path("_mock/cluster_get.rds"))
+        }
+      )
+      expect_message(
+        x <- databricks_dbr_version_name(
+          cluster_id = "xxxxx",
+          host = databricks_host(),
+          token = databricks_token()
+        )
+      )
+      expect_equal(
+        databricks_extract_version(databricks_cluster_get()), "17.1"
+      )
+    }
+  )
 })
 
 test_that("Cluster info runs as expected", {
   expect_error(databricks_dbr_version(""))
+})
+
+test_that("Misc tests", {
+  expect_silent(databricks_desktop_login("xxxx", "xxxxx"))
+  expect_snapshot(allowed_serverless_configs())
+})
+
+test_that("DBR Python comes back as expected", {
+  expect_equal(databricks_dbr_python("17.0"), "3.12")
+  expect_equal(databricks_dbr_python("15.0"), "3.11")
+  expect_equal(databricks_dbr_python("14.0"), "3.10")
 })
 
 test_that("Host sanitation works", {

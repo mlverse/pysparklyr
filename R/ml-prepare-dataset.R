@@ -23,14 +23,15 @@
 #' @param ... Added for backwards compatibility. Not in use today.
 #' @export
 ml_prepare_dataset <- function(
-    x,
-    formula = NULL,
-    label = NULL,
-    features = NULL,
-    label_col = "label",
-    features_col = "features",
-    keep_original = TRUE,
-    ...) {
+  x,
+  formula = NULL,
+  label = NULL,
+  features = NULL,
+  label_col = "label",
+  features_col = "features",
+  keep_original = TRUE,
+  ...
+) {
   if (keep_original) {
     lf <- "all"
   } else {
@@ -51,17 +52,18 @@ ml_prepare_dataset <- function(
 }
 
 ml_prep_dataset <- function(
-    x,
-    formula = NULL,
-    label = NULL,
-    features = NULL,
-    label_col = "label",
-    features_col = "features",
-    lf = c("only", "all")) {
+  x,
+  formula = NULL,
+  label = NULL,
+  features = NULL,
+  label_col = "label",
+  features_col = "features",
+  lf = c("only", "all"),
+  additional = NULL,
+  fitting = FALSE
+) {
   lf <- match.arg(lf)
-
   pyspark <- import("pyspark")
-
   if (!is.null(formula)) {
     f <- ml_formula(formula, x)
     features <- f$features
@@ -71,20 +73,33 @@ ml_prep_dataset <- function(
       return(x)
     }
   }
-
   ret <- python_obj_get(x)
-  if (!is.null(label)) {
+  if (spark_version(spark_connection(x)) >= "4.0.0") {
+    va <- pyspark$ml$feature$VectorAssembler()
+    vector_assembler <- va$copy()
+    vector_assembler$setOutputCol(features_col)
+    if (fitting && length(features) == 1) {
+      features <- list(features)
+    }
+    vector_assembler$setInputCols(features)
+    ret <- vector_assembler$transform(ret)
+  } else {
+    features_array <- pyspark$sql$functions$array(features)
+    ret <- ret$withColumn(features_col, features_array)
+  }
+  if (!is.null(label) && !is.null(label_col)) {
     ret <- ret$withColumn(label_col, ret[label])
   }
-  features_array <- pyspark$sql$functions$array(features)
-  ret <- ret$withColumn(features_col, features_array)
-
+  select_cols <- c(features_col, additional)
   if (lf == "only") {
-    ret <- ret$select(c(label_col, features_col))
-    attr(ret, "features") <- features
-    if (!is.null(label)) {
-      attr(ret, "label") <- label
+    if (!is.null(label_col)) {
+      select_cols <- c(label_col, select_cols)
+      if (!is.null(label)) {
+        attr(ret, "label") <- label
+      }
     }
+    ret <- ret$select(select_cols)
+    attr(ret, "features") <- features
   }
   ret
 }

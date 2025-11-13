@@ -1,8 +1,126 @@
 # pysparklyr (dev)
 
+### Improvements
+
+* Adds support for Snowflake's [Snowpark Connect](https://docs.snowflake.com/en/developer-guide/snowpark-connect/snowpark-connect-overview).
+New method name is `snowpark_connect`.
+
+* Adds support for new ML methodology implemented in Spark 4.0 (#153). Specific
+ML functions now supported are:
+  * New in Spark 4.0
+    * `ml_generalized_linear_regression()`
+    * `ml_isotonic_regression()`
+    * `ml_gbt_classifier()`
+    * `ml_gbt_regressor()`
+    * `ml_aft_survival_regression()`
+    * `ml_bisecting_kmeans()`
+    * `ml_decision_tree_regressor()`
+    * `ml_multiclass_classification_evaluator()`
+    * `ml_regression_evaluator`
+    * `ml_binary_classification_evaluator()`
+    * `ml_clustering_evaluator()`
+    * `ml_kmeans()`
+    * `ml_decision_tree_classifier()`
+    * `ml_cross_validator()`
+    * `ft_word2vec()`
+    * `ft_vector_slicer()`
+    * `ft_vector_indexer()`
+    * `ft_sql_transformer()`
+    * `ft_robust_scaler()`
+    * `ft_regex_tokenizer()`
+    * `ft_quantile_discretizer()`
+    * `ft_polynomial_expansion()`
+    * `ft_pca()`
+    * `ft_one_hot_encoder()`
+    * `ft_ngram()`
+    * `ft_minhash_lsh()`
+    * `ft_min_max_scaler()`
+    * `ft_index_to_string()`
+    * `ft_imputer()`
+    * `ft_idf()`
+    * `ft_feature_hasher()`
+    * `ft_elementwise_product()`
+    * `ft_vector_assembler()`
+    * `ft_dct()` / `ft_discrete_cosine_transform()`
+    * `ft_bucketed_random_projection_lsh()`
+    * `ft_count_vectorizer()`
+    * `ml_linear_regression()`
+    * `ml_random_forest_regressor()`
+    * `ml_random_forest_classifier()`
+    * `ft_string_indexer()`
+    * `ft_tokenizer()`
+    * `ft_stop_words_remover()`
+    * `ft_hashing_tf()`
+    * `ft_normalizer()`
+    * `ft_binarizer()`
+    * `ft_bucketizer()`
+    * `ft_r_formula()`
+  * Updated for Spark 4.0
+    * `ml_logistic_regression()`
+    * `ft_standard_scaler()`
+    * `ft_max_abs_scaler()`
+    * `ml_pipeline()`
+    * `ml_save()`
+
+* Tests switch over to using `uv` for setup 
+
+# pysparklyr 0.1.9
+
+### Improvements
+
+* Databricks connections app:
+  * Adds a dropdown to the Python Environment to make it more flexible
+  * Check for the existence of a Virtual Environment folder inside the current 
+    RStudio project, adds it to the dropdown choices and makes it the default
+
+* Adds support for spark_write_delta() (#146)
+
+### Fixes
+
+* Gets token from Databricks SDK if one cannot be found. (#148)
+
+
+### Internal improvements
+
+* Switches base Python environment for tests to uv
+
+# pysparklyr 0.1.8
+
+### Fixes
+
+* Avoids installing `rpy2` automatically for `uv`-based environments. It will
+also install `rpy2` via `py_require()` when `spark_apply()` is called.
+
+* Fixes issue with resetting the connection label (#144)
+
+* Restores Databricks Host name sanitation 
+
+# pysparklyr 0.1.7
+
+### Improvements
+
+* Adding support for Databricks serverless interactive compute (#127)
+
+* Extended authentication method support for Databricks by deferring to SDK (#127)
+
+* Adds support for new way `reticulate` manages Python environments
+(https://rstudio.github.io/reticulate/articles/package.html). This means that 
+the need to run `install_pyspark()` or `install_databricks()` will not be 
+needed for interactive R sessions. 
+
+* Adds limited support for `context` in `spark_apply()`. It will only work when
+`group_by` is used. The object passed to `context` cannot be an R `list`
+
+* Adjusted logic for handling config to now warn users when unsupported configs
+are supplied if using Databricks serverless compute
+
 * Disables un-setting the `RETICULATE_PYTHON` environment variable. It will
 still display a warning if it's set, letting the user know that it may 
 cause connectivity issues.
+
+### Fixes
+
+* Databricks connections should now correctly use `databricks_host()`
 
 # pysparklyr 0.1.6
 
@@ -21,7 +139,6 @@ the first time `spark_apply()` is called (#125)
 Pane. 
 
 * Avoids failure when an unexpected error from Databricks is returned (#123)
-
 
 # pysparklyr 0.1.5
 

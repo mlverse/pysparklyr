@@ -7,12 +7,3 @@
       [3] "ml_transformer"            "ml_connect_transformer"   
       [5] "ml_connect_pipeline_stage" "ml_pipeline_stage"        
 
----
-
-    Code
-      colnames(ml_transform(loaded, prepd))
-    Output
-       [1] "mpg"         "cyl"         "disp"        "hp"          "drat"       
-       [6] "wt"          "qsec"        "vs"          "am"          "gear"       
-      [11] "carb"        "prediction"  "probability"
-

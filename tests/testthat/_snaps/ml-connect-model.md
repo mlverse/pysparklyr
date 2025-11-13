@@ -5,7 +5,7 @@
     Output
        [1] "mpg"         "cyl"         "disp"        "hp"          "drat"       
        [6] "wt"          "qsec"        "vs"          "am"          "gear"       
-      [11] "carb"        "label"       "features"    "prediction"  "probability"
+      [11] "carb"        "features"    "prediction"  "probability"
 
 ---
 

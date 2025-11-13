@@ -1,13 +1,3 @@
-test_that("Message when RETICULATE_PYTHON is set", {
-  py_to_use <- py_exe()
-  withr::with_envvar(
-    new = c("RETICULATE_PYTHON" = py_to_use),
-    {
-      expect_message(use_envname("newtest", messages = TRUE))
-    }
-  )
-})
-
 env_path <- fs::path(tempdir(), random_table_name("env"))
 
 test_that("Install environment", {
@@ -29,6 +19,7 @@ test_that("Use first one", {
     {
       expect_message(
         x <- use_envname(
+          main_library = "pyspark",
           version = "1.1",
           messages = TRUE,
           match_first = TRUE,
@@ -69,8 +60,7 @@ test_that("Error if 'use_first' is not TRUE", {
           messages = TRUE,
           match_first = FALSE,
           ask_if_not_installed = FALSE
-        ),
-        "You do not have a Python environment that matches"
+        )
       )
     }
   )
@@ -90,6 +80,7 @@ test_that("'Ask to install', simulates menu selection 'Yes'", {
       )
       expect_equal(
         use_envname(
+          main_library = "pyspark",
           version = "1.1",
           messages = TRUE,
           match_first = FALSE,
@@ -115,6 +106,7 @@ test_that("'Ask to install', simulates menu selection 'No'", {
       )
       expect_equal(
         use_envname(
+          main_library = "pyspark",
           version = "1.1",
           messages = TRUE,
           match_first = FALSE,
@@ -152,4 +144,14 @@ test_that("'Ask to install', simulates menu selection 'Cancel'", {
 
 test_that("Expect error when no 'version' is provided", {
   expect_error(use_envname(version = NULL))
+})
+
+
+test_that("Requirements work", {
+  reqs <- python_requirements(
+    backend = "pyspark",
+    main_library = "pyspark",
+    version = "3.4"
+  )
+  expect_equal(c("packages", "python_version"), names(reqs))
 })

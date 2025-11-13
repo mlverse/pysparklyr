@@ -1,30 +1,98 @@
-skip_if_not_databricks()
-
-test_that("Test Databricks connection", {
+skip_spark_min_version("4")
+test_that("Databricks Connect", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = use_test_env()),
+    new = c(
+      "WORKON_HOME" = use_test_env(),
+      "DATABRICKS_HOST" = "testhost",
+      "DATABRICKS_TOKEN" = "testtoken"
+    ),
     {
-      sc <- use_test_spark_connect()
-      pyspark_version <- python_library_info("pyspark")
-      comp <- compareVersion(pyspark_version$version, spark_version(sc))
-      if (comp != 0) {
-        skip("Not latest version of Spark")
-      }
       local_mocked_bindings(
-        initialize_connection = function(...) list(...)
+        initialize_connection = function(...) {
+          return(list(...))
+        },
+        databricks_dbr_info = function(...) {
+          return(list(cluster_name = "test_host"))
+        },
+        import_check = function(...) {
+          out <- list()
+          out$DatabricksSession$builder$sdkConfig <- function(...) {
+            x <- list()
+            x$userAgent <- function(...) {
+              return(list())
+            }
+            x
+          }
+          out$core$Config <- function(...) {
+            x <- list()
+            x$token <- "testtoken"
+          }
+          out
+        },
+        databricks_sdk_client = function(...) {
+          return(NULL)
+        }
       )
-      py_install("databricks.connect")
-      sc <- spark_connect_method.spark_method_databricks_connect(
-        master = NULL,
+
+      sc_out <- spark_connect_method.spark_method_databricks_connect(
         method = "databricks_connect",
-        envname = py_exe(),
-        config = NULL
+        master = NULL,
+        envname = use_test_python_environment(),
+        version = "17.1",
+        cluster_id = "test_cluster"
       )
-      expect_s3_class(sc$conn, "databricks.connect.session.Builder")
-      expect_equal(sc$con_class, "connect_databricks")
-      expect_equal(sc$cluster_id, Sys.getenv("DATABRICKS_CLUSTER_ID"))
-      expect_equal(sc$method, "databricks_connect")
-      expect_null(sc$config)
+      expect_equal(sc_out$master_label, "test_host (test_cluster)")
+      expect_equal(sc_out$cluster_id, "test_cluster")
     }
   )
 })
+
+test_that("Snowpark Connect (Snowflake)", {
+  withr::with_envvar(
+    new = c(
+      "WORKON_HOME" = use_test_env()
+    ),
+    {
+      local_mocked_bindings(
+        initialize_connection = function(...) {
+          return(list(...))
+        },
+        import_check = function(...) {
+          out <- list()
+          out$Session$builder$configs <- function(...) {
+            list(...)
+          }
+          out
+        },
+        databricks_sdk_client = function(...) {
+          return(NULL)
+        }
+      )
+      sc_out <- spark_connect_method.spark_method_snowpark_connect(
+        method = "snowpark_connect",
+        master = "testaccount",
+        connection_parameters = list(
+          user = "test@user.com",
+          password = "testtoken",
+          warehouse = "testwh",
+          database = "testdb",
+          schema = "testschema"
+        )
+      )
+      expect_snapshot(sc_out)
+      expect_error(
+        spark_connect_method.spark_method_snowpark_connect(
+          method = "snowpark_connect",
+          connection_parameters = list(
+            user = "test@user.com",
+            password = "testtoken",
+            warehouse = "testwh",
+            database = "testdb",
+            schema = "testschema"
+          )
+        )
+      )
+    }
+  )
+})
+

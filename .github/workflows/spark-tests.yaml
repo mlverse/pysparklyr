@@ -17,17 +17,16 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {spark: '3.5.1', pyspark: '3.5', hadoop: '3', name: 'PySpark 3.5'}
+          - {spark: '3.5.7', pyspark: '3.5.7', hadoop: '3', scala: '2.12', python: '3.10', name: 'PySpark 3'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      SPARK_VERSION:  ${{ matrix.config.spark }}
-      HADOOP_VERSION: ${{ matrix.config.hadoop }}
-      PYSPARK_VERSION:  ${{ matrix.config.pyspark }}
-      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-      DATABRICKS_HOST: "https://rstudio-partner-posit-default.cloud.databricks.com"
-      DATABRICKS_CLUSTER_ID: "0129-151028-k1hamwf0"
+      SPARK_VERSION:   ${{ matrix.config.spark }}
+      HADOOP_VERSION:  ${{ matrix.config.hadoop }}
+      PYSPARK_VERSION: ${{ matrix.config.pyspark }}
+      PYTHON_VERSION:  ${{ matrix.config.python }}
+      SCALA_VERSION:   ${{ matrix.config.scala }}
 
     steps:
       - uses: actions/checkout@v3
@@ -44,18 +43,12 @@ jobs:
             any::arrow
           needs: check
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Venv
-        run: |
-          sudo apt-get install python3-venv
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
 
       - name: Cache Spark
         id: cache-spark
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: /home/runner/spark/spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
           key: sparklyr-spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
@@ -63,8 +56,12 @@ jobs:
       - name: Install Spark (via sparklyr)
         if: steps.cache-spark.outputs.cache-hit != 'true'
         run: |
-          sparklyr::spark_install(version = Sys.getenv("SPARK_VERSION"))
-          print(sparklyr::spark_install_find(Sys.getenv("SPARK_VERSION"))$sparkVersionDir)
+          devtools::load_all()
+          library(sparklyr)
+          spark_install(
+            version = Sys.getenv("SPARK_VERSION"),
+            hadoop_version = Sys.getenv("HADOOP_VERSION")
+            )
         shell: Rscript {0}
 
       - name: Cache Scala

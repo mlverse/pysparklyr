@@ -46,7 +46,16 @@ skip_spark_min_version <- function(version) {
   sp_version <- spark_version(sc)
   comp_ver <- compareVersion(as.character(version), sp_version)
   if (comp_ver != -1) {
-    skip(glue("Skips on Spark version {version}"))
+    skip(glue("Skips on Spark version {sp_version}"))
+  }
+}
+
+skip_spark_max_version <- function(version) {
+  sc <- use_test_spark_connect()
+  sp_version <- spark_version(sc)
+  comp_ver <- compareVersion(as.character(version), sp_version)
+  if (comp_ver != 1) {
+    skip(glue("Skips on Spark version {sp_version}"))
   }
 }
 
@@ -103,11 +112,17 @@ test_databricks_cluster_id <- function() {
 
 test_databricks_cluster_version <- function() {
   if (is.null(.test_env$dbr)) {
-    dbr <- databricks_dbr_version(
-      cluster_id = test_databricks_cluster_id(),
-      host = databricks_host(),
-      token = databricks_token()
+    dbr <- try(
+      databricks_dbr_version(
+        cluster_id = test_databricks_cluster_id(),
+        host = databricks_host(),
+        token = databricks_token()
+      ),
+      silent = TRUE
     )
+    if (inherits(dbr, "try-error")) {
+      dbr <- "99.9"
+    }
     .test_env$dbr <- dbr
   }
   .test_env$dbr
@@ -116,7 +131,8 @@ test_databricks_cluster_version <- function() {
 test_databricks_stump_env <- function() {
   env_name <- use_envname(
     version = test_databricks_cluster_version(),
-    backend = "databricks"
+    backend = "databricks",
+    main_library = "databricks-connect"
   )
   env_path <- path(use_test_env(), env_name)
   if (names(env_name) != "exact") {

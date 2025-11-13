@@ -1,22 +1,53 @@
 import_check <- function(x, envname, silent = FALSE) {
   cli_div(theme = cli_colors())
+  env_found <- !is.na(envname)
+  env_loaded <- NA
+  is_uv <- FALSE
+  is_reticulate <- FALSE
+  uv_managed <- NA
+  look_for_env <- TRUE
+
+  env_found_names <- names(env_found) %||% ""
+
+  if (env_found_names == "unavailable") {
+    env_found <- FALSE
+  }
+
+  cli_msg <- "Attempting to load {.emph '{envname}'}"
+
+  env_is_file <- FALSE
+  if (envname == "") {
+    env_path <- ""
+    is_reticulate <- TRUE
+    uv_managed <- "false"
+    envname <- "Deferring to {reticulate}"
+    cli_msg <- NULL
+  } else {
+    if (file_exists(envname)) {
+      env_contents <- try(dir_ls(envname), silent = TRUE)
+      # Workaround to fs::is_file() not working
+      if (inherits(env_contents, "try-error")) {
+        env_is_file <- TRUE
+      }
+      env_path <- envname
+    } else {
+      env_path <- env_python(envname)
+      if (is.na(env_path)) {
+        env_path <- ""
+        is_uv <- TRUE
+        uv_managed <- "true"
+        envname <- "Managed `uv` environment"
+        cli_msg <- NULL
+      }
+    }
+  }
+
   if (!silent) {
     cli_progress_step(
-      msg = "Attempting to load {.emph '{envname}'}",
+      msg = cli_msg,
       msg_done = "{.header Python environment:} {.emph '{envname}'}",
       msg_failed = "Problem using {.emph '{envname}'}"
     )
-  }
-  env_found <- !is.na(envname)
-  env_loaded <- NA
-  look_for_env <- TRUE
-
-  if (file.exists(envname)) {
-    env_is_file <- TRUE
-    env_path <- envname
-  } else {
-    env_is_file <- FALSE
-    env_path <- env_python(envname)
   }
 
   if (env_is_file) {
@@ -48,19 +79,30 @@ import_check <- function(x, envname, silent = FALSE) {
           envir_type <- ""
         }
         if (envir_type == "virtualenv") {
-          try(use_virtualenv(envname), silent = TRUE)
+          try_load <- try(use_virtualenv(envname), silent = TRUE)
         } else {
-          try(use_condaenv(envname), silent = TRUE)
+          try_load <- try(use_condaenv(envname), silent = TRUE)
+        }
+        if (!inherits(try_load, "try-error")) {
+          env_loaded <- TRUE
         }
       }
     }
   }
 
   if (is.na(env_loaded)) {
-    env_loaded <- env_path == py_exe()
+    if (env_path != "") {
+      py_executable <- py_exe() %||% ""
+      env_loaded <- env_path == py_executable
+    } else {
+      env_loaded <- FALSE
+    }
   }
 
-  out <- try(import(x), silent = TRUE)
+  withr::with_envvar(
+    c("RETICULATE_USE_MANAGED_VENV" = uv_managed),
+    out <- try(import(x), silent = TRUE)
+  )
 
   if (inherits(out, "try-error")) {
     if (env_found) {
@@ -77,14 +119,18 @@ import_check <- function(x, envname, silent = FALSE) {
         cli_progress_done(result = "failed")
         cli_abort(c(
           "{.emph '{x}' }{.header is not available current Python environment.}",
-          paste(
-            "{.header - The }{.emph '{envname}'} {.header Python",
-            " environment is installed, but it is not loaded.}"
-          ),
-          paste(
-            "{.header - Restart your R session, and avoid",
-            " initializing Python before using} {.emph '{x}'}"
-          )
+          if (!is_reticulate) {
+            c(
+              paste(
+                "{.header - The }{.emph '{envname}'} {.header Python",
+                " environment is installed, but it is not loaded.}"
+              ),
+              paste(
+                "{.header - Restart your R session, and avoid",
+                " initializing Python before using} {.emph '{x}'}"
+              )
+            )
+          }
         ), call = NULL)
       }
     } else {
@@ -95,18 +141,7 @@ import_check <- function(x, envname, silent = FALSE) {
     }
     cli_alert_danger(glue("`reticulate` error:\n {out[[1]]}"))
   } else {
-    if (env_loaded) {
-      # if (look_for_env) {
-      #   msg <- paste(
-      #     "{.header Using the }{.emph '{envname}' }{.header Python}",
-      #     "{.header environment }"
-      #   )
-      #   cli_div(theme = cli_colors())
-      #   cli_alert_success(msg)
-      #   cli_bullets(c(" " = "{.class Path: {py_exe()}}"))
-      #   cli_end()
-      # }
-    } else {
+    if (!env_loaded && !is_uv && !is_reticulate) {
       cli_progress_done(result = "failed")
       cli_bullets(c(
         " " = "{.header A different Python is already loaded: }{.emph '{py_exe()}'}",
@@ -115,7 +150,6 @@ import_check <- function(x, envname, silent = FALSE) {
       cli_end()
     }
   }
-
   out
 }
 

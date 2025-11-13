@@ -12,9 +12,11 @@ test_that("Write text works", {
 test_that("Write table works", {
   tbl_mtcars <- use_test_table_mtcars()
   expect_silent(
-    spark_write_table(tbl_mtcars, "new_mtcars")
+    spark_write_table(tbl_mtcars, random_table_name("mtcars"))
   )
-  dir_delete(test_path("spark-warehouse"))
+  if (dir_exists(test_path("spark-warehouse"))) {
+    dir_delete(test_path("spark-warehouse"))
+  }
 })
 
 test_that("CSV works", {

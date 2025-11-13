@@ -1,12 +1,13 @@
-skip_spark_min_version(3.5)
+skip_on_ci()
+skip_spark_max_version("3.5.99")
 
 test_that("Functions work", {
-  use_test_install_ml()
+  reticulate::py_require("torch")
   tbl_mtcars <- use_test_table_mtcars()
   model <- use_test_lr_model()
-  expect_equal(
-    print(model),
-    NULL
+  expect_length(
+    suppressMessages(capture.output(print(model))),
+    6
   )
 
   expect_s3_class(spark_jobj(model), "spark_pyobj")

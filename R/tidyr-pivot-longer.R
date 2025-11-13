@@ -1,20 +1,21 @@
 #' @export
 pivot_longer.tbl_pyspark <- function(
-    data,
-    cols,
-    ...,
-    cols_vary = "fastest",
-    names_to = "name",
-    names_prefix = NULL,
-    names_sep = NULL,
-    names_pattern = NULL,
-    names_ptypes = NULL,
-    names_transform = NULL,
-    names_repair = NULL,
-    values_to = "value",
-    values_drop_na = FALSE,
-    values_ptypes = NULL,
-    values_transform = NULL) {
+  data,
+  cols,
+  ...,
+  cols_vary = "fastest",
+  names_to = "name",
+  names_prefix = NULL,
+  names_sep = NULL,
+  names_pattern = NULL,
+  names_ptypes = NULL,
+  names_transform = NULL,
+  names_repair = NULL,
+  values_to = "value",
+  values_drop_na = FALSE,
+  values_ptypes = NULL,
+  values_transform = NULL
+) {
   check_arg_supported(names_ptypes)
   check_arg_supported(names_transform)
   check_arg_supported(names_repair)

@@ -1,12 +1,17 @@
 use_envname <- function(
-    envname = NULL,
-    backend = "pyspark",
-    version = NULL,
-    messages = FALSE,
-    match_first = FALSE,
-    ignore_reticulate_python = FALSE,
-    ask_if_not_installed = interactive(),
-    main_library = NULL) {
+  envname = NULL,
+  backend = "pyspark",
+  version = NULL,
+  messages = FALSE,
+  match_first = FALSE,
+  ignore_reticulate_python = FALSE,
+  ask_if_not_installed = FALSE,
+  main_library = NULL,
+  python_version = NULL
+) {
+  if (is.null(main_library) && !is.null(backend)) {
+    cli_abort("Backend `{backend}` not valid")
+  }
   cli_div(theme = cli_colors())
 
   ret_python <- reticulate_python_check(ignore_reticulate_python, unset = FALSE)
@@ -38,13 +43,18 @@ use_envname <- function(
 
   if (!is.null(main_library) && !match_exact) {
     lib_info <- python_library_info(main_library, fail = FALSE, verbose = FALSE)
-    latest_ver <- lib_info$version
-    vers <- compareVersion(latest_ver, version)
-    install_recent <- vers == 1
-    # For cases when the cluster's version is higher than the latest library
-    if (vers == -1) {
-      envname <- as.character(glue("{env_base}{latest_ver}"))
-      install_ver <- latest_ver
+    if (!is.null(lib_info)) {
+      latest_ver <- lib_info$version
+      if (version == "latest") {
+        version <- latest_ver
+      }
+      vers <- compareVersion(latest_ver, version)
+      install_recent <- vers == 1
+      # For cases when the cluster's version is higher than the latest library
+      if (vers == -1) {
+        envname <- as.character(glue("{env_base}{latest_ver}"))
+        install_ver <- latest_ver
+      }
     }
   } else {
     install_recent <- TRUE
@@ -125,7 +135,18 @@ use_envname <- function(
       }
     } else {
       if (ret_name == "unavailable") {
-        cli_abort(c(msg_1, msg_2, run_full))
+        reqs <- python_requirements(
+          backend = backend,
+          main_library = main_library,
+          version = version,
+          python_version = python_version,
+          install_ml = FALSE,
+          add_torch = FALSE
+        )
+        reticulate::py_require(
+          packages = reqs$packages,
+          python_version = reqs$python_version
+        )
       }
       if (ret_name == "first") {
         cli_alert_warning(msg_1)
@@ -148,4 +169,81 @@ find_environments <- function(x) {
   matched <- all_names[sub_names == x]
   sorted <- sort(matched, decreasing = TRUE)
   sorted
+}
+
+python_requirements <- function(
+  backend = NULL,
+  main_library = NULL,
+  ml_version = NULL,
+  version = NULL,
+  python_version = NULL,
+  install_ml = FALSE,
+  add_torch = FALSE
+) {
+  cli_div(theme = cli_colors())
+
+  if (is.null(python_version) && backend == "databricks") {
+    python_version <- databricks_dbr_python(version)
+  }
+
+  library_info <- python_library_info(
+    library_name = main_library,
+    library_version = version,
+    verbose = is.null(python_version)
+  )
+
+  if (!is.null(library_info)) {
+    if (is.null(python_version)) {
+      python_version <- library_info$requires_python
+    }
+    version <- library_info$version
+    ver_name <- version
+  } else {
+    if (!is.null(version)) {
+      ver_name <- version_prep(version)
+      if (version == ver_name) {
+        version <- paste0(version, ".*")
+      }
+    } else {
+      cli_abort(
+        c(
+          "No `version` provided, and none could be found",
+          " " = "Please run again with a valid version number"
+        ),
+        call = NULL
+      )
+    }
+  }
+
+  requires_dist <- as.character(library_info$requires_dist)
+  packages <- c(
+    paste0(main_library, "==", version),
+    if (length(requires_dist)) {
+      with_extra <- grepl("; extra", requires_dist)
+      extra_str <- strsplit(requires_dist[with_extra], "; extra")
+      extra_str <- lapply(extra_str, function(x) x[[1]])
+      extra_str <- as.character(extra_str)
+      extra_str <- unique(extra_str)
+      c(requires_dist[!with_extra], extra_str)
+    } else {
+      c(
+        "pandas!=2.1.0", # deprecation warnings
+        "PyArrow",
+        "grpcio",
+        "google-api-python-client",
+        "grpcio_status"
+      )
+    }
+  )
+
+  if (add_torch && install_ml) {
+    packages <- c(packages, pysparklyr_env$ml_libraries)
+  }
+
+  packages <- c(packages, "pip")
+
+  list(
+    packages = packages,
+    python_version = python_version
+  )
 }

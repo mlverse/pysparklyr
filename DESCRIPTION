@@ -1,6 +1,6 @@
 Package: pysparklyr
 Title: Provides a 'PySpark' Back-End for the 'sparklyr' Package
-Version: 0.1.6.9000
+Version: 0.1.9.9002
 Authors@R: c(
     person("Edgar", "Ruiz", , "edgar@posit.co", role = c("aut", "cre")),
     person(given = "Posit Software, PBC", role = c("cph", "fnd"))
@@ -11,7 +11,7 @@ Description: It enables 'sparklyr' to integrate with 'Spark Connect', and
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3
 Imports:
     arrow,
     cli,
@@ -20,10 +20,10 @@ Imports:
     dbplyr,
     glue,
     purrr,
-    reticulate (>= 1.38),
+    reticulate (>= 1.44.0),
     methods,
     rlang,
-    sparklyr (>= 1.8.5),
+    sparklyr,
     tidyselect,
     fs,
     magrittr,

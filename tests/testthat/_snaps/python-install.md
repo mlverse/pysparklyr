@@ -4,11 +4,11 @@
       x
     Output
       $packages
-      [1] "pyspark==3.5.0"           "pandas!=2.1.0"           
-      [3] "PyArrow"                  "grpcio"                  
-      [5] "google-api-python-client" "grpcio_status"           
-      [7] "torch"                    "torcheval"               
-      [9] "scikit-learn"            
+       [1] "pyspark==3.5.0"           "pandas!=2.1.0"           
+       [3] "PyArrow"                  "grpcio"                  
+       [5] "google-api-python-client" "grpcio_status"           
+       [7] "databricks-sdk"           "torch"                   
+       [9] "torcheval"                "scikit-learn"            
       
       $envname
                    unavailable 
@@ -37,6 +37,7 @@
       [1] "pyspark==3.5.*"           "pandas!=2.1.0"           
       [3] "PyArrow"                  "grpcio"                  
       [5] "google-api-python-client" "grpcio_status"           
+      [7] "databricks-sdk"          
       
       $envname
                    unavailable 
@@ -120,6 +121,45 @@
       
       $python_version
       NULL
+      
+      $new_env
+      [1] TRUE
+      
+      $method
+      [1] "auto"       "virtualenv" "conda"     
+      
+      $as_job
+      [1] TRUE
+      
+      $install_ml
+      [1] FALSE
+      
+
+# Tests install_databricks()
+
+    Code
+      install_databricks("17.1", python_version = "3.12")
+    Output
+      $main_library
+      [1] "databricks-connect"
+      
+      $spark_method
+      [1] "databricks_connect"
+      
+      $backend
+      [1] "databricks"
+      
+      $ml_version
+      [1] "14.1"
+      
+      $version
+      [1] "17.1"
+      
+      $envname
+      NULL
+      
+      $python_version
+      [1] "3.12"
       
       $new_env
       [1] TRUE

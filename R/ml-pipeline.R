@@ -1,22 +1,29 @@
 #' @export
 ml_pipeline.pyspark_connection <- function(x, ..., uid = NULL) {
   ml_installed()
-  connect_pipeline <- import("pyspark.ml.connect.pipeline")
-  jobj <- as_spark_pyobj(connect_pipeline, x)
-  as_pipeline(jobj)
+  if (spark_version(x) > "4.0") {
+    ml <- import("pyspark.ml")
+  } else {
+    ml <- import("pyspark.ml.connect")
+  }
+  pipeline <- ml$Pipeline()
+  pipeline %>%
+    as_spark_pyobj(x) %>%
+    as_pipeline()
 }
 
 #' @export
 ml_fit.ml_connect_pipeline <- function(x, dataset, ...) {
   fitted <- ml_fit_impl(x, dataset)
-  stages <- map(invoke(fitted, "stages"), ml_print_params)
+  sc <- spark_connection(x)
+  stages <- map(invoke(fitted, "stages"), ml_print_params, sc)
   as_pipeline_model(fitted, stages)
 }
 
 ml_fit_impl <- function(x, dataset) {
   ml_installed()
   py_dataset <- python_obj_get(dataset)
-  py_x <- python_obj_get(x)
+  py_x <- get_spark_pyobj(x)
 
   fitted <- try(
     invoke(py_x, "fit", py_dataset),
@@ -59,24 +66,22 @@ ml_transform.ml_connect_pipeline_model <- function(x, dataset, ...) {
   transform_impl(x, dataset, prep = FALSE, remove = TRUE)
 }
 
-ml_print_params <- function(x) {
-  class_1 <- ml_get_last_item(class(x)[[1]])
-  class_2 <- ml_get_last_item(class(x)[[3]])
-  x_params <- x$params %>%
-    map_chr(~ {
-      nm <- .x$name
-      nm <- paste0(toupper(substr(nm, 1, 1)), substr(nm, 2, nchar(nm)))
-      fn <- paste0("get", nm)
-      tr <- try(x[fn](), silent = TRUE)
-      if (inherits(tr, "try-error")) {
-        tr <- ""
-      } else {
-        tr <- glue("{.x$name}: {tr}")
-      }
-      tr
-    })
-  x_params <- x_params[x_params != ""]
-  name_label <- paste0("<", capture.output(x), ">")
+ml_print_params <- function(x, sc = NULL) {
+  py_x <- python_obj_get(x)
+  if (is.null(sc)) {
+    x_params <- x$param_map
+  } else {
+    x_params <- x %>%
+      as_spark_pyobj(sc) %>%
+      ml_get_params()
+  }
+  x_params <- x_params %>%
+    map_chr(paste, collapse = ", ") %>%
+    imap_chr(function(x, y) glue("{y}: {x}")) %>%
+    paste0(collapse = "\n")
+  name_label <- paste0("<", capture.output(py_x), ">")
+  class_1 <- ml_get_last_item(class(py_x)[[1]])
+  class_2 <- ml_get_last_item(class(py_x)[[3]])
   ret <- paste0(x_params, collapse = "\n")
   ret <- paste0(
     class_1, " (", class_2, ")", "\n",
@@ -94,30 +99,19 @@ print.ml_output_params <- function(x, ...) {
 }
 
 ml_connect_add_stage <- function(x, stage) {
-  pipeline_class <- "pyspark.ml.connect.pipeline.Pipeline"
-  pipeline <- python_obj_get(x)
-  if (!inherits(pipeline, pipeline_class)) {
-    pipeline <- invoke(pipeline, "Pipeline")
+  stages <- c(x$param_map, list(stage))
+  py_stages <- NULL
+  for (i in stages) {
+    py_stages <- c(py_stages, python_obj_get(i))
   }
-  stage_print <- ml_print_params(stage)
-  if (inherits(pipeline, pipeline_class)) {
-    # Not using invoke() here because it's returning a list
-    # and we need a vector
-    stages <- pipeline$getStages()
-    outputs <- c(x$stages, list(stage_print))
-    if (length(stages) > 0) {
-      jobj <- invoke(pipeline, "setStages", c(stages, stage))
-    } else {
-      jobj <- invoke(pipeline, "stages", c(stages, stage))
-    }
-  } else {
-    outputs <- list(stage_print)
-    jobj <- pipeline(stages = c(stage))
-  }
-  as_pipeline(jobj, outputs, TRUE)
+  pipeline <- x %>%
+    get_spark_pyobj() %>%
+    invoke("setStages", py_stages)
+  outputs <- c(x$stages, list(ml_print_params(stage)))
+  as_pipeline(pipeline, stages, outputs, TRUE)
 }
 
-as_pipeline <- function(jobj, outputs = NULL, get_uid = FALSE) {
+as_pipeline <- function(jobj, stages = list(), outputs = list(), get_uid = FALSE) {
   if (get_uid) {
     uid <- invoke(jobj, "uid")
   } else {
@@ -126,9 +120,9 @@ as_pipeline <- function(jobj, outputs = NULL, get_uid = FALSE) {
   structure(
     list(
       uid = uid,
-      param_map = list,
-      stages = outputs,
-      .jobj = jobj
+      param_map = stages,
+      .jobj = jobj,
+      stages = outputs
     ),
     class = c(
       "ml_connect_pipeline",

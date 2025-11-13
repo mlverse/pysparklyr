@@ -12,7 +12,11 @@
 #' @return The result of calling `rhs(lhs)`.
 NULL
 
-reticulate_python_check <- function(ignore = FALSE, unset = FALSE, message = TRUE) {
+reticulate_python_check <- function(
+  ignore = FALSE,
+  unset = FALSE,
+  message = TRUE
+) {
   if (ignore) {
     return("")
   }
@@ -94,15 +98,20 @@ current_product_connect <- function() {
 }
 
 py_check_installed <- function(
-    envname = NULL,
-    libraries = "",
-    msg = "") {
+  envname = NULL,
+  libraries = "",
+  msg = ""
+) {
   installed_libraries <- py_list_packages(envname = envname)$package
   find_libs <- map_lgl(libraries, ~ .x %in% installed_libraries)
   if (!all(find_libs)) {
+    missing_lib <- libraries[!find_libs]
+    if (is_uv_env()) {
+      reticulate::py_require(missing_lib)
+      return(invisible())
+    }
     cli_div(theme = cli_colors())
     if (check_interactive()) {
-      missing_lib <- libraries[!find_libs]
       cli_alert_warning(msg)
       cli_bullets(c(
         " " = "{.header Could not find: {missing_lib}}",
@@ -120,7 +129,23 @@ py_check_installed <- function(
     }
     cli_end()
   }
+  invisible()
 }
+
+is_uv_env <- function() {
+  is_uv <- FALSE
+  base_exe <- path_dir(py_exe())
+  if (path_file(base_exe) == "bin") {
+    py_base <- path_dir(base_exe)
+    cfg_file <- path(py_base, "pyvenv.cfg")
+    if (file_exists(cfg_file)) {
+      cfg_contents <- readLines(cfg_file)
+      is_uv <- any(grepl("uv = ", cfg_contents))
+    }
+  }
+  is_uv
+}
+
 
 stop_quietly <- function() {
   opt <- options(show.error.messages = FALSE)
@@ -130,4 +155,15 @@ stop_quietly <- function() {
 
 use_arrow <- function() {
   arrow::binary()
+}
+
+list_diff <- function(x, y) {
+  x_names <- names(x)
+  y_names <- names(y)
+
+  # Find elements that are either:
+  c(
+    x[setdiff(x_names, y_names)], # 1. New names in x
+    x[!mapply(identical, x[y_names], y)] # 2. Same name but different value
+  )
 }

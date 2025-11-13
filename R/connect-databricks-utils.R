@@ -1,14 +1,14 @@
 databricks_host <- function(host = NULL, fail = TRUE) {
   if (!is.null(host)) {
-    return(set_names(host, "argument"))
+    return(named_host(host, "argument"))
   }
   env_host <- Sys.getenv("DATABRICKS_HOST", unset = NA)
   connect_host <- Sys.getenv("CONNECT_DATABRICKS_HOST", unset = NA)
   if (!is.na(env_host)) {
-    host <- set_names(env_host, "environment")
+    host <- named_host(env_host, "environment")
   }
   if (!is.na(connect_host)) {
-    host <- set_names(connect_host, "environment_connect")
+    host <- named_host(connect_host, "environment_connect")
   }
   if (is.null(host)) {
     if (fail) {
@@ -27,6 +27,10 @@ databricks_host <- function(host = NULL, fail = TRUE) {
 }
 
 databricks_token <- function(token = NULL, fail = FALSE) {
+  # if token provided, return
+  # otherwise, search for token:
+  # DATABRICKS_TOKEN > CONNECT_DATABRICKS_TOKEN > .rs.api.getDatabricksToken
+
   if (!is.null(token)) {
     return(set_names(token, "argument"))
   }
@@ -53,7 +57,6 @@ databricks_token <- function(token = NULL, fail = FALSE) {
         paste0(
           "No authentication token was identified: \n",
           " - No 'DATABRICKS_TOKEN' environment variable found \n",
-          " - No Databricks OAuth token found \n",
           " - Not passed as a function argument"
         ),
         "Please add your Token to 'DATABRICKS_TOKEN' inside your .Renviron file."
@@ -65,14 +68,54 @@ databricks_token <- function(token = NULL, fail = FALSE) {
   token
 }
 
-databricks_dbr_version_name <- function(cluster_id,
-                                        host = NULL,
-                                        token = NULL,
-                                        silent = FALSE) {
+databricks_sdk_client <- function(
+  sdk,
+  host,
+  token,
+  serverless = FALSE,
+  cluster_id = NULL,
+  profile = NULL
+) {
+  # SDK behaviour
+  # https://databricks-sdk-py.readthedocs.io/en/latest/authentication.html#default-authentication-flow
+  if (token == "") {
+    databricks_desktop_login(host = host, profile = profile)
+    auth_type <- "databricks-cli"
+  } else {
+    auth_type <- "pat"
+  }
+
+  if (serverless) {
+    serverless_compute_id <- "auto"
+    cluster_id <- NULL
+  } else {
+    serverless_compute_id <- NULL
+  }
+
+  config <- sdk$core$Config(
+    host = host,
+    token = token,
+    auth_type = auth_type,
+    profile = profile,
+    serverless_compute_id = serverless_compute_id,
+    cluster_id = cluster_id
+  )
+
+  sdk$WorkspaceClient(config = config)
+}
+
+databricks_dbr_version_name <- function(
+  cluster_id,
+  client = NULL,
+  host = NULL,
+  token = NULL,
+  silent = FALSE
+) {
   bullets <- NULL
   version <- NULL
   cluster_info <- databricks_dbr_info(
     cluster_id = cluster_id,
+    client = client,
     host = host,
     token = token,
     silent = silent
@@ -95,10 +138,13 @@ databricks_extract_version <- function(x) {
   version
 }
 
-databricks_dbr_info <- function(cluster_id,
-                                host = NULL,
-                                token = NULL,
-                                silent = FALSE) {
+databricks_dbr_info <- function(
+  cluster_id,
+  client = NULL,
+  host = NULL,
+  token = NULL,
+  silent = FALSE
+) {
   cli_div(theme = cli_colors())
 
   if (!silent) {
@@ -109,11 +155,9 @@ databricks_dbr_info <- function(cluster_id,
     )
   }
 
-  out <- databricks_cluster_get(cluster_id, host, token)
-  if (inherits(out, "try-error")) {
-    sanitized <- sanitize_host(host, silent)
-    out <- databricks_cluster_get(cluster_id, sanitized, token)
-  }
+  # client is used preferentially
+  # host/token only should be used on initial setup
+  out <- databricks_cluster_get(cluster_id, client, host, token)
 
   if (inherits(out, "try-error")) {
     cli_div(theme = cli_colors())
@@ -122,7 +166,7 @@ databricks_dbr_info <- function(cluster_id,
     invalid_cluster <- NULL
     invalid_msg <- " <<--- Possibly invalid"
     if (grepl("HTTP 404 Not Found", out)) {
-      parse_host <- url_parse(host)
+      parse_host <- url_parse(client$config$host)
       invalid_host <- invalid_msg
       if (!is.null(parse_host$path)) {
         invalid_host <- glue(
@@ -159,32 +203,46 @@ databricks_dbr_info <- function(cluster_id,
   out
 }
 
-databricks_dbr_version <- function(cluster_id,
-                                   host = NULL,
-                                   token = NULL) {
+databricks_dbr_version <- function(
+  cluster_id,
+  client = NULL,
+  host = NULL,
+  token = NULL
+) {
   vn <- databricks_dbr_version_name(
     cluster_id = cluster_id,
+    client = client,
     host = host,
     token = token
   )
   vn$version
 }
 
-databricks_cluster_get <- function(cluster_id,
-                                   host = NULL,
-                                   token = NULL) {
-  try(
-    paste0(
-      host,
-      "/api/2.0/clusters/get"
-    ) %>%
-      request() %>%
-      req_auth_bearer_token(token) %>%
-      req_body_json(list(cluster_id = cluster_id)) %>%
-      req_perform() %>%
-      resp_body_json(),
-    silent = TRUE
-  )
+databricks_cluster_get <- function(
+  cluster_id,
+  client = NULL,
+  host = NULL,
+  token = NULL
+) {
+  if (!is.null(client)) {
+    try(
+      client$clusters$get(cluster_id = cluster_id)$as_dict(),
+      silent = TRUE
+    )
+  } else {
+    try(
+      paste0(
+        host,
+        "/api/2.0/clusters/get"
+      ) %>%
+        request() %>%
+        req_auth_bearer_token(token) %>%
+        req_body_json(list(cluster_id = cluster_id)) %>%
+        req_perform() %>%
+        resp_body_json(),
+      silent = TRUE
+    )
+  }
 }
 
 databricks_dbr_error <- function(error) {
@@ -227,6 +285,42 @@ databricks_dbr_error <- function(error) {
   )
 }
 
+# from httr2
+is_hosted_session <- function() {
+  if (nzchar(Sys.getenv("COLAB_RELEASE_TAG"))) {
+    return(TRUE)
+  }
+  Sys.getenv("RSTUDIO_PROGRAM_MODE") == "server" &&
+    !grepl("localhost", Sys.getenv("RSTUDIO_HTTP_REFERER"), fixed = TRUE)
+}
+
+databricks_desktop_login <- function(host = NULL, profile = NULL) {
+  # host takes priority over profile
+  if (!is.null(host)) {
+    method <- "--host"
+    value <- host
+  } else if (!is.null(profile)) {
+    method <- "--profile"
+    value <- profile
+  } else {
+    # todo rlang error?
+    stop("must specifiy `host` or `profile`, neither were set")
+  }
+
+  cli_path <- Sys.getenv("DATABRICKS_CLI_PATH", "databricks")
+  if (!is_hosted_session() && nchar(Sys.which(cli_path)) != 0) {
+    # When on desktop, try using the Databricks CLI for auth.
+    output <- suppressWarnings(
+      system2(
+        cli_path,
+        c("auth", "login", method, value),
+        stdout = TRUE,
+        stderr = TRUE
+      )
+    )
+  }
+}
+
 sanitize_host <- function(url, silent = FALSE) {
   url <- ifelse(!grepl("^https?://", url), paste0("https://", url), url)
   parsed_url <- url_parse(url)
@@ -245,12 +339,29 @@ sanitize_host <- function(url, silent = FALSE) {
   if (endsWith(ret, "/")) {
     ret <- substr(ret, 1, nchar(ret) - 1)
   }
-  if (ret != url && !silent) {
-    cli_div(theme = cli_colors())
-    cli_alert_warning(
-      "{.header Changing host URL to:} {.emph {ret}}"
-    )
-    cli_end()
-  }
   ret
+}
+
+named_host <- function(url, name) {
+  set_names(sanitize_host(url), name)
+}
+
+databricks_dbr_python <- function(version) {
+  if (version >= "16.0") {
+    "3.12"
+  } else if (version >= "15.0") {
+    "3.11"
+  } else {
+    "3.10"
+  }
+}
+
+# https://docs.databricks.com/aws/en/release-notes/serverless#supported-spark-configuration-parameters
+allowed_serverless_configs <- function() {
+  c(
+    "spark.sql.legacy.timeParserPolicy",
+    "spark.sql.session.timeZone",
+    "spark.sql.shuffle.partitions",
+    "spark.sql.ansi.enabled"
+  )
 }

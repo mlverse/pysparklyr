@@ -31,10 +31,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.10'
-
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: 'release'
@@ -98,6 +94,7 @@ jobs:
 
       - name: R Tests
         run: |
+          reticulate::install_python("3.10")
           devtools::load_all()
           devtools::test(reporter = sparklyr_reporter())
         shell: Rscript {0}

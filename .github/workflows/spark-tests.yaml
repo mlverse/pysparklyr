@@ -92,9 +92,14 @@ jobs:
           print(t_pkgs[, c("Package", "Version")])
         shell: Rscript {0}
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - run: python --version
+
       - name: R Tests
         run: |
-          reticulate::install_python("3.10")
           reticulate::virtualenv_starter()
           # devtools::load_all()
           # devtools::test(reporter = sparklyr_reporter())

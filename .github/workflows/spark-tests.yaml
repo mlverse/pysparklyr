@@ -27,6 +27,7 @@ jobs:
       PYSPARK_VERSION: ${{ matrix.config.pyspark }}
       PYTHON_VERSION:  ${{ matrix.config.python }}
       SCALA_VERSION:   ${{ matrix.config.scala }}
+      RETICULATE_USE_MANAGED_VENV: no
 
     steps:
       - uses: actions/checkout@v3

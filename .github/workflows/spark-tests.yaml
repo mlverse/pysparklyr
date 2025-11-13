@@ -100,7 +100,7 @@ jobs:
 
       - name: R Tests
         run: |
-          reticulate::virtualenv_starter()
+          reticulate::virtualenv_starter("3.10")
           # devtools::load_all()
           # devtools::test(reporter = sparklyr_reporter())
         shell: Rscript {0}

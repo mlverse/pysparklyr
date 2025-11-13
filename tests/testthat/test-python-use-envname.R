@@ -1,8 +1,9 @@
-env_path <- fs::path(tempdir(), random_table_name("env"))
-
 test_that("Install environment", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = env_path),
+    new = c(
+      "WORKON_HOME" = use_new_temp_env(),
+      RETICULATE_USE_MANAGED_VENV = "no"
+    ),
     {
       expect_output(
         install_pyspark("3.4", as_job = FALSE, python = Sys.which("python")),
@@ -14,6 +15,8 @@ test_that("Install environment", {
 })
 
 test_that("Use first one", {
+  env_path <- use_new_temp_env()
+  dir_create(path(env_path, "r-sparklyr-pyspark-3.4"))
   withr::with_envvar(
     new = c("WORKON_HOME" = env_path),
     {
@@ -33,6 +36,8 @@ test_that("Use first one", {
 })
 
 test_that("Error if 'use_first' is not TRUE", {
+  env_path <- use_new_temp_env()
+  dir_create(path(env_path, "r-sparklyr-pyspark-3.4"))
   withr::with_envvar(
     new = c("WORKON_HOME" = env_path),
     {
@@ -52,7 +57,7 @@ test_that("Error if 'use_first' is not TRUE", {
 
 test_that("Error if 'use_first' is not TRUE", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = env_path),
+    new = c("WORKON_HOME" = use_new_temp_env()),
     {
       expect_error(
         x <- use_envname(
@@ -68,7 +73,7 @@ test_that("Error if 'use_first' is not TRUE", {
 
 test_that("'Ask to install', simulates menu selection 'Yes'", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = env_path),
+    new = c("WORKON_HOME" = use_new_temp_env()),
     {
       local_mocked_bindings(
         check_interactive = function(...) TRUE,
@@ -94,7 +99,7 @@ test_that("'Ask to install', simulates menu selection 'Yes'", {
 
 test_that("'Ask to install', simulates menu selection 'No'", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = env_path),
+    new = c("WORKON_HOME" = use_new_temp_env()),
     {
       local_mocked_bindings(
         check_interactive = function(...) TRUE,
@@ -120,7 +125,7 @@ test_that("'Ask to install', simulates menu selection 'No'", {
 
 test_that("'Ask to install', simulates menu selection 'Cancel'", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = env_path),
+    new = c("WORKON_HOME" = use_new_temp_env()),
     {
       local_mocked_bindings(
         check_interactive = function(...) TRUE,

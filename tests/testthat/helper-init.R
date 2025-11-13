@@ -19,6 +19,10 @@ use_new_test_env <- function() {
   fs::dir_create(x)
 }
 
+use_new_temp_env <- function() {
+  fs::path(tempdir(), random_table_name("env"))
+}
+
 use_test_version_spark <- function() {
   version <- Sys.getenv("SPARK_VERSION", unset = NA)
   if (is.na(version)) version <- "4.0"

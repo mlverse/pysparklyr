@@ -139,8 +139,7 @@ test_databricks_stump_env <- function() {
     py_install(
       package = "numpy",
       envname = env_path,
-      pip = TRUE,
-      python = Sys.which("python")
+      pip = TRUE
     )
   }
   path(env_path, "bin", "python")

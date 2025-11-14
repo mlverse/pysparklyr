@@ -6,12 +6,15 @@ test_that("Find environments works", {
       "DATABRICKS_TOKEN" = "testtoken"
     ),
     {
-      env_path <- test_databricks_stump_env()
       local_mocked_bindings(
         py_exe = function(...) {
           return(NULL)
+        },
+        virtualenv_starter = function(...) {
+          return(NULL)
         }
       )
+      env_path <- test_databricks_stump_env()
       expect_equal(
         deploy_find_environment(python = env_path),
         env_path
@@ -31,7 +34,6 @@ test_that("Tests deploy_databricks() happy path cases", {
       "DATABRICKS_TOKEN" = "test"
     ),
     {
-      env_path <- test_databricks_stump_env()
       local_mocked_bindings(
         deploy = function(...) {
           return(list(...))
@@ -54,7 +56,6 @@ test_that("Tests deploy_databricks() error cases", {
       "DATABRICKS_TOKEN" = NA
     ),
     {
-      env_path <- test_databricks_stump_env()
       local_mocked_bindings(
         deploy = function(...) {
           return(list(...))
@@ -63,8 +64,8 @@ test_that("Tests deploy_databricks() error cases", {
           return("17.3")
         }
       )
-      expect_snapshot_error(deploy_databricks())
-      expect_snapshot_error(deploy_databricks(host = "another"))
+      expect_snapshot(deploy_databricks(), error = TRUE)
+      expect_snapshot(deploy_databricks(host = "another"), error = TRUE)
     }
   )
 })

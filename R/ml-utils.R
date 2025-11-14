@@ -1,9 +1,9 @@
 ml_formula <- function(f, data) {
   col_data <- colnames(data)
 
-  temp_tbl <- rep(1, times = length(col_data)) %>%
-    set_names(col_data) %>%
-    as.list() %>%
+  temp_tbl <- rep(1, times = length(col_data)) |>
+    set_names(col_data) |>
+    as.list() |>
     as.data.frame()
 
   f_terms <- terms(f, data = temp_tbl)
@@ -50,7 +50,7 @@ snake_to_camel <- function(x) {
 ml_connect_not_supported <- function(args, not_supported = c()) {
   x <- map(
     not_supported,
-    ~ {
+    \(.x) {
       if (.x %in% names(args)) {
         arg <- args[names(args) == .x]
         if (!is.null(arg[[1]])) {
@@ -60,8 +60,8 @@ ml_connect_not_supported <- function(args, not_supported = c()) {
         }
       }
     }
-  ) %>%
-    discard(is.null) %>%
+  ) |>
+    discard(is.null) |>
     as.character()
 
   x <- x[x != ""]
@@ -85,8 +85,8 @@ ml_execute <- function(args, python_library, fn, sc) {
 
   args <- discard(args, is.null)
 
-  new_names <- args %>%
-    names() %>%
+  new_names <- args |>
+    names() |>
     map_chr(snake_to_camel)
 
   new_args <- set_names(args, new_names)
@@ -105,19 +105,19 @@ get_params <- function(x) {
   py_model <- python_obj_get(x)
   m_params <- py_model$params
   m_map <- py_model$extractParamMap()
-  m_map_names <- m_map %>%
-    names() %>%
-    strsplit("__") %>%
-    map(~ .x[[2]]) %>%
-    as.character() %>%
+  m_map_names <- m_map |>
+    names() |>
+    strsplit("__") |>
+    map(\(.x) .x[[2]]) |>
+    as.character() |>
     sort()
 
-  m_param_names <- m_params %>%
-    map(~ .x$name) %>%
+  m_param_names <- m_params |>
+    map(\(.x) .x$name) |>
     as.character()
 
-  m_map_names %>%
-    map(~ {
+  m_map_names |>
+    map(\(.x) {
       c_param_name <- m_params[which(.x == m_param_names)]
       c_map_name <- m_map[which(.x == m_map_names)]
       list(
@@ -139,20 +139,20 @@ ml_installed <- function(envname = NULL) {
 ml_get_params <- function(x) {
   py_x <- get_spark_pyobj(x)
   params <- invoke(py_x, "params")
-  params %>%
-    map(~ {
+  params |>
+    map(\(.x) {
       nm <- .x$name
       nm <- paste0("get", toupper(substr(nm, 1, 1)), substr(nm, 2, nchar(nm)))
       tr <- try(invoke(py_x, nm), silent = TRUE)
       if (inherits(tr, "spark_pyobj")) {
-        tr <- tr %>%
-          python_obj_get() %>%
+        tr <- tr |>
+          python_obj_get() |>
           py_to_r()
       }
       out <- ifelse(inherits(tr, "try-error"), list(), list(tr))
       set_names(out, .x$name)
-    }) %>%
-    flatten() %>%
+    }) |>
+    flatten() |>
     discard(is.null)
 }
 

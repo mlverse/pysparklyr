@@ -10,13 +10,13 @@ ml_cross_validator.pyspark_connection <- function(
   tuning <- import("pyspark.ml.tuning")
   pipeline <- python_obj_get(estimator)
   stages <- pipeline$getStages()
-  stages_name <- stages %>%
-    map_chr(py_repr) %>%
+  stages_name <- stages |>
+    map_chr(py_repr) |>
     tolower()
   grid <- tuning$ParamGridBuilder()
-  map_names <- estimator_param_maps %>%
-    names() %>%
-    map_chr(snake_to_camel) %>%
+  map_names <- estimator_param_maps |>
+    names() |>
+    map_chr(snake_to_camel) |>
     tolower()
   for (map_name in map_names) {
     stage_match <- startsWith(stages_name, map_name)
@@ -35,8 +35,8 @@ ml_cross_validator.pyspark_connection <- function(
       abort(glue("Could not match `{map_name}` to a function in the pipeline"))
     }
   }
-  built_grid <- grid %>%
-    as_spark_pyobj(x) %>%
+  built_grid <- grid |>
+    as_spark_pyobj(x) |>
     invoke("build")
   cv_estimator <- ml_process_fn(
     args = list(
@@ -74,17 +74,17 @@ ml_fit.ml_connect_cross_validator <- function(x, dataset, ...) {
   fitted <- ml_fit_impl(x, dataset)
   metric_name <- x$metric_name
   x <- python_obj_get(fitted)
-  metrics <- x$avgMetrics %>%
+  metrics <- x$avgMetrics |>
     map2(
       x$getEstimatorParamMaps(),
       function(x, y) c(set_names(x, metric_name), y)
-    ) %>%
-    map(dplyr::as_tibble) %>%
+    ) |>
+    map(dplyr::as_tibble) |>
     list_rbind()
-  metric_names <- metrics %>%
-    colnames() %>%
-    strsplit("__") %>%
-    map(unlist) %>%
+  metric_names <- metrics |>
+    colnames() |>
+    strsplit("__") |>
+    map(unlist) |>
     map_chr(function(x) x[length(x)])
   colnames(metrics) <- metric_names
   structure(

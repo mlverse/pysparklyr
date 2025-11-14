@@ -1,17 +1,3 @@
-#' Pipe operator
-#'
-#' See \code{magrittr::\link[magrittr:pipe]{\%>\%}} for details.
-#'
-#' @name %>%
-#' @rdname pipe
-#' @keywords internal
-#' @export
-#' @usage lhs \%>\% rhs
-#' @param lhs A value or the magrittr placeholder.
-#' @param rhs A function call using the magrittr semantics.
-#' @return The result of calling `rhs(lhs)`.
-NULL
-
 reticulate_python_check <- function(
   ignore = FALSE,
   unset = FALSE,
@@ -103,7 +89,7 @@ py_check_installed <- function(
   msg = ""
 ) {
   installed_libraries <- py_list_packages(envname = envname)$package
-  find_libs <- map_lgl(libraries, ~ .x %in% installed_libraries)
+  find_libs <- map_lgl(libraries, \(.x) .x %in% installed_libraries)
   if (!all(find_libs)) {
     missing_lib <- libraries[!find_libs]
     if (is_uv_env()) {

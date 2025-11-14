@@ -61,8 +61,8 @@ cache_query <- function(table,
 
 #' @export
 collect.tbl_pyspark <- function(x, ...) {
-  x %>%
-    tbl_pyspark_sdf() %>%
+  x |>
+    tbl_pyspark_sdf() |>
     to_pandas_cleaned()
 }
 
@@ -70,8 +70,8 @@ collect.tbl_pyspark <- function(x, ...) {
 spark_dataframe.tbl_pyspark <- function(x, ...) {
   conn <- x[[1]]
   query <- x[[2]]
-  qry <- query %>%
-    sql_render(conn) %>%
+  qry <- query |>
+    sql_render(conn) |>
     query_cleanup(conn)
   invoke(conn, "sql", qry)
 }
@@ -119,7 +119,7 @@ sdf_copy_to.pyspark_connection <- function(sc,
     }
     out <- tbl(src = sc, from = name)
   } else {
-    out <- df_copy %>%
+    out <- df_copy |>
       tbl_pyspark_temp(sc)
     if (memory && !sc$serverless) {
       out <- cache_query(table = out, name = name)
@@ -176,8 +176,8 @@ tbl_pyspark_sdf <- function(x) {
   out <- python_sdf(x)
   if (is.null(out)) {
     con <- python_conn(x[[1]])
-    qry <- x %>%
-      remote_query() %>%
+    qry <- x |>
+      remote_query() |>
       query_cleanup(con)
     out <- con$sql(qry)
   }
@@ -286,8 +286,8 @@ tbl_pyspark_temp <- function(x, conn, tmp_name = NULL) {
   py_x <- python_obj_get(x)
   py_x$createOrReplaceTempView(tmp_name)
   if (!is_snowflake(sc)) {
-    tmp_name <- sc %>%
-      dbQuoteIdentifier(tmp_name) %>%
+    tmp_name <- sc |>
+      dbQuoteIdentifier(tmp_name) |>
       as.character()
   }
   tbl(sc, I(tmp_name))

@@ -396,10 +396,10 @@ query_pypi <- function(library_name, library_version = NULL, timeout) {
   resp <- try(
     {
       tryCatch(
-        url %>%
-          request() %>%
-          req_timeout(timeout) %>%
-          req_perform() %>%
+        url |>
+          request() |>
+          req_timeout(timeout) |>
+          req_perform() |>
           resp_body_json(),
         httr2_http_404 = function(cnd) NULL
       )
@@ -414,8 +414,8 @@ version_prep <- function(version) {
     return(version)
   }
   version <- as.character(version)
-  ver <- version %>%
-    strsplit("\\.") %>%
+  ver <- version |>
+    strsplit("\\.") |>
     unlist()
 
   ver_name <- NULL
@@ -458,16 +458,16 @@ check_interactive <- function() interactive()
 build_job_code <- function(args) {
   args$as_job <- NULL
   args$method <- args$method[[1]]
-  arg_list <- args %>%
-    imap(~ {
+  arg_list <- args |>
+    imap(\(.x, .y) {
       if (inherits(.x, "character")) {
         x <- paste0("\"", .x, "\"")
       } else {
         x <- .x
       }
       paste0(.y, " = ", x)
-    }) %>%
-    as.character() %>%
+    }) |>
+    as.character() |>
     paste0(collapse = ", ")
   paste0(
     "pysparklyr:::install_environment(", arg_list, ")"

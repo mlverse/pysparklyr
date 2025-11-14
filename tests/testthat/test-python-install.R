@@ -1,6 +1,7 @@
+new_env <- use_new_test_env()
 test_that("It checks with PyPi if library version is NULL", {
   withr::with_envvar(
-    new = c("WORKON_HOME" = use_new_test_env()),
+    new = c("WORKON_HOME" = new_env),
     {
       local_mocked_bindings(py_install = function(...) list(...))
       expect_message(
@@ -37,23 +38,6 @@ test_that("Adds the ML libraries when prompted", {
       x <- x[names(x) != "python_version"]
       expect_snapshot(x)
     }
-  )
-})
-
-test_that("Fails when non-existent Python version is used", {
-  expect_error(
-    install_environment(
-      main_library = "pyspark",
-      spark_method = "pyspark_connect",
-      backend = "pyspark",
-      version = "3.5",
-      ml_version = "3.5",
-      python = Sys.which("python"),
-      # Arg(s) being tested
-      new_env = TRUE,
-      python_version = "10.1"
-    ),
-    "Python version '10.1' or higher is required by some libraries."
   )
 })
 
@@ -141,12 +125,33 @@ test_that(
   }
 )
 
-
 test_that("installed_components() output properly", {
+  expect_message(installed_components())
+})
+
+test_that("Fails when non-existent Python version is used", {
   withr::with_envvar(
     new = c("WORKON_HOME" = use_new_test_env()),
     {
-      expect_message(installed_components())
+      local_mocked_bindings(
+        virtualenv_starter = function(...) {
+          return(NULL)
+        }
+      )
+      expect_error(
+        install_environment(
+          main_library = "pyspark",
+          spark_method = "pyspark_connect",
+          backend = "pyspark",
+          version = "3.5",
+          ml_version = "3.5",
+          python = Sys.which("python"),
+          # Arg(s) being tested
+          new_env = TRUE,
+          python_version = "10.1"
+        ),
+        "Python version '10.1' or higher is required by some libraries."
+      )
     }
   )
 })
@@ -201,7 +206,7 @@ skip_on_ci()
 
 test_that("Databricks installations work", {
   skip_if_not_databricks()
-  env_paths <- map(1:3, ~ fs::path(tempdir(), random_table_name("env")))
+  env_paths <- map(1:3, \(.x) fs::path(tempdir(), random_table_name("env")))
   baseenv <- "r-sparklyr-databricks"
   version_1 <- "14.3"
   version_2 <- "13.3"

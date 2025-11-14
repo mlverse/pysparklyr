@@ -16,9 +16,9 @@ print.spark_pyobj <- function(x, ...) {
 
 #' @export
 sdf_read_column.spark_pyjobj <- function(x, column) {
-  col_df <- x %>%
-    spark_dataframe() %>%
-    invoke("select", column) %>%
+  col_df <- x |>
+    spark_dataframe() |>
+    invoke("select", column) |>
     collect()
 
   col_df[[column]]

@@ -2,8 +2,8 @@ test_that("Write text works", {
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()
   file_name <- tempfile()
-  text_tbl <- tbl_mtcars %>%
-    mutate(x = as.character(mpg)) %>%
+  text_tbl <- tbl_mtcars |>
+    mutate(x = as.character(mpg)) |>
     select(x)
   expect_silent(spark_write_text(text_tbl, file_name, overwrite = ))
   expect_s3_class(spark_read_text(sc, file_name), "tbl_pyspark")

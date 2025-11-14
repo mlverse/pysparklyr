@@ -19,6 +19,10 @@ use_new_test_env <- function() {
   fs::dir_create(x)
 }
 
+use_new_temp_env <- function() {
+  fs::path(tempdir(), random_table_name("env"))
+}
+
 use_test_version_spark <- function() {
   version <- Sys.getenv("SPARK_VERSION", unset = NA)
   if (is.na(version)) version <- "4.0"
@@ -213,7 +217,7 @@ use_test_python_environment <- function(use_uv = TRUE) {
 use_test_ml_installed <- function() {
   ml_libraries <- pysparklyr_env$ml_libraries
   installed_libraries <- py_list_packages()$package
-  find_ml <- map_lgl(ml_libraries, ~ .x %in% installed_libraries)
+  find_ml <- map_lgl(ml_libraries, \(.x) .x %in% installed_libraries)
   all(find_ml)
 }
 

@@ -8,9 +8,9 @@ test_that("DBR error code returns as expected", {
     " created_time:'2023-10-02T12:14:52.379226-05:00'}'\n>')"
   )
 
-  expect_snapshot_error(databricks_dbr_error(error))
+  expect_snapshot(databricks_dbr_error(error), error = TRUE)
 
-  expect_snapshot_error(databricks_dbr_error(""))
+  expect_snapshot(databricks_dbr_error(""), error = TRUE)
 })
 
 test_that("Databricks Host works", {

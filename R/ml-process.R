@@ -54,9 +54,9 @@ ml_process_fn <- function(args, fn, has_fit = TRUE, ml_type = "", ml_fn = NULL) 
       stage <- ml_fit_impl(stage, tbl_prep)
     }
     if (ml_type == "evaluation") {
-      ret <- stage %>%
-        invoke("evaluate", python_obj_get(x)) %>%
-        python_obj_get() %>%
+      ret <- stage |>
+        invoke("evaluate", python_obj_get(x)) |>
+        python_obj_get() |>
         py_to_r()
     } else {
       attrs <- attributes(tbl_prep)

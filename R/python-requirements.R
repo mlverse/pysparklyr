@@ -45,8 +45,8 @@ requirements_write <- function(
     "pyspark",
     "databricks.connect",
     "databricks-connect"
-  ) %>%
-    map_chr(~ {
+  ) |>
+    map_chr(\(.x) {
       x <- pkgs$version[pkgs$package == .x]
       if (length(x) == 0) {
         x <- ""
@@ -54,8 +54,8 @@ requirements_write <- function(
         x <- glue("'{.x}' '{x}'")
       }
       x
-    }) %>%
-    discard(~ .x == "") %>%
+    }) |>
+    discard(\(.x) .x == "") |>
     reduce(paste, collapse = ",", .init = "")
 
   if (txt_pkgs_lbl != "") {

@@ -1,8 +1,8 @@
 to_pandas_cleaned <- function(x) {
   fields <- x$dtypes
-  orig_types <- map_chr(fields, ~ .x[[2]])
+  orig_types <- map_chr(fields, \(.x) .x[[2]])
 
-  dec_types <- map_lgl(orig_types, ~ grepl("decimal\\(", .x))
+  dec_types <- map_lgl(orig_types, \(.x) grepl("decimal\\(", .x))
 
   if (sum(dec_types) > 0) {
     # Has to check if SQL functions can be imported because some backend
@@ -18,7 +18,7 @@ to_pandas_cleaned <- function(x) {
 
   collected <- dplyr::as_tibble(x$toPandas())
   col_types <- map_chr(
-    collected, ~ {
+    collected, \(.x) {
       classes <- class(.x)
       classes[[1]]
     }
@@ -26,8 +26,8 @@ to_pandas_cleaned <- function(x) {
 
   for (i in seq_len(ncol(collected))) {
     if (orig_types[i] == "date") {
-      to_date <- collected[, i] %>%
-        as.integer() %>%
+      to_date <- collected[, i] |>
+        as.integer() |>
         as.Date(origin = "1970-01-01")
       collected[, i] <- to_date
     }

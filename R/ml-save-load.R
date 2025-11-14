@@ -5,16 +5,16 @@ ml_save.ml_connect_pipeline_stage <- function(x, path, overwrite = FALSE, ...) {
 
   py_obj <- get_spark_pyobj(x)
 
-  version <- py_obj %>%
-    spark_connection() %>%
+  version <- py_obj |>
+    spark_connection() |>
     spark_version()
 
   if (version >= "4.0") {
     model <- python_obj_get(py_obj)
     model$save(path)
   } else {
-    x %>%
-      spark_jobj() %>%
+    x |>
+      spark_jobj() |>
       invoke(
         method = "saveToLocal",
         path = path,

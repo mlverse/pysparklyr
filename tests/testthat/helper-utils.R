@@ -10,8 +10,8 @@ expect_same_remote_result <- function(.data, pipeline) {
   local <- pipeline(.data)
 
   remote <- try(
-    spark_data %>%
-      pipeline() %>%
+    spark_data |>
+      pipeline() |>
       collect()
   )
 
@@ -87,7 +87,7 @@ tests_disable_all <- function() {
   r_scripts <- dir_ls(test_path(), glob = "*.R")
   test_scripts <- r_scripts[substr(path_file(r_scripts), 1, 5) == "test-"]
   map(
-    test_scripts, ~ {
+    test_scripts, \(.x) {
       ln <- readLines(.x)
       writeLines(c("skip(\"temp\")", ln), con = .x)
     }
@@ -98,7 +98,7 @@ tests_enable_all <- function() {
   r_scripts <- dir_ls(test_path(), glob = "*.R")
   test_scripts <- r_scripts[substr(path_file(r_scripts), 1, 5) == "test-"]
   map(
-    test_scripts, ~ {
+    test_scripts, \(.x) {
       ln <- readLines(.x)
       new_ln <- ln[ln != "skip(\"temp\")"]
       writeLines(new_ln, con = .x)
@@ -139,8 +139,7 @@ test_databricks_stump_env <- function() {
     py_install(
       package = "numpy",
       envname = env_path,
-      pip = TRUE,
-      python = Sys.which("python")
+      pip = TRUE
     )
   }
   path(env_path, "bin", "python")

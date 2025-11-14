@@ -43,6 +43,9 @@ jobs:
             any::arrow
           needs: check
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
       - name: Cache Spark
         id: cache-spark
         uses: actions/cache@v3
@@ -97,8 +100,8 @@ jobs:
 
       - name: R Tests
         run: |
-          reticulate::import("numpy")
-          reticulate::virtualenv_starter("3.10")
+          pak::pak("rstudio/reticulate")
+          reticulate::virtualenv_starter()
           # devtools::load_all()
           # devtools::test(reporter = sparklyr_reporter())
         shell: Rscript {0}

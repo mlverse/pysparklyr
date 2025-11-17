@@ -97,8 +97,8 @@ test_that("Basic use, passing the cluster's ID", {
     ),
     {
       local_mocked_bindings(
-        deployApp = function(...) list(...),
-        accounts = function(...) accounts_df(),
+        rsconnect_deployApp = function(...) list(...),
+        rsconnect_accounts = function(...) accounts_df(),
         databricks_dbr_version = function(...) {
           return("17.3")
         },
@@ -135,8 +135,8 @@ test_that("Simulates interactive session, selects Yes (1) for both prompts", {
         menu = function(...) {
           return(1)
         },
-        deployApp = function(...) list(...),
-        accounts = function(...) accounts_df(),
+        rsconnect_deployApp = function(...) list(...),
+        rsconnect_accounts = function(...) accounts_df(),
         getSourceEditorContext = function(...) {
           x <- list()
           x$path <- as_fs_path(deploy_file)

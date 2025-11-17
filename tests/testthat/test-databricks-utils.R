@@ -14,9 +14,15 @@ test_that("DBR error code returns as expected", {
 })
 
 test_that("Databricks Host works", {
-  skip_if_no_db_host()
-  expect_true(nchar(databricks_host()) > 5)
-
+  expect_named(
+    withr::with_envvar(
+      new = c("DATABRICKS_HOST" = "test"),
+      {
+        databricks_host()
+      }
+    ),
+    "environment"
+  )
   expect_named(databricks_host("thisisatest"), "argument")
 
   expect_error(
@@ -41,12 +47,15 @@ test_that("Databricks Host works", {
 })
 
 test_that("Databricks Token works", {
-  skip_if_no_db_host()
-  skip_if(
-    inherits(try(databricks_token(), silent = TRUE), "try-error"),
-    "No Databricks Token available"
+  expect_named(
+    withr::with_envvar(
+      new = c("DATABRICKS_TOKEN" = "test"),
+      {
+        databricks_token()
+      }
+    ),
+    "environment"
   )
-  expect_true(nchar(databricks_token()) > 5)
 
   expect_named(databricks_token("thisisatest"), "argument")
 
@@ -72,46 +81,14 @@ test_that("Databricks Token works", {
 })
 
 test_that("Get cluster version", {
-  withr::with_envvar(
-    new = c("DATABRICKS_HOST" = "xxxxx", "DATABRICKS_TOKEN" = "xxxxx"),
-    {
-      local_mocked_bindings(
-        databricks_cluster_get = function(...) {
-          readRDS(test_path("_mock/cluster_get.rds"))
-        }
-      )
-      expect_message(
-        x <- databricks_dbr_version(
-          cluster_id = "xxxxx",
-          host = databricks_host(),
-          token = databricks_token()
-        )
-      )
-      expect_true(nchar(x) == 4)
-    }
-  )
-})
-
-test_that("Get cluster version", {
-  withr::with_envvar(
-    new = c("DATABRICKS_HOST" = "xxxxx", "DATABRICKS_TOKEN" = "xxxxx"),
-    {
-      local_mocked_bindings(
-        databricks_cluster_get = function(...) {
-          readRDS(test_path("_mock/cluster_get.rds"))
-        }
-      )
-      expect_message(
-        x <- databricks_dbr_version_name(
-          cluster_id = "xxxxx",
-          host = databricks_host(),
-          token = databricks_token()
-        )
-      )
-      expect_equal(
-        databricks_extract_version(databricks_cluster_get()), "17.1"
-      )
-    }
+  vcr::local_cassette("databricks-cluster-version")
+  expect_equal(
+    databricks_dbr_version(
+      host = use_test_db_host(),
+      token = databricks_token(),
+      cluster_id = use_test_db_cluster()
+    ),
+    "17.3"
   )
 })
 

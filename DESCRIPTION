@@ -36,6 +36,7 @@ Imports:
     vctrs,
     withr
 Suggests: 
+    vcr,
     crayon,
     R6,
     testthat (>= 3.0.0),

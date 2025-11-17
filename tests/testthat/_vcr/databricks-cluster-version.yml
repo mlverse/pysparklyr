@@ -1,0 +1,35 @@
+http_interactions:
+- request:
+    method: POST
+    uri: https://adb-3256282566390055.15.azuredatabricks.net/api/2.0/clusters/get
+    body:
+      string: '{"cluster_id":"1117-200943-l1nvd2bl"}'
+  response:
+    status: 200
+    headers:
+      date: Mon, 17 Nov 2025 20:44:45 GMT
+      access-control-allow-headers: Authorization, X-Databricks-Azure-Workspace-Resource-Id,
+        X-Databricks-Org-Id, Content-Type, X-Databricks-Attribution-Tags
+      access-control-allow-origin: '*'
+      cache-control: no-cache, no-store, must-revalidate
+      expires: '0'
+      pragma: no-cache
+      content-type: application/json
+      x-databricks-org-id: '3256282566390055'
+      strict-transport-security: max-age=31536000; includeSubDomains; preload
+      x-content-type-options: nosniff
+      x-request-id: 07622e6f-1216-4aad-97a0-38feea78f1a2
+      content-encoding: gzip
+      vary: Accept-Encoding
+      server: databricks
+      alt-svc: h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      server-timing: request_id;dur=0;desc="07622e6f-1216-4aad-97a0-38feea78f1a2",
+        client_protocol;dur=0;desc="HTTP/2"
+    body:
+      string: '{"cluster_id":"1117-200943-l1nvd2bl","creator_user_name":"edgar@posit.co","driver":{"private_ip":"10.139.64.4","public_dns":"9.169.194.77","node_id":"d184af2e216047ec9832f83f916e2ace","instance_id":"6ae4eb7fac8e489b9bee09b65a2b0d62","start_timestamp":1763410457686,"node_type_id":"Standard_D4ds_v4","node_attributes":{"is_spot":false},"host_private_ip":"10.139.0.4"},"spark_context_id":3057530501868228936,"driver_healthy":true,"jdbc_port":10000,"cluster_name":"Edgar
+        Ruiz''s Personal Compute Cluster 2025-11-17 14:09:28","spark_version":"17.3.x-scala2.13","spark_conf":{"spark.databricks.cluster.profile":"singleNode","spark.master":"local[*,
+        4]"},"azure_attributes":{"first_on_demand":1,"availability":"ON_DEMAND_AZURE","spot_bid_max_price":-1.0},"node_type_id":"Standard_D4ds_v4","driver_node_type_id":"Standard_D4ds_v4","custom_tags":{"ResourceClass":"SingleNode"},"autotermination_minutes":4320,"enable_elastic_disk":true,"disk_spec":{},"cluster_source":"UI","single_user_name":"edgar@posit.co","policy_id":"001DD76A318D5FCB","enable_local_disk_encryption":false,"instance_source":{"node_type_id":"Standard_D4ds_v4"},"driver_instance_source":{"node_type_id":"Standard_D4ds_v4"},"data_security_mode":"SINGLE_USER","runtime_engine":"STANDARD","effective_spark_version":"17.3.x-cpu-ml-scala2.13","kind":"CLASSIC_PREVIEW","use_ml_runtime":true,"is_single_node":true,"assigned_principal":"user:edgar@posit.co","release_version":"17.3.1","state":"RUNNING","state_message":"","start_time":1763410183623,"last_state_loss_time":0,"last_activity_time":1763410515482,"last_restarted_time":1763410613868,"num_workers":0,"cluster_memory_mb":16384,"cluster_cores":4.0,"default_tags":{"Vendor":"Databricks","Creator":"edgar@posit.co","ClusterName":"Edgar
+        Ruiz''s Personal Compute Cluster 2025-11-17 14:09:28","ClusterId":"1117-200943-l1nvd2bl","rs:owner":"infraops@posit.co","rs:project":"databricks"},"init_scripts_safe_mode":false,"spec":{"cluster_name":"Edgar
+        Ruiz''s Personal Compute Cluster 2025-11-17 14:09:28","spark_version":"17.3.x-scala2.13","node_type_id":"Standard_D4ds_v4","autotermination_minutes":4320,"single_user_name":"edgar@posit.co","policy_id":"001DD76A318D5FCB","data_security_mode":"SINGLE_USER","kind":"CLASSIC_PREVIEW","use_ml_runtime":true,"is_single_node":true}}'
+  recorded_at: 2025-11-17 20:44:45
+recorded_with: VCR-vcr/2.0.0

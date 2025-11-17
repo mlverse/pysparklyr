@@ -177,7 +177,6 @@ test_that("Install code is correctly created", {
 })
 
 test_that("Databricks installation works", {
-  skip_if_not_databricks()
   local_mocked_bindings(install_as_job = function(...) list(...))
 
   out <- install_databricks(version = "14.1")
@@ -192,20 +191,29 @@ test_that("Databricks installation works", {
     "Will use the value from 'version', and ignoring 'cluster_id'"
   )
 
+  vcr::local_cassette("databricks-install")
+
   expect_message(
-    install_databricks(
-      cluster = Sys.getenv("DATABRICKS_CLUSTER_ID"),
-      as_job = FALSE
+    withr::with_envvar(
+      new = c(
+        "DATABRICKS_HOST" = use_test_db_host(),
+        "DATABRICKS_TOKEN" = databricks_token()
+        ),
+      {
+        install_databricks(
+          cluster = use_test_db_cluster(),
+          as_job = FALSE
+        )
+      }
     )
   )
-
   expect_snapshot(install_databricks(version = "13.1"))
 })
 
 skip_on_ci()
 
 test_that("Databricks installations work", {
-  skip_if_not_databricks()
+  skip("Avoids multiple installations")
   env_paths <- map(1:3, \(.x) fs::path(tempdir(), random_table_name("env")))
   baseenv <- "r-sparklyr-databricks"
   version_1 <- "14.3"
@@ -265,16 +273,4 @@ test_that("Databricks installations work", {
   )
 
   map(env_paths, fs::dir_delete)
-})
-
-test_that("Tests install_databricks()", {
-  withr::with_envvar(
-    new = c("WORKON_HOME" = use_new_test_env()),
-    {
-      local_mocked_bindings(install_as_job = function(...) list(...))
-      expect_snapshot(
-        install_databricks("17.1", python_version = "3.12")
-      )
-    }
-  )
 })

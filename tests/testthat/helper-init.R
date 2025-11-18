@@ -234,6 +234,11 @@ use_test_install_ml <- function() {
   }
 }
 
+# Needed to ensure `vcr` tests are 100% consistent with the
+# cluster number from which they were originally ran from
+use_test_db_cluster <- function() return("1117-200943-l1nvd2bl")
+use_test_db_host <- function() return("https://adb-3256282566390055.15.azuredatabricks.net")
+
 skip_ml_missing <- function() {
   skip_if(!use_test_ml_installed(), "ML Python libraries not installed")
 }

@@ -1,3 +1,9 @@
+# This is to enable mocked tests, and the fact that rsconnect is
+# not being directly imported by this package
+rsconnect_accounts <- rsconnect::accounts
+rsconnect_deployments <- rsconnect::deployments
+rsconnect_deployApp <- rsconnect::deployApp
+
 #' Deploys Databricks backed content to publishing server
 #'
 #' @description
@@ -49,6 +55,16 @@ deploy_databricks <- function(
   confirm = interactive(),
   ...
 ) {
+  if (!requireNamespace("rsconnect", quietly = FALSE)) {
+    cli_abort(
+      paste(
+        "The package {.pkg rsconnect} is needed for publication but it is not",
+        "installed. Use {.run install.packages(\"rsconnect\")} to install and",
+        "then try again."
+      )
+    )
+  }
+
   cli_div(theme = cli_colors())
 
   cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
@@ -148,7 +164,7 @@ deploy <- function(
   if (is.null(backend)) {
     abort("'backend' is empty, please provide one")
   }
-  rs_accounts <- accounts()
+  rs_accounts <- rsconnect_accounts()
   accts_msg <- NULL
   if (nrow(rs_accounts) == 0) {
     abort("There are no server accounts setup")
@@ -210,7 +226,7 @@ deploy <- function(
     }
 
     req_file <- path(appDir, "requirements.txt")
-    prev_deployments <- deployments(appDir)
+    prev_deployments <- rsconnect_deployments(appDir)
     if (!file_exists(req_file) && nrow(prev_deployments) == 0 && check_interactive()) {
       cli_inform(c(
         "{.header Would you like to create the 'requirements.txt' file?}",
@@ -226,7 +242,7 @@ deploy <- function(
     }
   }
 
-  deployApp(
+  rsconnect_deployApp(
     appDir = appDir,
     python = python,
     envVars = envVars,

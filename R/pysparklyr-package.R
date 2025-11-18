@@ -21,7 +21,6 @@
 #' @importFrom rlang enquo `!!` `!!!` quo_is_null sym warn abort `%||%`
 #' @importFrom rlang exec arg_match as_utf8_character is_missing
 #' @importFrom rlang is_string is_character parse_exprs set_names
-#' @importFrom rsconnect accounts deployApp deployments
 #' @importFrom rstudioapi jobRunScript showQuestion getSourceEditorContext
 #' @importFrom sparklyr ft_bucketed_random_projection_lsh ft_count_vectorizer ft_dct
 #' @importFrom sparklyr ft_discrete_cosine_transform ft_vector_assembler ft_elementwise_product

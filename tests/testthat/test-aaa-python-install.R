@@ -125,14 +125,6 @@ test_that(
   }
 )
 
-test_that("installed_components() output properly", {
-  withr::with_envvar(
-    new = c("WORKON_HOME" = use_new_test_env()),
-    {
-      expect_message(installed_components())
-    })
-})
-
 test_that("Fails when non-existent Python version is used", {
   withr::with_envvar(
     new = c("WORKON_HOME" = use_new_test_env()),

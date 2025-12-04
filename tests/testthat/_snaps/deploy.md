@@ -41,7 +41,7 @@
 ---
 
     Code
-      deploy_databricks(host = "another", token = "token")
+      deploy_databricks(host = "another1", token = "token")
     Output
       $appDir
       NULL
@@ -66,7 +66,7 @@
       
       $env_var_message
                                     i                                 
-        "{.header Host URL:} another" "{.header Token:} '<REDACTED>'" 
+       "{.header Host URL:} another1" "{.header Token:} '<REDACTED>'" 
       
       $account
       NULL
@@ -91,7 +91,7 @@
 ---
 
     Code
-      deploy_databricks(host = "another")
+      deploy_databricks(host = "another1")
     Condition
       Error:
       ! Cluster setup errors:

@@ -43,7 +43,7 @@ test_that("Tests deploy_databricks() happy path cases", {
         }
       )
       expect_snapshot(deploy_databricks())
-      expect_snapshot(deploy_databricks(host = "another", token = "token"))
+      expect_snapshot(deploy_databricks(host = "another1", token = "token"))
     }
   )
 })
@@ -65,7 +65,7 @@ test_that("Tests deploy_databricks() error cases", {
         }
       )
       expect_snapshot(deploy_databricks(), error = TRUE)
-      expect_snapshot(deploy_databricks(host = "another"), error = TRUE)
+      expect_snapshot(deploy_databricks(host = "another1"), error = TRUE)
     }
   )
 })

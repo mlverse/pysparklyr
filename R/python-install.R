@@ -294,7 +294,7 @@ install_environment <- function(
 #' as well as the 'Python' environment currently loaded.
 #' @export
 installed_components <- function(list_all = FALSE) {
-  pkgs <- py_list_packages()
+  pkgs <- py_list_packages(py_exe())
   db <- pkgs$package == "databricks-connect"
   ps <- pkgs$package == "pyspark"
   sel <- db | ps

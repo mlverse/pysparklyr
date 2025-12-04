@@ -48,8 +48,12 @@ jobs:
         with:
           extra-packages: |
             any::rcmdcheck
-            any::rsconnect
           needs: check
+
+      - name: Installs rsconnect
+        run: |
+          install.packages("rsconnect")
+        shell: Rscript {0}
 
       - uses: r-lib/actions/check-r-package@v2
         with:

@@ -194,7 +194,7 @@ test_that("Databricks installation works", {
       new = c(
         "DATABRICKS_HOST" = use_test_db_host(),
         "DATABRICKS_TOKEN" = databricks_token()
-        ),
+      ),
       {
         install_databricks(
           cluster = use_test_db_cluster(),

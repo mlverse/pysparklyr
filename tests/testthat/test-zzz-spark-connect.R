@@ -101,5 +101,6 @@ test_that("installed_components() output properly", {
     new = c("WORKON_HOME" = use_new_test_env()),
     {
       expect_message(installed_components())
-    })
+    }
+  )
 })

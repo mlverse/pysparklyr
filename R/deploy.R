@@ -1,8 +1,15 @@
 # This is to enable mocked tests, and the fact that rsconnect is
 # not being directly imported by this package
-rsconnect_accounts <- rsconnect::accounts
-rsconnect_deployments <- rsconnect::deployments
-rsconnect_deployApp <- rsconnect::deployApp
+shhhh <- function(x) {
+  suppressPackageStartupMessages(requireNamespace(x, quietly = TRUE))
+}
+is_installed <- function(pkg) {
+  res <- try(shhhh(pkg), silent = TRUE)
+  res
+}
+rsconnect_accounts <- if (is_installed("rsconnect")) rsconnect::accounts
+rsconnect_deployments <- if (is_installed("rsconnect")) rsconnect::deployments
+rsconnect_deployApp <- if (is_installed("rsconnect")) rsconnect::deployApp
 
 #' Deploys Databricks backed content to publishing server
 #'
@@ -55,7 +62,7 @@ deploy_databricks <- function(
   confirm = interactive(),
   ...
 ) {
-  if (!requireNamespace("rsconnect", quietly = FALSE)) {
+  if (!is_installed("rsconnect")) {
     cli_abort(
       paste(
         "The package {.pkg rsconnect} is needed for publication but it is not",
@@ -304,3 +311,7 @@ deploy_find_environment <- function(
   cli_bullets(c("i" = "{.header Python:} {ret}"))
   ret
 }
+
+utils::globalVariables(
+  c("rsconnect_accounts", "rsconnect_deployApp", "rsconnect_deployments")
+)

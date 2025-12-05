@@ -196,7 +196,6 @@
     Code
       model
     Message
-      
       -- MLib model: DecisionTreeClassificationModel --
       
     Output
@@ -249,7 +248,6 @@
     Code
       model
     Message
-      
       -- MLib model: DecisionTreeRegressionModel --
       
     Output
@@ -333,7 +331,6 @@
     Code
       model
     Message
-      
       -- MLib model: AFTSurvivalRegressionModel --
       
       -- Coefficients: 
@@ -458,7 +455,6 @@
     Code
       model
     Message
-      
       -- MLib model: IsotonicRegressionModel --
       
     Output

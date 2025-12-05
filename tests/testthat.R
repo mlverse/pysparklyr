@@ -7,7 +7,7 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 # Sys.setenv("CODE_COVERAGE" = "true")
-# Sys.setenv("SPARK_VERSION" = "4.0.1"); Sys.setenv("SCALA_VERSION" = "2.13"); Sys.setenv("PYTHON_VERSION" = "3.12")
+# Sys.setenv("SPARK_VERSION" = "4.0.1"); Sys.setenv("SCALA_VERSION" = "2.13"); Sys.setenv("PYTHON_VERSION" = "3.10")
 # Sys.setenv("SPARK_VERSION" = "3.5.7"); Sys.setenv("SCALA_VERSION" = "2.12"); Sys.setenv("PYTHON_VERSION" = "3.10")
 if (identical(Sys.getenv("CODE_COVERAGE"), "true")) {
   library(testthat)

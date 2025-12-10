@@ -183,11 +183,7 @@ sa_function_to_string <- function(
   .context = NULL,
   ...
 ) {
-  path_scripts <- system.file("udf", package = "pysparklyr")
-  # path_scripts <- "inst/udf"
-  if (dir_exists("inst/udf")) {
-    path_scripts <- path_expand("inst/udf")
-  }
+  path_scripts <- pkg_path("udf")
   udf_fn <- ifelse(is.null(.group_by), "map", "apply")
   if (!is.null(.context)) {
     udf_fn <- glue("{udf_fn}-context")

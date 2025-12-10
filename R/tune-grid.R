@@ -1,6 +1,7 @@
 spark_session_root_folder <- function(sc) {
   connection_id <- sc[["connection_id"]]
-  if(is.null(pysparklyr_env$root_folders[[connection_id]])) {
+  artifacts <- pysparklyr_env[["artifacts"]][[connection_id]]
+  if(is.null(artifacts)) {
     py_run_string("
 from pyspark.sql.functions import udf
 from pyspark.sql.types import StringType
@@ -15,7 +16,29 @@ root_dir_udf = udf(get_root_dir, StringType())
     temp_df <- sc_obj$createDataFrame(data.frame(a = 1))
     root_df <- temp_df$withColumn("root_folder", main$root_dir_udf("a"))$collect()
     root_folder <- root_df[[1]]$asDict()$root_folder
-    pysparklyr_env$root_folders[[connection_id]] <- root_folder
+    artifacts <- list(root_folder = root_folder, files = c())
+    pysparklyr_env$artifacts[[connection_id]] <- artifacts
   }
-  pysparklyr_env$root_folders[[connection_id]]
+  pysparklyr_env$artifacts[[connection_id]]$root_folder
 }
+
+spark_session_add_file <- function(x, sc, file_name = NULL) {
+  invisible(spark_session_root_folder(sc))
+  connection_id <- sc[["connection_id"]]
+  artifacts <- pysparklyr_env[["artifacts"]][[connection_id]]
+  if(is.null(file_name)){
+    file_name <- rlang::hash(x)
+  }
+  files <- artifacts[["files"]]
+  if(!file_name %in% artifacts[["files"]]) {
+    temp_file <-  path_temp(file_name, ext = "rds")
+    saveRDS(x, temp_file)
+    sc_obj <- spark_session(sc)
+    sc_obj$addArtifact(temp_file, file = TRUE)
+    file_delete(temp_file)
+    pysparklyr_env[["artifacts"]][[connection_id]]$files <- c(file_name, files)
+  }
+  invisible()
+}
+
+

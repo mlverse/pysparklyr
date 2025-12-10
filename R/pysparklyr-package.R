@@ -73,3 +73,4 @@ pysparklyr_env <- new.env()
 pysparklyr_env$temp_prefix <- "sparklyr_tmp_"
 temp_prefix <- function() pysparklyr_env$temp_prefix
 pysparklyr_env$ml_libraries <- c("torch", "torcheval", "scikit-learn")
+pysparklyr_env$root_folders <- list()

@@ -60,6 +60,7 @@
 #' @importFrom utils capture.output installed.packages menu
 #' @importFrom utils head type.convert compareVersion
 #' @importFrom vctrs vec_as_names
+#' @importFrom uuid UUIDgenerate
 ## usethis namespace: end
 
 ## mockable bindings: start

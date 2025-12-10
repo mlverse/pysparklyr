@@ -70,7 +70,7 @@ initialize_connection <- function(
   spark_context <- list(spark_context = session)
 
   # browser()
-  sc <- structure(
+  structure(
     list(
       master = master_label,
       cluster_id = cluster_id,
@@ -81,7 +81,8 @@ initialize_connection <- function(
       serverless = serverless,
       misc = misc,
       quote = quote,
-      con = structure(list(), class = c("spark_connection", "DBIConnection"))
+      con = structure(list(), class = c("spark_connection", "DBIConnection")),
+      connection_id = UUIDgenerate()
     ),
     class = c(
       con_class,
@@ -90,8 +91,6 @@ initialize_connection <- function(
       "DBIConnection"
     )
   )
-
-  sc
 }
 
 python_conn <- function(x) {

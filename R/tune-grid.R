@@ -41,4 +41,37 @@ spark_session_add_file <- function(x, sc, file_name = NULL) {
   invisible()
 }
 
+spark_tune_grid_impl <- function(
+    sc,
+    preprocessor = NULL,
+    model = NULL,
+    resamples = NULL
+    ) {
+
+  # Get the location in the Spark driver where the files will be
+  # temporariliy uploaded to
+  root_folder <- spark_session_root_folder(sc)
+
+  # Hashing R objects
+  hash_preprocessor <- rlang::hash(preprocessor)
+  hash_model <- rlang::hash(model)
+  hash_resamples <- rlang::hash(resamples)
+
+  # Copying R objects to R session
+  spark_session_add_file(preprocessor, sc, hash_preprocessor)
+  spark_session_add_file(model, sc, hash_model)
+  spark_session_add_file(resamples, sc, hash_resamples)
+
+
+  grid_script <- pkg_path("udf/udf-tune-grid.R")
+  grid_code <- readLines(grid_script)
+  grid_code <- sub("preprocessing.rds", hash_preprocessor, grid_code)
+  grid_code <- sub("model.rds", hash_model, grid_code)
+  grid_code <- sub("resamples.rds", hash_resamples, grid_code)
+  grid_code <- sub("root-folder-path", root_folder, grid_code)
+  grid_code
+  #grid_function <- as_function(function(x) eval(parse(text = grid_code)))
+}
+
+
 

@@ -45,7 +45,8 @@ spark_tune_grid_impl <- function(
     sc,
     preprocessor = NULL,
     model = NULL,
-    resamples = NULL
+    resamples = NULL,
+    grid = NULL
     ) {
 
   # Get the location in the Spark driver where the files will be
@@ -69,8 +70,16 @@ spark_tune_grid_impl <- function(
   grid_code <- sub("model.rds", hash_model, grid_code)
   grid_code <- sub("resamples.rds", hash_resamples, grid_code)
   grid_code <- sub("root-folder-path", root_folder, grid_code)
-  grid_code
-  #grid_function <- as_function(function(x) eval(parse(text = grid_code)))
+  grid_function <- rlang::as_function(function(x) eval(parse(text = grid_code)))
+
+  full_grid <- data.frame()
+  for(i in seq_along(resamples$splits)) {
+    temp_grid <- grid
+    temp_grid$index <- i
+    temp_grid$id <- resamples$id[[i]]
+    full_grid <- rbind(full_grid, temp_grid)
+  }
+  full_grid
 }
 
 

@@ -49,7 +49,7 @@ spark_tune_grid_impl <- function(
   grid = NULL
 ) {
   # Get the location in the Spark driver where the files will be
-  # temporariliy uploaded to
+  # temporarily uploaded to
   root_folder <- spark_session_root_folder(sc)
 
   # Hashing R objects
@@ -57,17 +57,19 @@ spark_tune_grid_impl <- function(
   hash_model <- rlang::hash(model)
   hash_resamples <- rlang::hash(resamples)
 
-  # Copying R objects to R session
+  # Copying R objects to Spark session
   spark_session_add_file(preprocessor, sc, hash_preprocessor)
   spark_session_add_file(model, sc, hash_model)
   spark_session_add_file(resamples, sc, hash_resamples)
 
+  # De-parsing the code and updating the file and folder references
   grid_code <- paste0(deparse(loop_call), collapse = "\n")
   grid_code <- sub("preprocessing.rds", path(hash_preprocessor, ext = "rds"), grid_code)
   grid_code <- sub("model.rds", path(hash_model, ext = "rds"), grid_code)
   grid_code <- sub("resamples.rds", path(hash_resamples, ext = "rds"), grid_code)
   grid_code <- sub("path/to/root", root_folder, grid_code)
 
+  # Creating the tune grid data frame
   full_grid <- data.frame()
   for (i in seq_along(resamples$splits)) {
     temp_grid <- grid
@@ -76,24 +78,32 @@ spark_tune_grid_impl <- function(
     full_grid <- rbind(full_grid, temp_grid)
   }
 
-  temp_grid <- copy_to(sc, full_grid, name = "temp_grid", overwrite = TRUE)
+  # Copies the grid to the Spark session
+  temp_grid <- copy_to(
+    sc,
+    df = full_grid,
+    name = "pysparklyrtempgrid",
+    overwrite = TRUE
+  )
 
   cols <- paste0(
     "num_comp integer, tree_depth integer, metric string,",
     " estimator string, estimate double, id string"
   )
 
+  # Runs the code against the copies grid
   temp_grid |>
     spark_apply(
       f = grid_code,
       columns = cols
-    )
+    ) |>
+    collect()
 }
 
 loop_call <- function(x) {
   library(tidymodels)
-  root_folder <- Sys.getenv('TEMP_SPARK_GRID')
-  if(root_folder == "") {
+  root_folder <- Sys.getenv("TEMP_SPARK_GRID")
+  if (root_folder == "") {
     root_folder <- "path/to/root"
   }
   pre_processing <- readRDS(file.path(root_folder, "preprocessing.rds"))

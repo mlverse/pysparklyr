@@ -1,4 +1,8 @@
 spark_session_root_folder <- function(sc) {
+  # A unique GUID is assigned to the Spark connection
+  # this is used to pull the root folder only one time. It will save it to
+  # a package level environment variable that will be retained while the
+  # connection is current.
   connection_id <- sc[["connection_id"]]
   artifacts <- pysparklyr_env[["artifacts"]][[connection_id]]
   if (is.null(artifacts)) {
@@ -23,6 +27,10 @@ root_dir_udf = udf(get_root_dir, StringType())
 }
 
 spark_session_add_file <- function(x, sc, file_name = NULL) {
+  # Tracks in a environment variable which file names have already been
+  # uploaded to avoid doing it again. This is why the hashed values of
+  # the object in `x` is preferred, which ensure proper tracking of the
+  # actual objects that have been uploaded
   invisible(spark_session_root_folder(sc))
   connection_id <- sc[["connection_id"]]
   artifacts <- pysparklyr_env[["artifacts"]][[connection_id]]
@@ -52,7 +60,9 @@ spark_tune_grid_impl <- function(
   # temporarily uploaded to
   root_folder <- spark_session_root_folder(sc)
 
-  # Hashing R objects
+  # Hashing R objects one time and using it for both the upload and
+  # reading inside the UDF script. This is done to avoid uploading the
+  # same files over and over again during the Spark session
   hash_preprocessor <- rlang::hash(preprocessor)
   hash_model <- rlang::hash(model)
   hash_resamples <- rlang::hash(resamples)
@@ -78,7 +88,9 @@ spark_tune_grid_impl <- function(
     full_grid <- rbind(full_grid, temp_grid)
   }
 
-  # Copies the grid to the Spark session
+  # Copies the grid to the Spark session. This is needed so that
+  # spark_apply() can recognize and use the table to set up each
+  # iteration
   temp_grid <- copy_to(
     sc,
     df = full_grid,
@@ -100,16 +112,22 @@ spark_tune_grid_impl <- function(
     collect()
 }
 
+# `x` only contains a table with the grid containing every single combination
 loop_call <- function(x) {
   library(tidymodels)
+  # Set this environment variable to develop/debug
+  # the function without needing a Spark connection
   root_folder <- Sys.getenv("TEMP_SPARK_GRID")
   if (root_folder == "") {
     root_folder <- "path/to/root"
   }
+  # Loads all of the needed R objects from disk
   pre_processing <- readRDS(file.path(root_folder, "preprocessing.rds"))
   model <- readRDS(file.path(root_folder, "model.rds"))
   resamples <- readRDS(file.path(root_folder, "resamples.rds"))
   out <- NULL
+  # Spark will more likely send more than one row (combination) in `x`. It
+  # will depend on how the grid data frame was partitioned inside Spark.
   for (i in seq_len(nrow(x))) {
     curr_x <- x[i, ]
     resample <- get_rsplit(resamples, curr_x$index)

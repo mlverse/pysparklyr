@@ -214,7 +214,11 @@ sa_function_to_string <- function(
     fn_r
   )
   fn <- as_mapper(.f = .f, ... = ...)
-  fn_str <- paste0(deparse(fn), collapse = "\n")
+  if(is.character(.f)) {
+    fn_str <- .f
+  } else {
+    fn_str <- paste0(deparse(fn), collapse = "\n")
+  }
   if (inherits(fn, "rlang_lambda_function")) {
     fn_str <- paste0(
       "function(...) {x <- (",

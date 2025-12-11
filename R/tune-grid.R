@@ -150,20 +150,17 @@ loop_call <- function(x) {
     root_folder <- "path/to/root"
   }
   # Loads all of the needed R objects from disk
-  pre_processing <- readRDS(file.path(root_folder, "preprocessing.rds"))
-  model <- readRDS(file.path(root_folder, "model.rds"))
-  resamples <- readRDS(file.path(root_folder, "resamples.rds"))
+  r_objects <- readRDS(file.path(root_folder, "r_objects.rds"))
   out <- NULL
   # Spark will more likely send more than one row (combination) in `x`. It
   # will depend on how the grid data frame was partitioned inside Spark.
   for (i in seq_len(nrow(x))) {
     curr_x <- x[i, ]
-    resample <- get_rsplit(resamples, curr_x$index)
+    resample <- get_rsplit(r_objects$resamples, curr_x$index)
     params <- as.list(curr_x[, 1:(length(curr_x) - 2)])
     re_training <- as.data.frame(resample, data = "analysis")
-    fitted_workflow <- workflow() |>
-      add_recipe(finalize_recipe(pre_processing, params)) |>
-      add_model(finalize_model(model, params)) |>
+    fitted_workflow <- r_objects$workflow |>
+      finalize_workflow(params) |>
       fit(re_training)
     re_testing <- as.data.frame(resample, data = "assessment")
     wf_predict <- predict(fitted_workflow, re_testing)

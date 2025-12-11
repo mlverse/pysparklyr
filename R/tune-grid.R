@@ -166,13 +166,10 @@ loop_call <- function(x) {
       add_model(finalize_model(model, params)) |>
       fit(re_training)
     re_testing <- as.data.frame(resample, data = "assessment")
-    var_info <- pre_processing$var_info
-    outcome_var <- var_info$variable[var_info$role == "outcome"]
     wf_predict <- predict(fitted_workflow, re_testing)
     colnames(wf_predict) <- ".predictions"
     fin_bind <- cbind(re_testing, wf_predict)
-    var_info <- pre_processing$var_info
-    outcome_var <- var_info$variable[var_info$role == "outcome"]
+    outcome_var <- tune::outcome_names(fitted_workflow)
     fin_metrics <- metrics(fin_bind, truth = outcome_var, estimate = ".predictions")
     curr <- cbind(as.data.frame(params), fin_metrics)
     curr$id <- curr_x$id

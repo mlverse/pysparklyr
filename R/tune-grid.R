@@ -17,28 +17,31 @@ spark_tune_grid <- function(
   metrics <- check_metrics_arg(metrics, wf, call = rlang::caller_env())
   pred_types <- determine_pred_types(wf, metrics)
 
+  # Creating unique file names to avoid re-uploading if possible
   hash_wf <- rlang::hash(wf)
   hash_metrics <- rlang::hash(metrics)
   hash_resamples <- rlang::hash(resamples)
   hash_pred_types <- rlang::hash(pred_types)
 
+  # Uploads the files to the Spark temp folder, this function skips the upload
+  # if the hashed file name has already been uploaded during the current session
   spark_session_add_file(wf, sc, hash_wf)
   spark_session_add_file(metrics, sc, hash_metrics)
   spark_session_add_file(resamples, sc, hash_resamples)
   spark_session_add_file(pred_types, sc, hash_pred_types)
 
+  # Uses the `loop_call` function as the base of the UDF that will be sent to
+  # the Spark session. It works by modifying the text of the function, specifically
+  # the file names it reads to load the different R object components
   root_folder <- spark_session_root_folder(sc)
   grid_code <- paste0(deparse(loop_call), collapse = "\n")
   grid_code <- sub("path/to/root", root_folder, grid_code)
-
   grid_code <- sub("wf.rds", path(hash_wf, ext = "rds"), grid_code)
   grid_code <- sub("metrics.rds", path(hash_metrics, ext = "rds"), grid_code)
   grid_code <- sub("resamples.rds", path(hash_resamples, ext = "rds"), grid_code)
   grid_code <- sub("pred_types.rds", path(hash_pred_types, ext = "rds"), grid_code)
 
-
   # Creating the tune grid data frame
-
   res_id_df <- map_df(
     seq_len(length(resamples$id)),
     \(x) data.frame(index = x, id = resamples$id[[x]])
@@ -57,6 +60,8 @@ spark_tune_grid <- function(
     overwrite = TRUE
   )
 
+  # The pandas mapping function requires all of the output column names
+  # and types to be specified. Types have to be converted too
   cols <- imap_chr(
     grid,
     \(x, y) {
@@ -82,6 +87,9 @@ spark_tune_grid <- function(
     ) |>
     collect()
 
+  # Finalizes metrics tables by adding the 'id' label, and `.config`, and
+  # restoring the 'dot' prefix to the metric fields (Spark does not like
+  # names with dots)
   tuned_results <- tuned_results |>
     dplyr::rename(
       .metric = metric,
@@ -110,6 +118,7 @@ spark_tune_grid <- function(
     trace = list()
   ))
 
+  # Joins the resamples, metrics and notes tables, and adds needed attributes
   out <- resamples |>
     as_tibble() |>
     mutate(

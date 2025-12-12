@@ -203,12 +203,18 @@ loop_call <- function(x) {
   for (i in seq_len(nrow(x))) {
     curr_x <- x[i, ]
     resample <- get_rsplit(resamples, curr_x$index)
+    # Assumes that the parameters are all but the last to
+    # variables in the row currently being processed
     params <- as.list(curr_x[, 1:(length(curr_x) - 2)])
     re_training <- as.data.frame(resample, data = "analysis")
+    # Trains the workflow
     fitted_workflow <- wf |>
       finalize_workflow(params) |>
       fit(re_training)
     re_testing <- as.data.frame(resample, data = "assessment")
+    # Predictions are run based on the types of output expected by the
+    # metrics. This means that the predictions need to run against the
+    # trained parsnip object
     trained_model <- hardhat::extract_fit_parsnip(fitted_workflow)
     forged_wf <- forge_from_workflow(re_testing, fitted_workflow)
     outcome_var <- tune::outcome_names(fitted_workflow)
@@ -217,6 +223,8 @@ loop_call <- function(x) {
       bind_cols() |>
       mutate(.truth = re_testing[, outcome_var]) |>
       bind_cols(as.data.frame(params))
+    # Uses this internal function in order to output the exact same metric
+    # results as a local R session would
     curr <- .estimate_metrics(
       dat = predictions,
       metric = metrics,
@@ -225,6 +233,7 @@ loop_call <- function(x) {
       metrics_info = metrics_info(metrics),
       event_level = "first" # TODO: replace with what's in `control`
     )
+    # Renaming columns because Spark does not like 'dot' prefixes in names
     colnames(curr) <- c(names(params), "metric", "estimator", "estimate")
     curr$index <- curr_x$index
     out <- rbind(out, curr)

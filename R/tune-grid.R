@@ -127,7 +127,9 @@ spark_tune_grid <- function(
     )
   class(out) <- c("tune_results", class(out))
   attr(out, "metrics") <- metrics
+  attr(out, "outcomes") <- tune::outcome_names(wf)
   attr(out, "parameters") <- tune::check_parameters(wf)
+  attr(out, "rset_info") <- pull_rset_attributes(resamples)
   out
 }
 

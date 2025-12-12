@@ -50,16 +50,6 @@ spark_tune_grid <- function(
     dplyr::cross_join(res_id_df) |>
     dplyr::arrange(index)
 
-  # Copies the grid to the Spark session. This is needed so that
-  # spark_apply() can recognize and use the table to set up each
-  # iteration
-  tbl_grid <- copy_to(
-    sc,
-    df = full_grid,
-    name = "pysparklyrtempgrid",
-    overwrite = TRUE
-  )
-
   # The pandas mapping function requires all of the output column names
   # and types to be specified. Types have to be converted too
   cols <- imap_chr(
@@ -79,11 +69,14 @@ spark_tune_grid <- function(
     paste0(collapse = " ") |>
     paste("metric string, estimator string, estimate double, index integer")
 
-  # Runs the code against the copies grid
-  tuned_results <- tbl_grid |>
-    spark_apply(
-      f = grid_code,
-      columns = cols
+  # *This is where the magic happens*
+  # The grid is copied to Spark and used to run the tuning jobs
+  tuned_results <- full_grid |>
+    sc_obj$createDataFrame() |>
+    sa_in_pandas(
+      .f = grid_code,
+      .schema = cols,
+      .as_sdf = FALSE,
     ) |>
     collect()
 

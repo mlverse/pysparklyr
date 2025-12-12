@@ -124,7 +124,11 @@ sa_in_pandas <- function(
     ) |>
     py_run_string()
   main <- reticulate::import_main()
-  df <- python_sdf(x)
+  if(inherits(x, "tbl_spark")) {
+    df <- python_sdf(x)
+  } else {
+    df <- x
+  }
   if (is.null(df)) {
     df <- x |>
       compute() |>

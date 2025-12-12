@@ -75,6 +75,11 @@ spark_tune_grid <- function(
     collect()
 
   tuned_results <- tuned_results |>
+    dplyr::rename(
+      .metric = metric,
+      .estimator = estimator,
+      .estimate = estimate
+    ) |>
     dplyr::left_join(res_id_df, by = "index") |>
     dplyr::select(-index) |>
     dplyr::left_join(get_config_key(grid, wf), by = colnames(grid)) |>
@@ -98,12 +103,14 @@ spark_tune_grid <- function(
   ))
 
   out <- resamples |>
+    as_tibble() |>
     mutate(
       .metrics = metrics_map,
       .notes = notes
-    ) |>
-    as_tibble()
+    )
   class(out) <- c("tune_results", class(out))
+  attr(out, "metrics") <- metrics
+  attr(out, "parameters") <- tune::check_parameters(wf)
   out
 }
 

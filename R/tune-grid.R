@@ -35,7 +35,9 @@ spark_tune_grid <- function(
     seq_len(length(resamples$id)),
     \(x) data.frame(index = x, id = resamples$id[[x]])
   )
-  full_grid <- dplyr::cross_join(grid, res_id_df)
+  full_grid <- grid |>
+    dplyr::cross_join(res_id_df) |>
+    dplyr::arrange(index)
 
   # Copies the grid to the Spark session. This is needed so that
   # spark_apply() can recognize and use the table to set up each
@@ -47,10 +49,22 @@ spark_tune_grid <- function(
     overwrite = TRUE
   )
 
-  cols <- paste0(
-    "num_comp integer, tree_depth integer, metric string,",
-    " estimator string, estimate double, index integer"
-  )
+  cols <- imap_chr(
+    grid,
+    \(x, y) {
+      x_class <- class(x)
+      if (x_class == "character") {
+        p_class <- "string"
+      } else if (x_class == "numeric") {
+        p_class <- "double"
+      } else {
+        p_class <- x_class
+      }
+      paste0(y, " ", x_class, ",")
+    }
+  ) |>
+    paste0(collapse = " ") |>
+    paste("metric string, estimator string, estimate double, index integer")
 
   # Runs the code against the copies grid
   tuned_results <- tbl_grid |>

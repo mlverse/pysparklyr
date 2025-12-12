@@ -76,7 +76,9 @@ spark_tune_grid <- function(
 
   tuned_results <- tuned_results |>
     dplyr::left_join(res_id_df, by = "index") |>
-    dplyr::select(-index)
+    dplyr::select(-index) |>
+    dplyr::left_join(get_config_key(grid, wf), by = colnames(grid)) |>
+    dplyr::arrange(.config)
 
   # Converts metrics to list separated by id's
   res_names <- colnames(tuned_results)
@@ -95,11 +97,14 @@ spark_tune_grid <- function(
     trace = list()
   ))
 
-  resamples |>
+  out <- resamples |>
     mutate(
       .metrics = metrics_map,
       .notes = notes
-    )
+    ) |>
+    as_tibble()
+  class(out) <- c("tune_results", class(out))
+  out
 }
 
 spark_session_root_folder <- function(sc) {

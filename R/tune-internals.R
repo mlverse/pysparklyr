@@ -40,3 +40,84 @@ determine_pred_types <- function(wflow, metrics) {
 
   sort(unique(pred_types))
 }
+
+
+get_config_key <- function(grid, wflow) {
+  info <- tune_args(wflow)
+  key <- grid
+
+  only_param <- setdiff(info$id, names(grid))
+  if (length(only_param) > 0) {
+    cli::cli_abort(
+      "Some parameters are tagged for tuning but are not in the grid:
+      {.arg {only_param}}",
+      call = NULL
+    )
+  }
+
+  only_grid <- setdiff(names(grid), info$id)
+  if (length(only_grid) > 0) {
+    cli::cli_abort(
+      "Some parameters are in the grid but are not tagged for tuning:
+      {.arg {only_grid}}",
+      call = NULL
+    )
+  }
+
+  pre_param <- info$id[info$source == "recipe"]
+  if (length(pre_param) > 0) {
+    key <- make_config_labs(grid, pre_param) |>
+      dplyr::full_join(key, by = pre_param)
+  } else {
+    key <- key |>
+      dplyr::mutate(pre = "pre0")
+  }
+
+  mod_param <- info$id[info$source == "model_spec"]
+  if (length(mod_param) > 0) {
+    key <- make_config_labs(grid, mod_param, "mod") |>
+      dplyr::full_join(key, by = mod_param)
+  } else {
+    key <- key |>
+      dplyr::mutate(mod = "mod0")
+  }
+
+  post_param <- info$id[info$source == "tailor"]
+  if (length(post_param) > 0) {
+    key <- make_config_labs(grid, post_param, "post") |>
+      dplyr::full_join(key, by = post_param)
+  } else {
+    key <- key |>
+      dplyr::mutate(post = "post0")
+  }
+
+  # in the case of resampling without tuning, grid and thus key are 0-row tibbles
+  if (nrow(key) < 1) {
+    key <- dplyr::tibble(
+      pre = "pre0",
+      mod = "mod0",
+      post = "post0"
+    )
+  }
+
+  key$.config <- paste(key$pre, key$mod, key$post, sep = "_")
+  key$.config <- gsub("_$", "", key$.config)
+  key |>
+    dplyr::arrange(.config) |>
+    dplyr::select(dplyr::all_of(info$id), .config)
+}
+
+make_config_labs <- function(grid, param, val = "pre") {
+  res <- grid |>
+    dplyr::select(dplyr::all_of(param)) |>
+    dplyr::distinct() |>
+    dplyr::arrange(!!!rlang::syms(param)) |>
+    dplyr::mutate(
+      num = format(dplyr::row_number()),
+      num = gsub(" ", "0", num),
+      {{ val }} := paste0(val, num)
+    ) |>
+    dplyr::select(-num)
+
+  res
+}

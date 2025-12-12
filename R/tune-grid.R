@@ -1,3 +1,4 @@
+#' @export
 spark_tune_grid <- function(
   object,
   preprocessor,
@@ -16,18 +17,25 @@ spark_tune_grid <- function(
   metrics <- check_metrics_arg(metrics, wf, call = rlang::caller_env())
   pred_types <- determine_pred_types(wf, metrics)
 
-  r_objects <- list(
-    workflow = wf,
-    metrics = metrics,
-    resamples = resamples,
-    pred_types = pred_types
-  )
+  hash_wf <- rlang::hash(wf)
+  hash_metrics <- rlang::hash(metrics)
+  hash_resamples <- rlang::hash(resamples)
+  hash_pred_types <- rlang::hash(pred_types)
+
+  spark_session_add_file(wf, sc, hash_wf)
+  spark_session_add_file(metrics, sc, hash_metrics)
+  spark_session_add_file(resamples, sc, hash_resamples)
+  spark_session_add_file(pred_types, sc, hash_pred_types)
+
   root_folder <- spark_session_root_folder(sc)
-  hash_r_objects <- rlang::hash(r_objects)
-  spark_session_add_file(r_objects, sc, hash_r_objects)
   grid_code <- paste0(deparse(loop_call), collapse = "\n")
-  grid_code <- sub("r_objects.rds", path(hash_r_objects, ext = "rds"), grid_code)
   grid_code <- sub("path/to/root", root_folder, grid_code)
+
+  grid_code <- sub("wf.rds", path(hash_wf, ext = "rds"), grid_code)
+  grid_code <- sub("metrics.rds", path(hash_metrics, ext = "rds"), grid_code)
+  grid_code <- sub("resamples.rds", path(hash_resamples, ext = "rds"), grid_code)
+  grid_code <- sub("pred_types.rds", path(hash_pred_types, ext = "rds"), grid_code)
+
 
   # Creating the tune grid data frame
 
@@ -175,33 +183,37 @@ loop_call <- function(x) {
     root_folder <- "path/to/root"
   }
   # Loads all of the needed R objects from disk
-  r_objects <- readRDS(file.path(root_folder, "r_objects.rds"))
+  wf <- readRDS(file.path(root_folder, "wf.rds"))
+  metrics <- readRDS(file.path(root_folder, "metrics.rds"))
+  resamples <- readRDS(file.path(root_folder, "resamples.rds"))
+  pred_types <- readRDS(file.path(root_folder, "pred_types.rds"))
+
   out <- NULL
   # Spark will more likely send more than one row (combination) in `x`. It
   # will depend on how the grid data frame was partitioned inside Spark.
   for (i in seq_len(nrow(x))) {
     curr_x <- x[i, ]
-    resample <- get_rsplit(r_objects$resamples, curr_x$index)
+    resample <- get_rsplit(resamples, curr_x$index)
     params <- as.list(curr_x[, 1:(length(curr_x) - 2)])
     re_training <- as.data.frame(resample, data = "analysis")
-    fitted_workflow <- r_objects$workflow |>
+    fitted_workflow <- wf |>
       finalize_workflow(params) |>
       fit(re_training)
     re_testing <- as.data.frame(resample, data = "assessment")
     trained_model <- hardhat::extract_fit_parsnip(fitted_workflow)
     forged_wf <- forge_from_workflow(re_testing, fitted_workflow)
     outcome_var <- tune::outcome_names(fitted_workflow)
-    predictions <- r_objects$pred_types |>
+    predictions <- pred_types |>
       map(\(x) predict(trained_model, forged_wf$predictors, type = x)) |>
       bind_cols() |>
       mutate(.truth = re_testing[, outcome_var]) |>
       bind_cols(as.data.frame(params))
     curr <- .estimate_metrics(
       dat = predictions,
-      metric = r_objects$metrics,
+      metric = metrics,
       param_names = names(params),
       outcome_name = ".truth",
-      metrics_info = metrics_info(r_objects$metrics),
+      metrics_info = metrics_info(metrics),
       event_level = "first" # TODO: replace with what's in `control`
     )
     colnames(curr) <- c(names(params), "metric", "estimator", "estimate")

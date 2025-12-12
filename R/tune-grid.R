@@ -1,46 +1,41 @@
 spark_tune_grid <- function(
-    object,
-    preprocessor,
-    resamples,
-    ...,
-    param_info = NULL,
-    grid = 10,
-    metrics = NULL,
-    eval_time = NULL,
-    control = control_grid(),
-    sc
+  object,
+  preprocessor,
+  resamples,
+  ...,
+  param_info = NULL,
+  grid = 10,
+  metrics = NULL,
+  eval_time = NULL,
+  control = control_grid(),
+  sc
 ) {
-  # Get the location in the Spark driver where the files will be
-  # temporarily uploaded to
+  wf <- workflow() |>
+    add_model(object) |>
+    add_recipe(preprocessor)
+  metrics <- check_metrics_arg(metrics, wf, call = rlang::caller_env())
+  pred_types <- determine_pred_types(wf, metrics)
+
+  r_objects <- list(
+    workflow = wf,
+    metrics = metrics,
+    resamples = resamples,
+    pred_types = pred_types
+  )
   root_folder <- spark_session_root_folder(sc)
-
-  # Hashing R objects one time and using it for both the upload and
-  # reading inside the UDF script. This is done to avoid uploading the
-  # same files over and over again during the Spark session
-  hash_preprocessor <- rlang::hash(preprocessor)
-  hash_model <- rlang::hash(object)
-  hash_resamples <- rlang::hash(resamples)
-
-  # Copying R objects to Spark session
-  spark_session_add_file(preprocessor, sc, hash_preprocessor)
-  spark_session_add_file(object, sc, hash_model)
-  spark_session_add_file(resamples, sc, hash_resamples)
-
-  # De-parsing the code and updating the file and folder references
+  hash_r_objects <- rlang::hash(r_objects)
+  spark_session_add_file(r_objects, sc, hash_r_objects)
   grid_code <- paste0(deparse(loop_call), collapse = "\n")
-  grid_code <- sub("preprocessing.rds", path(hash_preprocessor, ext = "rds"), grid_code)
-  grid_code <- sub("model.rds", path(hash_model, ext = "rds"), grid_code)
-  grid_code <- sub("resamples.rds", path(hash_resamples, ext = "rds"), grid_code)
+  grid_code <- sub("r_objects.rds", path(hash_r_objects, ext = "rds"), grid_code)
   grid_code <- sub("path/to/root", root_folder, grid_code)
 
   # Creating the tune grid data frame
-  full_grid <- data.frame()
-  for (i in seq_along(resamples$splits)) {
-    temp_grid <- grid
-    temp_grid$index <- i
-    temp_grid$id <- resamples$id[[i]]
-    full_grid <- rbind(full_grid, temp_grid)
-  }
+
+  res_id_df <- map_df(
+    seq_len(length(resamples$id)),
+    \(x) data.frame(index = x, id = resamples$id[[x]])
+  )
+  full_grid <- dplyr::cross_join(grid, res_id_df)
 
   # Copies the grid to the Spark session. This is needed so that
   # spark_apply() can recognize and use the table to set up each
@@ -54,7 +49,7 @@ spark_tune_grid <- function(
 
   cols <- paste0(
     "num_comp integer, tree_depth integer, metric string,",
-    " estimator string, estimate double, id string"
+    " estimator string, estimate double, index integer"
   )
 
   # Runs the code against the copies grid
@@ -64,6 +59,10 @@ spark_tune_grid <- function(
       columns = cols
     ) |>
     collect()
+
+  tuned_results <- tuned_results |>
+    dplyr::left_join(res_id_df, by = "index") |>
+    dplyr::select(-index)
 
   # Converts metrics to list separated by id's
   res_names <- colnames(tuned_results)
@@ -163,14 +162,24 @@ loop_call <- function(x) {
       finalize_workflow(params) |>
       fit(re_training)
     re_testing <- as.data.frame(resample, data = "assessment")
-    wf_predict <- predict(fitted_workflow, re_testing)
-    colnames(wf_predict) <- ".predictions"
-    fin_bind <- cbind(re_testing, wf_predict)
+    trained_model <- hardhat::extract_fit_parsnip(fitted_workflow)
+    forged_wf <- forge_from_workflow(re_testing, fitted_workflow)
     outcome_var <- tune::outcome_names(fitted_workflow)
-    fin_metrics <- metrics(fin_bind, truth = outcome_var, estimate = ".predictions")
-    curr <- cbind(as.data.frame(params), fin_metrics)
-    curr$id <- curr_x$id
-    colnames(curr) <- c(names(params), "metric", "estimator", "estimate", "id")
+    predictions <- r_objects$pred_types |>
+      map(\(x) predict(trained_model, forged_wf$predictors, type = x)) |>
+      bind_cols() |>
+      mutate(.truth = re_testing[, outcome_var]) |>
+      bind_cols(as.data.frame(params))
+    curr <- .estimate_metrics(
+      dat = predictions,
+      metric = r_objects$metrics,
+      param_names = names(params),
+      outcome_name = ".truth",
+      metrics_info = metrics_info(r_objects$metrics),
+      event_level = "first" # TODO: replace with what's in `control`
+    )
+    colnames(curr) <- c(names(params), "metric", "estimator", "estimate")
+    curr$index <- curr_x$index
     out <- rbind(out, curr)
   }
   out

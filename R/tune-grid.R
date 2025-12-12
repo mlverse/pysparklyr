@@ -40,6 +40,7 @@ spark_tune_grid <- function(
   grid_code <- sub("metrics.rds", path(hash_metrics, ext = "rds"), grid_code)
   grid_code <- sub("resamples.rds", path(hash_resamples, ext = "rds"), grid_code)
   grid_code <- sub("pred_types.rds", path(hash_pred_types, ext = "rds"), grid_code)
+  grid_code <- sub("first", control$event_level, grid_code)
 
   # Creating the tune grid data frame
   res_id_df <- map_df(
@@ -68,6 +69,8 @@ spark_tune_grid <- function(
   ) |>
     paste0(collapse = " ") |>
     paste("metric string, estimator string, estimate double, index integer")
+
+  sc_obj <- spark_session(sc)
 
   # *This is where the magic happens*
   # The grid is copied to Spark and used to run the tuning jobs
@@ -129,17 +132,21 @@ spark_tune_grid <- function(
 # `x` only contains a table with the grid containing every single combination
 loop_call <- function(x) {
   library(tidymodels)
-  # Set this environment variable to develop/debug
-  # the function without needing a Spark connection
-  root_folder <- Sys.getenv("TEMP_SPARK_GRID")
-  if (root_folder == "") {
-    root_folder <- "path/to/root"
+
+  # ------------------- Updates from caller function section -------------------
+  root_folder <- "path/to/root"
+  # This weird check here is to make it easy to debug/develop this function
+  if (root_folder == "path/to/root") {
+    root_folder <- Sys.getenv("TEMP_SPARK_GRID")
   }
-  # Loads all of the needed R objects from disk
+  # Loads the needed R objects from disk
   wf <- readRDS(file.path(root_folder, "wf.rds"))
   metrics <- readRDS(file.path(root_folder, "metrics.rds"))
   resamples <- readRDS(file.path(root_folder, "resamples.rds"))
   pred_types <- readRDS(file.path(root_folder, "pred_types.rds"))
+  # Variables that can be set from the caller function
+  event_level <- "first"
+  # ----------------------------------------------------------------------------
 
   out <- NULL
   # Spark will more likely send more than one row (combination) in `x`. It
@@ -175,7 +182,7 @@ loop_call <- function(x) {
       param_names = names(params),
       outcome_name = ".truth",
       metrics_info = metrics_info(metrics),
-      event_level = "first" # TODO: replace with what's in `control`
+      event_level = event_level
     )
     # Renaming columns because Spark does not like 'dot' prefixes in names
     colnames(curr) <- c(names(params), "metric", "estimator", "estimate")

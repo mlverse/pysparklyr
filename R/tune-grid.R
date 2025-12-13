@@ -9,7 +9,8 @@ spark_tune_grid <- function(
   metrics = NULL,
   eval_time = NULL,
   control = control_grid(),
-  sc
+  sc,
+  grid_partitions = NULL
 ) {
   wf <- workflow() |>
     add_model(object) |>
@@ -72,10 +73,18 @@ spark_tune_grid <- function(
 
   sc_obj <- spark_session(sc)
 
-  # *This is where the magic happens*
-  # The grid is copied to Spark and used to run the tuning jobs
-  tuned_results <- full_grid |>
-    sc_obj$createDataFrame() |>
+
+  # The grid is copied to Spark, it will be repartitioned if `grid_paritions`
+  # is set. If not set, Spark will decide how many partitions the data will have,
+  # that impacts how many discrete jobs there will be set for this run
+  tbl_grid <- sc_obj$createDataFrame(full_grid)
+  if (!is.null(grid_partitions)) {
+    tbl_grid <- tbl_grid$repartition(as.integer(grid_partitions))
+  }
+  #              ****** This is where the magic happens ******
+  # The grid hs passed mapInPandas() which will run the resulting code in the
+  # Spark session in as many parallel jobs as tbl_grid is partitioned by
+  tuned_results <- tbl_grid |>
     sa_in_pandas(
       .f = grid_code,
       .schema = cols,

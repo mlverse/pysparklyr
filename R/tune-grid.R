@@ -23,6 +23,7 @@ spark_tune_grid <- function(
   hash_metrics <- rlang::hash(metrics)
   hash_resamples <- rlang::hash(resamples)
   hash_pred_types <- rlang::hash(pred_types)
+  hash_r_seed <- rlang::hash(.Random.seed)
 
   # Uploads the files to the Spark temp folder, this function skips the upload
   # if the hashed file name has already been uploaded during the current session
@@ -30,6 +31,7 @@ spark_tune_grid <- function(
   spark_session_add_file(metrics, sc, hash_metrics)
   spark_session_add_file(resamples, sc, hash_resamples)
   spark_session_add_file(pred_types, sc, hash_pred_types)
+  spark_session_add_file(.Random.seed, sc, hash_r_seed)
 
   # Uses the `loop_call` function as the base of the UDF that will be sent to
   # the Spark session. It works by modifying the text of the function, specifically
@@ -41,6 +43,7 @@ spark_tune_grid <- function(
   grid_code <- sub("metrics.rds", path(hash_metrics, ext = "rds"), grid_code)
   grid_code <- sub("resamples.rds", path(hash_resamples, ext = "rds"), grid_code)
   grid_code <- sub("pred_types.rds", path(hash_pred_types, ext = "rds"), grid_code)
+  grid_code <- sub("r_seed.rds", path(hash_r_seed, ext = "rds"), grid_code)
   grid_code <- sub("first", control$event_level, grid_code)
 
   # Creating the tune grid data frame
@@ -155,6 +158,8 @@ loop_call <- function(x) {
   pred_types <- readRDS(file.path(root_folder, "pred_types.rds"))
   # Variables that can be set from the caller function
   event_level <- "first"
+  # To match the 'seed' from the caller R seesion
+  assign(".Random.seed", readRDS(file.path(root_folder, "r_seed.rds")))
   # ----------------------------------------------------------------------------
 
   out <- NULL

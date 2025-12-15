@@ -152,56 +152,22 @@ loop_call <- function(x) {
     root_folder <- Sys.getenv("TEMP_SPARK_GRID")
   }
   # Loads the needed R objects from disk
-  wf <- readRDS(file.path(root_folder, "wf.rds"))
-  metrics <- readRDS(file.path(root_folder, "metrics.rds"))
+  static <- readRDS(file.path(root_folder, "static.rds"))
   resamples <- readRDS(file.path(root_folder, "resamples.rds"))
-  pred_types <- readRDS(file.path(root_folder, "pred_types.rds"))
-  # Variables that can be set from the caller function
-  event_level <- "first"
   # To match the 'seed' from the caller R seesion
   assign(".Random.seed", readRDS(file.path(root_folder, "r_seed.rds")))
   # ----------------------------------------------------------------------------
-
   out <- NULL
   # Spark will more likely send more than one row (combination) in `x`. It
   # will depend on how the grid data frame was partitioned inside Spark.
   for (i in seq_len(nrow(x))) {
     curr_x <- x[i, ]
-    resample <- get_rsplit(resamples, curr_x$index)
-    # Assumes that the parameters are all but the last to
-    # variables in the row currently being processed
-    params <- as.list(curr_x[, 1:(length(curr_x) - 2)])
-    re_training <- as.data.frame(resample, data = "analysis")
-    # Trains the workflow
-    fitted_workflow <- wf |>
-      finalize_workflow(params) |>
-      fit(re_training)
-    re_testing <- as.data.frame(resample, data = "assessment")
-    # Predictions are run based on the types of output expected by the
-    # metrics. This means that the predictions need to run against the
-    # trained parsnip object
-    trained_model <- hardhat::extract_fit_parsnip(fitted_workflow)
-    forged_wf <- forge_from_workflow(re_testing, fitted_workflow)
-    outcome_var <- tune::outcome_names(fitted_workflow)
-    predictions <- pred_types |>
-      map(\(x) predict(trained_model, forged_wf$predictors, type = x)) |>
-      bind_cols() |>
-      mutate(.truth = re_testing[, outcome_var]) |>
-      bind_cols(as.data.frame(params))
-    # Uses this internal function in order to output the exact same metric
-    # results as a local R session would
-    curr <- .estimate_metrics(
-      dat = predictions,
-      metric = metrics,
-      param_names = names(params),
-      outcome_name = ".truth",
-      metrics_info = metrics_info(metrics),
-      event_level = event_level
-    )
-    # Renaming columns because Spark does not like 'dot' prefixes in names
-    colnames(curr) <- c(names(params), "metric", "estimator", "estimate")
-    curr$index <- curr_x$index
-    out <- rbind(out, curr)
+    curr_resample <- resamples[curr_x$index, ]
+    curr_resample <- dplyr::mutate(curr_resample, .seeds = list(list()))
+    curr_grid <- curr_x[, colnames(curr_x) != "index"]
+    res <- tune:::loop_over_all_stages(curr_resample, curr_grid, static)
+    res_df <- Reduce(rbind, res$.metrics)
+    out <- rbind(out, res_df)
   }
   out
 }

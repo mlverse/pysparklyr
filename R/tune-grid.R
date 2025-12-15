@@ -79,10 +79,9 @@ spark_tune_grid <- function(
     }
   ) |>
     paste0(collapse = " ") |>
-    paste("metric string, estimator string, estimate double, config string")
+    paste("metric string, estimator string, estimate double, index integer")
 
   sc_obj <- spark_session(sc)
-
 
   # The grid is copied to Spark, it will be repartitioned if `grid_paritions`
   # is set. If not set, Spark will decide how many partitions the data will have,
@@ -101,8 +100,6 @@ spark_tune_grid <- function(
       .as_sdf = FALSE,
     ) |>
     collect()
-
-  return(tuned_results)
 
   # Finalizes metrics tables by adding the 'id' label, and `.config`, and
   # restoring the 'dot' prefix to the metric fields (Spark does not like
@@ -171,14 +168,15 @@ loop_call <- function(x) {
   # will depend on how the grid data frame was partitioned inside Spark.
   for (i in seq_len(nrow(x))) {
     curr_x <- x[i, ]
-    curr_resample <- resamples[1, ]
+    curr_resample <- resamples[curr_x$index, ]
     curr_resample <- dplyr::mutate(curr_resample, .seeds = list(list()))
     curr_grid <- curr_x[, colnames(curr_x) != "index"]
-    curr_grid <- as_tibble(curr_grid)
-    #curr_grid <- tibble::tibble(num_comp = 1, tree_depth = 1)
+    curr_grid <- tibble::as_tibble(curr_grid)
     res <- tune:::loop_over_all_stages(curr_resample, curr_grid, static)
-    res_df <- Reduce(rbind, res$.metrics)
-    out <- rbind(out, res_df)
+    metrics_df <- Reduce(rbind, res$.metrics)
+    metrics_df$.config <- NULL
+    metrics_df$index <- curr_x$index
+    out <- rbind(out, metrics_df)
   }
   out
 }

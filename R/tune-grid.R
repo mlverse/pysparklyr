@@ -8,7 +8,7 @@ spark_tune_grid <- function(
   grid = 10,
   metrics = NULL,
   eval_time = NULL,
-  control = control_grid(parallel_over = "resamples"),
+  control = control_grid(parallel_over = "everything"),
   sc,
   grid_partitions = NULL
 ) {
@@ -19,7 +19,7 @@ spark_tune_grid <- function(
   static <- list(
     wflow = wf,
     param_info = tune::check_parameters(wf),
-    configs = get_config_key(wf_grid, wf),
+    configs = get_config_key(grid, wf),
     post_estimation = workflows::.workflow_postprocessor_requires_fit(wf),
     metrics = wf_metrics,
     metric_info = tibble::as_tibble(wf_metrics),
@@ -60,7 +60,8 @@ spark_tune_grid <- function(
   )
   full_grid <- grid |>
     dplyr::cross_join(res_id_df) |>
-    dplyr::arrange(index)
+    dplyr::arrange(index) |>
+    dplyr::select(-id)
 
   # The pandas mapping function requires all of the output column names
   # and types to be specified. Types have to be converted too
@@ -79,14 +80,14 @@ spark_tune_grid <- function(
     }
   ) |>
     paste0(collapse = " ") |>
-    paste("metric string, estimator string, estimate double, index integer")
+    paste("metric string, estimator string, estimate double, config string, index integer")
 
   sc_obj <- spark_session(sc)
 
   # The grid is copied to Spark, it will be repartitioned if `grid_paritions`
   # is set. If not set, Spark will decide how many partitions the data will have,
   # that impacts how many discrete jobs there will be set for this run
-  tbl_grid <- sc_obj$createDataFrame(full_grid[, colnames(full_grid) != "id"])
+  tbl_grid <- sc_obj$createDataFrame(full_grid)
   if (!is.null(grid_partitions)) {
     tbl_grid <- tbl_grid$repartition(as.integer(grid_partitions))
   }
@@ -108,11 +109,11 @@ spark_tune_grid <- function(
     dplyr::rename(
       .metric = metric,
       .estimator = estimator,
-      .estimate = estimate
+      .estimate = estimate,
+      .config = config
     ) |>
     dplyr::left_join(res_id_df, by = "index") |>
     dplyr::select(-index) |>
-    dplyr::left_join(get_config_key(grid, wf), by = colnames(grid)) |>
     dplyr::arrange(.config)
 
   # Converts metrics to list separated by id's
@@ -121,8 +122,7 @@ spark_tune_grid <- function(
   metrics_map <- map(
     unique(tuned_results$id),
     \(x) tuned_results[tuned_results$id == x, metrics_names]
-  ) |>
-    set_names(unique(tuned_results$id))
+  )
 
   # Creates dummy 'notes' table
   notes <- list(tibble(
@@ -140,10 +140,10 @@ spark_tune_grid <- function(
       .notes = notes
     )
   class(out) <- c("tune_results", class(out))
-  attr(out, "metrics") <- metrics
+  attr(out, "metrics") <- static$metrics
   attr(out, "outcomes") <- tune::outcome_names(wf)
-  attr(out, "parameters") <- tune::check_parameters(wf)
-  attr(out, "rset_info") <- pull_rset_attributes(resamples)
+  attr(out, "parameters") <- static$param_info
+  attr(out, "rset_info") <- tune::pull_rset_attributes(resamples)
   out
 }
 
@@ -174,7 +174,6 @@ loop_call <- function(x) {
     curr_grid <- tibble::as_tibble(curr_grid)
     res <- tune:::loop_over_all_stages(curr_resample, curr_grid, static)
     metrics_df <- Reduce(rbind, res$.metrics)
-    metrics_df$.config <- NULL
     metrics_df$index <- curr_x$index
     out <- rbind(out, metrics_df)
   }

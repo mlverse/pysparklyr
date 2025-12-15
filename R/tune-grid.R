@@ -8,29 +8,39 @@ spark_tune_grid <- function(
   grid = 10,
   metrics = NULL,
   eval_time = NULL,
-  control = control_grid(),
+  control = control_grid(parallel_over = "everything"),
   sc,
   grid_partitions = NULL
 ) {
   wf <- workflow() |>
     add_model(object) |>
     add_recipe(preprocessor)
-  metrics <- check_metrics_arg(metrics, wf, call = rlang::caller_env())
-  pred_types <- determine_pred_types(wf, metrics)
+  wf_metrics <- check_metrics_arg(metrics, wf, call = rlang::caller_env())
+  static <- list(
+    wflow = wf,
+    param_info = tune::check_parameters(wf),
+    configs = get_config_key(wf_grid, wf),
+    post_estimation = workflows::.workflow_postprocessor_requires_fit(wf),
+    metrics = wf_metrics,
+    metric_info = tibble::as_tibble(wf_metrics),
+    pred_types = determine_pred_types(wf, wf_metrics),
+    eval_time = NULL,
+    split_args = rsample::.get_split_args(resamples),
+    control = control,
+    pkgs = "tidymodels",
+    strategy = "sequential",
+    data = list(fit = NULL, pred = NULL, cal = NULL)
+  )
 
   # Creating unique file names to avoid re-uploading if possible
-  hash_wf <- rlang::hash(wf)
-  hash_metrics <- rlang::hash(metrics)
+  hash_static <- rlang::hash(static)
   hash_resamples <- rlang::hash(resamples)
-  hash_pred_types <- rlang::hash(pred_types)
   hash_r_seed <- rlang::hash(.Random.seed)
 
   # Uploads the files to the Spark temp folder, this function skips the upload
   # if the hashed file name has already been uploaded during the current session
-  spark_session_add_file(wf, sc, hash_wf)
-  spark_session_add_file(metrics, sc, hash_metrics)
+  spark_session_add_file(wf, sc, hash_static)
   spark_session_add_file(resamples, sc, hash_resamples)
-  spark_session_add_file(pred_types, sc, hash_pred_types)
   spark_session_add_file(.Random.seed, sc, hash_r_seed)
 
   # Uses the `loop_call` function as the base of the UDF that will be sent to
@@ -39,12 +49,9 @@ spark_tune_grid <- function(
   root_folder <- spark_session_root_folder(sc)
   grid_code <- paste0(deparse(loop_call), collapse = "\n")
   grid_code <- sub("path/to/root", root_folder, grid_code)
-  grid_code <- sub("wf.rds", path(hash_wf, ext = "rds"), grid_code)
-  grid_code <- sub("metrics.rds", path(hash_metrics, ext = "rds"), grid_code)
+  grid_code <- sub("static.rds", path(hash_static, ext = "rds"), grid_code)
   grid_code <- sub("resamples.rds", path(hash_resamples, ext = "rds"), grid_code)
-  grid_code <- sub("pred_types.rds", path(hash_pred_types, ext = "rds"), grid_code)
   grid_code <- sub("r_seed.rds", path(hash_r_seed, ext = "rds"), grid_code)
-  grid_code <- sub("first", control$event_level, grid_code)
 
   # Creating the tune grid data frame
   res_id_df <- map_df(
@@ -80,7 +87,7 @@ spark_tune_grid <- function(
   # The grid is copied to Spark, it will be repartitioned if `grid_paritions`
   # is set. If not set, Spark will decide how many partitions the data will have,
   # that impacts how many discrete jobs there will be set for this run
-  tbl_grid <- sc_obj$createDataFrame(full_grid)
+  tbl_grid <- sc_obj$createDataFrame(full_grid[1, colnames(full_grid) != "id"])
   if (!is.null(grid_partitions)) {
     tbl_grid <- tbl_grid$repartition(as.integer(grid_partitions))
   }

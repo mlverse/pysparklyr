@@ -1,3 +1,9 @@
+# Will need exported:
+# - tune:::loop_over_all_stages
+# Would be nice if exported:
+# - tune:::get_config_key
+# - tune:::determine_pred_types
+
 #' @export
 spark_tune_grid <- function(
   object,
@@ -19,11 +25,11 @@ spark_tune_grid <- function(
   static <- list(
     wflow = wf,
     param_info = tune::check_parameters(wf),
-    configs = get_config_key(grid, wf),
+    configs = tune:::get_config_key(grid, wf),
     post_estimation = workflows::.workflow_postprocessor_requires_fit(wf),
     metrics = wf_metrics,
     metric_info = tibble::as_tibble(wf_metrics),
-    pred_types = determine_pred_types(wf, wf_metrics),
+    pred_types = tune:::determine_pred_types(wf, wf_metrics),
     eval_time = NULL,
     split_args = rsample::.get_split_args(resamples),
     control = control,
@@ -80,7 +86,10 @@ spark_tune_grid <- function(
     }
   ) |>
     paste0(collapse = " ") |>
-    paste("metric string, estimator string, estimate double, config string, index integer")
+    paste(
+      "metric string, estimator string, estimate double,",
+      "config string, index integer"
+    )
 
   sc_obj <- spark_session(sc)
 
@@ -133,6 +142,7 @@ spark_tune_grid <- function(
   ))
 
   # Joins the resamples, metrics and notes tables, and adds needed attributes
+  # to make it a viable tune_results object.
   out <- resamples |>
     as_tibble() |>
     mutate(
@@ -169,10 +179,17 @@ loop_call <- function(x) {
   for (i in seq_len(nrow(x))) {
     curr_x <- x[i, ]
     curr_resample <- resamples[curr_x$index, ]
+    # Simulates adding `.seeds` to the resample because it is a required field
+    # by loop_ver_all_stages(). It is not needed for this method because the
+    # loop is happening in the main R process, and the .Random.seed has already
+    # been set.
     curr_resample <- dplyr::mutate(curr_resample, .seeds = list(list()))
     curr_grid <- curr_x[, colnames(curr_x) != "index"]
+    # loop_over_all_stages() requires the grid to be a tibble
     curr_grid <- tibble::as_tibble(curr_grid)
     res <- tune:::loop_over_all_stages(curr_resample, curr_grid, static)
+    # Extracts the metrics to table and adds them the larger table sent back to
+    # the mapping function.
     metrics_df <- Reduce(rbind, res$.metrics)
     metrics_df$index <- curr_x$index
     out <- rbind(out, metrics_df)

@@ -22,9 +22,14 @@ spark_tune_grid <- function(
     add_model(object) |>
     add_recipe(preprocessor)
   wf_metrics <- check_metrics_arg(metrics, wf, call = rlang::caller_env())
+  param_info <- tune::check_parameters(
+    wflow = wf,
+    data = resamples$splits[[1]]$data,
+    grid_names = names(grid)
+  )
   static <- list(
     wflow = wf,
-    param_info = tune::check_parameters(wf),
+    param_info = param_info,
     configs = tune:::get_config_key(grid, wf),
     post_estimation = workflows::.workflow_postprocessor_requires_fit(wf),
     metrics = wf_metrics,
@@ -74,15 +79,14 @@ spark_tune_grid <- function(
   cols <- imap_chr(
     static$configs[, colnames(static$configs) != ".config"],
     \(x, y) {
-      x_class <- class(x)
-      if (x_class == "character") {
+      if (inherits(x, "character")) {
         p_class <- "string"
-      } else if (x_class == "numeric") {
-        p_class <- "double"
+      } else if (inherits(x, "numeric")) {
+        p_class <- "float"
       } else {
-        p_class <- x_class
+        p_class <- class(x)
       }
-      paste0(y, " ", x_class, ",")
+      paste0(y, " ", p_class, ",")
     }
   ) |>
     paste0(collapse = " ") |>

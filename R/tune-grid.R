@@ -42,16 +42,22 @@ spark_tune_grid <- function(
     strategy = "sequential",
     data = list(fit = NULL, pred = NULL, cal = NULL)
   )
-
+  if (all(resamples$id == "train/test split")) {
+    resamples$.seeds <- purrr::map(resamples$id, \(x) integer(0))
+  } else {
+    # Make and set the worker/process seeds if workers get resamples
+    resamples$.seeds <- get_parallel_seeds(nrow(resamples))
+  }
+  vec_resamples <- vec_list_rowwise(resamples)
   # Creating unique file names to avoid re-uploading if possible
   hash_static <- rlang::hash(static)
-  hash_resamples <- rlang::hash(resamples)
+  hash_resamples <- rlang::hash(vec_resamples)
   hash_r_seed <- rlang::hash(.Random.seed)
 
   # Uploads the files to the Spark temp folder, this function skips the upload
   # if the hashed file name has already been uploaded during the current session
   spark_session_add_file(static, sc, hash_static)
-  spark_session_add_file(resamples, sc, hash_resamples)
+  spark_session_add_file(vec_resamples, sc, hash_resamples)
   spark_session_add_file(.Random.seed, sc, hash_r_seed)
 
   # Uses the `loop_call` function as the base of the UDF that will be sent to
@@ -175,22 +181,18 @@ loop_call <- function(x) {
   static <- readRDS(file.path(root_folder, "static.rds"))
   resamples <- readRDS(file.path(root_folder, "resamples.rds"))
   # To match the 'seed' from the caller R seesion
-  assign(".Random.seed", readRDS(file.path(root_folder, "r_seed.rds")))
+  #assign(".Random.seed", readRDS(file.path(root_folder, "r_seed.rds")))
   # ----------------------------------------------------------------------------
   out <- NULL
   # Spark will more likely send more than one row (combination) in `x`. It
   # will depend on how the grid data frame was partitioned inside Spark.
   for (i in seq_len(nrow(x))) {
     curr_x <- x[i, ]
-    curr_resample <- resamples[curr_x$index, ]
-    # Simulates adding `.seeds` to the resample because it is a required field
-    # by loop_ver_all_stages(). It is not needed for this method because the
-    # loop is happening in the main R process, and the .Random.seed has already
-    # been set.
-    curr_resample <- dplyr::mutate(curr_resample, .seeds = list(list()))
+    curr_resample <- resamples[[curr_x$index]]
     curr_grid <- curr_x[, colnames(curr_x) != "index"]
     # loop_over_all_stages() requires the grid to be a tibble
     curr_grid <- tibble::as_tibble(curr_grid)
+    assign(".Random.seed", c(1L, 2L, 3L), envir = .GlobalEnv)
     res <- tune:::loop_over_all_stages(curr_resample, curr_grid, static)
     # Extracts the metrics to table and adds them the larger table sent back to
     # the mapping function.
@@ -199,4 +201,8 @@ loop_call <- function(x) {
     out <- rbind(out, metrics_df)
   }
   out
+}
+
+vec_list_rowwise <- function(x) {
+  vctrs::vec_split(x, by = 1:nrow(x))$val
 }

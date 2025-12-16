@@ -66,7 +66,7 @@ spark_tune_grid <- function(
   # The pandas mapping function requires all of the output column names
   # and types to be specified. Types have to be converted too
   cols <- imap_chr(
-    grid,
+    static$configs[, colnames(static$configs) != ".config"],
     \(x, y) {
       x_class <- class(x)
       if (x_class == "character") {
@@ -105,7 +105,7 @@ spark_tune_grid <- function(
   # Finalizes metrics tables by adding the 'id' label, and `.config`, and
   # restoring the 'dot' prefix to the metric fields (Spark does not like
   # names with dots)
-  tuned_results <- tuned_results |>
+  res <- tuned_results |>
     dplyr::rename(
       .metric = metric,
       .estimator = estimator,
@@ -114,14 +114,14 @@ spark_tune_grid <- function(
     ) |>
     dplyr::left_join(res_id_df, by = "index") |>
     dplyr::select(-index) |>
-    dplyr::arrange(.config)
+    dplyr::arrange(id)
 
   # Converts metrics to list separated by id's
-  res_names <- colnames(tuned_results)
+  res_names <- colnames(res)
   metrics_names <- res_names[res_names != "id"]
   metrics_map <- map(
-    unique(tuned_results$id),
-    \(x) tuned_results[tuned_results$id == x, metrics_names]
+    unique(res$id),
+    \(x) res[res$id == x, metrics_names]
   )
 
   # Creates dummy 'notes' table

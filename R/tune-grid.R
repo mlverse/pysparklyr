@@ -14,7 +14,7 @@ spark_tune_grid <- function(
   grid = 10,
   metrics = NULL,
   eval_time = NULL,
-  control = control_grid(parallel_over = "everything"),
+  control = control_grid(),
   sc,
   grid_partitions = NULL
 ) {
@@ -27,6 +27,7 @@ spark_tune_grid <- function(
     data = resamples$splits[[1]]$data,
     grid_names = names(grid)
   )
+  control <- update_parallel_over(control, resamples, grid)
   static <- list(
     wflow = wf,
     param_info = param_info,
@@ -40,7 +41,8 @@ spark_tune_grid <- function(
     control = control,
     pkgs = "tidymodels",
     strategy = "sequential",
-    data = list(fit = NULL, pred = NULL, cal = NULL)
+    data = list(fit = NULL, pred = NULL, cal = NULL),
+    grid = grid
   )
   if (all(resamples$id == "train/test split")) {
     resamples$.seeds <- purrr::map(resamples$id, \(x) integer(0))
@@ -75,9 +77,15 @@ spark_tune_grid <- function(
     seq_len(length(resamples$id)),
     \(x) data.frame(index = x, id = resamples$id[[x]])
   )
-  full_grid <- grid |>
-    dplyr::cross_join(res_id_df) |>
-    dplyr::arrange(index) |>
+  if(control[["parallel_over"]] == "everything") {
+    full_grid <- grid |>
+      dplyr::cross_join(res_id_df) |>
+      dplyr::arrange(index)
+  } else {
+    full_grid <- res_id_df
+  }
+
+  full_grid <- full_grid  |>
     dplyr::select(-id)
 
   # The pandas mapping function requires all of the output column names
@@ -188,8 +196,17 @@ loop_call <- function(x) {
   # will depend on how the grid data frame was partitioned inside Spark.
   for (i in seq_len(nrow(x))) {
     curr_x <- x[i, ]
-    curr_resample <- resamples[[curr_x$index]]
-    curr_grid <- curr_x[, colnames(curr_x) != "index"]
+    if(inherits(curr_x, "data.frame")) {
+      index <- curr_x$index
+    } else {
+      index <- curr_x
+    }
+    curr_resample <- resamples[[index]]
+    if(static$control$parallel_over == "everything") {
+      curr_grid <- curr_x[, colnames(curr_x) != "index"]
+    } else {
+      curr_grid <- static$grid
+    }
     # loop_over_all_stages() requires the grid to be a tibble
     curr_grid <- tibble::as_tibble(curr_grid)
     assign(".Random.seed", c(1L, 2L, 3L), envir = .GlobalEnv)
@@ -197,7 +214,7 @@ loop_call <- function(x) {
     # Extracts the metrics to table and adds them the larger table sent back to
     # the mapping function.
     metrics_df <- Reduce(rbind, res$.metrics)
-    metrics_df$index <- curr_x$index
+    metrics_df$index <- index
     out <- rbind(out, metrics_df)
   }
   out
@@ -205,4 +222,16 @@ loop_call <- function(x) {
 
 vec_list_rowwise <- function(x) {
   vctrs::vec_split(x, by = 1:nrow(x))$val
+}
+
+update_parallel_over <- function(control, resamples, grid) {
+  num_candidates <- nrow(grid)
+
+  if (is.null(control$parallel_over) | num_candidates == 0) {
+    control$parallel_over <- "resamples"
+  }
+  if (length(resamples$splits) == 1 & num_candidates > 0) {
+    control$parallel_over <- "everything"
+  }
+  control
 }

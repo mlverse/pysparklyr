@@ -18,10 +18,11 @@ spark_tune_grid <- function(
   sc,
   grid_partitions = NULL
 ) {
+  call <- rlang::caller_env()
   wf <- workflow() |>
     add_model(object) |>
     add_recipe(preprocessor)
-  wf_metrics <- check_metrics_arg(metrics, wf, call = rlang::caller_env())
+  wf_metrics <- check_metrics_arg(metrics, wf, call = call)
   param_info <- tune::check_parameters(
     wflow = wf,
     data = resamples$splits[[1]]$data,
@@ -33,6 +34,9 @@ spark_tune_grid <- function(
     pset = param_info
   )
   control <- update_parallel_over(control, resamples, grid)
+
+  eval_time <- check_eval_time_arg(eval_time, wf_metrics, call = call)
+
   static <- list(
     wflow = wf,
     param_info = param_info,
@@ -41,7 +45,7 @@ spark_tune_grid <- function(
     metrics = wf_metrics,
     metric_info = tibble::as_tibble(wf_metrics),
     pred_types = tune:::determine_pred_types(wf, wf_metrics),
-    eval_time = NULL,
+    eval_time = eval_time,
     split_args = rsample::.get_split_args(resamples),
     control = control,
     pkgs = "tidymodels",
@@ -84,7 +88,7 @@ spark_tune_grid <- function(
     seq_len(length(resamples$id)),
     \(x) data.frame(index = x, id = resamples$id[[x]])
   )
-  if(control[["parallel_over"]] == "everything") {
+  if (control[["parallel_over"]] == "everything") {
     full_grid <- grid |>
       dplyr::cross_join(res_id_df) |>
       dplyr::arrange(index)
@@ -92,7 +96,7 @@ spark_tune_grid <- function(
     full_grid <- res_id_df
   }
 
-  full_grid <- full_grid  |>
+  full_grid <- full_grid |>
     dplyr::select(-id)
 
   # The pandas mapping function requires all of the output column names
@@ -196,24 +200,21 @@ loop_call <- function(x) {
   static <- readRDS(file.path(root_folder, "static.rds"))
   resamples <- readRDS(file.path(root_folder, "resamples.rds"))
   # To match the 'seed' from the caller R seesion
-  #assign(".Random.seed", readRDS(file.path(root_folder, "r_seed.rds")))
+  # assign(".Random.seed", readRDS(file.path(root_folder, "r_seed.rds")))
   # ----------------------------------------------------------------------------
   out <- NULL
   # Spark will more likely send more than one row (combination) in `x`. It
   # will depend on how the grid data frame was partitioned inside Spark.
   for (i in seq_len(nrow(x))) {
     curr_x <- x[i, ]
-    if(inherits(curr_x, "data.frame")) {
+    if (static$control$parallel_over == "everything") {
+      curr_grid <- curr_x[, colnames(curr_x) != "index"]
       index <- curr_x$index
     } else {
+      curr_grid <- static$grid
       index <- curr_x
     }
     curr_resample <- resamples[[index]]
-    if(static$control$parallel_over == "everything") {
-      curr_grid <- curr_x[, colnames(curr_x) != "index"]
-    } else {
-      curr_grid <- static$grid
-    }
     # loop_over_all_stages() requires the grid to be a tibble
     curr_grid <- tibble::as_tibble(curr_grid)
     assign(".Random.seed", c(1L, 2L, 3L), envir = .GlobalEnv)
@@ -225,20 +226,4 @@ loop_call <- function(x) {
     out <- rbind(out, metrics_df)
   }
   out
-}
-
-vec_list_rowwise <- function(x) {
-  vctrs::vec_split(x, by = 1:nrow(x))$val
-}
-
-update_parallel_over <- function(control, resamples, grid) {
-  num_candidates <- nrow(grid)
-
-  if (is.null(control$parallel_over) | num_candidates == 0) {
-    control$parallel_over <- "resamples"
-  }
-  if (length(resamples$splits) == 1 & num_candidates > 0) {
-    control$parallel_over <- "everything"
-  }
-  control
 }

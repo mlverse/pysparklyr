@@ -27,6 +27,11 @@ spark_tune_grid <- function(
     data = resamples$splits[[1]]$data,
     grid_names = names(grid)
   )
+  grid <- tune:::check_grid(
+    grid = grid,
+    workflow = wf,
+    pset = param_info
+  )
   control <- update_parallel_over(control, resamples, grid)
   static <- list(
     wflow = wf,
@@ -50,7 +55,9 @@ spark_tune_grid <- function(
     # Make and set the worker/process seeds if workers get resamples
     resamples$.seeds <- get_parallel_seeds(nrow(resamples))
   }
+
   vec_resamples <- vec_list_rowwise(resamples)
+
   # Creating unique file names to avoid re-uploading if possible
   hash_static <- rlang::hash(static)
   hash_resamples <- rlang::hash(vec_resamples)

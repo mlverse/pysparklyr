@@ -5,7 +5,7 @@
 # - tune:::determine_pred_types
 
 #' @export
-spark_tune_grid <- function(
+tune_grid_spark <- function(
   object,
   preprocessor,
   resamples,
@@ -37,6 +37,14 @@ spark_tune_grid <- function(
 
   eval_time <- check_eval_time_arg(eval_time, wf_metrics, call = call)
 
+  needed_pkgs <- c(
+    "rsample", "workflows", "hardhat", "tune",
+    "parsnip", "tailor", "yardstick", "tidymodels",
+    required_pkgs(wf),
+    control$pkgs
+  ) |>
+    unique()
+
   static <- list(
     wflow = wf,
     param_info = param_info,
@@ -48,7 +56,7 @@ spark_tune_grid <- function(
     eval_time = eval_time,
     split_args = rsample::.get_split_args(resamples),
     control = control,
-    pkgs = "tidymodels",
+    pkgs = needed_pkgs,
     strategy = "sequential",
     data = list(fit = NULL, pred = NULL, cal = NULL),
     grid = grid
@@ -61,6 +69,8 @@ spark_tune_grid <- function(
   }
 
   vec_resamples <- vec_list_rowwise(resamples)
+
+  pasted_pkgs <- paste0("'", needed_pkgs, "'", collapse = ", ")
 
   # Creating unique file names to avoid re-uploading if possible
   hash_static <- rlang::hash(static)
@@ -79,9 +89,9 @@ spark_tune_grid <- function(
   root_folder <- spark_session_root_folder(sc)
   grid_code <- paste0(deparse(loop_call), collapse = "\n")
   grid_code <- sub("path/to/root", root_folder, grid_code)
+  grid_code <- gsub("\"rsample\"", pasted_pkgs, grid_code)
   grid_code <- sub("static.rds", path(hash_static, ext = "rds"), grid_code)
   grid_code <- sub("resamples.rds", path(hash_resamples, ext = "rds"), grid_code)
-  grid_code <- sub("r_seed.rds", path(hash_r_seed, ext = "rds"), grid_code)
 
   # Creating the tune grid data frame
   res_id_df <- map_df(
@@ -188,8 +198,21 @@ spark_tune_grid <- function(
 
 # `x` only contains a table with the grid containing every single combination
 loop_call <- function(x) {
+  needed_pkgs <- c("rsample")
+  missing_pkgs <- NULL
+  for (pkg in needed_pkgs) {
+    if (!rlang::is_installed(pkg)) {
+      missing_pkgs <- c(missing_pkgs, pkg)
+    }
+  }
+  if (!is.null(missing_pkgs)) {
+    stop(
+      "Packages ",
+      paste0("`", missing_pkgs, "`", collapse = ", "),
+      " are missing"
+    )
+  }
   library(tidymodels)
-
   # ------------------- Updates from caller function section -------------------
   root_folder <- "path/to/root"
   # This weird check here is to make it easy to debug/develop this function
@@ -199,8 +222,6 @@ loop_call <- function(x) {
   # Loads the needed R objects from disk
   static <- readRDS(file.path(root_folder, "static.rds"))
   resamples <- readRDS(file.path(root_folder, "resamples.rds"))
-  # To match the 'seed' from the caller R seesion
-  # assign(".Random.seed", readRDS(file.path(root_folder, "r_seed.rds")))
   # ----------------------------------------------------------------------------
   out <- NULL
   # Spark will more likely send more than one row (combination) in `x`. It

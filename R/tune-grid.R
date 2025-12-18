@@ -200,7 +200,7 @@ tune_grid_spark <- function(
     rset_info = tune::pull_rset_attributes(resamples),
     workflow = wf,
     class = c(class(out), "tune_results")
-    )
+  )
 }
 
 # `x` only contains a table with the grid containing every single combination
@@ -221,14 +221,10 @@ loop_call <- function(x) {
   }
   library(tidymodels)
   # ------------------- Updates from caller function section -------------------
-  root_folder <- "path/to/root"
-  # This weird check here is to make it easy to debug/develop this function
-  if (root_folder == "path/to/root") {
-    root_folder <- Sys.getenv("TEMP_SPARK_GRID")
-  }
+  pyspark <- reticulate::import("pyspark")
   # Loads the needed R objects from disk
-  static <- readRDS(file.path(root_folder, "static.rds"))
-  resamples <- readRDS(file.path(root_folder, "resamples.rds"))
+  static <- readRDS(pyspark$SparkFiles$get("static.rds"))
+  resamples <- readRDS(pyspark$SparkFiles$get("resamples.rds"))
   # ----------------------------------------------------------------------------
   out <- NULL
   # Spark will more likely send more than one row (combination) in `x`. It

@@ -81,7 +81,6 @@ tune_grid_spark <- function(
   # if the hashed file name has already been uploaded during the current session
   spark_session_add_file(static, sc, hash_static)
   spark_session_add_file(vec_resamples, sc, hash_resamples)
-  spark_session_add_file(.Random.seed, sc, hash_r_seed)
 
   # Uses the `loop_call` function as the base of the UDF that will be sent to
   # the Spark session. It works by modifying the text of the function, specifically
@@ -187,13 +186,21 @@ tune_grid_spark <- function(
     mutate(
       .metrics = metrics_map,
       .notes = notes
+    ) |>
+    vctrs::new_data_frame() # Removes rsample object's attributes
+
+  tibble::new_tibble(
+    x = out,
+    nrow = nrow(out),
+    parameters = static$param_info,
+    metrics = static$metrics,
+    eval_time = eval_time,
+    eval_time_target = NULL,
+    outcomes = tune::outcome_names(wf),
+    rset_info = tune::pull_rset_attributes(resamples),
+    workflow = wf,
+    class = c(class(out), "tune_results")
     )
-  class(out) <- c("tune_results", class(out))
-  attr(out, "metrics") <- static$metrics
-  attr(out, "outcomes") <- tune::outcome_names(wf)
-  attr(out, "parameters") <- static$param_info
-  attr(out, "rset_info") <- tune::pull_rset_attributes(resamples)
-  out
 }
 
 # `x` only contains a table with the grid containing every single combination

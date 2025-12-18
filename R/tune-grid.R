@@ -75,7 +75,6 @@ tune_grid_spark <- function(
   # Creating unique file names to avoid re-uploading if possible
   hash_static <- rlang::hash(static)
   hash_resamples <- rlang::hash(vec_resamples)
-  hash_r_seed <- rlang::hash(.Random.seed)
 
   # Uploads the files to the Spark temp folder, this function skips the upload
   # if the hashed file name has already been uploaded during the current session
@@ -85,9 +84,7 @@ tune_grid_spark <- function(
   # Uses the `loop_call` function as the base of the UDF that will be sent to
   # the Spark session. It works by modifying the text of the function, specifically
   # the file names it reads to load the different R object components
-  root_folder <- spark_session_root_folder(sc)
   grid_code <- paste0(deparse(loop_call), collapse = "\n")
-  grid_code <- sub("path/to/root", root_folder, grid_code)
   grid_code <- gsub("\"rsample\"", pasted_pkgs, grid_code)
   grid_code <- sub("static.rds", path(hash_static, ext = "rds"), grid_code)
   grid_code <- sub("resamples.rds", path(hash_resamples, ext = "rds"), grid_code)
@@ -221,8 +218,8 @@ loop_call <- function(x) {
   }
   library(tidymodels)
   # ------------------- Updates from caller function section -------------------
-  pyspark <- reticulate::import("pyspark")
   # Loads the needed R objects from disk
+  pyspark <- reticulate::import("pyspark")
   static <- readRDS(pyspark$SparkFiles$get("static.rds"))
   resamples <- readRDS(pyspark$SparkFiles$get("resamples.rds"))
   # ----------------------------------------------------------------------------

@@ -28,12 +28,12 @@ tune_grid_spark <- function(
     data = resamples$splits[[1]]$data,
     grid_names = names(grid)
   )
-  grid <- tune:::check_grid(
+  grid <- tune::.check_grid(
     grid = grid,
     workflow = wf,
     pset = param_info
   )
-  control <- tune:::update_parallel_over(control, resamples, grid)
+  control <- tune::.update_parallel_over(control, resamples, grid)
   eval_time <- check_eval_time_arg(eval_time, wf_metrics, call = call)
   needed_pkgs <- c(
     "rsample", "workflows", "hardhat", "tune", "reticulate",
@@ -45,11 +45,11 @@ tune_grid_spark <- function(
   static <- list(
     wflow = wf,
     param_info = param_info,
-    configs = tune:::get_config_key(grid, wf),
+    configs = tune::.get_config_key(grid, wf),
     post_estimation = workflows::.workflow_postprocessor_requires_fit(wf),
     metrics = wf_metrics,
     metric_info = tibble::as_tibble(wf_metrics),
-    pred_types = tune:::determine_pred_types(wf, wf_metrics),
+    pred_types = tune::.determine_pred_types(wf, wf_metrics),
     eval_time = eval_time,
     split_args = rsample::.get_split_args(resamples),
     control = control,
@@ -238,7 +238,7 @@ loop_call <- function(x) {
     # loop_over_all_stages() requires the grid to be a tibble
     curr_grid <- tibble::as_tibble(curr_grid)
     assign(".Random.seed", c(1L, 2L, 3L), envir = .GlobalEnv)
-    res <- tune:::loop_over_all_stages(curr_resample, curr_grid, static)
+    res <- tune::.loop_over_all_stages(curr_resample, curr_grid, static)
     # Extracts the metrics to table and adds them the larger table sent back to
     # the mapping function.
     metrics_df <- Reduce(rbind, res$.metrics)

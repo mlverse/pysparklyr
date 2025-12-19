@@ -239,7 +239,15 @@ loop_call <- function(x) {
     # loop_over_all_stages() requires the grid to be a tibble
     curr_grid <- tibble::as_tibble(curr_grid)
     assign(".Random.seed", c(1L, 2L, 3L), envir = .GlobalEnv)
-    res <- tune::.loop_over_all_stages(curr_resample, curr_grid, static)
+
+    # TODO: This function check exists because the `tune` version in the Spark
+    # cluster may be CRAN. This needs to be removed by the time of release
+    if (exists(".loop_over_all_stages", where = "package:tune")) {
+      res <- tune::.loop_over_all_stages(curr_resample, curr_grid, static)
+    } else {
+      res <- tune:::loop_over_all_stages(curr_resample, curr_grid, static)
+    }
+
     # Extracts the metrics to table and adds them the larger table sent back to
     # the mapping function.
     metrics_df <- Reduce(rbind, res$.metrics)

@@ -36,7 +36,9 @@ Imports:
     vctrs,
     uuid,
     withr,
-    tune (>= 2.0.1.9001)
+    tune (>= 2.0.1.9001),
+    rsample,
+    workflows
 Suggests: 
     vcr,
     crayon,
@@ -49,5 +51,5 @@ Config/usethis/last-upkeep: 2025-11-12
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Remotes:  
+Remotes: 
     tidymodels/tune

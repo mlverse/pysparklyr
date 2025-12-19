@@ -8,21 +8,21 @@ tune_grid_spark <- function(
   grid = 10,
   metrics = NULL,
   eval_time = NULL,
-  control = control_grid(),
+  control = tune::control_grid(),
   sc,
   grid_partitions = NULL
 ) {
   call <- rlang::caller_env()
-  wf <- workflow() |>
-    add_model(object) |>
-    add_recipe(preprocessor)
+  wf <- workflows::workflow() |>
+    workflows::add_model(object) |>
+    workflows::add_recipe(preprocessor)
 
   # This part mostly recreates `tune_grid_loop()` to properly create the
   # `resamples` and `static` objects in order to pass it to the
   # loop_over_all_stages() function that is called inside Spark
   # https://github.com/tidymodels/tune/blob/main/R/tune_grid_loop.R
 
-  wf_metrics <- check_metrics_arg(metrics, wf, call = call)
+  wf_metrics <- tune::check_metrics_arg(metrics, wf, call = call)
   param_info <- tune::check_parameters(
     wflow = wf,
     data = resamples$splits[[1]]$data,
@@ -34,11 +34,11 @@ tune_grid_spark <- function(
     pset = param_info
   )
   control <- tune::.update_parallel_over(control, resamples, grid)
-  eval_time <- check_eval_time_arg(eval_time, wf_metrics, call = call)
+  eval_time <- tune::check_eval_time_arg(eval_time, wf_metrics, call = call)
   needed_pkgs <- c(
     "rsample", "workflows", "hardhat", "tune", "reticulate",
     "parsnip", "tailor", "yardstick", "tidymodels",
-    required_pkgs(wf),
+    workflows::required_pkgs(wf),
     control$pkgs
   ) |>
     unique()
@@ -62,7 +62,7 @@ tune_grid_spark <- function(
     resamples$.seeds <- purrr::map(resamples$id, \(x) integer(0))
   } else {
     # Make and set the worker/process seeds if workers get resamples
-    resamples$.seeds <- get_parallel_seeds(nrow(resamples))
+    resamples$.seeds <- tune::get_parallel_seeds(nrow(resamples))
   }
   # These are not in tune_grid_loop() but it prepares the variables for the next
   # section
@@ -93,20 +93,20 @@ tune_grid_spark <- function(
   grid_code <- sub("resamples.rds", path(hash_resamples, ext = "rds"), grid_code)
 
   # Creating the tune grid data frame
-  res_id_df <- map_df(
+  res_id_df <- purrr::map_df(
     seq_len(length(resamples$id)),
     \(x) data.frame(index = x, id = resamples$id[[x]])
   )
   if (control[["parallel_over"]] == "everything") {
     full_grid <- grid |>
       dplyr::cross_join(res_id_df) |>
-      dplyr::arrange(index)
+      dplyr::arrange("index")
   } else {
     full_grid <- res_id_df
   }
 
   full_grid <- full_grid |>
-    dplyr::select(-id)
+    dplyr::select(-"id")
 
   # The pandas mapping function requires all of the output column names
   # and types to be specified. Types have to be converted too
@@ -154,14 +154,14 @@ tune_grid_spark <- function(
   # names with dots)
   res <- tuned_results |>
     dplyr::rename(
-      .metric = metric,
-      .estimator = estimator,
-      .estimate = estimate,
-      .config = config
+      .metric = "metric",
+      .estimator = "estimator",
+      .estimate = "estimate",
+      .config = "config"
     ) |>
     dplyr::left_join(res_id_df, by = "index") |>
-    dplyr::select(-index) |>
-    dplyr::arrange(id)
+    dplyr::select(-"index") |>
+    dplyr::arrange("id")
 
   # Converts metrics to list separated by id's
   res_names <- colnames(res)

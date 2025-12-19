@@ -30,7 +30,7 @@ Imports:
     reticulate (>= 1.44.0),
     rlang,
     rstudioapi,
-    sparklyr,
+    sparklyr (>= 1.9.3.9000),
     tidyr,
     tidyselect,
     vctrs,
@@ -51,5 +51,6 @@ Config/usethis/last-upkeep: 2025-11-12
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Remotes: 
-    tidymodels/tune
+Remotes:  
+    tidymodels/tune,
+    sparklyr/sparklyr

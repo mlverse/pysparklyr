@@ -13,6 +13,7 @@ tune_grid_spark.pyspark_connection <- function(
   control = control_grid(),
   no_tasks = NULL
 ) {
+  rpy2_installed()
   call <- rlang::caller_env()
   wf <- workflow() |>
     add_model(object) |>

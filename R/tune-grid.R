@@ -10,7 +10,7 @@ tune_grid_spark.pyspark_connection <- function(
   grid = 10,
   metrics = NULL,
   eval_time = NULL,
-  control = tune::control_grid(),
+  control = control_grid(),
   no_tasks = NULL
 ) {
   call <- rlang::caller_env()
@@ -23,19 +23,19 @@ tune_grid_spark.pyspark_connection <- function(
   # loop_over_all_stages() function that is called inside Spark
   # https://github.com/tidymodels/tune/blob/main/R/tune_grid_loop.R
 
-  wf_metrics <- tune::check_metrics_arg(metrics, wf, call = call)
-  param_info <- tune::check_parameters(
+  wf_metrics <- check_metrics_arg(metrics, wf, call = call)
+  param_info <- check_parameters(
     wflow = wf,
     data = resamples$splits[[1]]$data,
     grid_names = names(grid)
   )
-  grid <- tune::.check_grid(
+  grid <- .check_grid(
     grid = grid,
     workflow = wf,
     pset = param_info
   )
-  control <- tune::.update_parallel_over(control, resamples, grid)
-  eval_time <- tune::check_eval_time_arg(eval_time, wf_metrics, call = call)
+  control <- .update_parallel_over(control, resamples, grid)
+  eval_time <- check_eval_time_arg(eval_time, wf_metrics, call = call)
   needed_pkgs <- c(
     "rsample", "workflows", "hardhat", "tune", "reticulate",
     "parsnip", "tailor", "yardstick", "tidymodels",
@@ -46,11 +46,11 @@ tune_grid_spark.pyspark_connection <- function(
   static <- list(
     wflow = wf,
     param_info = param_info,
-    configs = tune::.get_config_key(grid, wf),
+    configs = .get_config_key(grid, wf),
     post_estimation = .workflow_postprocessor_requires_fit(wf),
     metrics = wf_metrics,
     metric_info = tibble::as_tibble(wf_metrics),
-    pred_types = tune::.determine_pred_types(wf, wf_metrics),
+    pred_types = .determine_pred_types(wf, wf_metrics),
     eval_time = eval_time,
     split_args = rsample::.get_split_args(resamples),
     control = control,
@@ -63,7 +63,7 @@ tune_grid_spark.pyspark_connection <- function(
     resamples$.seeds <- purrr::map(resamples$id, \(x) integer(0))
   } else {
     # Make and set the worker/process seeds if workers get resamples
-    resamples$.seeds <- tune::get_parallel_seeds(nrow(resamples))
+    resamples$.seeds <- get_parallel_seeds(nrow(resamples))
   }
   # These are not in tune_grid_loop() but it prepares the variables for the next
   # section
@@ -197,8 +197,8 @@ tune_grid_spark.pyspark_connection <- function(
     metrics = static$metrics,
     eval_time = eval_time,
     eval_time_target = NULL,
-    outcomes = tune::outcome_names(wf),
-    rset_info = tune::pull_rset_attributes(resamples),
+    outcomes = outcome_names(wf),
+    rset_info = pull_rset_attributes(resamples),
     workflow = wf,
     class = c(class(out), "tune_results")
   )

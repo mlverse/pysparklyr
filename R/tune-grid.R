@@ -1,9 +1,3 @@
-# Will need exported:
-# - tune:::loop_over_all_stages
-# Would be nice if exported:
-# - tune:::get_config_key
-# - tune:::determine_pred_types
-
 #' @export
 tune_grid_spark <- function(
   object,
@@ -22,6 +16,12 @@ tune_grid_spark <- function(
   wf <- workflow() |>
     add_model(object) |>
     add_recipe(preprocessor)
+
+  # This part mostly recreates `tune_grid_loop()` to properly create the
+  # `resamples` and `static` objects in order to pass it to the
+  # loop_over_all_stages() function that is called inside Spark
+  # https://github.com/tidymodels/tune/blob/main/R/tune_grid_loop.R
+
   wf_metrics <- check_metrics_arg(metrics, wf, call = call)
   param_info <- tune::check_parameters(
     wflow = wf,
@@ -33,18 +33,15 @@ tune_grid_spark <- function(
     workflow = wf,
     pset = param_info
   )
-  control <- update_parallel_over(control, resamples, grid)
-
+  control <- tune:::update_parallel_over(control, resamples, grid)
   eval_time <- check_eval_time_arg(eval_time, wf_metrics, call = call)
-
   needed_pkgs <- c(
-    "rsample", "workflows", "hardhat", "tune",
+    "rsample", "workflows", "hardhat", "tune", "reticulate",
     "parsnip", "tailor", "yardstick", "tidymodels",
     required_pkgs(wf),
     control$pkgs
   ) |>
     unique()
-
   static <- list(
     wflow = wf,
     param_info = param_info,
@@ -67,9 +64,11 @@ tune_grid_spark <- function(
     # Make and set the worker/process seeds if workers get resamples
     resamples$.seeds <- get_parallel_seeds(nrow(resamples))
   }
-
-  vec_resamples <- vec_list_rowwise(resamples)
-
+  # These are not in tune_grid_loop() but it prepares the variables for the next
+  # section
+  vec_resamples <- resamples |>
+    vctrs::vec_split(by = 1:nrow(resamples)) |>
+    _$val
   pasted_pkgs <- paste0("'", needed_pkgs, "'", collapse = ", ")
 
   # Creating unique file names to avoid re-uploading if possible

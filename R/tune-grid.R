@@ -14,9 +14,9 @@ tune_grid_spark.pyspark_connection <- function(
   no_tasks = NULL
 ) {
   call <- rlang::caller_env()
-  wf <- workflows::workflow() |>
-    workflows::add_model(object) |>
-    workflows::add_recipe(preprocessor)
+  wf <- workflow() |>
+    add_model(object) |>
+    add_recipe(preprocessor)
 
   # This part mostly recreates `tune_grid_loop()` to properly create the
   # `resamples` and `static` objects in order to pass it to the
@@ -39,7 +39,7 @@ tune_grid_spark.pyspark_connection <- function(
   needed_pkgs <- c(
     "rsample", "workflows", "hardhat", "tune", "reticulate",
     "parsnip", "tailor", "yardstick", "tidymodels",
-    workflows::required_pkgs(wf),
+    required_pkgs(wf),
     control$pkgs
   ) |>
     unique()
@@ -47,7 +47,7 @@ tune_grid_spark.pyspark_connection <- function(
     wflow = wf,
     param_info = param_info,
     configs = tune::.get_config_key(grid, wf),
-    post_estimation = workflows::.workflow_postprocessor_requires_fit(wf),
+    post_estimation = .workflow_postprocessor_requires_fit(wf),
     metrics = wf_metrics,
     metric_info = tibble::as_tibble(wf_metrics),
     pred_types = tune::.determine_pred_types(wf, wf_metrics),

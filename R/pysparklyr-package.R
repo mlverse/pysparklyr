@@ -59,8 +59,13 @@
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom utils capture.output installed.packages menu
 #' @importFrom utils head type.convert compareVersion
-#' @importFrom vctrs vec_as_names
 #' @importFrom uuid UUIDgenerate
+#' @importFrom vctrs vec_as_names
+#' @importFrom workflows .workflow_postprocessor_requires_fit
+#' @importFrom workflows add_model
+#' @importFrom workflows add_recipe
+#' @importFrom workflows required_pkgs
+#' @importFrom workflows workflow
 ## usethis namespace: end
 
 ## mockable bindings: start

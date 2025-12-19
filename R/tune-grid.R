@@ -60,7 +60,7 @@ tune_grid_spark.pyspark_connection <- function(
     grid = grid
   )
   if (all(resamples$id == "train/test split")) {
-    resamples$.seeds <- purrr::map(resamples$id, \(x) integer(0))
+    resamples$.seeds <- map(resamples$id, \(x) integer(0))
   } else {
     # Make and set the worker/process seeds if workers get resamples
     resamples$.seeds <- get_parallel_seeds(nrow(resamples))

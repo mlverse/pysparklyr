@@ -8,6 +8,8 @@
 spark_connect_service_start(
   version = "4.0",
   scala_version = "2.13",
+  python_version = NULL,
+  python = NULL,
   include_args = TRUE,
   ...
 )
@@ -18,6 +20,11 @@ spark_connect_service_stop(version = "4.0", ...)
 \item{version}{Spark version to use (3.4 or above)}
 
 \item{scala_version}{Acceptable Scala version of packages to be loaded}
+
+\item{python_version}{Python version to use if a temporary Python environment
+will be created}
+
+\item{python}{Path to the Python executable to use while running (optional)}
 
 \item{include_args}{Flag that indicates whether to add the additional arguments
 to the command that starts the service. At this time, only the 'packages'

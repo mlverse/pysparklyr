@@ -231,7 +231,9 @@ python_requirements <- function(
         "PyArrow",
         "grpcio",
         "google-api-python-client",
-        "grpcio_status"
+        "grpcio_status",
+        "databricks-sdk",
+        "zstandard"
       )
     }
   )

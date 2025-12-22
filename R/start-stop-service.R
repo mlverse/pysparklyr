@@ -41,12 +41,12 @@ spark_connect_service_start <- function(version = "4.0",
       backend = "pyspark",
       main_library = "pyspark",
       version = version,
-      python_version = "3.11",
+      python_version = python_version,
       messages = TRUE,
       ask_if_not_installed = FALSE
     )
     py_require("rpy2")
-    invisible(use_envname)
+    invisible(import_check("pyspark", envname))
     python <- py_exe()
   }
   withr::with_envvar(

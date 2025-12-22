@@ -133,15 +133,14 @@ tune_grid_spark.pyspark_connection <- function(
 
   sc_obj <- spark_session(sc)
 
-  # The grid is copied to Spark, it will be repartitioned if `grid_paritions`
+  # The grid is copied to Spark, it will be repartitioned if `no_tasks`
   # is set. If not set, Spark will decide how many partitions the data will have,
   # that impacts how many discrete jobs there will be set for this run
   tbl_grid <- sc_obj$createDataFrame(full_grid)
   if (!is.null(no_tasks)) {
     tbl_grid <- tbl_grid$repartition(as.integer(no_tasks))
   }
-  #              ****** This is where the magic happens ******
-  # The grid hs passed mapInPandas() which will run the resulting code in the
+  # The grid is passed to mapInPandas() which will run the resulting code in the
   # Spark session in as many parallel jobs as tbl_grid is partitioned by
   tuned_results <- tbl_grid |>
     sa_in_pandas(
@@ -207,6 +206,7 @@ tune_grid_spark.pyspark_connection <- function(
 
 # `x` only contains a table with the grid containing every single combination
 loop_call <- function(x) {
+  # ----------------- Ensures all needed packages are available ----------------
   needed_pkgs <- c("rsample")
   missing_pkgs <- NULL
   for (pkg in needed_pkgs) {
@@ -218,15 +218,16 @@ loop_call <- function(x) {
     missing_pkgs <- paste0("`", missing_pkgs, "`", collapse = ", ")
     stop("Packages ", missing_pkgs, " are missing")
   }
-  # ------------------- Updates from caller function section -------------------
+  # ------------------- Reads files with needed R objects ----------------------
   # Loads the needed R objects from disk
   pyspark <- reticulate::import("pyspark")
   static <- readRDS(pyspark$SparkFiles$get("static.rds"))
   resamples <- readRDS(pyspark$SparkFiles$get("resamples.rds"))
-  # ----------------------------------------------------------------------------
-  out <- NULL
+
+  # ------------ Iterates through all the combinations in `x` ------------------
   # Spark will more likely send more than one row (combination) in `x`. It
   # will depend on how the grid data frame was partitioned inside Spark.
+  out <- NULL
   for (i in seq_len(nrow(x))) {
     curr_x <- x[i, ]
     if (static$control$parallel_over == "everything") {
@@ -240,7 +241,7 @@ loop_call <- function(x) {
     # loop_over_all_stages() requires the grid to be a tibble
     curr_grid <- tibble::as_tibble(curr_grid)
     assign(".Random.seed", c(1L, 2L, 3L), envir = .GlobalEnv)
-
+    # ------ Sends current combination to `tune` for processing ----------------
     # TODO: This function check exists because the `tune` version in the Spark
     # cluster may be CRAN. This needs to be removed by the time of release
     if (exists(".loop_over_all_stages", where = "package:tune")) {
@@ -248,9 +249,9 @@ loop_call <- function(x) {
     } else {
       res <- tune:::loop_over_all_stages(curr_resample, curr_grid, static)
     }
-
-    # Extracts the metrics to table and adds them the larger table sent back to
-    # the mapping function.
+    # -------------------- Extracts metrics from results -----------------------
+    # Mapping function accepts only tables as output, so only the metrics are
+    # being sent back instead of the entire results object
     metrics_df <- Reduce(rbind, res$.metrics)
     metrics_df$index <- index
     out <- rbind(out, metrics_df)

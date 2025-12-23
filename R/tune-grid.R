@@ -11,7 +11,7 @@ tune_grid_spark.pyspark_connection <- function(
   metrics = NULL,
   eval_time = NULL,
   control = control_grid(),
-  no_tasks = NULL
+  num_tasks = NULL
 ) {
   rpy2_installed()
   call <- rlang::caller_env()
@@ -133,12 +133,12 @@ tune_grid_spark.pyspark_connection <- function(
 
   sc_obj <- spark_session(sc)
 
-  # The grid is copied to Spark, it will be repartitioned if `no_tasks`
+  # The grid is copied to Spark, it will be repartitioned if `num_tasks`
   # is set. If not set, Spark will decide how many partitions the data will have,
   # that impacts how many discrete jobs there will be set for this run
   tbl_grid <- sc_obj$createDataFrame(full_grid)
-  if (!is.null(no_tasks)) {
-    tbl_grid <- tbl_grid$repartition(as.integer(no_tasks))
+  if (!is.null(num_tasks)) {
+    tbl_grid <- tbl_grid$repartition(as.integer(num_tasks))
   }
   # The grid is passed to mapInPandas() which will run the resulting code in the
   # Spark session in as many parallel jobs as tbl_grid is partitioned by

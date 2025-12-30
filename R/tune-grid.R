@@ -60,8 +60,7 @@ tune_grid_spark.pyspark_connection <- function(
       control_err
     ))
   }
-
-
+  verbose <- control[["verbose"]]
   control <- .update_parallel_over(control, resamples, grid)
   eval_time <- check_eval_time_arg(eval_time, wf_metrics, call = call)
   needed_pkgs <- c(
@@ -106,7 +105,15 @@ tune_grid_spark.pyspark_connection <- function(
 
   # Uploads the files to the Spark temp folder, this function skips the upload
   # if the hashed file name has already been uploaded during the current session
+  if (verbose) {
+    cli_progress_step(
+      "Uploading model, pre-processor, and other info to the Spark session"
+    )
+  }
   spark_session_add_file(static, sc, hash_static)
+  if (verbose) {
+    cli_progress_step("Uploading the re-samples to the Spark session")
+  }
   spark_session_add_file(vec_resamples, sc, hash_resamples)
 
   # Uses the `loop_call` function as the base of the UDF that will be sent to
@@ -160,15 +167,21 @@ tune_grid_spark.pyspark_connection <- function(
 
   sc_obj <- spark_session(sc)
 
-  # The grid is copied to Spark, it will be repartitioned if `num_tasks`
+  # The grid is copied to Spark, it will be re-partitioned if `num_tasks`
   # is set. If not set, Spark will decide how many partitions the data will have,
   # that impacts how many discrete jobs there will be set for this run
+  if (verbose) {
+    cli_progress_step("Copying the grid to the Spark session")
+  }
   tbl_grid <- sc_obj$createDataFrame(full_grid)
   if (!is.null(num_tasks)) {
     tbl_grid <- tbl_grid$repartition(as.integer(num_tasks))
   }
   # The grid is passed to mapInPandas() which will run the resulting code in the
   # Spark session in as many parallel jobs as tbl_grid is partitioned by
+  if (verbose) {
+    cli_progress_step("Executing the model tuning in Spark")
+  }
   tuned_results <- tbl_grid |>
     sa_in_pandas(
       .f = grid_code,

@@ -35,6 +35,33 @@ tune_grid_spark.pyspark_connection <- function(
     workflow = wf,
     pset = param_info
   )
+
+  # Checking for argument values in the `control` that are not supported
+  # by this backend
+  control_err <- NULL
+  if (!is.null(control[["extract"]])) {
+    control_err <- "This backend only supports `extract` set to NULL"
+  }
+  if (isTRUE(control[["save_workflow"]])) {
+    control_err <- c(
+      control_err,
+      "This backend does not support `save_workflow` set to TRUE"
+    )
+  }
+  if (!is.null(control[["backend_options"]])) {
+    control_err <- c(
+      control_err,
+      "This backend only supports `backend_options` set to NULL"
+    )
+  }
+  if (!is.null(control_err)) {
+    abort(c(
+      "The following incompatability errors in `control` were found:",
+      control_err
+    ))
+  }
+
+
   control <- .update_parallel_over(control, resamples, grid)
   eval_time <- check_eval_time_arg(eval_time, wf_metrics, call = call)
   needed_pkgs <- c(

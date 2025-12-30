@@ -125,6 +125,8 @@ tune_grid_spark.pyspark_connection <- function(
   )
   grid_code <- paste0(grid_code, collapse = "\n")
   grid_code <- gsub("\"rsample\"", pasted_pkgs, grid_code)
+  grid_code <- gsub("debug <- TRUE", "debug <- FALSE", grid_code)
+
   grid_code <- sub("static.rds", path(hash_static, ext = "rds"), grid_code)
   grid_code <- sub("resamples.rds", path(hash_resamples, ext = "rds"), grid_code)
 
@@ -262,13 +264,15 @@ loop_call <- function(x) {
   # Loads the needed R objects from disk
   pyspark <- reticulate::import("pyspark")
   debug <- TRUE
-  if(isTRUE(debug)) {
-    temp_path <- Sys.getenv("TEMP_SPARK_GRID")
-    static_file <- path(temp_path, "static.rds")
-    resample_file <- path(temp_path, "resamples.rds")
+  static_fname <- "static.rds"
+  resample_fname <- "resamples.rds"
+  if (isFALSE(debug)) {
+    static_file <- pyspark$SparkFiles$get(static_fname)
+    resample_file <- pyspark$SparkFiles$get(resample_fname)
   } else {
-    static_file <- pyspark$SparkFiles$get("static.rds")
-    resample_file <- pyspark$SparkFiles$get("resamples.rds")
+    temp_path <- Sys.getenv("TEMP_SPARK_GRID", unset = "~")
+    static_file <- file.path(temp_path, static_fname)
+    resample_file <- file.path(temp_path, resample_fname)
   }
   static <- readRDS(static_file)
   resamples <- readRDS(resample_file)
@@ -304,6 +308,15 @@ loop_call <- function(x) {
     metrics_df <- Reduce(rbind, res$.metrics)
     metrics_df$index <- index
     out <- rbind(out, metrics_df)
+    if (isTRUE(static[["control"]][["save_pred"]])) {
+      static_name <- substr(static_fname, 1, nchar(static_fname) - 4)
+      resample_name <- substr(resample_fname, 1, nchar(resample_fname) - 4)
+      preds_fname <- paste0(resample_name, "-", static_name, "-", index, ".rds")
+      if (isTRUE(debug)) {
+        preds_file <- file.path(temp_path, preds_fname)
+        saveRDS(res$.predictions[[1]], preds_file)
+      }
+    }
   }
   out
 }

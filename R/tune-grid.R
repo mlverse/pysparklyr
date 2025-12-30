@@ -313,9 +313,12 @@ loop_call <- function(x) {
       resample_name <- substr(resample_fname, 1, nchar(resample_fname) - 4)
       preds_fname <- paste0(resample_name, "-", static_name, "-", index, ".rds")
       if (isTRUE(debug)) {
-        preds_file <- file.path(temp_path, preds_fname)
-        saveRDS(res$.predictions[[1]], preds_file)
+        base_path <- temp_path
+      } else {
+        base_path <- pyspark$SparkFiles$getRootDirectory()
       }
+      preds_file <- file.path(base_path, preds_fname)
+      saveRDS(res$.predictions[[1]], preds_file)
     }
   }
   out

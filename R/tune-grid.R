@@ -261,8 +261,17 @@ loop_call <- function(x) {
   # ------------------- Reads files with needed R objects ----------------------
   # Loads the needed R objects from disk
   pyspark <- reticulate::import("pyspark")
-  static <- readRDS(pyspark$SparkFiles$get("static.rds"))
-  resamples <- readRDS(pyspark$SparkFiles$get("resamples.rds"))
+  debug <- TRUE
+  if(isTRUE(debug)) {
+    temp_path <- Sys.getenv("TEMP_SPARK_GRID")
+    static_file <- path(temp_path, "static.rds")
+    resample_file <- path(temp_path, "resamples.rds")
+  } else {
+    static_file <- pyspark$SparkFiles$get("static.rds")
+    resample_file <- pyspark$SparkFiles$get("resamples.rds")
+  }
+  static <- readRDS(static_file)
+  resamples <- readRDS(resample_file)
 
   # ------------ Iterates through all the combinations in `x` ------------------
   # Spark will more likely send more than one row (combination) in `x`. It

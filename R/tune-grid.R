@@ -262,11 +262,11 @@ loop_call <- function(x) {
   }
   # ------------------- Reads files with needed R objects ----------------------
   # Loads the needed R objects from disk
-  pyspark <- reticulate::import("pyspark")
   debug <- TRUE
   static_fname <- "static.rds"
   resample_fname <- "resamples.rds"
   if (isFALSE(debug)) {
+    pyspark <- reticulate::import("pyspark")
     static_file <- pyspark$SparkFiles$get(static_fname)
     resample_file <- pyspark$SparkFiles$get(resample_fname)
   } else {
@@ -307,7 +307,6 @@ loop_call <- function(x) {
     # being sent back instead of the entire results object
     metrics_df <- Reduce(rbind, res$.metrics)
     metrics_df$index <- index
-    out <- rbind(out, metrics_df)
     if (isTRUE(static[["control"]][["save_pred"]])) {
       static_name <- substr(static_fname, 1, nchar(static_fname) - 4)
       resample_name <- substr(resample_fname, 1, nchar(resample_fname) - 4)
@@ -317,9 +316,26 @@ loop_call <- function(x) {
       } else {
         base_path <- pyspark$SparkFiles$getRootDirectory()
       }
+      preds <- res$.predictions[[1]]
       preds_file <- file.path(base_path, preds_fname)
-      saveRDS(res$.predictions[[1]], preds_file)
+      saveRDS(preds, preds_file)
+      preds_df <- metrics_df[1, ]
+      preds_df$`.estimator` <- preds_file
+      preds_df$`.metric` <- "preds_path"
+      if (index == 1) {
+        cols <- preds |>
+          map_chr(class) |>
+          imap(\(x, y) paste0(y, ":", x)) |>
+          reduce(c) |>
+          paste0(collapse = "|")
+        preds_cols <- preds_df
+        preds_cols$`.estimator` <- cols
+        preds_cols$`.metric` <- "preds_cols"
+        preds_df <- rbind(preds_cols, preds_df)
+      }
+      metrics_df <- rbind(preds_df, metrics_df)
     }
+    out <- rbind(out, metrics_df)
   }
   out
 }

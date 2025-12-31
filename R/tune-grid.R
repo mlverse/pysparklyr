@@ -192,50 +192,6 @@ tune_grid_spark.pyspark_connection <- function(
     ) |>
     collect()
 
-  if (isTRUE(control[["save_pred"]])) {
-    pred_paths <- tuned_results |>
-      dplyr::filter(metric == "preds_path") |>
-      dplyr::pull(estimator)
-
-    preds_cols_list <- tuned_results |>
-      dplyr::filter(metric == "preds_cols") |>
-      dplyr::pull(estimator) |>
-      strsplit("\\|") |>
-      unlist() |>
-      map(strsplit, ":") |>
-      map(unlist)
-
-    pred_col_names <- preds_cols_list |>
-      map_chr(\(x) x[[1]])
-
-    preds_cols <- preds_cols_list |>
-      map(\(x) {
-        new_type <- x[[2]]
-        if (new_type %in% c("character", "factor")) {
-          new_type <- "string"
-        }
-        if (new_type == "numeric") {
-          new_type <- "float"
-        }
-        new_name <- gsub("\\.", "_", x[[1]])
-        paste(new_name, new_type)
-      }) |>
-      reduce(c) |>
-      paste(collapse = ", ")
-
-    tbl_paths <- data.frame(x = pred_paths) |>
-      sc_obj$createDataFrame()
-
-    pred_results <- tbl_paths |>
-      sa_in_pandas(
-        .f = "function(x) {\n readRDS(x$x)\n}",
-        .schema = preds_cols,
-        .as_sdf = FALSE,
-      ) |>
-      collect()
-
-    colnames(pred_results) <- pred_col_names
-  }
   # Finalizes metrics tables by adding the 'id' label, and `.config`, and
   # restoring the 'dot' prefix to the metric fields (Spark does not like
   # names with dots)
@@ -276,6 +232,67 @@ tune_grid_spark.pyspark_connection <- function(
       .notes = notes
     ) |>
     vctrs::new_data_frame() # Removes rsample object's attributes
+
+
+  if (isTRUE(control[["save_pred"]])) {
+    pred_paths <- tuned_results |>
+      dplyr::filter(metric == "preds_path") |>
+      dplyr::select(index, estimator) |>
+      dplyr::rename(path = estimator)
+
+    preds_cols_list <- tuned_results |>
+      dplyr::filter(metric == "preds_cols") |>
+      dplyr::pull(estimator) |>
+      strsplit("\\|") |>
+      unlist() |>
+      map(strsplit, ":") |>
+      map(unlist)
+
+    pred_col_names <- preds_cols_list |>
+      map_chr(\(x) x[[1]])
+
+    preds_cols <- preds_cols_list |>
+      map(\(x) {
+        new_type <- x[[2]]
+        if (new_type %in% c("character", "factor")) {
+          new_type <- "string"
+        }
+        if (new_type == "numeric") {
+          new_type <- "float"
+        }
+        new_name <- gsub("\\.", "_", x[[1]])
+        paste(new_name, new_type)
+      }) |>
+      reduce(c) |>
+      paste(collapse = ", ") |>
+      paste(", index integer")
+
+    tbl_paths <- pred_paths |>
+      sc_obj$createDataFrame()
+
+    pred_results <- tbl_paths |>
+      sa_in_pandas(
+        .f = "function(x) {out <- readRDS(x$path); out$index <- x$index; out}",
+        .schema = preds_cols,
+        .as_sdf = FALSE,
+      ) |>
+      collect()
+
+    colnames(pred_results) <- c(pred_col_names, "index")
+
+    preds <- pred_results |>
+      dplyr::left_join(res_id_df, by = "index") |>
+      dplyr::select(-"index") |>
+      dplyr::arrange("id")
+
+    preds_map <- map(
+      unique(preds$id),
+      \(x) preds[preds$id == x, pred_col_names]
+    )
+
+    out <- out |>
+      mutate(.predictions = preds_map)
+  }
 
   tibble::new_tibble(
     x = out,

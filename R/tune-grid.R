@@ -231,8 +231,8 @@ tune_grid_spark.pyspark_connection <- function(
       .metrics = metrics_map,
       .notes = notes
     ) |>
-    vctrs::new_data_frame() # Removes rsample object's attributes
-
+    vctrs::new_data_frame() |> # Removes rsample object's attributes
+    dplyr::select(-".seeds")
 
   if (isTRUE(control[["save_pred"]])) {
     pred_paths <- tuned_results |>

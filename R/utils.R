@@ -165,3 +165,11 @@ pkg_path <- function(x) {
   }
   out
 }
+
+str_replace <- function(string, pattern, replacement) {
+  sub(pattern, replacement, string)
+}
+
+str_replace_all <- function(string, pattern, replacement) {
+  gsub(pattern, replacement, string)
+}

@@ -119,16 +119,14 @@ tune_grid_spark.pyspark_connection <- function(
   # Uses the `loop_call` function as the base of the UDF that will be sent to
   # the Spark session. It works by modifying the text of the function, specifically
   # the file names it reads to load the different R object components
-  grid_code <- deparse(loop_call)
-  grid_code <- c(
-    grid_code[1:14], "    library(tidymodels)", grid_code[15:length(grid_code)]
-  )
-  grid_code <- paste0(grid_code, collapse = "\n")
-  grid_code <- gsub("\"rsample\"", pasted_pkgs, grid_code)
-  grid_code <- gsub("debug <- TRUE", "debug <- FALSE", grid_code)
-
-  grid_code <- sub("static.rds", path(hash_static, ext = "rds"), grid_code)
-  grid_code <- sub("resamples.rds", path(hash_resamples, ext = "rds"), grid_code)
+  grid_code <- loop_call |>
+    deparse() |>
+    paste0(collapse = "\n") |>
+    str_replace("\"rsample\"", pasted_pkgs) |>
+    str_replace("debug <- TRUE", "debug <- FALSE") |>
+    str_replace("xy <- 1", "library(tidymodels)") |>
+    str_replace("static.rds", path(hash_static, ext = "rds")) |>
+    str_replace("resamples.rds", path(hash_resamples, ext = "rds"))
 
   # Creating the tune grid data frame
   res_id_df <- purrr::map_df(
@@ -267,10 +265,8 @@ tune_grid_spark.pyspark_connection <- function(
       paste(collapse = ", ") |>
       paste(", index integer")
 
-    tbl_paths <- pred_paths |>
-      sc_obj$createDataFrame()
-
-    pred_results <- tbl_paths |>
+    pred_results <- pred_paths |>
+      sc_obj$createDataFrame() |>
       sa_in_pandas(
         .f = "function(x) {out <- readRDS(x$path); out$index <- x$index; out}",
         .schema = preds_cols,
@@ -322,6 +318,7 @@ loop_call <- function(x) {
     missing_pkgs <- paste0("`", missing_pkgs, "`", collapse = ", ")
     stop("Packages ", missing_pkgs, " are missing")
   }
+  xy <- 1
   # ------------------- Reads files with needed R objects ----------------------
   # Loads the needed R objects from disk
   debug <- TRUE

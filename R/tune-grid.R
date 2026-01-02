@@ -19,6 +19,7 @@ tune_grid_spark.pyspark_connection <- function(
     add_model(object) |>
     add_recipe(preprocessor)
 
+  # ------------------------- Creates `static` object --------------------------
   # This part mostly recreates `tune_grid_loop()` to properly create the
   # `resamples` and `static` objects in order to pass it to the
   # loop_over_all_stages() function that is called inside Spark
@@ -99,6 +100,7 @@ tune_grid_spark.pyspark_connection <- function(
     _$val
   pasted_pkgs <- paste0("'", needed_pkgs, "'", collapse = ", ")
 
+  # --------------- Prepares and uploads R objects to Spark --------------------
   # Creating unique file names to avoid re-uploading if possible
   hash_static <- rlang::hash(static)
   hash_resamples <- rlang::hash(vec_resamples)
@@ -116,6 +118,7 @@ tune_grid_spark.pyspark_connection <- function(
   }
   spark_session_add_file(vec_resamples, sc, hash_resamples)
 
+  # -------------------------- Creates the UDF ---------------------------------
   # Uses the `loop_call` function as the base of the UDF that will be sent to
   # the Spark session. It works by modifying the text of the function, specifically
   # the file names it reads to load the different R object components
@@ -128,7 +131,7 @@ tune_grid_spark.pyspark_connection <- function(
     str_replace("static.rds", path(hash_static, ext = "rds")) |>
     str_replace("resamples.rds", path(hash_resamples, ext = "rds"))
 
-  # Creating the tune grid data frame
+  # -------------------- Creates and uploads the grid  -------------------------
   res_id_df <- purrr::map_df(
     seq_len(length(resamples$id)),
     \(x) data.frame(index = x, id = resamples$id[[x]])
@@ -144,6 +147,19 @@ tune_grid_spark.pyspark_connection <- function(
   full_grid <- full_grid |>
     dplyr::select(-"id")
 
+  # The grid is copied to Spark, it will be re-partitioned if `num_tasks`
+  # is set. If not set, Spark will decide how many partitions the data will have,
+  # that impacts how many discrete jobs there will be set for this run
+  if (verbose) {
+    cli_progress_step("Copying the grid to the Spark session")
+  }
+  sc_obj <- spark_session(sc)
+  tbl_grid <- sc_obj$createDataFrame(full_grid)
+  if (!is.null(num_tasks)) {
+    tbl_grid <- tbl_grid$repartition(as.integer(num_tasks))
+  }
+
+  # ---------------- Create schema of output from Spark ------------------------
   # The pandas mapping function requires all of the output column names
   # and types to be specified. Types have to be converted too
   cols <- imap_chr(
@@ -165,18 +181,7 @@ tune_grid_spark.pyspark_connection <- function(
       "config string, index integer"
     )
 
-  sc_obj <- spark_session(sc)
-
-  # The grid is copied to Spark, it will be re-partitioned if `num_tasks`
-  # is set. If not set, Spark will decide how many partitions the data will have,
-  # that impacts how many discrete jobs there will be set for this run
-  if (verbose) {
-    cli_progress_step("Copying the grid to the Spark session")
-  }
-  tbl_grid <- sc_obj$createDataFrame(full_grid)
-  if (!is.null(num_tasks)) {
-    tbl_grid <- tbl_grid$repartition(as.integer(num_tasks))
-  }
+  # -------------------- Execute the model tuning in Spark ---------------------
   # The grid is passed to mapInPandas() which will run the resulting code in the
   # Spark session in as many parallel jobs as tbl_grid is partitioned by
   if (verbose) {
@@ -190,6 +195,7 @@ tune_grid_spark.pyspark_connection <- function(
     ) |>
     collect()
 
+  # -------------------- Starts building the output object ---------------------
   # Finalizes metrics tables by adding the 'id' label, and `.config`, and
   # restoring the 'dot' prefix to the metric fields (Spark does not like
   # names with dots)
@@ -232,6 +238,7 @@ tune_grid_spark.pyspark_connection <- function(
     vctrs::new_data_frame() |> # Removes rsample object's attributes
     dplyr::select(-".seeds")
 
+  # -------------------------- Appends predictions -----------------------------
   if (isTRUE(control[["save_pred"]])) {
     pred_paths <- tuned_results |>
       dplyr::filter(metric == "preds_path") |>
@@ -290,6 +297,7 @@ tune_grid_spark.pyspark_connection <- function(
       mutate(.predictions = preds_map)
   }
 
+  # ------------------------- Finalizes output object --------------------------
   tibble::new_tibble(
     x = out,
     nrow = nrow(out),
@@ -366,6 +374,12 @@ loop_call <- function(x) {
     # being sent back instead of the entire results object
     metrics_df <- Reduce(rbind, res$.metrics)
     metrics_df$index <- index
+    # ------------------------ Saves predictions -------------------------------
+    # If saves_pred is TRUE, the .predictions table is saved in the same
+    # directory the initial context and resample objects. There will be one
+    # file per permutation. The metrics table will be modified to include the
+    # path to the predictions file, and also the column schema of all of the
+    # tables
     if (isTRUE(static[["control"]][["save_pred"]])) {
       static_name <- substr(static_fname, 1, nchar(static_fname) - 4)
       resample_name <- substr(resample_fname, 1, nchar(resample_fname) - 4)

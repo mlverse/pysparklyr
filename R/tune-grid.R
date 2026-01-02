@@ -240,11 +240,8 @@ tune_grid_spark.pyspark_connection <- function(
 
   # -------------------------- Appends predictions -----------------------------
   if (isTRUE(control[["save_pred"]])) {
-    pred_paths <- tuned_results |>
-      dplyr::filter(metric == "preds_path") |>
-      dplyr::select(index, estimator) |>
-      dplyr::rename(path = estimator)
-
+    # Gets the column schema spec from a row with a metric name of `pred_cols`.
+    # It converts the plain text into a list object
     preds_cols_list <- tuned_results |>
       dplyr::filter(metric == "preds_cols") |>
       dplyr::pull(estimator) |>
@@ -256,6 +253,7 @@ tune_grid_spark.pyspark_connection <- function(
     pred_col_names <- preds_cols_list |>
       map_chr(\(x) x[[1]])
 
+    # Converts the R class to Spark type
     preds_cols <- preds_cols_list |>
       map(\(x) {
         new_type <- x[[2]]
@@ -272,6 +270,15 @@ tune_grid_spark.pyspark_connection <- function(
       paste(collapse = ", ") |>
       paste(", index integer")
 
+    # From the results, it gets the rows that have the path to the RDS files
+    # containing the predictions
+    pred_paths <- tuned_results |>
+      dplyr::filter(metric == "preds_path") |>
+      dplyr::select(index, estimator) |>
+      dplyr::rename(path = estimator)
+
+    # Runs a Spark job that reads the predictions RDS files from Spark and
+    # returns them in a single large table
     pred_results <- pred_paths |>
       sc_obj$createDataFrame() |>
       sa_in_pandas(
@@ -293,6 +300,7 @@ tune_grid_spark.pyspark_connection <- function(
       \(x) preds[preds$id == x, pred_col_names]
     )
 
+    # Appends `.predictions` to the output object
     out <- out |>
       mutate(.predictions = preds_map)
   }

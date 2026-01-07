@@ -367,7 +367,7 @@ allowed_serverless_configs <- function() {
 
 workbench_databricks_token <- function(host, cfg_file) {
   if (missing(host)) {
-    host <- pysparklyr:::databricks_host()
+    host <- databricks_host(fail = FALSE)
   }
   if (missing(cfg_file)) {
     cfg_file <- Sys.getenv("DATABRICKS_CONFIG_FILE")

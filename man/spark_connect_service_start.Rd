@@ -11,6 +11,7 @@ spark_connect_service_start(
   python_version = NULL,
   python = NULL,
   include_args = TRUE,
+  additional_args = NULL,
   ...
 )
 
@@ -29,6 +30,9 @@ will be created}
 \item{include_args}{Flag that indicates whether to add the additional arguments
 to the command that starts the service. At this time, only the 'packages'
 argument is submitted.}
+
+\item{additional_args}{Vector of additional arguments to use when starting
+the service}
 
 \item{...}{Optional arguments; currently unused}
 }

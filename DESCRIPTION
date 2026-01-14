@@ -35,10 +35,7 @@ Imports:
     tidyselect,
     vctrs,
     uuid,
-    withr,
-    tune,
-    rsample,
-    workflows
+    withr
 Suggests: 
     vcr,
     crayon,

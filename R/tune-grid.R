@@ -13,6 +13,17 @@ tune_grid_spark.pyspark_connection <- function(
   control = control_grid(),
   num_tasks = NULL
 ) {
+  # Makes sure tidymodels packages are installed
+  if (!is_installed("tune") | !is_installed("workflows") | !is_installed("rsample")) {
+    cli_abort(
+      paste(
+        "There are missing Tidymodels packages.",
+        "Please run {.run install.packages(\"tidymodels\")} and",
+        "then try again."
+      )
+    )
+  }
+
   rpy2_installed()
   call <- rlang::caller_env()
   wf <- workflow() |>
@@ -428,10 +439,10 @@ loop_call <- function(x) {
 
 loop_predictions <- function(x) {
   out <- NULL
-  for(i in seq_len(nrow(x))) {
+  for (i in seq_len(nrow(x))) {
     cr <- x[i, ]
-    for(j in 1:5) {
-      if(file.exists(cr$path)) {
+    for (j in 1:5) {
+      if (file.exists(cr$path)) {
         curr <- readRDS(cr$path)
         curr$index <- cr$index
         out <- rbind(out, curr)

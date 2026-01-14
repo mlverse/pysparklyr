@@ -48,7 +48,10 @@ databricks_token <- function(token = NULL, fail = FALSE) {
   }
   # Checks for OAuth Databricks token inside the Workbench configuration file
   if (is.null(token)) {
-    token <- workbench_databricks_token()
+    token <- set_names(workbench_databricks_token(), "workbench")
+  }
+  if (has_viewer_token(databricks_host()) && is.null(token)) {
+    token <- set_names(connect_viewer_token(databricks_host()), "viewer")
   }
   if (is.null(token)) {
     if (fail) {

@@ -126,12 +126,6 @@ deploy_databricks <- function(
       env_var_message,
       " " = "{.header Token:} '<REDACTED>'"
     )
-  } else {
-    var_error <- c(var_error, " " = paste0(
-      "{.header - No token was provided or found. Please either set the}",
-      " {.emph 'DATABRICKS_TOKEN'} {.header environment variable,}",
-      " {.header or pass the} {.code token} {.header argument.}"
-    ))
   }
 
   if (!is.null(var_error)) {

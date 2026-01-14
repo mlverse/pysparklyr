@@ -280,19 +280,9 @@ tune_grid_spark.pyspark_connection <- function(
     # Runs a Spark job that reads the predictions RDS files from Spark and
     # returns them in a single large table
 
-    fn <- c(
-      "function(x) {",
-      "out <- NULL",
-      "for(i in seq_len(nrow(x))) {",
-      "cr <- x[i, ]",
-      "curr <- readRDS(cr$path)",
-      "curr$index <- cr$index",
-      "out <- rbind(out, curr)",
-      "}",
-      "out",
-      "}"
-    ) |>
-      paste(collapse = "\n")
+    fn <- loop_predictions |>
+      deparse() |>
+      paste0(collapse = "\n")
 
     pred_results <- pred_paths |>
       sc_obj$createDataFrame() |>
@@ -432,6 +422,24 @@ loop_call <- function(x) {
       metrics_df <- rbind(preds_df, metrics_df)
     }
     out <- rbind(out, metrics_df)
+  }
+  out
+}
+
+loop_predictions <- function(x) {
+  out <- NULL
+  for(i in seq_len(nrow(x))) {
+    cr <- x[i, ]
+    for(j in 1:5) {
+      if(file.exists(cr$path)) {
+        curr <- readRDS(cr$path)
+        curr$index <- cr$index
+        out <- rbind(out, curr)
+        break()
+      } else {
+        Sys.sleep(0.1)
+      }
+    }
   }
   out
 }

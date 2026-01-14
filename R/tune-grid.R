@@ -10,7 +10,7 @@ tune_grid_spark.pyspark_connection <- function(
   grid = 10,
   metrics = NULL,
   eval_time = NULL,
-  control = control_grid(),
+  control = tune::control_grid(),
   num_tasks = NULL
 ) {
   # Makes sure tidymodels packages are installed
@@ -26,9 +26,9 @@ tune_grid_spark.pyspark_connection <- function(
 
   rpy2_installed()
   call <- rlang::caller_env()
-  wf <- workflow() |>
-    add_model(object) |>
-    add_recipe(preprocessor)
+  wf <- workflows::workflow() |>
+    workflows::add_model(object) |>
+    workflows::add_recipe(preprocessor)
 
   # ------------------------- Creates `static` object --------------------------
   # This part mostly recreates `tune_grid_loop()` to properly create the
@@ -36,13 +36,13 @@ tune_grid_spark.pyspark_connection <- function(
   # loop_over_all_stages() function that is called inside Spark
   # https://github.com/tidymodels/tune/blob/main/R/tune_grid_loop.R
 
-  wf_metrics <- check_metrics_arg(metrics, wf, call = call)
-  param_info <- check_parameters(
+  wf_metrics <- tune::check_metrics_arg(metrics, wf, call = call)
+  param_info <- tune::check_parameters(
     wflow = wf,
     data = resamples$splits[[1]]$data,
     grid_names = names(grid)
   )
-  grid <- .check_grid(
+  grid <- tune::.check_grid(
     grid = grid,
     workflow = wf,
     pset = param_info
@@ -73,23 +73,23 @@ tune_grid_spark.pyspark_connection <- function(
     ))
   }
   verbose <- control[["verbose"]]
-  control <- .update_parallel_over(control, resamples, grid)
-  eval_time <- check_eval_time_arg(eval_time, wf_metrics, call = call)
+  control <- tune::.update_parallel_over(control, resamples, grid)
+  eval_time <- tune::check_eval_time_arg(eval_time, wf_metrics, call = call)
   needed_pkgs <- c(
     "rsample", "workflows", "hardhat", "tune", "reticulate",
     "parsnip", "tailor", "yardstick", "tidymodels",
-    required_pkgs(wf),
+    workflows::required_pkgs(wf),
     control$pkgs
   ) |>
     unique()
   static <- list(
     wflow = wf,
     param_info = param_info,
-    configs = .get_config_key(grid, wf),
-    post_estimation = .workflow_postprocessor_requires_fit(wf),
+    configs = tune::.get_config_key(grid, wf),
+    post_estimation = workflows::.workflow_postprocessor_requires_fit(wf),
     metrics = wf_metrics,
     metric_info = tibble::as_tibble(wf_metrics),
-    pred_types = .determine_pred_types(wf, wf_metrics),
+    pred_types = tune::.determine_pred_types(wf, wf_metrics),
     eval_time = eval_time,
     split_args = rsample::.get_split_args(resamples),
     control = control,
@@ -102,7 +102,7 @@ tune_grid_spark.pyspark_connection <- function(
     resamples$.seeds <- map(resamples$id, \(x) integer(0))
   } else {
     # Make and set the worker/process seeds if workers get resamples
-    resamples$.seeds <- get_parallel_seeds(nrow(resamples))
+    resamples$.seeds <- tune::get_parallel_seeds(nrow(resamples))
   }
   # These are not in tune_grid_loop() but it prepares the variables for the next
   # section
@@ -210,8 +210,10 @@ tune_grid_spark.pyspark_connection <- function(
   # Finalizes metrics tables by adding the 'id' label, and `.config`, and
   # restoring the 'dot' prefix to the metric fields (Spark does not like
   # names with dots)
-  res <- tuned_results |>
-    dplyr::filter(metric != "preds_path", metric != "preds_cols") |>
+  res <- tuned_results[
+    tuned_results$metric != "preds_path" &
+      tuned_results$metric != "preds_cols",
+  ] |>
     dplyr::rename(
       .metric = "metric",
       .estimator = "estimator",
@@ -253,9 +255,8 @@ tune_grid_spark.pyspark_connection <- function(
   if (isTRUE(control[["save_pred"]])) {
     # Gets the column schema spec from a row with a metric name of `pred_cols`.
     # It converts the plain text into a list object
-    preds_cols_list <- tuned_results |>
-      dplyr::filter(metric == "preds_cols") |>
-      dplyr::pull(estimator) |>
+    preds_cols_list <- tuned_results[tuned_results$metric == "preds_cols", ] |>
+      dplyr::pull("estimator") |>
       strsplit("\\|") |>
       unlist() |>
       map(strsplit, ":") |>
@@ -283,10 +284,9 @@ tune_grid_spark.pyspark_connection <- function(
 
     # From the results, it gets the rows that have the path to the RDS files
     # containing the predictions
-    pred_paths <- tuned_results |>
-      dplyr::filter(metric == "preds_path") |>
-      dplyr::select(index, estimator) |>
-      dplyr::rename(path = estimator)
+    pred_paths <- tuned_results[tuned_results$metric == "preds_path", ] |>
+      dplyr::select("index", "estimator") |>
+      dplyr::rename(path = "estimator")
 
     # Runs a Spark job that reads the predictions RDS files from Spark and
     # returns them in a single large table
@@ -329,8 +329,8 @@ tune_grid_spark.pyspark_connection <- function(
     metrics = static$metrics,
     eval_time = eval_time,
     eval_time_target = NULL,
-    outcomes = outcome_names(wf),
-    rset_info = pull_rset_attributes(resamples),
+    outcomes = tune::outcome_names(wf),
+    rset_info = tune::pull_rset_attributes(resamples),
     workflow = wf,
     class = c(class(out), "tune_results")
   )

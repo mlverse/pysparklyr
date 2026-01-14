@@ -42,7 +42,10 @@ Suggests:
     R6,
     testthat (>= 3.0.0),
     tibble,
-    rsconnect
+    rsconnect,
+    rsample,
+    workflows,
+    tune
 Config/testthat/edition: 3
 Config/usethis/last-upkeep: 2025-11-12
 Encoding: UTF-8

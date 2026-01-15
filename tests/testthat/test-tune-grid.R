@@ -1,3 +1,48 @@
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+test_that("loop_predictions works", {
+  expect_null(
+    loop_predictions(data.frame(path = "test", index = 1))
+  )
+
+  expect_equal(
+    loop_predictions(
+      data.frame(path = test_path("_data/ovarian.rds"), index = 1)
+    ),
+    test_path("_data/ovarian.rds") |>
+      readRDS() |>
+      dplyr::mutate(index = 1)
+  )
+})
+
+
+test_that("loop_call works", {
+  tune_grid <- use_tune_grid()
+  grid <- tune_grid$grid
+  resamples <- tune_grid$resamples
+  prepped <- prep_static(
+    object = tune_grid$object,
+    preprocessor = tune_grid$preprocessor,
+    resamples = resamples,
+    grid = tune_grid$grid,
+    control = tune_grid$control,
+    call = rlang::caller_env()
+  )
+  if (all(resamples$id == "train/test split")) {
+    resamples$.seeds <- map(resamples$id, \(x) integer(0))
+  } else {
+    resamples$.seeds <- tune::get_parallel_seeds(nrow(resamples))
+  }
+  vec_resamples <- resamples |>
+    vctrs::vec_split(by = 1:nrow(resamples)) |>
+    _$val
+  temp_dir <- fs::path_temp()
+  saveRDS(prepped$static, file.path(temp_dir, "static.rds"))
+  saveRDS(vec_resamples, file.path(temp_dir, "resamples.rds"))
+  withr::with_envvar(
+    new = c("TEMP_SPARK_GRID" = temp_dir),
+    {
+      library(tune)
+      res <- loop_call(data.frame(index = 1))
+    }
+  )
+  expect_s3_class(res, "data.frame")
 })

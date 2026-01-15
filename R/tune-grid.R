@@ -26,78 +26,23 @@ tune_grid_spark.pyspark_connection <- function(
 
   rpy2_installed()
   call <- rlang::caller_env()
-  wf <- workflows::workflow() |>
-    workflows::add_model(object) |>
-    workflows::add_recipe(preprocessor)
 
-  # ------------------------- Creates `static` object --------------------------
-  # This part mostly recreates `tune_grid_loop()` to properly create the
-  # `resamples` and `static` objects in order to pass it to the
-  # loop_over_all_stages() function that is called inside Spark
-  # https://github.com/tidymodels/tune/blob/main/R/tune_grid_loop.R
-
-  wf_metrics <- tune::check_metrics_arg(metrics, wf, call = call)
-  param_info <- tune::check_parameters(
-    wflow = wf,
-    data = resamples$splits[[1]]$data,
-    grid_names = names(grid)
-  )
-  grid <- tune::.check_grid(
-    grid = grid,
-    workflow = wf,
-    pset = param_info
-  )
-
-  # Checking for argument values in the `control` that are not supported
-  # by this backend
-  control_err <- NULL
-  if (!is.null(control[["extract"]])) {
-    control_err <- "This backend only supports `extract` set to NULL"
-  }
-  if (isTRUE(control[["save_workflow"]])) {
-    control_err <- c(
-      control_err,
-      "This backend does not support `save_workflow` set to TRUE"
-    )
-  }
-  if (!is.null(control[["backend_options"]])) {
-    control_err <- c(
-      control_err,
-      "This backend only supports `backend_options` set to NULL"
-    )
-  }
-  if (!is.null(control_err)) {
-    abort(c(
-      "The following incompatability errors in `control` were found:",
-      control_err
-    ))
-  }
-  verbose <- control[["verbose"]]
-  control <- tune::.update_parallel_over(control, resamples, grid)
-  eval_time <- tune::check_eval_time_arg(eval_time, wf_metrics, call = call)
-  needed_pkgs <- c(
-    "rsample", "workflows", "hardhat", "tune", "reticulate",
-    "parsnip", "tailor", "yardstick", "tidymodels",
-    workflows::required_pkgs(wf),
-    control$pkgs
-  ) |>
-    unique()
-  static <- list(
-    wflow = wf,
+  prepped <- prep_static(
+    object = object,
+    preprocessor = preprocessor,
+    resamples = resamples,
     param_info = param_info,
-    configs = tune::.get_config_key(grid, wf),
-    post_estimation = workflows::.workflow_postprocessor_requires_fit(wf),
-    metrics = wf_metrics,
-    metric_info = tibble::as_tibble(wf_metrics),
-    pred_types = tune::.determine_pred_types(wf, wf_metrics),
+    grid = grid,
+    metrics = metrics,
     eval_time = eval_time,
-    split_args = rsample::.get_split_args(resamples),
     control = control,
-    pkgs = needed_pkgs,
-    strategy = "sequential",
-    data = list(fit = NULL, pred = NULL, cal = NULL),
-    grid = grid
+    call = call
   )
+
+  static <- prepped$static
+
+  verbose <- control[["verbose"]]
+
   if (all(resamples$id == "train/test split")) {
     resamples$.seeds <- map(resamples$id, \(x) integer(0))
   } else {
@@ -109,7 +54,7 @@ tune_grid_spark.pyspark_connection <- function(
   vec_resamples <- resamples |>
     vctrs::vec_split(by = 1:nrow(resamples)) |>
     _$val
-  pasted_pkgs <- paste0("'", needed_pkgs, "'", collapse = ", ")
+  pasted_pkgs <- paste0("'", prepped$needed_pkgs, "'", collapse = ", ")
 
   # --------------- Prepares and uploads R objects to Spark --------------------
   # Creating unique file names to avoid re-uploading if possible
@@ -147,7 +92,7 @@ tune_grid_spark.pyspark_connection <- function(
     seq_len(length(resamples$id)),
     \(x) data.frame(index = x, id = resamples$id[[x]])
   )
-  if (control[["parallel_over"]] == "everything") {
+  if (static$control[["parallel_over"]] == "everything") {
     full_grid <- grid |>
       dplyr::cross_join(res_id_df) |>
       dplyr::arrange("index")
@@ -329,9 +274,9 @@ tune_grid_spark.pyspark_connection <- function(
     metrics = static$metrics,
     eval_time = eval_time,
     eval_time_target = NULL,
-    outcomes = tune::outcome_names(wf),
+    outcomes = tune::outcome_names(prepped$wf),
     rset_info = tune::pull_rset_attributes(resamples),
-    workflow = wf,
+    workflow = prepped$wf,
     class = c(class(out), "tune_results")
   )
 }
@@ -452,5 +397,93 @@ loop_predictions <- function(x) {
       }
     }
   }
+  out
+}
+
+prep_static <- function(
+  object,
+  preprocessor,
+  resamples,
+  param_info = NULL,
+  grid = grid,
+  metrics = NULL,
+  eval_time = NULL,
+  control = NULL,
+  call = NULL
+) {
+  wf <- workflows::workflow() |>
+    workflows::add_model(object) |>
+    workflows::add_recipe(preprocessor)
+
+  # ------------------------- Creates `static` object --------------------------
+  # This part mostly recreates `tune_grid_loop()` to properly create the
+  # `resamples` and `static` objects in order to pass it to the
+  # loop_over_all_stages() function that is called inside Spark
+  # https://github.com/tidymodels/tune/blob/main/R/tune_grid_loop.R
+
+  wf_metrics <- tune::check_metrics_arg(metrics, wf, call = call)
+  param_info <- tune::check_parameters(
+    wflow = wf,
+    data = resamples$splits[[1]]$data,
+    grid_names = names(grid)
+  )
+  grid <- tune::.check_grid(
+    grid = grid,
+    workflow = wf,
+    pset = param_info
+  )
+
+  # Checking for argument values in the `control` that are not supported
+  # by this backend
+  control_err <- NULL
+  if (!is.null(control[["extract"]])) {
+    control_err <- "This backend only supports `extract` set to NULL"
+  }
+  if (isTRUE(control[["save_workflow"]])) {
+    control_err <- c(
+      control_err,
+      "This backend does not support `save_workflow` set to TRUE"
+    )
+  }
+  if (!is.null(control[["backend_options"]])) {
+    control_err <- c(
+      control_err,
+      "This backend only supports `backend_options` set to NULL"
+    )
+  }
+  if (!is.null(control_err)) {
+    abort(c(
+      "The following incompatability errors in `control` were found:",
+      control_err
+    ))
+  }
+  control <- tune::.update_parallel_over(control, resamples, grid)
+  eval_time <- tune::check_eval_time_arg(eval_time, wf_metrics, call = call)
+  needed_pkgs <- c(
+    "rsample", "workflows", "hardhat", "tune", "reticulate",
+    "parsnip", "tailor", "yardstick", "tidymodels",
+    workflows::required_pkgs(wf),
+    control$pkgs
+  ) |>
+    unique()
+  out <- list()
+  out$static <- list(
+    wflow = wf,
+    param_info = param_info,
+    configs = tune::.get_config_key(grid, wf),
+    post_estimation = workflows::.workflow_postprocessor_requires_fit(wf),
+    metrics = wf_metrics,
+    metric_info = tibble::as_tibble(wf_metrics),
+    pred_types = tune::.determine_pred_types(wf, wf_metrics),
+    eval_time = eval_time,
+    split_args = rsample::.get_split_args(resamples),
+    control = control,
+    pkgs = needed_pkgs,
+    strategy = "sequential",
+    data = list(fit = NULL, pred = NULL, cal = NULL),
+    grid = grid
+  )
+  out$wf <- wf
+  out$needed_pkgs <- needed_pkgs
   out
 }

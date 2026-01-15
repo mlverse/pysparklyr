@@ -45,7 +45,10 @@ Suggests:
     rsconnect,
     rsample,
     workflows,
-    tune
+    tune,
+    parsnip,
+    dials,
+    recipes
 Config/testthat/edition: 3
 Config/usethis/last-upkeep: 2025-11-12
 Encoding: UTF-8

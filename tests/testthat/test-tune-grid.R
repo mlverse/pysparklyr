@@ -36,7 +36,7 @@ test_that("loop_call works", {
     preprocessor = x$preprocessor,
     resamples = resamples,
     grid = x$grid,
-    control = tune::control_grid(),
+    control = x$control,
     call = rlang::caller_env()
   )
   if (all(resamples$id == "train/test split")) {
@@ -53,10 +53,9 @@ test_that("loop_call works", {
   withr::with_envvar(
     new = c("TEMP_SPARK_GRID" = temp_dir),
     {
+      library(tune)
       res <- loop_call(data.frame(index = 1))
     }
   )
   expect_s3_class(res, "data.frame")
 })
-
-

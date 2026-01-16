@@ -39,7 +39,7 @@ use_test_mtcars_va <- function() {
 # ------------------------------ Tune Grid -------------------------------------
 
 use_tune_grid <- function() {
-  if(is.null(.test_env$tune_grid)) {
+  if (is.null(.test_env$tune_grid)) {
     out <- list()
     set.seed(1010110)
     object <- parsnip::decision_tree(tree_depth = tune()) |>
@@ -56,7 +56,7 @@ use_tune_grid <- function() {
       preprocessor = preprocessor,
       resamples = resamples,
       grid = wf_grid
-      )
+    )
     out$object <- object
     out$preprocessor <- preprocessor
     out$resamples <- resamples

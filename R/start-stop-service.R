@@ -40,7 +40,7 @@ spark_connect_service_start <- function(version = "4.0",
     out_java <- setNames(java_version, rep("", times = length(java_version)))
     cli_bullets(out_java)
   }
-  if(is.null(python)) {
+  if (is.null(python)) {
     envname <- use_envname(
       backend = "pyspark",
       main_library = "pyspark",

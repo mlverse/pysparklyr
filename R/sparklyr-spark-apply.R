@@ -124,7 +124,7 @@ sa_in_pandas <- function(
     ) |>
     py_run_string()
   main <- reticulate::import_main()
-  if(inherits(x, "tbl_spark")) {
+  if (inherits(x, "tbl_spark")) {
     df <- python_sdf(x)
   } else {
     df <- x
@@ -218,7 +218,7 @@ sa_function_to_string <- function(
     fn_r
   )
   fn <- as_mapper(.f = .f, ... = ...)
-  if(is.character(.f)) {
+  if (is.character(.f)) {
     fn_str <- .f
   } else {
     fn_str <- paste0(deparse(fn), collapse = "\n")

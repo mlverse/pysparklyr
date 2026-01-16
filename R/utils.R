@@ -159,7 +159,7 @@ pkg_path <- function(x) {
     out <- path_expand(glue("inst/{x}"))
   } else {
     out <- system.file(x, package = "pysparklyr")
-    if(out == "") {
+    if (out == "") {
       cli_abort("Path '{x}' not found", call = NULL)
     }
   }

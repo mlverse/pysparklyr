@@ -55,8 +55,7 @@ use_tune_grid <- function() {
       object = object,
       preprocessor = preprocessor,
       resamples = resamples,
-      grid = wf_grid,
-      control = cntrl
+      grid = wf_grid
       )
     out$object <- object
     out$preprocessor <- preprocessor

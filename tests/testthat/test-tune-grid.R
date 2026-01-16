@@ -1,3 +1,17 @@
+test_that("tune_grid_spark() works", {
+  x <- use_tune_grid()
+  sc <- use_test_spark_connect()
+  spark_results <- tune_grid_spark(
+    sc = sc,
+    object = x$object,
+    preprocessor = x$preprocessor,
+    resamples = x$resamples,
+    grid = x$grid,
+    control = x$control
+  )
+  expect_s3_class(spark_results, "tune_results")
+})
+
 test_that("loop_predictions works", {
   expect_null(
     loop_predictions(data.frame(path = "test", index = 1))
@@ -13,17 +27,16 @@ test_that("loop_predictions works", {
   )
 })
 
-
 test_that("loop_call works", {
-  tune_grid <- use_tune_grid()
-  grid <- tune_grid$grid
-  resamples <- tune_grid$resamples
+  x <- use_tune_grid()
+  grid <- x$grid
+  resamples <- x$resamples
   prepped <- prep_static(
-    object = tune_grid$object,
-    preprocessor = tune_grid$preprocessor,
+    object = x$object,
+    preprocessor = x$preprocessor,
     resamples = resamples,
-    grid = tune_grid$grid,
-    control = tune_grid$control,
+    grid = x$grid,
+    control = tune::control_grid(),
     call = rlang::caller_env()
   )
   if (all(resamples$id == "train/test split")) {
@@ -40,9 +53,10 @@ test_that("loop_call works", {
   withr::with_envvar(
     new = c("TEMP_SPARK_GRID" = temp_dir),
     {
-      library(tune)
       res <- loop_call(data.frame(index = 1))
     }
   )
   expect_s3_class(res, "data.frame")
 })
+
+

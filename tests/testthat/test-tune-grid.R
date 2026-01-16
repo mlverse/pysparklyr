@@ -1,4 +1,4 @@
-test_that("tune_grid_spark() works", {
+test_that("tune_grid_spark() works - resamples", {
   x <- use_tune_grid()
   sc <- use_test_spark_connect()
   spark_results <- tune_grid_spark(
@@ -9,7 +9,38 @@ test_that("tune_grid_spark() works", {
     grid = x$grid,
     control = x$control
   )
-  expect_s3_class(spark_results, "tune_results")
+  local_results <- tune::tune_grid(
+    object = x$object,
+    preprocessor = x$preprocessor,
+    resamples = x$resamples,
+    grid = x$grid,
+    control = x$control
+  )
+  expect_equal(colnames(local_results), colnames(spark_results))
+  expect_equal(local_results[, 1:4], spark_results[, 1:4])
+})
+
+test_that("tune_grid_spark() works - everything", {
+  x <- use_tune_grid()
+  sc <- use_test_spark_connect()
+  cntrl <- tune::control_grid(parallel_over = "everything")
+  spark_results <- tune_grid_spark(
+    sc = sc,
+    object = x$object,
+    preprocessor = x$preprocessor,
+    resamples = x$resamples,
+    grid = x$grid,
+    control = cntrl
+  )
+  local_results <- tune::tune_grid(
+    object = x$object,
+    preprocessor = x$preprocessor,
+    resamples = x$resamples,
+    grid = x$grid,
+    control = cntrl
+  )
+  expect_equal(colnames(local_results), colnames(spark_results))
+  expect_equal(local_results[, 1:4], spark_results[, 1:4])
 })
 
 test_that("loop_predictions works", {

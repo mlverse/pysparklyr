@@ -6,9 +6,12 @@ Authors@R: c(
     person("Posit Software, PBC", role = c("cph", "fnd"),
            comment = c(ROR = "03wc8by49"))
   )
-Description: It enables 'sparklyr' to integrate with 'Spark Connect', and
-    'Databricks Connect' by providing a wrapper over the 'PySpark'
-    'python' library.
+Description: Enables 'sparklyr' to integrate with 'Spark Connect', the
+    modern connection protocol for Apache Spark. Supports 'Spark Connect'
+    directly as well as 'Spark Connect'-based implementations including
+    'Databricks Connect' and 'Snowpark Connect'. Provides a 'PySpark'
+    wrapper to enable data manipulation, machine learning workflows, and
+    other operations on remote Spark clusters using the 'sparklyr' interface.
 License: MIT + file LICENSE
 URL: https://github.com/mlverse/pysparklyr
 BugReports: https://github.com/mlverse/pysparklyr/issues

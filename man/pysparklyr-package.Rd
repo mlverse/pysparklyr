@@ -6,7 +6,7 @@
 \alias{pysparklyr-package}
 \title{pysparklyr: Provides a 'PySpark' Back-End for the 'sparklyr' Package}
 \description{
-It enables 'sparklyr' to integrate with 'Spark Connect', and 'Databricks Connect' by providing a wrapper over the 'PySpark' 'python' library.
+Enables 'sparklyr' to integrate with 'Spark Connect', the modern connection protocol for Apache Spark. Supports 'Spark Connect' directly as well as 'Spark Connect'-based implementations including 'Databricks Connect' and 'Snowpark Connect'. Provides a 'PySpark' wrapper to enable data manipulation, machine learning workflows, and other operations on remote Spark clusters using the 'sparklyr' interface.
 }
 \seealso{
 Useful links:

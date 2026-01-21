@@ -12,3 +12,4 @@
 ^derby\.log$
 ^[.]?air[.]toml$
 ^\.vscode$
+^\.claude$

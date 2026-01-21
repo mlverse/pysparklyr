@@ -99,31 +99,28 @@ test_that("Installation runs even if no response from PyPi", {
   )
 })
 
-test_that(
-  "Fails when no library version is provided, and nothing comes back from PyPi",
-  {
-    withr::with_envvar(
-      new = c("WORKON_HOME" = use_new_test_env()),
-      {
-        local_mocked_bindings(
-          py_install = function(...) list(...),
-          python_library_info = function(...) NULL
-        )
-        expect_error(
-          install_environment(
-            main_library = "pyspark",
-            spark_method = "pyspark_connect",
-            backend = "pyspark",
-            ml_version = "3.5",
-            new_env = FALSE,
-            python = Sys.which("python")
-          ),
-          "No `version` provided, and none could be found"
-        )
-      }
-    )
-  }
-)
+test_that("Fails when no library version is provided, and nothing comes back from PyPi", {
+  withr::with_envvar(
+    new = c("WORKON_HOME" = use_new_test_env()),
+    {
+      local_mocked_bindings(
+        py_install = function(...) list(...),
+        python_library_info = function(...) NULL
+      )
+      expect_error(
+        install_environment(
+          main_library = "pyspark",
+          spark_method = "pyspark_connect",
+          backend = "pyspark",
+          ml_version = "3.5",
+          new_env = FALSE,
+          python = Sys.which("python")
+        ),
+        "No `version` provided, and none could be found"
+      )
+    }
+  )
+})
 
 test_that("Fails when non-existent Python version is used", {
   withr::with_envvar(

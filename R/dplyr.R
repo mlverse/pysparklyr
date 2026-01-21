@@ -16,7 +16,8 @@ sample_n.tbl_pyspark <- function(
   size,
   replace = FALSE,
   weight = NULL,
-  .env = NULL, ...
+  .env = NULL,
+  ...
 ) {
   slice_sample(
     .data = tbl,
@@ -27,8 +28,14 @@ sample_n.tbl_pyspark <- function(
 }
 
 #' @export
-sample_frac.tbl_pyspark <- function(tbl, size = 1, replace = FALSE,
-                                    weight = NULL, .env = NULL, ...) {
+sample_frac.tbl_pyspark <- function(
+  tbl,
+  size = 1,
+  replace = FALSE,
+  weight = NULL,
+  .env = NULL,
+  ...
+) {
   weight <- enquo(weight)
   if (!quo_is_null(weight)) {
     abort("`weight` is not supported in this Spark connection")
@@ -44,15 +51,15 @@ compute.tbl_pyspark <- function(x, name = NULL, ...) {
   cache_query(x, name = name, storage_level = "MEMORY_AND_DISK")
 }
 
-cache_query <- function(table,
-                        name = NULL,
-                        storage_level = "MEMORY_AND_DISK") {
+cache_query <- function(table, name = NULL, storage_level = "MEMORY_AND_DISK") {
   # https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-cache-table.html
   if (is.null(name)) {
     name <- random_string()
   }
   x <- remote_query(table)
-  query <- glue("CACHE TABLE {name} OPTIONS ('storageLevel' '{storage_level}') {x}")
+  query <- glue(
+    "CACHE TABLE {name} OPTIONS ('storageLevel' '{storage_level}') {x}"
+  )
   sc <- spark_connection(table)
   invoke(sc, "sql", query)
   spark_ide_connection_updated(sc, name)
@@ -77,14 +84,16 @@ spark_dataframe.tbl_pyspark <- function(x, ...) {
 }
 
 #' @export
-sdf_copy_to.pyspark_connection <- function(sc,
-                                           x,
-                                           name = spark_table_name(substitute(x)),
-                                           memory = TRUE,
-                                           repartition = 0,
-                                           overwrite = FALSE,
-                                           struct_columns,
-                                           ...) {
+sdf_copy_to.pyspark_connection <- function(
+  sc,
+  x,
+  name = spark_table_name(substitute(x)),
+  memory = TRUE,
+  repartition = 0,
+  overwrite = FALSE,
+  struct_columns,
+  ...
+) {
   context <- python_conn(sc)
   col_names <- colnames(x)
   col_names <- gsub("\\.", "_", col_names)
@@ -92,7 +101,9 @@ sdf_copy_to.pyspark_connection <- function(sc,
   schema <- NULL
   if (is_snowflake(sc)) {
     if (memory) {
-      cli_abort("Snowflake's Snowpark does not support `memory = TRUE` please use `memory = FALSE`")
+      cli_abort(
+        "Snowflake's Snowpark does not support `memory = TRUE` please use `memory = FALSE`"
+      )
     }
     x <- as.list(x) |> transpose()
     schema <- col_names

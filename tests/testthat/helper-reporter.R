@@ -7,7 +7,8 @@ sparklyr_reporter <- function() {
   )
 }
 
-PerformanceReporter <- R6::R6Class("PerformanceReporter",
+PerformanceReporter <- R6::R6Class(
+  "PerformanceReporter",
   inherit = Reporter,
   public = list(
     results = list(
@@ -54,7 +55,10 @@ PerformanceReporter <- R6::R6Class("PerformanceReporter",
 
       if (is_error) {
         self$n_fail <- self$n_fail + 1
-        self$failures <- c(self$failures, paste0(test, " (Context: ", context, ")"))
+        self$failures <- c(
+          self$failures,
+          paste0(test, " (Context: ", context, ")")
+        )
       } else if (inherits(result, "expectation_skip")) {
         self$n_skip <- self$n_skip + 1
       } else if (inherits(result, "expectation_warning")) {
@@ -68,7 +72,9 @@ PerformanceReporter <- R6::R6Class("PerformanceReporter",
         self$results$time[length(self$results$time)] <- elapsed_time
         self$last_test_time <- elapsed_time
       } else {
-        self$results$context[length(self$results$context) + 1] <- self$last_context
+        self$results$context[
+          length(self$results$context) + 1
+        ] <- self$last_context
         self$results$time[length(self$results$time) + 1] <- elapsed_time
         self$last_test_time <- elapsed_time
       }
@@ -86,7 +92,9 @@ PerformanceReporter <- R6::R6Class("PerformanceReporter",
       summary <- data |>
         dplyr::group_by(context) |>
         dplyr::summarise(time = sum(time)) |>
-        dplyr::mutate(time = format(time, width = "9", digits = "3", scientific = F))
+        dplyr::mutate(
+          time = format(time, width = "9", digits = "3", scientific = F)
+        )
 
       total <- data |>
         dplyr::summarise(time = sum(time)) |>

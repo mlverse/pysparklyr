@@ -18,7 +18,8 @@ to_pandas_cleaned <- function(x) {
 
   collected <- dplyr::as_tibble(x$toPandas())
   col_types <- map_chr(
-    collected, \(.x) {
+    collected,
+    \(.x) {
       classes <- class(.x)
       classes[[1]]
     }

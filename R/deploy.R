@@ -102,11 +102,13 @@ deploy_databricks <- function(
   if (!is.null(host)) {
     env_var_message <- c("i" = paste0("{.header Host URL:} ", host))
   } else {
-    var_error <- c(" " = paste0(
-      "{.header - No host URL was provided or found. Please either set the}",
-      " {.emph 'DATABRICKS_HOST'} {.header environment variable,}",
-      " {.header or pass the }{.code host} {.header argument.}"
-    ))
+    var_error <- c(
+      " " = paste0(
+        "{.header - No host URL was provided or found. Please either set the}",
+        " {.emph 'DATABRICKS_HOST'} {.header environment variable,}",
+        " {.header or pass the }{.code host} {.header argument.}"
+      )
+    )
   }
 
   # Token
@@ -127,11 +129,14 @@ deploy_databricks <- function(
       " " = "{.header Token:} '<REDACTED>'"
     )
   } else {
-    var_error <- c(var_error, " " = paste0(
-      "{.header - No token was provided or found. Please either set the}",
-      " {.emph 'DATABRICKS_TOKEN'} {.header environment variable,}",
-      " {.header or pass the} {.code token} {.header argument.}"
-    ))
+    var_error <- c(
+      var_error,
+      " " = paste0(
+        "{.header - No token was provided or found. Please either set the}",
+        " {.emph 'DATABRICKS_TOKEN'} {.header environment variable,}",
+        " {.header or pass the} {.code token} {.header argument.}"
+      )
+    )
   }
 
   if (!is.null(var_error)) {
@@ -234,7 +239,11 @@ deploy <- function(
 
     req_file <- path(appDir, "requirements.txt")
     prev_deployments <- rsconnect_deployments(appDir)
-    if (!file_exists(req_file) && nrow(prev_deployments) == 0 && check_interactive()) {
+    if (
+      !file_exists(req_file) &&
+        nrow(prev_deployments) == 0 &&
+        check_interactive()
+    ) {
       cli_inform(c(
         "{.header Would you like to create the 'requirements.txt' file?}",
         "{.class Why consider? This will allow you to skip using `version` or `cluster_id`}"
@@ -280,7 +289,9 @@ deploy_find_environment <- function(
       if (names(env_name) == "exact") {
         check_conda <- try(conda_python(env_name), silent = TRUE)
         check_virtualenv <- try(virtualenv_python(env_name), silent = TRUE)
-        if (!inherits(check_conda, "try-error")) ret <- check_conda
+        if (!inherits(check_conda, "try-error")) {
+          ret <- check_conda
+        }
         if (!inherits(check_virtualenv, "try-error")) ret <- check_virtualenv
       }
       if (is.null(ret)) failed <- env_name

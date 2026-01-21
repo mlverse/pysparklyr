@@ -1,13 +1,11 @@
 ## Package submission
 
-* Databricks connections app:
-  * Adds a dropdown to the Python Environment to make it more flexible
-  * Check for the existence of a Virtual Environment folder inside the
-  current RStudio project, adds it to the dropdown choices and makes it the default
+This is a minor version release with several important improvements:
 
-* Adds support for spark_write_delta() (#146)
-
-* Gets token from Databricks SDK if one cannot be found. (#148)
+* Adds support for Snowflake's Snowpark Connect
+* Adds support for new ML methodology implemented in Spark 4.0, including 60+ new ML functions and transformers
+* Fixes issues with Databricks OAuth token retrieval in Posit Workbench
+* Tests now use `uv` for Python environment setup
 
 ## Test environments
 

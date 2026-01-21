@@ -16,10 +16,13 @@ ml_formula <- function(f, data) {
   for (i in feat_names) {
     in_data <- i %in% col_data
     if (!in_data) {
-      cli_abort(c(
-        "Formula resulted in an invalid parameter set\n",
-        "- Only '+' is supported."
-      ), call = NULL)
+      cli_abort(
+        c(
+          "Formula resulted in an invalid parameter set\n",
+          "- Only '+' is supported."
+        ),
+        call = NULL
+      )
     }
   }
 
@@ -38,12 +41,16 @@ ml_formula <- function(f, data) {
 snake_to_camel <- function(x) {
   s <- unlist(strsplit(x, "_"))
   x <- paste(
-    toupper(substring(s, 1, 1)), substring(s, 2),
-    sep = "", collapse = ""
+    toupper(substring(s, 1, 1)),
+    substring(s, 2),
+    sep = "",
+    collapse = ""
   )
   paste(
-    tolower(substring(x, 1, 1)), substring(x, 2),
-    sep = "", collapse = ""
+    tolower(substring(x, 1, 1)),
+    substring(x, 2),
+    sep = "",
+    collapse = ""
   )
 }
 

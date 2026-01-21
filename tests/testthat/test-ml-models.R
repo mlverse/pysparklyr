@@ -70,7 +70,10 @@ test_that("Decision Tree Classifier works", {
   expect_snapshot(class(ml_decision_tree_classifier(sc)))
   model <- tbl_iris |>
     ft_string_indexer("Species", "species_idx") |>
-    ml_decision_tree_classifier(species_idx ~ Petal_Length + Petal_Width, seed = 100)
+    ml_decision_tree_classifier(
+      species_idx ~ Petal_Length + Petal_Width,
+      seed = 100
+    )
   expect_snapshot(model)
   expect_snapshot(class(model))
   x <- tbl_iris |>
@@ -131,7 +134,10 @@ test_that("AFT Survival works", {
   expect_snapshot(class(ml_aft_survival_regression(ml_pipeline(sc))))
   expect_snapshot(class(ml_aft_survival_regression(sc)))
   model <- tbl_ovarian |>
-    ml_aft_survival_regression(futime ~ ecog_ps + rx + age + resid_ds, censor_col = "fustat")
+    ml_aft_survival_regression(
+      futime ~ ecog_ps + rx + age + resid_ds,
+      censor_col = "fustat"
+    )
   expect_snapshot(model)
   expect_snapshot(class(model))
   x <- tbl_ovarian |>

@@ -138,8 +138,12 @@ spark_read_parquet.pyspark_connection <- function(
   con <- python_conn(sc)
 
   new_schema <- NULL
-  if (!is.null(columns)) new_schema <- columns
-  if (!is.null(schema)) new_schema <- schema
+  if (!is.null(columns)) {
+    new_schema <- columns
+  }
+  if (!is.null(schema)) {
+    new_schema <- schema
+  }
   if (!is.null(new_schema)) {
     sch <- con$read$schema(new_schema)
     read <- sch$parquet(path)
@@ -162,8 +166,18 @@ spark_read_parquet.pyspark_connection <- function(
 }
 
 
-pyspark_read_generic <- function(sc, path, name, format, memory, repartition,
-                                 overwrite, args, options = list(), py_obj = NULL) {
+pyspark_read_generic <- function(
+  sc,
+  path,
+  name,
+  format,
+  memory,
+  repartition,
+  overwrite,
+  args,
+  options = list(),
+  py_obj = NULL
+) {
   opts <- c(args, options)
   rename_fields <- FALSE
   schema <- args$schema

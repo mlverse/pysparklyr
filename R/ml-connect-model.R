@@ -12,9 +12,14 @@ ml_get_last_item <- function(x) {
   classes[length(classes)]
 }
 
-transform_impl <- function(x, dataset, prep = TRUE,
-                           remove = FALSE, conn = NULL,
-                           as_df = TRUE) {
+transform_impl <- function(
+  x,
+  dataset,
+  prep = TRUE,
+  remove = FALSE,
+  conn = NULL,
+  as_df = TRUE
+) {
   ml_installed()
   if (prep) {
     ml_df <- ml_prep_dataset(
@@ -94,7 +99,8 @@ print_parameters <- function(x) {
     }) |>
     as.character()
   p_values[nchar(p_values) >= 20] <- paste0(
-    substr(p_values[nchar(p_values) >= 20], 1, 17), "..."
+    substr(p_values[nchar(p_values) >= 20], 1, 17),
+    "..."
   )
   out <- paste0(
     cli::col_blue(cli::symbol$square_small_filled),

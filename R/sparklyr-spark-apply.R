@@ -102,10 +102,18 @@ sa_in_pandas <- function(
     .schema <- r_exec |>
       imap(\(.x, .y) {
         x_class <- class(.x)
-        if ("POSIXt" %in% x_class) x_class <- "timestamp"
-        if (x_class == "character") x_class <- "string"
-        if (x_class == "numeric") x_class <- "double"
-        if (x_class == "integer") x_class <- "long"
+        if ("POSIXt" %in% x_class) {
+          x_class <- "timestamp"
+        }
+        if (x_class == "character") {
+          x_class <- "string"
+        }
+        if (x_class == "numeric") {
+          x_class <- "double"
+        }
+        if (x_class == "integer") {
+          x_class <- "long"
+        }
         paste0(.y, " ", x_class)
       }) |>
       paste0(collapse = ", ")

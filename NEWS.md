@@ -1,4 +1,4 @@
-# pysparklyr (dev)
+# pysparklyr 0.2.0
 
 ### Fixes
 

@@ -1,9 +1,9 @@
 test_that("Pivot longer", {
   sc <- use_test_spark_connect()
   local_pivot <- tibble::tribble(
-    ~id, ~z_1, ~y_1, ~x_1, ~z_2, ~y_2, ~x_2,
-    "A", 1, 2, 3, 4, 5, 6,
-    "B", 7, 8, 9, 10, 11, 12,
+    ~id , ~z_1 , ~y_1 , ~x_1 , ~z_2 , ~y_2 , ~x_2 ,
+    "A" ,    1 ,    2 ,    3 ,    4 ,    5 ,    6 ,
+    "B" ,    7 ,    8 ,    9 ,   10 ,   11 ,   12 ,
   )
   tbl_pivot <- copy_to(sc, local_pivot)
 
@@ -11,7 +11,8 @@ test_that("Pivot longer", {
     tbl_pivot %>%
       tidyr::pivot_longer(
         -id,
-        names_to = c(".value", "n"), names_sep = "_"
+        names_to = c(".value", "n"),
+        names_sep = "_"
       ) %>%
       collect()
   )
@@ -53,15 +54,17 @@ test_that("preserves original keys", {
 test_that("can handle missing combinations", {
   expect_same_remote_result(
     tibble::tribble(
-      ~id, ~x_1, ~x_2, ~y_2,
-      "A",    1,    2,  "a",
-      "B",    3,    4,  "b",
+      ~id , ~x_1 , ~x_2 , ~y_2 ,
+      "A" ,    1 ,    2 , "a"  ,
+      "B" ,    3 ,    4 , "b"  ,
     ),
     function(.x) {
-      .x |> tidyr::pivot_longer(
-        -id,
-        names_to = c(".value", "n"), names_sep = "_"
-      )
+      .x |>
+        tidyr::pivot_longer(
+          -id,
+          names_to = c(".value", "n"),
+          names_sep = "_"
+        )
     }
   )
 })
@@ -69,15 +72,17 @@ test_that("can handle missing combinations", {
 test_that("original col order is preserved", {
   expect_same_remote_result(
     tibble::tribble(
-      ~id, ~z_1, ~y_1, ~x_1, ~z_2, ~y_2, ~x_2,
-      "A", 1, 2, 3, 4, 5, 6,
-      "B", 7, 8, 9, 10, 11, 12,
+      ~id , ~z_1 , ~y_1 , ~x_1 , ~z_2 , ~y_2 , ~x_2 ,
+      "A" ,    1 ,    2 ,    3 ,    4 ,    5 ,    6 ,
+      "B" ,    7 ,    8 ,    9 ,   10 ,   11 ,   12 ,
     ),
     function(.x) {
-      .x |> tidyr::pivot_longer(
-        -id,
-        names_to = c(".value", "n"), names_sep = "_"
-      )
+      .x |>
+        tidyr::pivot_longer(
+          -id,
+          names_to = c(".value", "n"),
+          names_sep = "_"
+        )
     }
   )
 })
@@ -85,17 +90,29 @@ test_that("original col order is preserved", {
 test_that("can pivot duplicated names to .value", {
   expect_same_remote_result(
     tibble::tibble(x = 1, a_1 = 1, a_2 = 2, b_1 = 3, b_2 = 4),
-    function(.x) .x |> tidyr::pivot_longer(-x, names_to = c(".value", NA), names_sep = "_")
+    function(.x) {
+      .x |> tidyr::pivot_longer(-x, names_to = c(".value", NA), names_sep = "_")
+    }
   )
 
   expect_same_remote_result(
     tibble::tibble(x = 1, a_1 = 1, a_2 = 2, b_1 = 3, b_2 = 4),
-    function(.x) .x |> tidyr::pivot_longer(-x, names_to = c(".value", NA), names_pattern = "(.)_(.)")
+    function(.x) {
+      .x |>
+        tidyr::pivot_longer(
+          -x,
+          names_to = c(".value", NA),
+          names_pattern = "(.)_(.)"
+        )
+    }
   )
 
   expect_same_remote_result(
     tibble::tibble(x = 1, a_1 = 1, a_2 = 2, b_1 = 3, b_2 = 4),
-    function(.x) .x |> tidyr::pivot_longer(-x, names_to = ".value", names_pattern = "(.)_.")
+    function(.x) {
+      .x |>
+        tidyr::pivot_longer(-x, names_to = ".value", names_pattern = "(.)_.")
+    }
   )
 })
 
@@ -122,12 +139,16 @@ test_that(".value can be at any position in `names_to`", {
   pv <- lapply(
     list(
       tidyr::pivot_longer(
-        samp_sdf, -i,
-        names_to = c(".value", "time"), names_sep = "_"
+        samp_sdf,
+        -i,
+        names_to = c(".value", "time"),
+        names_sep = "_"
       ),
       tidyr::pivot_longer(
-        samp_sdf2, -i,
-        names_to = c("time", ".value"), names_sep = "_"
+        samp_sdf2,
+        -i,
+        names_to = c("time", ".value"),
+        names_sep = "_"
       )
     ),
     collect

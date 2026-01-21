@@ -35,7 +35,8 @@ requirements_write <- function(
 
   writeLines(
     c(
-      "# Automatically created by `sparklyr`", "",
+      "# Automatically created by `sparklyr`",
+      "",
       pkgs$requirement
     ),
     con = destfile

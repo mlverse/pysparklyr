@@ -85,7 +85,7 @@ test_that("Get cluster version", {
   expect_equal(
     databricks_dbr_version(
       host = use_test_db_host(),
-      token = databricks_token(),
+      token = "",
       cluster_id = use_test_db_cluster()
     ),
     "17.3"

@@ -2,6 +2,8 @@
 
 ### Fixes
 
+* Properly converts Pandas columns to R (#165 - @romangehrn) 
+
 * Switches to using the configuration file in Posit Workbench to obtain the
 Databricks OAuth token. This guarantees that RMarkdown and Quarto documents
 that attempt to access a Databricks cluster are successful (#166)

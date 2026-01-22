@@ -2,6 +2,8 @@
 
 ### Fixes
 
+* Adds support for Pandas 3.0 conversion (#169)
+
 * Properly converts Pandas columns to R (#165 - @romangehrn) 
 
 * Switches to using the configuration file in Posit Workbench to obtain the

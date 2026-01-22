@@ -16,11 +16,19 @@ to_pandas_cleaned <- function(x) {
     }
   }
 
+  pandas_tbl <- x$toPandas()
 
-  collected <- x$toPandas()$values |>
-    as.data.frame() |>
-    lapply(unlist) |>  # Conversion makes encases all columns inside lists
-    set_names(x$columns) |>
+  if(is.data.frame(pandas_tbl)) {
+    collected <- pandas_tbl
+  } else {
+    # Pandas 3.0 conversion makes encases all columns inside lists
+    collected <- pandas_tbl$values |>
+      as.data.frame() |>
+      lapply(unlist) |>
+      set_names(x$columns)
+  }
+
+  collected <- collected |>
     dplyr::as_tibble()
 
   col_types <- map_chr(

@@ -46,10 +46,9 @@ databricks_token <- function(token = NULL, fail = FALSE) {
       }
     }
   }
-  # Checks for OAuth Databricks token inside the RStudio API
-  if (is.null(token) && exists(".rs.api.getDatabricksToken")) {
-    getDatabricksToken <- get(".rs.api.getDatabricksToken")
-    token <- set_names(getDatabricksToken(databricks_host()), "oauth")
+  # Checks for OAuth Databricks token inside the Workbench configuration file
+  if (is.null(token)) {
+    token <- workbench_databricks_token()
   }
   if (is.null(token)) {
     if (fail) {
@@ -364,4 +363,30 @@ allowed_serverless_configs <- function() {
     "spark.sql.shuffle.partitions",
     "spark.sql.ansi.enabled"
   )
+}
+
+workbench_databricks_token <- function(host, cfg_file) {
+  if (missing(host)) {
+    host <- databricks_host(fail = FALSE)
+  }
+  if (missing(cfg_file)) {
+    cfg_file <- Sys.getenv("DATABRICKS_CONFIG_FILE")
+    if (!grepl("posit-workbench", cfg_file, fixed = TRUE)) {
+      return(NULL)
+    }
+  }
+  cfg <- readLines(cfg_file)
+  # We don't attempt a full parse of the INI syntax supported by Databricks
+  # config files, instead relying on the fact that this particular file will
+  # always contain only one section.
+  if (!any(grepl(host, cfg, fixed = TRUE))) {
+    # The configuration doesn't actually apply to this host.
+    return(NULL)
+  }
+  line <- grepl("token = ", cfg, fixed = TRUE)
+  token <- gsub("token = ", "", cfg[line])
+  if (nchar(token) == 0) {
+    return(NULL)
+  }
+  token
 }

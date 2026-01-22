@@ -89,13 +89,11 @@ deploy_databricks <- function(
 
   # Host URL
   if (!is.null(host)) {
-    Sys.setenv("CONNECT_DATABRICKS_HOST" = host)
-    env_vars <- "CONNECT_DATABRICKS_HOST"
+    env_vars <- c("CONNECT_DATABRICKS_HOST" = host)
   } else {
-    env_host_name <- "DATABRICKS_HOST"
-    env_host <- Sys.getenv(env_host_name, unset = "")
+    env_host <- Sys.getenv("DATABRICKS_HOST", unset = "")
     if (env_host != "") {
-      env_vars <- c(env_vars, env_host_name)
+      env_vars <- c(env_vars, "DATABRICKS_HOST" = env_host)
       host <- env_host
     }
   }
@@ -111,13 +109,11 @@ deploy_databricks <- function(
 
   # Token
   if (!is.null(token)) {
-    Sys.setenv("CONNECT_DATABRICKS_TOKEN" = token)
-    env_vars <- c(env_vars, "CONNECT_DATABRICKS_TOKEN")
+    env_vars <- c(env_vars, "CONNECT_DATABRICKS_TOKEN" = token)
   } else {
-    env_token_name <- "DATABRICKS_TOKEN"
-    env_token <- Sys.getenv(env_token_name, unset = "")
+    env_token <- Sys.getenv("DATABRICKS_TOKEN", unset = "")
     if (env_token != "") {
-      env_vars <- c(env_vars, env_token_name)
+      env_vars <- c(env_vars, "DATABRICKS_TOKEN" = env_token)
       token <- env_token
     }
   }
@@ -132,19 +128,23 @@ deploy_databricks <- function(
     cli_abort(c("Cluster setup errors:", var_error), call = NULL)
   }
 
-  deploy(
-    appDir = appDir,
-    lint = lint,
-    python = python,
-    version = version,
-    backend = "databricks",
-    main_library = "databricks-connect",
-    envVars = env_vars,
-    env_var_message = env_var_message,
-    account = account,
-    server = server,
-    confirm = confirm,
-    ...
+  withr::with_envvar(
+    new = env_vars, {
+      deploy(
+        appDir = appDir,
+        lint = lint,
+        python = python,
+        version = version,
+        backend = "databricks",
+        main_library = "databricks-connect",
+        envVars = names(env_vars),
+        env_var_message = env_var_message,
+        account = account,
+        server = server,
+        confirm = confirm,
+        ...
+      )
+    }
   )
 }
 

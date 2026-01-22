@@ -65,7 +65,6 @@ test_that("Tests deploy_databricks() error cases", {
         }
       )
       expect_snapshot(deploy_databricks(), error = TRUE)
-      expect_snapshot(deploy_databricks(host = "another1"), error = TRUE)
     }
   )
 })

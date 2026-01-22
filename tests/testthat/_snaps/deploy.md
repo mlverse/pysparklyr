@@ -86,14 +86,4 @@
       Error:
       ! Cluster setup errors:
         - No host URL was provided or found. Please either set the 'DATABRICKS_HOST' environment variable, or pass the `host` argument.
-        - No token was provided or found. Please either set the 'DATABRICKS_TOKEN' environment variable, or pass the `token` argument.
-
----
-
-    Code
-      deploy_databricks(host = "another1")
-    Condition
-      Error:
-      ! Cluster setup errors:
-        - No token was provided or found. Please either set the 'DATABRICKS_TOKEN' environment variable, or pass the `token` argument.
 

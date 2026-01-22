@@ -2,11 +2,17 @@
 
 ### Fixes
 
+* Adds support for Pandas 3.0 conversion (#169)
+
+* Properly converts Pandas columns to R (#165 - @romangehrn) 
+
 * Switches to using the configuration file in Posit Workbench to obtain the
 Databricks OAuth token. This guarantees that RMarkdown and Quarto documents
 that attempt to access a Databricks cluster are successful (#166)
 
 ### Improvements
+
+* Adds support for Databricks Viewer OAuth credentials. 
 
 * Adds support for Snowflake's [Snowpark Connect](https://docs.snowflake.com/en/developer-guide/snowpark-connect/snowpark-connect-overview).
 New method name is `snowpark_connect`.

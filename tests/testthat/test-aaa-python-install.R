@@ -193,7 +193,7 @@ test_that("Databricks installation works", {
     withr::with_envvar(
       new = c(
         "DATABRICKS_HOST" = use_test_db_host(),
-        "DATABRICKS_TOKEN" = databricks_token()
+        "DATABRICKS_TOKEN" = "temptoken"
       ),
       {
         install_databricks(

@@ -16,7 +16,13 @@ to_pandas_cleaned <- function(x) {
     }
   }
 
-  collected <- dplyr::as_tibble(x$toPandas())
+
+  collected <- x$toPandas()$values |>
+    as.data.frame() |>
+    lapply(unlist) |>  # Conversion makes encases all columns inside lists
+    set_names(x$columns) |>
+    dplyr::as_tibble()
+
   col_types <- map_chr(
     collected, \(.x) {
       classes <- class(.x)

@@ -18,9 +18,14 @@ test_that("ml_connect_not_supported() works", {
     ml_connect_not_supported(
       args = list(),
       not_supported = c(
-        "elastic_net_param", "reg_param", "threshold",
-        "aggregation_depth", "fit_intercept",
-        "raw_prediction_col", "uid", "weight_col"
+        "elastic_net_param",
+        "reg_param",
+        "threshold",
+        "aggregation_depth",
+        "fit_intercept",
+        "raw_prediction_col",
+        "uid",
+        "weight_col"
       )
     )
   )
@@ -29,9 +34,14 @@ test_that("ml_connect_not_supported() works", {
     ml_connect_not_supported(
       args = list(reg_param = 1),
       not_supported = c(
-        "elastic_net_param", "reg_param", "threshold",
-        "aggregation_depth", "fit_intercept",
-        "raw_prediction_col", "uid", "weight_col"
+        "elastic_net_param",
+        "reg_param",
+        "threshold",
+        "aggregation_depth",
+        "fit_intercept",
+        "raw_prediction_col",
+        "uid",
+        "weight_col"
       ),
       "The following argument(s) are not supported by Spark Connect:"
     )

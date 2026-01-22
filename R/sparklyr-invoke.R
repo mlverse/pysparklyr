@@ -87,10 +87,11 @@ invoke_conn <- function(jobj, context, method, ...) {
   if (inherits(x, "python.builtin.method")) {
     run_x <- py_call(x, ...)
 
-    if (inherits(run_x, "numpy.number") |
-      inherits(run_x, "python.builtin.str") |
-      inherits(run_x, "python.builtin.bool") |
-      inherits(run_x, "python.builtin.int")
+    if (
+      inherits(run_x, "numpy.number") |
+        inherits(run_x, "python.builtin.str") |
+        inherits(run_x, "python.builtin.bool") |
+        inherits(run_x, "python.builtin.int")
     ) {
       out <- py_to_r(run_x)
     }
@@ -104,7 +105,9 @@ invoke_conn <- function(jobj, context, method, ...) {
     }
   }
 
-  if (is.null(out)) out <- py_to_r(x)
+  if (is.null(out)) {
+    out <- py_to_r(x)
+  }
 
   out
 }

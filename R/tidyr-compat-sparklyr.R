@@ -60,13 +60,9 @@
         gap <- p - length(x)
         for (j in seq(p)) {
           if (fill_left) {
-            out[[j]][[i]] <- (
-              if (j >= gap) x[[j - gap]] else NA
-            )
+            out[[j]][[i]] <- (if (j >= gap) x[[j - gap]] else NA)
           } else {
-            out[[j]][[i]] <- (
-              if (j < length(x)) x[[j]] else NA
-            )
+            out[[j]][[i]] <- (if (j < length(x)) x[[j]] else NA)
           }
         }
       } else {
@@ -150,7 +146,11 @@
   out <- .str_match_first(x, regex)
   if (length(out) != length(into)) {
     stop(
-      "`regex` should define ", length(into), " groups; ", ncol(matches), " found.",
+      "`regex` should define ",
+      length(into),
+      " groups; ",
+      ncol(matches),
+      " found.",
       call. = FALSE
     )
   }

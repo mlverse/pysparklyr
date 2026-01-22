@@ -1,8 +1,15 @@
 #' @export
 ml_cross_validator.pyspark_connection <- function(
-  x, estimator = NULL, estimator_param_maps = NULL, evaluator = NULL,
-  num_folds = 3, collect_sub_models = FALSE, parallelism = 1, seed = NULL,
-  uid = NULL, ...
+  x,
+  estimator = NULL,
+  estimator_param_maps = NULL,
+  evaluator = NULL,
+  num_folds = 3,
+  collect_sub_models = FALSE,
+  parallelism = 1,
+  seed = NULL,
+  uid = NULL,
+  ...
 ) {
   if (!inherits(estimator, "ml_connect_pipeline")) {
     abort("Only ML Pipelines are supported at this time")
@@ -59,7 +66,9 @@ ml_cross_validator.pyspark_connection <- function(
   }
   cv_estimator$metric_name <- metric_name
   class(cv_estimator) <- c(
-    "ml_connect_cross_validator", "ml_cross_validator", class(cv_estimator)
+    "ml_connect_cross_validator",
+    "ml_cross_validator",
+    class(cv_estimator)
   )
   cv_estimator
 }

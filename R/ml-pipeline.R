@@ -84,8 +84,13 @@ ml_print_params <- function(x, sc = NULL) {
   class_2 <- ml_get_last_item(class(py_x)[[3]])
   ret <- paste0(x_params, collapse = "\n")
   ret <- paste0(
-    class_1, " (", class_2, ")", "\n",
-    name_label, "\n",
+    class_1,
+    " (",
+    class_2,
+    ")",
+    "\n",
+    name_label,
+    "\n",
     "(Parameters)\n",
     ret
   )
@@ -111,7 +116,12 @@ ml_connect_add_stage <- function(x, stage) {
   as_pipeline(pipeline, stages, outputs, TRUE)
 }
 
-as_pipeline <- function(jobj, stages = list(), outputs = list(), get_uid = FALSE) {
+as_pipeline <- function(
+  jobj,
+  stages = list(),
+  outputs = list(),
+  get_uid = FALSE
+) {
   if (get_uid) {
     uid <- invoke(jobj, "uid")
   } else {

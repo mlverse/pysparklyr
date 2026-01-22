@@ -179,7 +179,9 @@ connection_spark_server <- function(input, output, session) {
       if (input$host != host) {
         ret <- "✓ Using supplied custom Host URL in code"
       }
-      if (host == "") ret <- ""
+      if (host == "") {
+        ret <- ""
+      }
       ret
     }
   })

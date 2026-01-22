@@ -1,10 +1,12 @@
 #' @export
-spark_write_delta.tbl_pyspark <- function(x,
-                                          path,
-                                          mode = NULL,
-                                          options = list(),
-                                          partition_by = NULL,
-                                          ...) {
+spark_write_delta.tbl_pyspark <- function(
+  x,
+  path,
+  mode = NULL,
+  options = list(),
+  partition_by = NULL,
+  ...
+) {
   pyspark_write_generic(
     x = x,
     path = path,
@@ -17,12 +19,14 @@ spark_write_delta.tbl_pyspark <- function(x,
 }
 
 #' @export
-spark_write_table.tbl_pyspark <- function(x,
-                                          name,
-                                          mode = NULL,
-                                          options = list(),
-                                          partition_by = NULL,
-                                          ...) {
+spark_write_table.tbl_pyspark <- function(
+  x,
+  name,
+  mode = NULL,
+  options = list(),
+  partition_by = NULL,
+  ...
+) {
   args <- list(...)
   save_action <- ifelse(identical(mode, "append"), "insertInto", "saveAsTable")
   pyspark_write_generic(

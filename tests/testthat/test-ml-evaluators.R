@@ -46,7 +46,10 @@ test_that("Clustering evaluation works", {
   tbl_iris <- use_test_table_iris() |>
     ft_string_indexer("Species", "species_idx")
   model <- tbl_iris |>
-    ml_kmeans(species_idx ~ Sepal_Length + Sepal_Width + Petal_Length + Petal_Width, seed = 1)
+    ml_kmeans(
+      species_idx ~ Sepal_Length + Sepal_Width + Petal_Length + Petal_Width,
+      seed = 1
+    )
   preds <- ml_predict(model, tbl_iris)
   expect_snapshot(
     preds |>

@@ -80,7 +80,13 @@ test_that("sdf_copy_to() workks", {
     "tbl_pyspark"
   )
   expect_s3_class(
-    sdf_copy_to(sc, test_df, name = "test_df", overwrite = TRUE, repartition = 2),
+    sdf_copy_to(
+      sc,
+      test_df,
+      name = "test_df",
+      overwrite = TRUE,
+      repartition = 2
+    ),
     "tbl_pyspark"
   )
 })

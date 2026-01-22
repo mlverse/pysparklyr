@@ -76,3 +76,28 @@ Installs PySpark and Python dependencies
 
 Installs Databricks Connect and Python dependencies
 }
+\examples{
+\dontrun{
+# Install the latest version of PySpark
+install_pyspark()
+
+# Install a specific version of PySpark
+install_pyspark(version = "4.0.0")
+
+# Install into a custom environment name
+install_pyspark(envname = "my-pyspark-env")
+
+# Install with ML libraries included
+install_pyspark(install_ml = TRUE)
+}
+\dontrun{
+# Install the latest version of Databricks Connect
+install_databricks()
+
+# Install matching the version of a specific cluster
+install_databricks(cluster_id = "1234-567890-abcdef12")
+
+# Install a specific version of Databricks Connect
+install_databricks(version = "17.3.0")
+}
+}

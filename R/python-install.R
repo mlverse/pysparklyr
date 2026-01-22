@@ -27,6 +27,20 @@
 #' taking. For example, it will let the user know if it is getting the latest
 #' version of the Python library from 'PyPi.org', and the result of such
 #' query.
+#' @examples
+#' \dontrun{
+#' # Install the latest version of PySpark
+#' install_pyspark()
+#'
+#' # Install a specific version of PySpark
+#' install_pyspark(version = "4.0.0")
+#'
+#' # Install into a custom environment name
+#' install_pyspark(envname = "my-pyspark-env")
+#'
+#' # Install with ML libraries included
+#' install_pyspark(install_ml = TRUE)
+#' }
 #' @export
 install_pyspark <- function(
   version = NULL,
@@ -60,6 +74,17 @@ install_pyspark <- function(
 #' @param cluster_id Target of the cluster ID that will be used with.
 #' If provided, this value will be used to extract the cluster's
 #' version
+#' @examples
+#' \dontrun{
+#' # Install the latest version of Databricks Connect
+#' install_databricks()
+#'
+#' # Install matching the version of a specific cluster
+#' install_databricks(cluster_id = "1234-567890-abcdef12")
+#'
+#' # Install a specific version of Databricks Connect
+#' install_databricks(version = "17.3.0")
+#' }
 #' @rdname install_pyspark
 #' @export
 install_databricks <- function(
@@ -301,6 +326,14 @@ install_environment <- function(
 #' @returns Returns no value, only sends information to the console. The
 #' information includes the current versions of 'sparklyr', and 'pysparklyr',
 #' as well as the 'Python' environment currently loaded.
+#' @examples
+#' \dontrun{
+#' # Show only key Python libraries (pyspark and databricks-connect)
+#' installed_components()
+#'
+#' # Show all installed Python libraries
+#' installed_components(list_all = TRUE)
+#' }
 #' @export
 installed_components <- function(list_all = FALSE) {
   pkgs <- py_list_packages(py_exe())

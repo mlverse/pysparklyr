@@ -12,4 +12,10 @@ A Shiny app
 \description{
 A Shiny app that can be used to construct a \code{spark_connect} statement
 }
+\examples{
+\dontrun{
+# Launch the interactive Databricks connection configuration app
+connection_databricks_shinyapp()
+}
+}
 \keyword{internal}

@@ -49,3 +49,27 @@ of the predictors insde an array. This function also creates a new 'label'
 column that copies the outcome variable. This makes it a lot easier to remove
 the 'label', and 'outcome' columns.
 }
+\examples{
+\dontrun{
+library(sparklyr)
+sc <- spark_connect(method = "spark_connect")
+
+# Using a formula to specify label and features
+iris_tbl <- copy_to(sc, iris)
+prepared <- ml_prepare_dataset(iris_tbl, Species ~ Sepal_Length + Sepal_Width)
+
+# Explicitly specifying label and features
+prepared <- ml_prepare_dataset(
+  iris_tbl,
+  label = "Species",
+  features = c("Sepal_Length", "Sepal_Width", "Petal_Length", "Petal_Width")
+)
+
+# Keep only label and features columns
+prepared <- ml_prepare_dataset(
+  iris_tbl,
+  Species ~ .,
+  keep_original = FALSE
+)
+}
+}

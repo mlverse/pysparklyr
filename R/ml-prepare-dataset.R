@@ -21,6 +21,29 @@
 #' @param keep_original Boolean flag that indicates if the output will contain,
 #' or not, the original columns from `x`. Defaults to `TRUE`.
 #' @param ... Added for backwards compatibility. Not in use today.
+#' @examples
+#' \dontrun{
+#' library(sparklyr)
+#' sc <- spark_connect(method = "spark_connect")
+#'
+#' # Using a formula to specify label and features
+#' iris_tbl <- copy_to(sc, iris)
+#' prepared <- ml_prepare_dataset(iris_tbl, Species ~ Sepal_Length + Sepal_Width)
+#'
+#' # Explicitly specifying label and features
+#' prepared <- ml_prepare_dataset(
+#'   iris_tbl,
+#'   label = "Species",
+#'   features = c("Sepal_Length", "Sepal_Width", "Petal_Length", "Petal_Width")
+#' )
+#'
+#' # Keep only label and features columns
+#' prepared <- ml_prepare_dataset(
+#'   iris_tbl,
+#'   Species ~ .,
+#'   keep_original = FALSE
+#' )
+#' }
 #' @export
 ml_prepare_dataset <- function(
   x,

@@ -70,3 +70,22 @@ This is a convenience function that is meant to make it easier for
 you to publish your Databricks backed content to a publishing server. It is
 meant to be primarily used with Posit Connect.
 }
+\examples{
+\dontrun{
+# Deploy using cluster ID to determine Python environment
+deploy_databricks(cluster_id = "1234-567890-abcdef12")
+
+# Deploy with specific DBR version
+deploy_databricks(version = "17.3")
+
+# Deploy with specific app directory and account
+deploy_databricks(
+  appDir = "path/to/app",
+  account = "myaccount",
+  server = "connect.example.com"
+)
+
+# Deploy with custom Python environment
+deploy_databricks(python = "/path/to/python")
+}
+}

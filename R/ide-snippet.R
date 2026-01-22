@@ -3,6 +3,11 @@
 #' @export
 #' @keywords internal
 #' @returns A Shiny app
+#' @examples
+#' \dontrun{
+#' # Launch the interactive Databricks connection configuration app
+#' connection_databricks_shinyapp()
+#' }
 connection_databricks_shinyapp <- function() {
   if (!"shiny" %in% installed.packages()) {
     install_shiny <- showQuestion(

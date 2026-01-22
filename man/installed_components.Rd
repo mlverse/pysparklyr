@@ -18,3 +18,12 @@ as well as the 'Python' environment currently loaded.
 \description{
 Lists installed Python libraries
 }
+\examples{
+\dontrun{
+# Show only key Python libraries (pyspark and databricks-connect)
+installed_components()
+
+# Show all installed Python libraries
+installed_components(list_all = TRUE)
+}
+}

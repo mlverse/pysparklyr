@@ -7,6 +7,23 @@
 #' @param ... Optional arguments; currently unused
 #' @returns It returns messages to the console with the status of starting, and
 #' stopping the local Spark Connect service.
+#' @examples
+#' \dontrun{
+#' # Start Spark Connect service with default version (4.0)
+#' spark_connect_service_start()
+#'
+#' # Start with a specific Spark version
+#' spark_connect_service_start(version = "4.1")
+#'
+#' # Start with custom Scala version
+#' spark_connect_service_start(version = "3.5", scala_version = "2.12")
+#'
+#' # Stop Spark Connect service
+#' spark_connect_service_stop()
+#'
+#' # Stop specific version
+#' spark_connect_service_stop(version = "4.1")
+#' }
 #' @export
 spark_connect_service_start <- function(
   version = "4.0",

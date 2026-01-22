@@ -47,6 +47,24 @@ rsconnect_deployApp <- if (is_installed("rsconnect")) rsconnect::deployApp
 #' information is being used for deployment? Defaults to `interactive()`
 #' @param ... Additional named arguments passed to `rsconnect::deployApp()` function
 #' @returns No value is returned to R. Only output to the console.
+#' @examples
+#' \dontrun{
+#' # Deploy using cluster ID to determine Python environment
+#' deploy_databricks(cluster_id = "1234-567890-abcdef12")
+#'
+#' # Deploy with specific DBR version
+#' deploy_databricks(version = "17.3")
+#'
+#' # Deploy with specific app directory and account
+#' deploy_databricks(
+#'   appDir = "path/to/app",
+#'   account = "myaccount",
+#'   server = "connect.example.com"
+#' )
+#'
+#' # Deploy with custom Python environment
+#' deploy_databricks(python = "/path/to/python")
+#' }
 #' @export
 deploy_databricks <- function(
   appDir = NULL,

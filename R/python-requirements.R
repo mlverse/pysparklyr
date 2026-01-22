@@ -8,6 +8,20 @@
 #' @param ... Additional arguments passed to `reticulate::py_list_packages()`
 #' @returns No value is returned to R. The output is a text file with the
 #' list of Python libraries.
+#' @examples
+#' \dontrun{
+#' # Create requirements.txt from current Python environment
+#' requirements_write()
+#'
+#' # Create requirements.txt from a specific environment
+#' requirements_write(envname = "r-sparklyr-pyspark-4.0")
+#'
+#' # Overwrite existing requirements.txt
+#' requirements_write(overwrite = TRUE)
+#'
+#' # Write to custom file location
+#' requirements_write(destfile = "python/requirements.txt")
+#' }
 #' @export
 requirements_write <- function(
   envname = NULL,

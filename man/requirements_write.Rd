@@ -29,3 +29,18 @@ This is a helper function that it is meant to be used for deployments
 of the document or application. By default, \code{deploy_databricks()} will run this
 function the first time you use that function to deploy content to Posit Connect.
 }
+\examples{
+\dontrun{
+# Create requirements.txt from current Python environment
+requirements_write()
+
+# Create requirements.txt from a specific environment
+requirements_write(envname = "r-sparklyr-pyspark-4.0")
+
+# Overwrite existing requirements.txt
+requirements_write(overwrite = TRUE)
+
+# Write to custom file location
+requirements_write(destfile = "python/requirements.txt")
+}
+}

@@ -24,13 +24,30 @@ to_pandas_cleaned <- function(x) {
     }
   )
 
+  extract_list <- function(x) if (length(x)==0 || is.nan(x)) NA else x[[1]]
+
   for (i in seq_len(ncol(collected))) {
-    if (orig_types[i] == "date") {
-      to_date <- collected[, i] |>
-        as.integer() |>
-        as.Date(origin = "1970-01-01")
-      collected[, i] <- to_date
-    }
+
+    ot <- orig_types[i]
+    ct <- col_types[i]
+    col <- collected[[i]]
+
+    collected[[i]] <-
+      if (ot == "date" && ct == "list") {
+        as.Date(map_vec(col, extract_list), origin="1970-01-01")
+      } else if (ot == "date" && ct == "character") {
+        as.Date(col, origin="1970-01-01")
+      } else if (ot == "boolean" && ct == "list") {
+        map_lgl(col, extract_list)
+      } else if (ot == "boolean" && ct == "character") {
+        as.logical(col)
+      } else if (ot == "int" && ct == "numeric") {
+        map_int(col, ~ ifelse(length(.x)==0 || is.nan(.x), NA, .x))
+      } else if (ct == "numeric") {
+        map_dbl(col, ~ ifelse(length(.x)==0 || is.nan(.x), NA, .x))
+      } else {
+        col
+      }
   }
 
   out <- tibble(collected)

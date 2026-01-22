@@ -351,6 +351,18 @@ There are no published references describing the methods in this package.
 The package implements original functionality for [brief description].
 ```
 
+**Use github_action_run() to update CI environments**
+
+```r
+# Copy output into the 'R CMD check environments' section of cran-comments.md
+cranjobs::github_action_run() 
+```
+
+```r
+# Copy output into the 'Test environments' section of cran-comments.md
+cranjobs::github_action_run("Spark-Connect")
+```
+
 ## Key Files to Review
 
 Work through these files systematically:

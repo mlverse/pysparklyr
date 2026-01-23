@@ -39,7 +39,14 @@ to_pandas_cleaned <- function(x) {
     }
   )
 
-  extract_list <- function(x) if (length(x) == 0 || is.nan(x)) NA else x[[1]]
+  clean_col <- function(x, subset = FALSE) {
+    if (length(x) == 0 || is.nan(x)) {
+      x <- NA
+    } else if (subset) {
+      x <- x[[1]]
+    }
+    x
+  }
 
   for (i in seq_len(ncol(collected))) {
     ot <- orig_types[i]
@@ -48,17 +55,17 @@ to_pandas_cleaned <- function(x) {
 
     collected[[i]] <-
       if (ot == "date" && ct == "list") {
-        as.Date(map_vec(col, extract_list), origin = "1970-01-01")
+        as.Date(map_vec(col, clean_col), origin = "1970-01-01")
       } else if (ot == "date" && ct == "character") {
         as.Date(col, origin = "1970-01-01")
       } else if (ot == "boolean" && ct == "list") {
-        map_lgl(col, extract_list)
+        map_lgl(col, clean_col)
       } else if (ot == "boolean" && ct == "character") {
         as.logical(col)
       } else if (ot == "int" && ct == "numeric") {
-        map_int(col, ~ ifelse(length(.x) == 0 || is.nan(.x), NA, .x))
+        map_int(col, clean_col, TRUE)
       } else if (ct == "numeric") {
-        map_dbl(col, ~ ifelse(length(.x) == 0 || is.nan(.x), NA, .x))
+        map_dbl(col, clean_col, TRUE)
       } else {
         col
       }

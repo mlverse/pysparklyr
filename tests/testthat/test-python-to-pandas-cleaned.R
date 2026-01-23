@@ -15,6 +15,7 @@ test_that("Pandas to R type conversion works", {
     'hello' AS string_col,
     CAST('abc' AS BINARY) AS binary_col,
     DATE '2025-01-01' AS date_col,
+    CAST(NULL AS DATE) AS date_col_null,
     TIMESTAMP '2025-01-01 12:34:56' AS timestamp_col,
     CAST(NULL AS TIMESTAMP) AS timestamp_col_null
   "
@@ -32,6 +33,7 @@ test_that("Pandas to R type conversion works", {
     CAST(NULL AS BOOLEAN),
     CAST(NULL AS STRING),
     CAST(NULL AS BINARY),
+    CAST(NULL AS DATE),
     CAST(NULL AS DATE),
     CAST(NULL AS TIMESTAMP),
     CAST(NULL AS TIMESTAMP)
@@ -62,6 +64,7 @@ test_that("Pandas to R type conversion works", {
   expect_vector(tbl_result$string_col, character())
   expect_vector(tbl_result$binary_col, list())
   expect_vector(tbl_result$date_col, Sys.Date())
+  expect_vector(tbl_result$date_col_null, Sys.Date())
   expect_vector(tbl_result$timestamp_col, Sys.time())
   expect_vector(tbl_result$timestamp_col_null, Sys.time())
 })

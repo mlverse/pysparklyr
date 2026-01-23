@@ -39,7 +39,7 @@ to_pandas_cleaned <- function(x) {
     }
   )
 
-  clean_col <- function(x, subset = FALSE) {
+  clean_col <- function(x, subset = TRUE) {
     if (length(x) == 0 || is.nan(x)) {
       x <- NA
     } else if (subset) {
@@ -49,23 +49,25 @@ to_pandas_cleaned <- function(x) {
   }
 
   for (i in seq_len(ncol(collected))) {
-    ot <- orig_types[i]
-    ct <- col_types[i]
+    py_type <- orig_types[i]
+    r_type <- col_types[i]
     col <- collected[[i]]
-
     collected[[i]] <-
-      if (ot == "date" && ct == "list") {
+      if (py_type == "date" && r_type == "list") {
         as.Date(map_vec(col, clean_col), origin = "1970-01-01")
-      } else if (ot == "date" && ct == "character") {
+      } else if (py_type == "date" && r_type == "character") {
         as.Date(col, origin = "1970-01-01")
-      } else if (ot == "boolean" && ct == "list") {
+      } else if (py_type == "boolean" && r_type == "list") {
         map_lgl(col, clean_col)
-      } else if (ot == "boolean" && ct == "character") {
+      } else if (py_type == "boolean" && r_type == "character") {
         as.logical(col)
-      } else if (ot == "int" && ct == "numeric") {
-        map_int(col, clean_col, TRUE)
-      } else if (ct == "numeric") {
-        map_dbl(col, clean_col, TRUE)
+      } else if (r_type == "numeric") {
+        if (py_type %in% c("tinyint", "smallint", "int")) {
+          ptype <- integer()
+        } else {
+          ptype <- numeric()
+        }
+        map_vec(col, clean_col, FALSE, .ptype = ptype)
       } else {
         col
       }

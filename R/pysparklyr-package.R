@@ -16,8 +16,9 @@
 #' @importFrom lifecycle deprecated
 #' @importFrom methods new is setOldClass
 #' @importFrom processx process
-#' @importFrom purrr map_chr discard transpose reduce map2 list_rbind flatten map_dbl
-#' @importFrom purrr map_lgl map_chr map pmap_chr imap iwalk walk imap_chr as_mapper
+#' @importFrom purrr map_chr discard transpose reduce map2 list_rbind flatten
+#' @importFrom purrr map_lgl map_chr map pmap_chr imap iwalk walk imap_chr
+#' @importFrom purrr as_mapper map_vec
 #' @importFrom rlang enquo `!!` `!!!` quo_is_null sym warn abort `%||%`
 #' @importFrom rlang exec arg_match as_utf8_character is_missing
 #' @importFrom rlang is_string is_character parse_exprs set_names

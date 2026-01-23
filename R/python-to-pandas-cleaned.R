@@ -22,10 +22,17 @@ to_pandas_cleaned <- function(x) {
     collected <- pandas_tbl
   } else {
     # Pandas 3.0 conversion makes encases all columns inside lists
-    collected <- pandas_tbl$values |>
-      as.data.frame() |>
-      lapply(unlist) |>
-      set_names(x$columns)
+    collected <- try(
+      pandas_tbl$values |>
+        as.data.frame() |>
+        lapply(unlist) |>
+        set_names(x$columns),
+      silent = TRUE
+    )
+    if (inherits(collected, "try-error")) {
+      collected <- x$toArrow()
+      collected <- collected$to_data_frame()
+    }
   }
 
   collected <- collected |>

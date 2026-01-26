@@ -183,7 +183,9 @@ databricks_dbr_info <- function(
     if (as.character(substr(out, 1, 26)) == "Error in req_perform(.) : ") {
       out <- substr(out, 27, nchar(out))
     }
-    if (!silent) cli_progress_done(result = "failed")
+    if (!silent) {
+      cli_progress_done(result = "failed")
+    }
     cli_abort(
       c(
         "{.header Connection with Databricks failed: }\"{trimws(out)}\"",
@@ -197,7 +199,9 @@ databricks_dbr_info <- function(
   } else {
     version <- databricks_extract_version(out)
   }
-  if (!silent) cli_progress_done()
+  if (!silent) {
+    cli_progress_done()
+  }
   cli_end()
   out
 }

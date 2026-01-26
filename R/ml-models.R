@@ -1,13 +1,21 @@
 # -------------------------- Linear Regression  --------------------------------
 ml_linear_regression_impl <- function(
-  x, formula = NULL, fit_intercept = TRUE,
-  elastic_net_param = 0, reg_param = 0,
-  max_iter = 100, weight_col = NULL,
-  loss = "squaredError", solver = "auto",
-  standardization = TRUE, tol = 1e-6,
-  features_col = "features", label_col = "label",
+  x,
+  formula = NULL,
+  fit_intercept = TRUE,
+  elastic_net_param = 0,
+  reg_param = 0,
+  max_iter = 100,
+  weight_col = NULL,
+  loss = "squaredError",
+  solver = "auto",
+  standardization = TRUE,
+  tol = 1e-6,
+  features_col = "features",
+  label_col = "label",
   prediction_col = "prediction",
-  uid = NULL, ...
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
@@ -27,15 +35,29 @@ ml_linear_regression.tbl_pyspark <- ml_linear_regression_impl
 
 # ------------------------- Logistic Regression  -------------------------------
 ml_logistic_regression_impl <- function(
-  x, formula = NULL, fit_intercept = NULL,
-  elastic_net_param = NULL, reg_param = NULL, max_iter = 100,
-  threshold = NULL, thresholds = NULL, tol = 1e-06,
-  weight_col = NULL, aggregation_depth = NULL,
-  lower_bounds_on_coefficients = NULL, lower_bounds_on_intercepts = NULL,
-  upper_bounds_on_coefficients = NULL, upper_bounds_on_intercepts = NULL,
-  features_col = "features", label_col = "label", family = NULL,
-  prediction_col = "prediction", probability_col = "probability",
-  raw_prediction_col = NULL, uid = NULL, ...
+  x,
+  formula = NULL,
+  fit_intercept = NULL,
+  elastic_net_param = NULL,
+  reg_param = NULL,
+  max_iter = 100,
+  threshold = NULL,
+  thresholds = NULL,
+  tol = 1e-06,
+  weight_col = NULL,
+  aggregation_depth = NULL,
+  lower_bounds_on_coefficients = NULL,
+  lower_bounds_on_intercepts = NULL,
+  upper_bounds_on_coefficients = NULL,
+  upper_bounds_on_intercepts = NULL,
+  features_col = "features",
+  label_col = "label",
+  family = NULL,
+  prediction_col = "prediction",
+  probability_col = "probability",
+  raw_prediction_col = NULL,
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
@@ -54,15 +76,28 @@ ml_logistic_regression.tbl_pyspark <- ml_logistic_regression_impl
 
 # ----------------------- Random Forest Classifier  ----------------------------
 ml_random_forest_classifier_impl <- function(
-  x, formula = NULL, num_trees = 10, subsampling_rate = 1,
-  max_depth = 5, min_instances_per_node = 1,
-  feature_subset_strategy = "auto", impurity = "gini",
-  min_info_gain = 0, max_bins = 32, seed = NULL,
-  thresholds = NULL, checkpoint_interval = 10, cache_node_ids = FALSE,
-  max_memory_in_mb = NULL, features_col = "features",
-  label_col = "label", prediction_col = "prediction",
-  probability_col = "probability", raw_prediction_col = "rawPrediction",
-  uid = NULL, ...
+  x,
+  formula = NULL,
+  num_trees = 10,
+  subsampling_rate = 1,
+  max_depth = 5,
+  min_instances_per_node = 1,
+  feature_subset_strategy = "auto",
+  impurity = "gini",
+  min_info_gain = 0,
+  max_bins = 32,
+  seed = NULL,
+  thresholds = NULL,
+  checkpoint_interval = 10,
+  cache_node_ids = FALSE,
+  max_memory_in_mb = NULL,
+  features_col = "features",
+  label_col = "label",
+  prediction_col = "prediction",
+  probability_col = "probability",
+  raw_prediction_col = "rawPrediction",
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
@@ -81,12 +116,25 @@ ml_random_forest_classifier.tbl_pyspark <- ml_random_forest_classifier_impl
 
 # ----------------------- Random Forest Regressor  -----------------------------
 ml_random_forest_regressor_impl <- function(
-  x, formula = NULL, num_trees = 20, subsampling_rate = 1,
-  max_depth = 5, min_instances_per_node = 1, feature_subset_strategy = "auto",
-  impurity = "variance", min_info_gain = 0, max_bins = 32,
-  seed = NULL, checkpoint_interval = 10, cache_node_ids = FALSE,
-  max_memory_in_mb = NULL, features_col = "features", label_col = "label",
-  prediction_col = "prediction", uid = NULL, ...
+  x,
+  formula = NULL,
+  num_trees = 20,
+  subsampling_rate = 1,
+  max_depth = 5,
+  min_instances_per_node = 1,
+  feature_subset_strategy = "auto",
+  impurity = "variance",
+  min_info_gain = 0,
+  max_bins = 32,
+  seed = NULL,
+  checkpoint_interval = 10,
+  cache_node_ids = FALSE,
+  max_memory_in_mb = NULL,
+  features_col = "features",
+  label_col = "label",
+  prediction_col = "prediction",
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
@@ -105,12 +153,25 @@ ml_random_forest_regressor.tbl_pyspark <- ml_random_forest_regressor_impl
 
 # ----------------------- Decision Tree Classifier  ----------------------------
 ml_decision_tree_classifier_impl <- function(
-  x, formula = NULL, max_depth = 5, max_bins = 32, min_instances_per_node = 1,
-  min_info_gain = 0, impurity = "gini", seed = NULL, thresholds = NULL,
-  cache_node_ids = FALSE, checkpoint_interval = 10, max_memory_in_mb = NULL,
-  features_col = "features", label_col = "label", prediction_col = "prediction",
-  probability_col = "probability", raw_prediction_col = "rawPrediction",
-  uid = NULL, ...
+  x,
+  formula = NULL,
+  max_depth = 5,
+  max_bins = 32,
+  min_instances_per_node = 1,
+  min_info_gain = 0,
+  impurity = "gini",
+  seed = NULL,
+  thresholds = NULL,
+  cache_node_ids = FALSE,
+  checkpoint_interval = 10,
+  max_memory_in_mb = NULL,
+  features_col = "features",
+  label_col = "label",
+  prediction_col = "prediction",
+  probability_col = "probability",
+  raw_prediction_col = "rawPrediction",
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
@@ -129,11 +190,23 @@ ml_decision_tree_classifier.tbl_pyspark <- ml_decision_tree_classifier_impl
 
 # ----------------------- Decision Tree Regressor  ----------------------------
 ml_decision_tree_regressor_impl <- function(
-  x, formula = NULL, max_depth = 5, max_bins = 32, min_instances_per_node = 1,
-  min_info_gain = 0, impurity = "variance", seed = NULL, cache_node_ids = FALSE,
-  checkpoint_interval = 10, max_memory_in_mb = NULL, variance_col = NULL,
-  features_col = "features", label_col = "label", prediction_col = "prediction",
-  uid = NULL, ...
+  x,
+  formula = NULL,
+  max_depth = 5,
+  max_bins = 32,
+  min_instances_per_node = 1,
+  min_info_gain = 0,
+  impurity = "variance",
+  seed = NULL,
+  cache_node_ids = FALSE,
+  checkpoint_interval = 10,
+  max_memory_in_mb = NULL,
+  variance_col = NULL,
+  features_col = "features",
+  label_col = "label",
+  prediction_col = "prediction",
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
@@ -152,9 +225,18 @@ ml_decision_tree_regressor.tbl_pyspark <- ml_decision_tree_regressor_impl
 
 # --------------------------------- Kmeans  ------------------------------------
 ml_kmeans_impl <- function(
-  x, formula = NULL, k = 2, max_iter = 20, tol = 1e-4, init_steps = 2,
-  init_mode = "k-means||", seed = NULL, features_col = "features",
-  prediction_col = "prediction", uid = NULL, ...
+  x,
+  formula = NULL,
+  k = 2,
+  max_iter = 20,
+  tol = 1e-4,
+  init_steps = 2,
+  init_mode = "k-means||",
+  seed = NULL,
+  features_col = "features",
+  prediction_col = "prediction",
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
@@ -173,9 +255,16 @@ ml_kmeans.tbl_pyspark <- ml_kmeans_impl
 
 # --------------------------- Bisecting Kmeans  --------------------------------
 ml_bisecting_kmeans_impl <- function(
-  x, formula = NULL, k = 4, max_iter = 20, seed = NULL,
-  min_divisible_cluster_size = 1, features_col = "features",
-  prediction_col = "prediction", uid = NULL, ...
+  x,
+  formula = NULL,
+  k = 4,
+  max_iter = 20,
+  seed = NULL,
+  min_divisible_cluster_size = 1,
+  features_col = "features",
+  prediction_col = "prediction",
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
@@ -194,12 +283,30 @@ ml_bisecting_kmeans.tbl_pyspark <- ml_bisecting_kmeans_impl
 
 # --------------------------- AFT Survival  ------------------------------------
 ml_aft_survival_regression_impl <- function(
-  x, formula = NULL, censor_col = "censor", quantile_probabilities = c(
-    0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99
-  ), fit_intercept = TRUE,
-  max_iter = 100L, tol = 1e-06, aggregation_depth = 2, quantiles_col = NULL,
-  features_col = "features", label_col = "label", prediction_col = "prediction",
-  uid = NULL, ...
+  x,
+  formula = NULL,
+  censor_col = "censor",
+  quantile_probabilities = c(
+    0.01,
+    0.05,
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    0.9,
+    0.95,
+    0.99
+  ),
+  fit_intercept = TRUE,
+  max_iter = 100L,
+  tol = 1e-06,
+  aggregation_depth = 2,
+  quantiles_col = NULL,
+  features_col = "features",
+  label_col = "label",
+  prediction_col = "prediction",
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
@@ -218,13 +325,29 @@ ml_aft_survival_regression.tbl_pyspark <- ml_aft_survival_regression_impl
 
 # ------------------------------ GBT Classifier  -------------------------------
 ml_gbt_classifier_impl <- function(
-  x, formula = NULL, max_iter = 20, max_depth = 5, step_size = 0.1,
-  subsampling_rate = 1, feature_subset_strategy = "auto", min_instances_per_node = 1L,
-  max_bins = 32, min_info_gain = 0, loss_type = "logistic", seed = NULL,
-  thresholds = NULL, checkpoint_interval = 10, cache_node_ids = FALSE,
-  max_memory_in_mb = NULL, features_col = "features", label_col = "label",
-  prediction_col = "prediction", probability_col = NULL,
-  raw_prediction_col = NULL, uid = NULL, ...
+  x,
+  formula = NULL,
+  max_iter = 20,
+  max_depth = 5,
+  step_size = 0.1,
+  subsampling_rate = 1,
+  feature_subset_strategy = "auto",
+  min_instances_per_node = 1L,
+  max_bins = 32,
+  min_info_gain = 0,
+  loss_type = "logistic",
+  seed = NULL,
+  thresholds = NULL,
+  checkpoint_interval = 10,
+  cache_node_ids = FALSE,
+  max_memory_in_mb = NULL,
+  features_col = "features",
+  label_col = "label",
+  prediction_col = "prediction",
+  probability_col = NULL,
+  raw_prediction_col = NULL,
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
@@ -243,12 +366,26 @@ ml_gbt_classifier.tbl_pyspark <- ml_gbt_classifier_impl
 
 # ------------------------------- GBT Regressor  -------------------------------
 ml_gbt_regressor_impl <- function(
-  x, formula = NULL, max_iter = 20, max_depth = 5, step_size = 0.1,
-  subsampling_rate = 1, feature_subset_strategy = "auto",
-  min_instances_per_node = 1, max_bins = 32, min_info_gain = 0, loss_type = "squared",
-  seed = NULL, checkpoint_interval = 10, cache_node_ids = FALSE,
-  max_memory_in_mb = NULL, features_col = "features", label_col = "label",
-  prediction_col = "prediction", uid = NULL, ...
+  x,
+  formula = NULL,
+  max_iter = 20,
+  max_depth = 5,
+  step_size = 0.1,
+  subsampling_rate = 1,
+  feature_subset_strategy = "auto",
+  min_instances_per_node = 1,
+  max_bins = 32,
+  min_info_gain = 0,
+  loss_type = "squared",
+  seed = NULL,
+  checkpoint_interval = 10,
+  cache_node_ids = FALSE,
+  max_memory_in_mb = NULL,
+  features_col = "features",
+  label_col = "label",
+  prediction_col = "prediction",
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
@@ -267,9 +404,16 @@ ml_gbt_regressor.tbl_pyspark <- ml_gbt_regressor_impl
 
 # --------------------------- Isotonic Regression  -----------------------------
 ml_isotonic_regression_impl <- function(
-  x, formula = NULL, feature_index = 0, isotonic = TRUE, weight_col = NULL,
-  features_col = "features", label_col = "label", prediction_col = "prediction",
-  uid = NULL, ...
+  x,
+  formula = NULL,
+  feature_index = 0,
+  isotonic = TRUE,
+  weight_col = NULL,
+  features_col = "features",
+  label_col = "label",
+  prediction_col = "prediction",
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),
@@ -288,11 +432,25 @@ ml_isotonic_regression.tbl_pyspark <- ml_isotonic_regression_impl
 
 # ----------------------- Generalized Linear Regression  -----------------------
 ml_generalized_linear_regression_impl <- function(
-  x, formula = NULL, family = "gaussian", link = NULL, fit_intercept = TRUE,
-  offset_col = NULL, link_power = NULL, link_prediction_col = NULL,
-  reg_param = 0, max_iter = 25, weight_col = NULL, solver = "irls", tol = 1e-6,
-  variance_power = 0, features_col = "features", label_col = "label",
-  prediction_col = "prediction", uid = NULL, ...
+  x,
+  formula = NULL,
+  family = "gaussian",
+  link = NULL,
+  fit_intercept = TRUE,
+  offset_col = NULL,
+  link_power = NULL,
+  link_prediction_col = NULL,
+  reg_param = 0,
+  max_iter = 25,
+  weight_col = NULL,
+  solver = "irls",
+  tol = 1e-6,
+  variance_power = 0,
+  features_col = "features",
+  label_col = "label",
+  prediction_col = "prediction",
+  uid = NULL,
+  ...
 ) {
   ml_process_fn(
     args = c(as.list(environment()), list(...)),

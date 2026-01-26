@@ -25,19 +25,25 @@ use_new_temp_env <- function() {
 
 use_test_version_spark <- function() {
   version <- Sys.getenv("SPARK_VERSION", unset = NA)
-  if (is.na(version)) version <- "4.0"
+  if (is.na(version)) {
+    version <- "4.0"
+  }
   version
 }
 
 use_test_scala_spark <- function() {
   version <- Sys.getenv("SCALA_VERSION", unset = NA)
-  if (is.na(version)) version <- "2.13"
+  if (is.na(version)) {
+    version <- "2.13"
+  }
   version
 }
 
 use_test_python_version <- function() {
   version <- Sys.getenv("PYTHON_VERSION", unset = NA)
-  if (is.na(version)) version <- "3.10"
+  if (is.na(version)) {
+    version <- "3.10"
+  }
   version
 }
 
@@ -163,7 +169,11 @@ use_test_table_reviews <- function() {
 use_test_lr_model <- function() {
   if (is.null(.test_env$lr_model)) {
     tbl_mtcars <- use_test_table_mtcars()
-    .test_env$lr_model <- ml_logistic_regression(tbl_mtcars, am ~ ., max_iter = 10)
+    .test_env$lr_model <- ml_logistic_regression(
+      tbl_mtcars,
+      am ~ .,
+      max_iter = 10
+    )
   }
   .test_env$lr_model
 }

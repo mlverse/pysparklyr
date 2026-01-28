@@ -1,27 +1,36 @@
 ## Package submission
 
-* Databricks connections app:
-  * Adds a dropdown to the Python Environment to make it more flexible
-  * Check for the existence of a Virtual Environment folder inside the
-  current RStudio project, adds it to the dropdown choices and makes it the default
+* Adds support for Pandas 3.0 conversion (#169)
 
-* Adds support for spark_write_delta() (#146)
+* Properly converts Pandas columns to R (#165 - @romangehrn) 
 
-* Gets token from Databricks SDK if one cannot be found. (#148)
+* Switches to using the configuration file in Posit Workbench to obtain the
+Databricks OAuth token. This guarantees that RMarkdown and Quarto documents
+that attempt to access a Databricks cluster are successful (#166)
+
+* Adds support for Databricks Viewer OAuth credentials. 
+
+* Adds support for Snowflake's Snowpark Connect. New method name is `snowpark_connect`.
+
+* Adds support for new ML methodology implemented in Spark 4.0 (#153). 
+
+* Tests switch over to using `uv` for setup (internal)
 
 ## Test environments
 
-- Spark 3.5: Ubuntu 24.04.3 LTS (x86_64, linux-gnu), R version 4.5.1 (2025-06-13)
+- Spark 4: Ubuntu 24.04.3 LTS (x86_64, linux-gnu), R version 4.5.2 (2025-10-31)
+
+- Spark 3: Ubuntu 24.04.3 LTS (x86_64, linux-gnu), R version 4.5.2 (2025-10-31)
 
 ## R CMD check environments
 
-- Mac OS M3 (aarch64-apple-darwin23), R 4.5.0 (Local)
+- Mac OS M3 (aarch64-apple-darwin23), R 4.5.2 (Local)
 
-- Ubuntu 24.04.3 LTS (x86_64, linux-gnu), R Under development (unstable) (2025-10-03 r88899)
+- Windows Server 2022 x64 (build 26100) (x86_64, mingw32), R version 4.5.2 (2025-10-31 ucrt)
+- macOS Sequoia 15.7.3 (aarch64, darwin20), R version 4.5.2 (2025-10-31)
+- Ubuntu 24.04.3 LTS (x86_64, linux-gnu), R Under development (unstable) (2026-01-21 r89314)
 - Ubuntu 24.04.3 LTS (x86_64, linux-gnu), R version 4.4.3 (2025-02-28)
-- Ubuntu 24.04.3 LTS (x86_64, linux-gnu), R version 4.5.1 (2025-06-13)
-- macOS Sequoia 15.6.1 (aarch64, darwin20), R version 4.5.1 (2025-06-13)
-- Windows Server 2022 x64 (build 26100) (x86_64, mingw32), R version 4.5.1 (2025-06-13 ucrt)
+- Ubuntu 24.04.3 LTS (x86_64, linux-gnu), R version 4.5.2 (2025-10-31)
 
 ## R CMD check results
 

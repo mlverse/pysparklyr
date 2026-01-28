@@ -1,4 +1,10 @@
-ml_process_fn <- function(args, fn, has_fit = TRUE, ml_type = "", ml_fn = NULL) {
+ml_process_fn <- function(
+  args,
+  fn,
+  has_fit = TRUE,
+  ml_type = "",
+  ml_fn = NULL
+) {
   ml_installed()
   x <- args$x
   conn <- spark_connection(x)

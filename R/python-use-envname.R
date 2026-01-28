@@ -114,11 +114,13 @@ use_envname <- function(
         " " = msg_2,
         " " = "{.header Do you wish to install {con_label} version {install_ver}?}"
       ))
-      choice <- menu(choices = c(
-        paste0("Yes", msg_yes),
-        paste0("No", msg_no),
-        "Cancel"
-      ))
+      choice <- menu(
+        choices = c(
+          paste0("Yes", msg_yes),
+          paste0("No", msg_no),
+          "Cancel"
+        )
+      )
       if (choice == 1) {
         ret <- set_names(envname, "prompt")
         exec(

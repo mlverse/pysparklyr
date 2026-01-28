@@ -91,7 +91,6 @@ pivot_longer.tbl_pyspark <- function(
       set_names_to <- "temp222"
     }
 
-
     all_pv <- NULL
     for (i in seq_along(u_val)) {
       nm_rm <- list()
@@ -127,7 +126,9 @@ pivot_longer.tbl_pyspark <- function(
     for (i in seq_along(all_pv)) {
       no_i <- length(all_pv) - i + 1
       if (no_i > 1) {
-        if (is.null(out)) out <- all_pv[[no_i]]
+        if (is.null(out)) {
+          out <- all_pv[[no_i]]
+        }
         next_df <- all_pv[[(no_i - 1)]]
         out <- out$join(
           other = next_df,
@@ -170,13 +171,16 @@ pivot_longer.tbl_pyspark <- function(
   out
 }
 
-un_pivot <- function(x, ids,
-                     values,
-                     names_to,
-                     values_to,
-                     remove_first,
-                     values_drop_na,
-                     repair) {
+un_pivot <- function(
+  x,
+  ids,
+  values,
+  names_to,
+  values_to,
+  remove_first,
+  values_drop_na,
+  repair
+) {
   out <- x$unpivot(
     ids = as.list(ids),
     values = as.list(values),

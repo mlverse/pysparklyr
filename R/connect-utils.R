@@ -32,7 +32,9 @@ initialize_connection <- function(
 
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)
-  if (inherits(get_version, "try-error")) databricks_dbr_error(get_version)
+  if (inherits(get_version, "try-error")) {
+    databricks_dbr_error(get_version)
+  }
 
   if (!is.null(config)) {
     # remove sparklyr default configs (at least for now)
@@ -130,9 +132,13 @@ build_user_agent <- function() {
       mode <- rstudio_version$mode
       version <- rstudio_version$long_version
       pr <- "rstudio"
-      if (length(edition) == 0) edition <- ""
+      if (length(edition) == 0) {
+        edition <- ""
+      }
 
-      if (length(mode) == 0) mode <- ""
+      if (length(mode) == 0) {
+        mode <- ""
+      }
       if (edition == "Professional") {
         if (mode == "server") {
           pr <- "workbench-rstudio"

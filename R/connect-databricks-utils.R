@@ -30,41 +30,41 @@ databricks_token <- function(token = NULL, fail = FALSE) {
   # if token provided, return
   # otherwise, search for token:
   # DATABRICKS_TOKEN > CONNECT_DATABRICKS_TOKEN > .rs.api.getDatabricksToken
-
   if (!is.null(token)) {
     return(set_names(token, "argument"))
   }
-  # Checks the Environment Variable
-  if (is.null(token)) {
-    env_token <- Sys.getenv("DATABRICKS_TOKEN", unset = NA)
-    connect_token <- Sys.getenv("CONNECT_DATABRICKS_TOKEN", unset = NA)
-    if (!is.na(env_token)) {
-      token <- set_names(env_token, "environment")
-    } else {
-      if (!is.na(connect_token)) {
-        token <- set_names(connect_token, "environment_connect")
-      }
-    }
+  # Checks the Environment Variables
+  env_token <- Sys.getenv("DATABRICKS_TOKEN", unset = NA)
+  if (!is.na(env_token)) {
+    return(set_names(env_token, "environment"))
   }
+  connect_token <- Sys.getenv("CONNECT_DATABRICKS_TOKEN", unset = NA)
+  if (!is.na(connect_token)) {
+    return(set_names(connect_token, "environment_connect"))
+  }
+
   # Checks for OAuth Databricks token inside the Workbench configuration file
-  if (is.null(token)) {
-    token <- workbench_databricks_token()
+  wb_token <- workbench_databricks_token()
+  if (!is.null(wb_token)) {
+    return(set_names(wb_token, "workbench"))
   }
-  if (is.null(token)) {
-    if (fail) {
-      rlang::abort(c(
-        paste0(
-          "No authentication token was identified: \n",
-          " - No 'DATABRICKS_TOKEN' environment variable found \n",
-          " - Not passed as a function argument"
-        ),
-        "Please add your Token to 'DATABRICKS_TOKEN' inside your .Renviron file."
-      ))
-    } else {
-      token <- ""
-    }
+
+  # Checks for Posit Connect OAuth
+  if (has_viewer_token(databricks_host())) {
+    return(set_names(connect_viewer_token(databricks_host()), "viewer"))
   }
-  token
+
+  if (fail) {
+    rlang::abort(c(
+      paste0(
+        "No authentication token was identified: \n",
+        " - No 'DATABRICKS_TOKEN' environment variable found \n",
+        " - Not passed as a function argument"
+      ),
+      "Please add your Token to 'DATABRICKS_TOKEN' inside your .Renviron file."
+    ))
+  }
+  return(NULL)
 }
 
 databricks_sdk_client <- function(
@@ -183,7 +183,9 @@ databricks_dbr_info <- function(
     if (as.character(substr(out, 1, 26)) == "Error in req_perform(.) : ") {
       out <- substr(out, 27, nchar(out))
     }
-    if (!silent) cli_progress_done(result = "failed")
+    if (!silent) {
+      cli_progress_done(result = "failed")
+    }
     cli_abort(
       c(
         "{.header Connection with Databricks failed: }\"{trimws(out)}\"",
@@ -197,7 +199,9 @@ databricks_dbr_info <- function(
   } else {
     version <- databricks_extract_version(out)
   }
-  if (!silent) cli_progress_done()
+  if (!silent) {
+    cli_progress_done()
+  }
   cli_end()
   out
 }

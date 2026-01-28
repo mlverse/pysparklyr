@@ -16,21 +16,68 @@ to_pandas_cleaned <- function(x) {
     }
   }
 
-  collected <- dplyr::as_tibble(x$toPandas())
+  pandas_tbl <- x$toPandas()
+
+  if (is.data.frame(pandas_tbl)) {
+    collected <- pandas_tbl
+  } else {
+    # Pandas 3.0 conversion makes encases all columns inside lists
+    collected <- try(
+      pandas_tbl$values |>
+        as.data.frame() |>
+        lapply(unlist) |>
+        set_names(x$columns),
+      silent = TRUE
+    )
+    if (inherits(collected, "try-error")) {
+      collected <- x$toArrow()
+      collected <- collected$to_data_frame()
+    }
+  }
+
+  collected <- collected |>
+    dplyr::as_tibble()
+
   col_types <- map_chr(
-    collected, \(.x) {
+    collected,
+    \(.x) {
       classes <- class(.x)
       classes[[1]]
     }
   )
 
-  for (i in seq_len(ncol(collected))) {
-    if (orig_types[i] == "date") {
-      to_date <- collected[, i] |>
-        as.integer() |>
-        as.Date(origin = "1970-01-01")
-      collected[, i] <- to_date
+  clean_col <- function(x, subset = TRUE) {
+    if (length(x) == 0 || is.nan(x)) {
+      x <- NA
+    } else if (subset) {
+      x <- x[[1]]
     }
+    x
+  }
+
+  for (i in seq_len(ncol(collected))) {
+    py_type <- orig_types[i]
+    r_type <- col_types[i]
+    col <- collected[[i]]
+    collected[[i]] <-
+      if (py_type == "date" && r_type == "list") {
+        as.Date(map_vec(col, clean_col), origin = "1970-01-01")
+      } else if (py_type == "date" && r_type == "character") {
+        as.Date(col, origin = "1970-01-01")
+      } else if (py_type == "boolean" && r_type == "list") {
+        map_lgl(col, clean_col)
+      } else if (py_type == "boolean" && r_type == "character") {
+        as.logical(col)
+      } else if (r_type == "numeric") {
+        if (py_type %in% c("tinyint", "smallint", "int")) {
+          ptype <- integer()
+        } else {
+          ptype <- numeric()
+        }
+        map_vec(col, clean_col, FALSE, .ptype = ptype)
+      } else {
+        col
+      }
   }
 
   out <- tibble(collected)

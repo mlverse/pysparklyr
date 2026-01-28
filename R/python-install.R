@@ -127,7 +127,13 @@ install_as_job <- function(
   args <- c(as.list(environment()), list(...))
   if (as_job && check_rstudio()) {
     install_code <- build_job_code(args)
-    job_name <- paste0("Installing '", main_library, "' version '", version, "'")
+    job_name <- paste0(
+      "Installing '",
+      main_library,
+      "' version '",
+      version,
+      "'"
+    )
     temp_file <- tempfile()
     writeLines(install_code, temp_file)
     invisible(
@@ -240,16 +246,19 @@ install_environment <- function(
     }
     if (method %in% c("auto", "conda")) {
       conda <- list(...)$conda %||% "auto"
-      while (!inherits(
-        tryCatch(conda_python(envname, conda), error = identity),
-        "error"
-      )) {
+      while (
+        !inherits(
+          tryCatch(conda_python(envname, conda), error = identity),
+          "error"
+        )
+      ) {
         conda_remove(envname, conda = conda)
       }
     }
   }
-  if (new_env && method != "conda" &&
-    is.null(virtualenv_starter(python_version))) {
+  if (
+    new_env && method != "conda" && is.null(virtualenv_starter(python_version))
+  ) {
     cli_abort(c(
       paste0(
         "{.header Python version} {.emph '{python_number}'}",
@@ -306,15 +315,23 @@ installed_components <- function(list_all = FALSE) {
   }
   cli_div(theme = cli_colors())
   cli_h3("R packages")
-  cli_bullets(c("*" = "{.header {.code sparklyr} ({packageVersion('sparklyr')}})"))
-  cli_bullets(c("*" = "{.header {.code pysparklyr} ({packageVersion('pysparklyr')}})"))
-  cli_bullets(c("*" = "{.header {.code reticulate} ({packageVersion('reticulate')}})"))
+  cli_bullets(c(
+    "*" = "{.header {.code sparklyr} ({packageVersion('sparklyr')}})"
+  ))
+  cli_bullets(c(
+    "*" = "{.header {.code pysparklyr} ({packageVersion('pysparklyr')}})"
+  ))
+  cli_bullets(c(
+    "*" = "{.header {.code reticulate} ({packageVersion('reticulate')}})"
+  ))
   cli_h3("Python executable")
   cli_text("{.header {py_exe()}}")
   cli_h3("Python libraries")
   for (i in seq_len(nrow(new_pkgs))) {
     curr_row <- new_pkgs[i, ]
-    cli_bullets(c("*" = "{.header {curr_row$package} ({.header {curr_row$version}})}"))
+    cli_bullets(c(
+      "*" = "{.header {curr_row$package} ({.header {curr_row$version}})}"
+    ))
   }
   cli_end()
   invisible()
@@ -348,7 +365,9 @@ python_library_info <- function(
     # Not catastrophic, it will simply try to use the upstream name and version
     # provided by the user
     msg_fail <- "Failed to contact PyPi.org"
-    if (verbose) cli_progress_done(result = "failed")
+    if (verbose) {
+      cli_progress_done(result = "failed")
+    }
     ret <- NULL
   } else {
     if (!is.null(resp)) {
@@ -362,7 +381,9 @@ python_library_info <- function(
         # Quering PyPi again to see if at least the library name is valid
         resp2 <- query_pypi(library_name, timeout = timeout)
         if (!is.null(resp2)) {
-          msg_fail <- glue("Version '{library_version}' for '{library_name}' not found")
+          msg_fail <- glue(
+            "Version '{library_version}' for '{library_name}' not found"
+          )
           msg_abort <- c(
             "Version {.emph '{library_version}'} is not valid for {.emph '{library_name}'}",
             "i" = "{.header The most recent, valid, version is} {.emph '{resp2$info$version}'}"
@@ -471,6 +492,8 @@ build_job_code <- function(args) {
     as.character() |>
     paste0(collapse = ", ")
   paste0(
-    "pysparklyr:::install_environment(", arg_list, ")"
+    "pysparklyr:::install_environment(",
+    arg_list,
+    ")"
   )
 }

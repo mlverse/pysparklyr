@@ -89,35 +89,33 @@ deploy_databricks <- function(
 
   # Host URL
   if (!is.null(host)) {
-    Sys.setenv("CONNECT_DATABRICKS_HOST" = host)
-    env_vars <- "CONNECT_DATABRICKS_HOST"
+    env_vars <- c("CONNECT_DATABRICKS_HOST" = host)
   } else {
-    env_host_name <- "DATABRICKS_HOST"
-    env_host <- Sys.getenv(env_host_name, unset = "")
+    env_host <- Sys.getenv("DATABRICKS_HOST", unset = "")
     if (env_host != "") {
-      env_vars <- c(env_vars, env_host_name)
+      env_vars <- c(env_vars, "DATABRICKS_HOST" = env_host)
       host <- env_host
     }
   }
   if (!is.null(host)) {
     env_var_message <- c("i" = paste0("{.header Host URL:} ", host))
   } else {
-    var_error <- c(" " = paste0(
-      "{.header - No host URL was provided or found. Please either set the}",
-      " {.emph 'DATABRICKS_HOST'} {.header environment variable,}",
-      " {.header or pass the }{.code host} {.header argument.}"
-    ))
+    var_error <- c(
+      " " = paste0(
+        "{.header - No host URL was provided or found. Please either set the}",
+        " {.emph 'DATABRICKS_HOST'} {.header environment variable,}",
+        " {.header or pass the }{.code host} {.header argument.}"
+      )
+    )
   }
 
   # Token
   if (!is.null(token)) {
-    Sys.setenv("CONNECT_DATABRICKS_TOKEN" = token)
-    env_vars <- c(env_vars, "CONNECT_DATABRICKS_TOKEN")
+    env_vars <- c(env_vars, "CONNECT_DATABRICKS_TOKEN" = token)
   } else {
-    env_token_name <- "DATABRICKS_TOKEN"
-    env_token <- Sys.getenv(env_token_name, unset = "")
+    env_token <- Sys.getenv("DATABRICKS_TOKEN", unset = "")
     if (env_token != "") {
-      env_vars <- c(env_vars, env_token_name)
+      env_vars <- c(env_vars, "DATABRICKS_TOKEN" = env_token)
       token <- env_token
     }
   }
@@ -126,31 +124,30 @@ deploy_databricks <- function(
       env_var_message,
       " " = "{.header Token:} '<REDACTED>'"
     )
-  } else {
-    var_error <- c(var_error, " " = paste0(
-      "{.header - No token was provided or found. Please either set the}",
-      " {.emph 'DATABRICKS_TOKEN'} {.header environment variable,}",
-      " {.header or pass the} {.code token} {.header argument.}"
-    ))
   }
 
   if (!is.null(var_error)) {
     cli_abort(c("Cluster setup errors:", var_error), call = NULL)
   }
 
-  deploy(
-    appDir = appDir,
-    lint = lint,
-    python = python,
-    version = version,
-    backend = "databricks",
-    main_library = "databricks-connect",
-    envVars = env_vars,
-    env_var_message = env_var_message,
-    account = account,
-    server = server,
-    confirm = confirm,
-    ...
+  withr::with_envvar(
+    new = env_vars,
+    {
+      deploy(
+        appDir = appDir,
+        lint = lint,
+        python = python,
+        version = version,
+        backend = "databricks",
+        main_library = "databricks-connect",
+        envVars = names(env_vars),
+        env_var_message = env_var_message,
+        account = account,
+        server = server,
+        confirm = confirm,
+        ...
+      )
+    }
   )
 }
 
@@ -234,7 +231,11 @@ deploy <- function(
 
     req_file <- path(appDir, "requirements.txt")
     prev_deployments <- rsconnect_deployments(appDir)
-    if (!file_exists(req_file) && nrow(prev_deployments) == 0 && check_interactive()) {
+    if (
+      !file_exists(req_file) &&
+        nrow(prev_deployments) == 0 &&
+        check_interactive()
+    ) {
       cli_inform(c(
         "{.header Would you like to create the 'requirements.txt' file?}",
         "{.class Why consider? This will allow you to skip using `version` or `cluster_id`}"
@@ -280,7 +281,9 @@ deploy_find_environment <- function(
       if (names(env_name) == "exact") {
         check_conda <- try(conda_python(env_name), silent = TRUE)
         check_virtualenv <- try(virtualenv_python(env_name), silent = TRUE)
-        if (!inherits(check_conda, "try-error")) ret <- check_conda
+        if (!inherits(check_conda, "try-error")) {
+          ret <- check_conda
+        }
         if (!inherits(check_virtualenv, "try-error")) ret <- check_virtualenv
       }
       if (is.null(ret)) failed <- env_name

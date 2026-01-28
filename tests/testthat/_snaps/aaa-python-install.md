@@ -7,8 +7,9 @@
        [1] "pyspark==3.5.0"           "pandas!=2.1.0"           
        [3] "PyArrow"                  "grpcio"                  
        [5] "google-api-python-client" "grpcio_status"           
-       [7] "databricks-sdk"           "torch"                   
-       [9] "torcheval"                "scikit-learn"            
+       [7] "databricks-sdk"           "zstandard"               
+       [9] "torch"                    "torcheval"               
+      [11] "scikit-learn"            
       
       $envname
                    unavailable 
@@ -37,7 +38,7 @@
       [1] "pyspark==3.5.*"           "pandas!=2.1.0"           
       [3] "PyArrow"                  "grpcio"                  
       [5] "google-api-python-client" "grpcio_status"           
-      [7] "databricks-sdk"          
+      [7] "databricks-sdk"           "zstandard"               
       
       $envname
                    unavailable 

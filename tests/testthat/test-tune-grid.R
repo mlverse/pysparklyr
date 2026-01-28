@@ -1,3 +1,5 @@
+skip_spark_min_version(4.0)
+
 test_that("tune_grid_spark() works - resamples", {
   x <- use_tune_grid()
   sc <- use_test_spark_connect()

@@ -60,6 +60,7 @@
 #' @importFrom tidyselect tidyselect_data_has_predicates
 #' @importFrom utils capture.output installed.packages menu
 #' @importFrom utils head type.convert compareVersion
+#' @importFrom uuid UUIDgenerate
 #' @importFrom vctrs vec_as_names
 #' @importFrom connectcreds has_viewer_token connect_viewer_token
 ## usethis namespace: end
@@ -74,3 +75,4 @@ pysparklyr_env <- new.env()
 pysparklyr_env$temp_prefix <- "sparklyr_tmp_"
 temp_prefix <- function() pysparklyr_env$temp_prefix
 pysparklyr_env$ml_libraries <- c("torch", "torcheval", "scikit-learn")
+pysparklyr_env$artifacts <- list()

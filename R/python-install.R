@@ -230,7 +230,8 @@ install_environment <- function(
     "grpcio",
     "google-api-python-client",
     "grpcio_status",
-    "databricks-sdk"
+    "databricks-sdk",
+    "zstandard"
   )
 
   if (add_torch && install_ml) {

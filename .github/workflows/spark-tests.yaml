@@ -41,6 +41,7 @@ jobs:
           extra-packages: |
             any::devtools
             any::arrow
+            any::tidymodels
           needs: check
 
       - name: Cache Spark

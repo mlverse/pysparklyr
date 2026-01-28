@@ -132,7 +132,11 @@ sa_in_pandas <- function(
     ) |>
     py_run_string()
   main <- reticulate::import_main()
-  df <- python_sdf(x)
+  if (inherits(x, "tbl_spark")) {
+    df <- python_sdf(x)
+  } else {
+    df <- x
+  }
   if (is.null(df)) {
     df <- x |>
       compute() |>
@@ -191,11 +195,7 @@ sa_function_to_string <- function(
   .context = NULL,
   ...
 ) {
-  path_scripts <- system.file("udf", package = "pysparklyr")
-  # path_scripts <- "inst/udf"
-  if (dir_exists("inst/udf")) {
-    path_scripts <- path_expand("inst/udf")
-  }
+  path_scripts <- pkg_path("udf")
   udf_fn <- ifelse(is.null(.group_by), "map", "apply")
   if (!is.null(.context)) {
     udf_fn <- glue("{udf_fn}-context")
@@ -226,7 +226,11 @@ sa_function_to_string <- function(
     fn_r
   )
   fn <- as_mapper(.f = .f, ... = ...)
-  fn_str <- paste0(deparse(fn), collapse = "\n")
+  if (is.character(.f)) {
+    fn_str <- .f
+  } else {
+    fn_str <- paste0(deparse(fn), collapse = "\n")
+  }
   if (inherits(fn, "rlang_lambda_function")) {
     fn_str <- paste0(
       "function(...) {x <- (",

@@ -153,3 +153,23 @@ list_diff <- function(x, y) {
     x[!mapply(identical, x[y_names], y)] # 2. Same name but different value
   )
 }
+
+pkg_path <- function(x) {
+  if (dir_exists(glue("inst/{x}"))) {
+    out <- path_expand(glue("inst/{x}"))
+  } else {
+    out <- system.file(x, package = "pysparklyr")
+    if (out == "") {
+      cli_abort("Path '{x}' not found", call = NULL)
+    }
+  }
+  out
+}
+
+str_replace <- function(string, pattern, replacement) {
+  sub(pattern, replacement, string)
+}
+
+str_replace_all <- function(string, pattern, replacement) {
+  gsub(pattern, replacement, string)
+}

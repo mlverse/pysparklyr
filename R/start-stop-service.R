@@ -4,6 +4,11 @@
 #' @param include_args Flag that indicates whether to add the additional arguments
 #' to the command that starts the service. At this time, only the 'packages'
 #' argument is submitted.
+#' @param python_version Python version to use if a temporary Python environment
+#' will be created
+#' @param python Path to the Python executable to use while running (optional)
+#' @param additional_args Vector of additional arguments to use when starting
+#' the service
 #' @param ... Optional arguments; currently unused
 #' @returns It returns messages to the console with the status of starting, and
 #' stopping the local Spark Connect service.
@@ -11,7 +16,10 @@
 spark_connect_service_start <- function(
   version = "4.0",
   scala_version = "2.13",
+  python_version = NULL,
+  python = NULL,
   include_args = TRUE,
+  additional_args = NULL,
   ...
 ) {
   get_version <- spark_install_find(version = version)
@@ -20,7 +28,8 @@ spark_connect_service_start <- function(
     "--packages",
     glue(
       "org.apache.spark:spark-connect_{scala_version}:{get_version$sparkVersion}"
-    )
+    ),
+    additional_args
   )
   if (!include_args) {
     args <- ""
@@ -35,13 +44,36 @@ spark_connect_service_start <- function(
     out_java <- setNames(java_version, rep("", times = length(java_version)))
     cli_bullets(out_java)
   }
-  prs <- process$new(
-    command = cmd,
-    args = args,
-    stdout = "|",
-    stderr = "|",
-    stdin = "|"
+  if (is.null(python)) {
+    envname <- use_envname(
+      backend = "pyspark",
+      main_library = "pyspark",
+      version = version,
+      python_version = python_version,
+      messages = TRUE,
+      ask_if_not_installed = FALSE
+    )
+    py_require("rpy2")
+    invisible(import_check("pyspark", envname))
+    python <- py_exe()
+  }
+  withr::with_envvar(
+    new = c(
+      "PYSPARK_PYTHON" = python,
+      "PYTHON_VERSION_MISMATCH" = python,
+      "PYSPARK_DRIVER_PYTHON" = python
+    ),
+    {
+      prs <- process$new(
+        command = cmd,
+        args = args,
+        stdout = "|",
+        stderr = "|",
+        stdin = "|"
+      )
+    }
   )
+
   output <- prs$read_all_output()
   cli_bullets(c(" " = "{.info {output}}"))
   error <- prs$read_all_error()

@@ -42,6 +42,7 @@ jobs:
             any::devtools
             any::arrow
             any::covr
+            any::tidymodels
           needs: check
 
       - name: Cache Spark

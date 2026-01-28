@@ -45,7 +45,7 @@ Suggests:
     rsconnect,
     rsample,
     workflows,
-    tune,
+    tune (>= 2.0.1.9002),
     parsnip,
     dials,
     recipes

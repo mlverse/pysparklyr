@@ -270,6 +270,12 @@ tune_grid_spark.pyspark_connection <- function(
       mutate(.predictions = preds_map)
   }
 
+  # Sets the `workflow` attribute if requested by `control`
+  wf <- NULL
+  wf <- if (isTRUE(control[["save_workflow"]])) {
+    wf <- prepped$wf
+  }
+
   # ------------------------- Finalizes output object --------------------------
   tibble::new_tibble(
     x = out,
@@ -280,7 +286,7 @@ tune_grid_spark.pyspark_connection <- function(
     eval_time_target = NULL,
     outcomes = tune::outcome_names(prepped$wf),
     rset_info = tune::pull_rset_attributes(resamples),
-    workflow = prepped$wf,
+    workflow = wf,
     class = c(class(out), "tune_results")
   )
 }
@@ -446,12 +452,6 @@ prep_static <- function(
   control_err <- NULL
   if (!is.null(control[["extract"]])) {
     control_err <- "This backend only supports `extract` set to NULL"
-  }
-  if (isTRUE(control[["save_workflow"]])) {
-    control_err <- c(
-      control_err,
-      "This backend does not support `save_workflow` set to TRUE"
-    )
   }
   if (!is.null(control[["backend_options"]])) {
     control_err <- c(

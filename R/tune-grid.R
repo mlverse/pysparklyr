@@ -3,7 +3,7 @@
 tune_grid_spark.pyspark_connection <- function(
   sc,
   object,
-  preprocessor,
+  preprocessor = NULL,
   resamples,
   ...,
   param_info = NULL,
@@ -14,7 +14,11 @@ tune_grid_spark.pyspark_connection <- function(
   num_tasks = NULL
 ) {
   # Makes sure tidymodels packages are installed
-  if (!is_installed("tune") | !is_installed("workflows") | !is_installed("rsample")) {
+  if (
+    !is_installed("tune") |
+      !is_installed("workflows") |
+      !is_installed("rsample")
+  ) {
     cli_abort(
       paste(
         "There are missing Tidymodels packages.",
@@ -411,9 +415,13 @@ prep_static <- function(
   control = NULL,
   call = NULL
 ) {
-  wf <- workflows::workflow() |>
-    workflows::add_model(object) |>
-    workflows::add_recipe(preprocessor)
+  if (is.null(preprocessor)) {
+    wf <- object
+  } else {
+    wf <- workflows::workflow() |>
+      workflows::add_model(object) |>
+      workflows::add_recipe(preprocessor)
+  }
 
   # ------------------------- Creates `static` object --------------------------
   # This part mostly recreates `tune_grid_loop()` to properly create the
@@ -460,8 +468,15 @@ prep_static <- function(
   control <- tune::.update_parallel_over(control, resamples, grid)
   eval_time <- tune::check_eval_time_arg(eval_time, wf_metrics, call = call)
   needed_pkgs <- c(
-    "rsample", "workflows", "hardhat", "tune", "reticulate",
-    "parsnip", "tailor", "yardstick", "tidymodels",
+    "rsample",
+    "workflows",
+    "hardhat",
+    "tune",
+    "reticulate",
+    "parsnip",
+    "tailor",
+    "yardstick",
+    "tidymodels",
     workflows::required_pkgs(wf),
     control$pkgs
   ) |>

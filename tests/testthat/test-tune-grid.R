@@ -1,6 +1,6 @@
 skip_spark_min_version(4.0)
 
-test_that("tune_grid_spark() works - resamples", {
+test_that("parallel_over resamples works", {
   x <- use_tune_grid()
   sc <- use_test_spark_connect()
   spark_results <- tune_grid_spark(
@@ -19,10 +19,14 @@ test_that("tune_grid_spark() works - resamples", {
     control = x$control
   )
   expect_equal(colnames(local_results), colnames(spark_results))
+  expect_equal(
+    names(attributes(local_results)),
+    names(attributes(spark_results))
+  )
   expect_equal(local_results[, 1:4], spark_results[, 1:4])
 })
 
-test_that("tune_grid_spark() works - everything", {
+test_that("parallel_over everything works", {
   x <- use_tune_grid()
   sc <- use_test_spark_connect()
   cntrl <- tune::control_grid(parallel_over = "everything")
@@ -42,6 +46,62 @@ test_that("tune_grid_spark() works - everything", {
     control = cntrl
   )
   expect_equal(colnames(local_results), colnames(spark_results))
+  expect_equal(
+    names(attributes(local_results)),
+    names(attributes(spark_results))
+  )
+  expect_equal(local_results[, 1:4], spark_results[, 1:4])
+})
+
+test_that("save_workflow works", {
+  x <- use_tune_grid()
+  sc <- use_test_spark_connect()
+  cntrl <- tune::control_grid(save_workflow = TRUE)
+  spark_results <- tune_grid_spark(
+    sc = sc,
+    object = x$object,
+    preprocessor = x$preprocessor,
+    resamples = x$resamples,
+    grid = x$grid,
+    control = cntrl
+  )
+  local_results <- tune::tune_grid(
+    object = x$object,
+    preprocessor = x$preprocessor,
+    resamples = x$resamples,
+    grid = x$grid,
+    control = cntrl
+  )
+  expect_equal(colnames(local_results), colnames(spark_results))
+  expect_equal(
+    names(attributes(local_results)),
+    names(attributes(spark_results))
+  )
+  expect_equal(local_results[, 1:4], spark_results[, 1:4])
+})
+
+test_that("Accepts workflow object", {
+  x <- use_tune_grid()
+  sc <- use_test_spark_connect()
+
+  wf <- workflows::workflow(x$preprocessor, x$object)
+
+  spark_results <- tune_grid_spark(
+    sc = sc,
+    object = wf,
+    resamples = x$resamples,
+    grid = x$grid
+  )
+  local_results <- tune::tune_grid(
+    object = wf,
+    resamples = x$resamples,
+    grid = x$grid
+  )
+  expect_equal(colnames(local_results), colnames(spark_results))
+  expect_equal(
+    names(attributes(local_results)),
+    names(attributes(spark_results))
+  )
   expect_equal(local_results[, 1:4], spark_results[, 1:4])
 })
 

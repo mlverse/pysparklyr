@@ -24,12 +24,13 @@ test_that("parallel_over resamples works", {
     names(attributes(spark_results))
   )
   expect_equal(local_results[, 1:4], spark_results[, 1:4])
+  expect_equal_preds(local_results, spark_results)
 })
 
 test_that("parallel_over everything works", {
   x <- use_tune_grid()
   sc <- use_test_spark_connect()
-  cntrl <- tune::control_grid(parallel_over = "everything")
+  cntrl <- tune::control_grid(parallel_over = "everything", save_pred = TRUE)
   spark_results <- tune_grid_spark(
     sc = sc,
     object = x$object,
@@ -51,6 +52,7 @@ test_that("parallel_over everything works", {
     names(attributes(spark_results))
   )
   expect_equal(local_results[, 1:4], spark_results[, 1:4])
+  expect_equal_preds(local_results, spark_results)
 })
 
 test_that("save_workflow works", {
@@ -147,8 +149,31 @@ test_that("loop_call works", {
     new = c("TEMP_SPARK_GRID" = temp_dir),
     {
       library(tune)
-      res <- loop_call(data.frame(index = 1))
+      res <- loop_call(data.frame(index = 1, row_num = 1))
     }
   )
   expect_s3_class(res, "data.frame")
+})
+
+skip("Under development")
+
+test_that("Post-processing works", {
+  x <- use_tune_grid()
+  sc <- use_test_spark_connect()
+  wf <- workflows::workflow(x$preprocessor, x$object, x$post)
+  cntrl <- tune::control_grid(save_pred = TRUE)
+  results_wf <- tune::tune_grid(
+    object = wf,
+    resamples = x$resamples,
+    grid = x$grid,
+    control = cntrl
+  )
+  results_spark <- tune_grid_spark(
+    object = wf,
+    resamples = x$resamples,
+    grid = x$grid,
+    control = cntrl,
+    sc = sc
+  )
+  expect_equal_preds(results, results_wf)
 })

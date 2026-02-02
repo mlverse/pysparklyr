@@ -47,9 +47,15 @@ use_tune_grid <- function() {
       parsnip::set_engine("rpart")
     preprocessor <- recipes::recipe(Species ~ ., data = iris) |>
       recipes::step_normalize(recipes::all_predictors()) |>
-      recipes::step_pca(recipes::all_numeric_predictors(), num_comp = tune::tune())
+      recipes::step_pca(
+        recipes::all_numeric_predictors(),
+        num_comp = tune::tune()
+      )
     resamples <- rsample::bootstraps(iris, 5)
-    wf_grid <- dials::grid_regular(dials::num_comp(c(1L, 15L)), dials::tree_depth())
+    wf_grid <- dials::grid_regular(
+      dials::num_comp(c(1L, 15L)),
+      dials::tree_depth()
+    )
     cntrl <- tune::control_grid(verbose = TRUE, save_pred = TRUE)
     results <- tune::tune_grid(
       object = object,
@@ -57,13 +63,49 @@ use_tune_grid <- function() {
       resamples = resamples,
       grid = wf_grid
     )
+    post <- tailor::tailor() |>
+      tailor::adjust_probability_calibration()
     out$object <- object
     out$preprocessor <- preprocessor
     out$resamples <- resamples
     out$grid <- wf_grid
     out$control <- cntrl
+    out$post <- post
     out$results <- results
     .test_env$tune_grid <- out
   }
   .test_env$tune_grid
+}
+
+expect_equal_preds <- function(object, expected) {
+  act <- quasi_label(enquo(object))
+  act2 <- quasi_label(enquo(expected))
+  res <- compare_pred_class(object, expected)
+  res_n <- nrow(res)
+  if (res_n > 0) {
+    fail(
+      glue::glue(
+        "{act$lab} predictions do not match {act2$lab}. There were {res_n} differences."
+      )
+    )
+  } else {
+    pass()
+  }
+  invisible(act$val)
+}
+
+compare_pred_class <- function(x, y) {
+  res <- NULL
+  pred_size <- length(x$.predictions)
+  for (i in seq_len(pred_size)) {
+    x_i <- x$.predictions[[i]]
+    y_i <- y$.predictions[[i]]
+    x_preds <- dplyr::select(x_i, .config, .row, x_class = .pred_class)
+    y_preds <- dplyr::select(y_i, .config, .row, y_class = .pred_class)
+    res <- dplyr::left_join(x_preds, y_preds, by = c(".config", ".row")) |>
+      dplyr::filter(x_class != y_class) |>
+      dplyr::mutate(split = i) |>
+      dplyr::bind_rows(res)
+  }
+  res
 }

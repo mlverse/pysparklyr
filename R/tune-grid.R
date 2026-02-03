@@ -105,7 +105,8 @@ tune_grid_spark.pyspark_connection <- function(
   }
 
   full_grid <- full_grid |>
-    dplyr::select(-"id")
+    dplyr::select(-"id") |>
+    dplyr::mutate(row_num = dplyr::row_number())
 
   # The grid is copied to Spark, it will be re-partitioned if `num_tasks`
   # is set. If not set, Spark will decide how many partitions the data will have,
@@ -329,14 +330,23 @@ loop_call <- function(x) {
   out <- NULL
   for (i in seq_len(nrow(x))) {
     curr_x <- x[i, ]
+    curr_row <- curr_x$row_num
+    curr_grid <- curr_x[, colnames(curr_x) != "row_num"]
     if (static$control$parallel_over == "everything") {
       curr_grid <- curr_x[, colnames(curr_x) != "index"]
-      index <- curr_x$index
     } else {
       curr_grid <- static$grid
-      index <- curr_x
     }
+    index <- curr_x$index
     curr_resample <- resamples[[index]]
+
+    data_splits <- tune:::get_data_subsets(
+      static$wflow,
+      curr_resample$splits[[1]],
+      static$split_args
+    )
+    static$data <- data_splits
+
     # loop_over_all_stages() requires the grid to be a tibble
     curr_grid <- tibble::as_tibble(curr_grid)
     assign(".Random.seed", c(1L, 2L, 3L), envir = .GlobalEnv)
@@ -374,14 +384,14 @@ loop_call <- function(x) {
       preds_df <- metrics_df[1, ]
       preds_df$`.estimator` <- preds_file
       preds_df$`.metric` <- "preds_path"
-      if (index == 1) {
+      if (curr_row == 1) {
         cols <- preds |>
           map_chr(class) |>
           imap(\(x, y) paste0(y, ":", x)) |>
           reduce(c) |>
           paste0(collapse = "|")
         preds_cols <- preds_df
-        preds_cols$`.estimator` <- cols
+        preds_cols$`.estimator` <- cols[[1]]
         preds_cols$`.metric` <- "preds_cols"
         preds_df <- rbind(preds_cols, preds_df)
       }

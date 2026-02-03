@@ -43,6 +43,8 @@ jobs:
             any::arrow
             any::covr
             any::tidymodels
+            any::probably
+            any::rpart
           needs: check
 
       - name: Cache Spark

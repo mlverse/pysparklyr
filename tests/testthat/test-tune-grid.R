@@ -155,8 +155,6 @@ test_that("loop_call works", {
   expect_s3_class(res, "data.frame")
 })
 
-skip("Under development")
-
 test_that("Post-processing works", {
   x <- use_tune_grid()
   sc <- use_test_spark_connect()
@@ -175,5 +173,5 @@ test_that("Post-processing works", {
     control = cntrl,
     sc = sc
   )
-  expect_equal_preds(results, results_wf)
+  expect_equal_preds(results_spark, results_wf)
 })

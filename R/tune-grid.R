@@ -339,6 +339,14 @@ loop_call <- function(x) {
     }
     index <- curr_x$index
     curr_resample <- resamples[[index]]
+
+    data_splits <- tune:::get_data_subsets(
+      static$wflow,
+      curr_resample$splits[[1]],
+      static$split_args
+    )
+    static$data <- data_splits
+
     # loop_over_all_stages() requires the grid to be a tibble
     curr_grid <- tibble::as_tibble(curr_grid)
     assign(".Random.seed", c(1L, 2L, 3L), envir = .GlobalEnv)

@@ -23,10 +23,22 @@ to_pandas_cleaned <- function(x) {
   } else {
     # Pandas 3.0 conversion makes encases all columns inside lists
     collected <- try(
-      pandas_tbl$values |>
-        as.data.frame() |>
-        lapply(unlist) |>
-        set_names(x$columns),
+      {
+        as.data.frame(pandas_tbl$values) |>
+          lapply(\(col) {
+            map_vec(
+              col,
+              \(x) {
+                if (length(x) == 0 || is.nan(x)) {
+                  NA
+                } else {
+                  x[[1]]
+                }
+              }
+            )
+          }) |>
+          set_names(x$columns)
+      },
       silent = TRUE
     )
     if (inherits(collected, "try-error")) {
@@ -63,6 +75,8 @@ to_pandas_cleaned <- function(x) {
       if (py_type == "date" && r_type == "list") {
         as.Date(map_vec(col, clean_col), origin = "1970-01-01")
       } else if (py_type == "date" && r_type == "character") {
+        as.Date(col, origin = "1970-01-01")
+      } else if (py_type == "date" && r_type %in% c("numeric", "integer", "logical")) {
         as.Date(col, origin = "1970-01-01")
       } else if (py_type == "boolean" && r_type == "list") {
         map_lgl(col, clean_col)

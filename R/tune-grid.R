@@ -57,7 +57,7 @@ tune_grid_spark.pyspark_connection <- function(
   # section
   vec_resamples <- resamples |>
     vctrs::vec_split(by = 1:nrow(resamples)) |>
-    _$val
+    (\(x) x$val)()
   pasted_pkgs <- paste0("'", prepped$needed_pkgs, "'", collapse = ", ")
 
   # --------------- Prepares and uploads R objects to Spark --------------------

@@ -63,6 +63,24 @@ to_pandas_cleaned <- function(x) {
         attr(collected[[i]], "tzone") <- ""
       }
     }
+    # Convert pandas Arrow-backed arrays to regular R vectors
+    if (inherits(collected[[i]], "python.builtin.object")) {
+      col_class <- try(class(collected[[i]]), silent = TRUE)
+      if (!inherits(col_class, "try-error")) {
+        # Check if it's an Arrow-backed array from pandas
+        if (any(grepl("ArrowStringArray|ArrowExtensionArray", col_class))) {
+          # Convert to regular character vector using numpy
+          collected[[i]] <- try(
+            as.character(collected[[i]]$to_numpy()),
+            silent = TRUE
+          )
+          # Fallback to Python list conversion if to_numpy fails
+          if (inherits(collected[[i]], "try-error")) {
+            collected[[i]] <- as.character(collected[[i]]$tolist())
+          }
+        }
+      }
+    }
   }
 
   collected <- collected |>

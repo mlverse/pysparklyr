@@ -611,6 +611,7 @@
       dplyr::pull(ft_ngram(ft_tokenizer(use_test_table_reviews(), "x", "token_x"),
       "token_x", "ngram_x"))
     Output
+      <list<character>[1]>
       [[1]]
        [1] "this has"      "has been"      "been the"      "the best"     
        [5] "best tv"       "tv i've"       "i've ever"     "ever used."   
@@ -888,6 +889,7 @@
     Code
       dplyr::pull(ft_regex_tokenizer(use_test_table_reviews(), "x", "new_x"))
     Output
+      <list<character>[1]>
       [[1]]
        [1] "this"    "has"     "been"    "the"     "best"    "tv"      "i've"   
        [8] "ever"    "used."   "great"   "screen," "and"     "sound." 
@@ -1063,6 +1065,7 @@
       dplyr::pull(ft_stop_words_remover(ft_tokenizer(use_test_table_reviews(),
       input_col = "x", output_col = "token_x"), input_col = "token_x", output_col = "stop_x"))
     Output
+      <list<character>[1]>
       [[1]]
       [1] "best"    "tv"      "ever"    "used."   "great"   "screen," "sound." 
       
@@ -1114,6 +1117,7 @@
     Code
       dplyr::pull(ft_tokenizer(use_test_table_reviews(), input_col = "x", output_col = "token_x"))
     Output
+      <list<character>[1]>
       [[1]]
        [1] "this"    "has"     "been"    "the"     "best"    "tv"      "i've"   
        [8] "ever"    "used."   "great"   "screen," "and"     "sound." 

@@ -3,6 +3,23 @@ use_test_pull <- function(x, table = FALSE) {
   if (table) {
     x <- table(x)
   }
+
+  # Handle Spark ML vectors that come through as structured data frames
+  # (Spark 4.1+ with Pandas 3.0+ converts ML vectors to data frames with type, size, indices, values columns)
+  if (is.data.frame(x) && all(c("type", "size", "indices", "values") %in% names(x))) {
+    # Extract the values column which contains the actual vector data
+    x <- data.frame(
+      x = map_chr(x$values, function(vec) {
+        if (is.null(vec) || length(vec) == 0) {
+          ""
+        } else {
+          paste(as.vector(vec), collapse = ", ")
+        }
+      })
+    )
+    return(x)
+  }
+
   if (inherits(x[[1]], "array")) {
     x <- as.double(map(x, as.vector))
   }
@@ -14,6 +31,13 @@ use_test_pull <- function(x, table = FALSE) {
   if (inherits(x[[1]], "pyspark.ml.linalg.DenseVector")) {
     x <- data.frame(
       x = map_chr(x, function(x) paste(as.vector(x$array), collapse = ", "))
+    )
+  }
+  # Handle vectors that have been converted to numeric during pandas conversion
+  # (Spark 4.1+ with Pandas 3.0+ converts ML vectors to numeric vectors)
+  if (is.list(x) && length(x) > 0 && is.numeric(x[[1]]) && !is.data.frame(x)) {
+    x <- data.frame(
+      x = map_chr(x, function(vec) paste(as.vector(vec), collapse = ", "))
     )
   }
   x

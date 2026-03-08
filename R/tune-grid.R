@@ -1,3 +1,17 @@
+# Helper to get tune functions that may have dots in dev version
+tune_fn <- function(name) {
+  # Dev tune exports with dot prefix, CRAN tune without
+  dot_name <- paste0(".", name)
+  ns <- asNamespace("tune")
+  if (exists(dot_name, where = ns)) {
+    getFromNamespace(dot_name, "tune")
+  } else if (exists(name, where = ns)) {
+    getFromNamespace(name, "tune")
+  } else {
+    stop("Function '", name, "' not found in tune package")
+  }
+}
+
 #' @importFrom sparklyr tune_grid_spark
 #' @export
 tune_grid_spark.pyspark_connection <- function(
@@ -57,7 +71,7 @@ tune_grid_spark.pyspark_connection <- function(
   # section
   vec_resamples <- resamples |>
     vctrs::vec_split(by = 1:nrow(resamples)) |>
-    _$val
+    (\(x) x$val)()
   pasted_pkgs <- paste0("'", prepped$needed_pkgs, "'", collapse = ", ")
 
   # --------------- Prepares and uploads R objects to Spark --------------------
@@ -78,18 +92,35 @@ tune_grid_spark.pyspark_connection <- function(
   }
   spark_session_add_file(vec_resamples, sc, hash_resamples)
 
+  # ------------------- Upload tune internal functions -------------------------
+  # For Spark 4.1.1+ with Python 3.13, internal functions don't serialize properly
+  # Capture them here and upload as an RDS file
+  # Use tune_fn() to handle both dev (with dot) and CRAN (without dot) versions
+  tune_fns <- list(
+    get_data_subsets = tune_fn("get_data_subsets"),
+    loop_over_all_stages = tune_fn("loop_over_all_stages")
+  )
+  hash_tune_fns <- "tune_fns"
+  spark_session_add_file(tune_fns, sc, hash_tune_fns)
+
   # -------------------------- Creates the UDF ---------------------------------
   # Uses the `loop_call` function as the base of the UDF that will be sent to
   # the Spark session. It works by modifying the text of the function, specifically
   # the file names it reads to load the different R object components
+
+  # Inject function loading code for Spark 4.1.1+ compatibility
+  # This will be inserted at the top of loop_call and will load tune functions
+  function_capture_code <- "library(tidymodels)"
+
   grid_code <- loop_call |>
     deparse() |>
     paste0(collapse = "\n") |>
     str_replace("\"rsample\"", pasted_pkgs) |>
     str_replace("debug <- TRUE", "debug <- FALSE") |>
-    str_replace("xy <- 1", "library(tidymodels)") |>
+    str_replace("xy <- 1", function_capture_code) |>
     str_replace("static.rds", path(hash_static, ext = "rds")) |>
-    str_replace("resamples.rds", path(hash_resamples, ext = "rds"))
+    str_replace("resamples.rds", path(hash_resamples, ext = "rds")) |>
+    str_replace("tune_fns.rds", path(hash_tune_fns, ext = "rds"))
 
   # -------------------- Creates and uploads the grid  -------------------------
   res_id_df <- purrr::map_df(
@@ -307,22 +338,46 @@ loop_call <- function(x) {
     stop("Packages ", missing_pkgs, " are missing")
   }
   xy <- 1
+
   # ------------------- Reads files with needed R objects ----------------------
   # Loads the needed R objects from disk
   debug <- TRUE
   static_fname <- "static.rds"
   resample_fname <- "resamples.rds"
+  tune_fns_fname <- "tune_fns.rds"
   if (isFALSE(debug)) {
     pyspark <- reticulate::import("pyspark")
     static_file <- pyspark$SparkFiles$get(static_fname)
     resample_file <- pyspark$SparkFiles$get(resample_fname)
+    tune_fns_file <- pyspark$SparkFiles$get(tune_fns_fname)
   } else {
     temp_path <- Sys.getenv("TEMP_SPARK_GRID", unset = "~")
     static_file <- file.path(temp_path, static_fname)
     resample_file <- file.path(temp_path, resample_fname)
+    tune_fns_file <- file.path(temp_path, tune_fns_fname)
   }
   static <- readRDS(static_file)
   resamples <- readRDS(resample_file)
+
+  # Load tune internal functions (or use fallback for direct test calls)
+  if (file.exists(tune_fns_file)) {
+    tune_fns <- readRDS(tune_fns_file)
+    get_data_subsets <- tune_fns$get_data_subsets
+    loop_over_all_stages <- tune_fns$loop_over_all_stages
+  } else {
+    # Fallback for direct calls in tests (debug mode without uploaded file)
+    # Try both naming conventions (dev uses dots, CRAN doesn't)
+    tryCatch({
+      get_data_subsets <- getFromNamespace(".get_data_subsets", "tune")
+    }, error = function(e) {
+      get_data_subsets <<- getFromNamespace("get_data_subsets", "tune")
+    })
+    tryCatch({
+      loop_over_all_stages <- getFromNamespace(".loop_over_all_stages", "tune")
+    }, error = function(e) {
+      loop_over_all_stages <<- getFromNamespace("loop_over_all_stages", "tune")
+    })
+  }
 
   # ------------ Iterates through all the combinations in `x` ------------------
   # Spark will more likely send more than one row (combination) in `x`. It
@@ -340,7 +395,7 @@ loop_call <- function(x) {
     index <- curr_x$index
     curr_resample <- resamples[[index]]
 
-    data_splits <- tune:::get_data_subsets(
+    data_splits <- get_data_subsets(
       static$wflow,
       curr_resample$splits[[1]],
       static$split_args
@@ -351,13 +406,8 @@ loop_call <- function(x) {
     curr_grid <- tibble::as_tibble(curr_grid)
     assign(".Random.seed", c(1L, 2L, 3L), envir = .GlobalEnv)
     # ------ Sends current combination to `tune` for processing ----------------
-    # TODO: This function check exists because the `tune` version in the Spark
-    # cluster may be CRAN. This needs to be removed by the time of release
-    if (exists(".loop_over_all_stages", where = "package:tune")) {
-      res <- tune::.loop_over_all_stages(curr_resample, curr_grid, static)
-    } else {
-      res <- tune:::loop_over_all_stages(curr_resample, curr_grid, static)
-    }
+    # Use the captured function to ensure it's available in Spark workers
+    res <- loop_over_all_stages(curr_resample, curr_grid, static)
     # -------------------- Extracts metrics from results -----------------------
     # Mapping function accepts only tables as output, so only the metrics are
     # being sent back instead of the entire results object
@@ -451,7 +501,7 @@ prep_static <- function(
     data = resamples$splits[[1]]$data,
     grid_names = names(grid)
   )
-  grid <- tune::.check_grid(
+  grid <- tune_fn("check_grid")(
     grid = grid,
     workflow = wf,
     pset = param_info
@@ -475,7 +525,7 @@ prep_static <- function(
       control_err
     ))
   }
-  control <- tune::.update_parallel_over(control, resamples, grid)
+  control <- tune_fn("update_parallel_over")(control, resamples, grid)
   eval_time <- tune::check_eval_time_arg(eval_time, wf_metrics, call = call)
   needed_pkgs <- c(
     "rsample",
@@ -495,11 +545,11 @@ prep_static <- function(
   out$static <- list(
     wflow = wf,
     param_info = param_info,
-    configs = tune::.get_config_key(grid, wf),
+    configs = tune_fn("get_config_key")(grid, wf),
     post_estimation = workflows::.workflow_postprocessor_requires_fit(wf),
     metrics = wf_metrics,
     metric_info = tibble::as_tibble(wf_metrics),
-    pred_types = tune::.determine_pred_types(wf, wf_metrics),
+    pred_types = tune_fn("determine_pred_types")(wf, wf_metrics),
     eval_time = eval_time,
     split_args = rsample::.get_split_args(resamples),
     control = control,

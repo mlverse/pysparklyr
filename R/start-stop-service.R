@@ -74,12 +74,32 @@ spark_connect_service_start <- function(
     }
   )
 
-  output <- prs$read_all_output()
-  cli_bullets(c(" " = "{.info {output}}"))
-  error <- prs$read_all_error()
-  if (error != "") {
-    cli_abort(error)
+  # Wait briefly to see if there's immediate output or errors
+  # Don't use read_all_output() as it blocks until process closes stdout
+  # Spark Connect is a long-running service, so we only check initial output
+  prs$poll_io(timeout = 2000)  # Wait max 2 seconds
+
+  # Read only what's available, don't wait for EOF
+  if (prs$is_alive()) {
+    output <- prs$read_output_lines()
+    if (length(output) > 0) {
+      cli_bullets(c(" " = "{.info {paste(output, collapse = '\n')}}"))
+    }
+    error <- prs$read_error_lines()
+    if (length(error) > 0 && any(nzchar(error))) {
+      cli_alert_warning(paste(error, collapse = "\n"))
+    }
+  } else {
+    # Process exited immediately, likely an error
+    if (prs$get_exit_status() != 0) {
+      error <- prs$read_all_error()
+      cli_abort(c("Failed to start Spark Connect service", "x" = error))
+    }
   }
+
+  # Store the process for potential cleanup
+  assign("spark_connect_process", prs, envir = .GlobalEnv)
+
   cli_end()
   invisible()
 }
@@ -97,6 +117,17 @@ spark_connect_service_stop <- function(version = "4.0", ...) {
     stderr = "|",
     stdin = "|"
   )
+
+  # Wait for shutdown command to complete
+  prs$wait(timeout = 5000)  # Wait max 5 seconds
+
   cli_bullets(c(" " = "{.info - Shutdown command sent}"))
+
+  # Clean up stored process reference
+  if (exists("spark_connect_process", envir = .GlobalEnv)) {
+    rm("spark_connect_process", envir = .GlobalEnv)
+  }
+
   cli_end()
+  invisible()
 }

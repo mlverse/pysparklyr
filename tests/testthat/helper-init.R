@@ -59,6 +59,7 @@ use_test_connect_start <- function() {
     cli_inform("SCALA_VERSION: {use_test_scala_spark()}")
     cli_inform("PYTHON_VERSION: {use_test_python_version()}")
     cli_h2("")
+    print(reticulate::py_list_packages())
 
     withr::with_envvar(
       new = c(

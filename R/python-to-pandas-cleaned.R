@@ -47,6 +47,24 @@ to_pandas_cleaned <- function(x) {
     }
   }
 
+  # Handle NULL columns by converting them to appropriate empty vectors
+  for (i in seq_along(collected)) {
+    if (is.null(collected[[i]])) {
+      collected[[i]] <- character(0)
+    }
+    # Convert arrow_binary to list
+    if (inherits(collected[[i]], "arrow_binary")) {
+      collected[[i]] <- as.list(collected[[i]])
+    }
+    # Convert UTC timestamps to local timezone
+    if (inherits(collected[[i]], "POSIXct")) {
+      # If the timestamp is in UTC, convert to local timezone
+      if (!is.null(attr(collected[[i]], "tzone")) && attr(collected[[i]], "tzone") == "UTC") {
+        attr(collected[[i]], "tzone") <- ""
+      }
+    }
+  }
+
   collected <- collected |>
     dplyr::as_tibble()
 
@@ -82,7 +100,10 @@ to_pandas_cleaned <- function(x) {
         map_lgl(col, clean_col)
       } else if (py_type == "boolean" && r_type == "character") {
         as.logical(col)
-      } else if (r_type == "numeric") {
+      } else if (r_type == "integer" && py_type %in% c("bigint", "long")) {
+        # Convert bigint/long to numeric since R integer is 32-bit
+        as.numeric(col)
+      } else if (r_type == "numeric" || r_type == "integer") {
         if (py_type %in% c("tinyint", "smallint", "int")) {
           ptype <- integer()
         } else {

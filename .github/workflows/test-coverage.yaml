@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {spark: '4.0.0', pyspark: '4.0.0', hadoop: '3', scala: '2.13', python: '3.10', name: 'PySpark 4'}
+          - {spark: '4.1.1', pyspark: '4.1.1', hadoop: '3', scala: '2.13', python: '3.12', name: 'PySpark 4'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -45,7 +45,13 @@ jobs:
             any::tidymodels
             any::probably
             any::rpart
+            any::pak
           needs: check
+
+      - name: Install sparklyr dev
+        run: |
+          pak::pak("sparklyr/sparklyr")
+        shell: Rscript {0}
 
       - name: Cache Spark
         id: cache-spark

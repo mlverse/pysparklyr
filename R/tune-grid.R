@@ -82,12 +82,25 @@ tune_grid_spark.pyspark_connection <- function(
   # Uses the `loop_call` function as the base of the UDF that will be sent to
   # the Spark session. It works by modifying the text of the function, specifically
   # the file names it reads to load the different R object components
+
+  # Inject function capture code for Spark 4.1.1+ compatibility
+  function_capture_code <- "
+  library(tidymodels)
+  # Capture internal tune functions for Spark worker serialization
+  get_data_subsets <- getFromNamespace('get_data_subsets', 'tune')
+  if (exists('.loop_over_all_stages', where = asNamespace('tune'))) {
+    loop_over_all_stages <- getFromNamespace('.loop_over_all_stages', 'tune')
+  } else {
+    loop_over_all_stages <- getFromNamespace('loop_over_all_stages', 'tune')
+  }
+  "
+
   grid_code <- loop_call |>
     deparse() |>
     paste0(collapse = "\n") |>
     str_replace("\"rsample\"", pasted_pkgs) |>
     str_replace("debug <- TRUE", "debug <- FALSE") |>
-    str_replace("xy <- 1", "library(tidymodels)") |>
+    str_replace("xy <- 1", function_capture_code) |>
     str_replace("static.rds", path(hash_static, ext = "rds")) |>
     str_replace("resamples.rds", path(hash_resamples, ext = "rds"))
 
@@ -307,6 +320,19 @@ loop_call <- function(x) {
     stop("Packages ", missing_pkgs, " are missing")
   }
   xy <- 1
+
+  # Fallback: Capture functions if not injected (for direct calls in tests)
+  if (!exists("get_data_subsets")) {
+    get_data_subsets <- getFromNamespace("get_data_subsets", "tune")
+  }
+  if (!exists("loop_over_all_stages")) {
+    if (exists(".loop_over_all_stages", where = asNamespace("tune"))) {
+      loop_over_all_stages <- getFromNamespace(".loop_over_all_stages", "tune")
+    } else {
+      loop_over_all_stages <- getFromNamespace("loop_over_all_stages", "tune")
+    }
+  }
+
   # ------------------- Reads files with needed R objects ----------------------
   # Loads the needed R objects from disk
   debug <- TRUE
@@ -340,7 +366,7 @@ loop_call <- function(x) {
     index <- curr_x$index
     curr_resample <- resamples[[index]]
 
-    data_splits <- tune:::get_data_subsets(
+    data_splits <- get_data_subsets(
       static$wflow,
       curr_resample$splits[[1]],
       static$split_args
@@ -351,13 +377,8 @@ loop_call <- function(x) {
     curr_grid <- tibble::as_tibble(curr_grid)
     assign(".Random.seed", c(1L, 2L, 3L), envir = .GlobalEnv)
     # ------ Sends current combination to `tune` for processing ----------------
-    # TODO: This function check exists because the `tune` version in the Spark
-    # cluster may be CRAN. This needs to be removed by the time of release
-    if (exists(".loop_over_all_stages", where = "package:tune")) {
-      res <- tune::.loop_over_all_stages(curr_resample, curr_grid, static)
-    } else {
-      res <- tune:::loop_over_all_stages(curr_resample, curr_grid, static)
-    }
+    # Use the captured function to ensure it's available in Spark workers
+    res <- loop_over_all_stages(curr_resample, curr_grid, static)
     # -------------------- Extracts metrics from results -----------------------
     # Mapping function accepts only tables as output, so only the metrics are
     # being sent back instead of the entire results object

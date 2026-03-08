@@ -78,22 +78,28 @@ tune_grid_spark.pyspark_connection <- function(
   }
   spark_session_add_file(vec_resamples, sc, hash_resamples)
 
+  # ------------------- Upload tune internal functions -------------------------
+  # For Spark 4.1.1+ with Python 3.13, internal functions don't serialize properly
+  # Capture them here and upload as an RDS file
+  tune_fns <- list(
+    get_data_subsets = getFromNamespace("get_data_subsets", "tune"),
+    loop_over_all_stages = if (exists(".loop_over_all_stages", where = asNamespace("tune"))) {
+      getFromNamespace(".loop_over_all_stages", "tune")
+    } else {
+      getFromNamespace("loop_over_all_stages", "tune")
+    }
+  )
+  hash_tune_fns <- "tune_fns"
+  spark_session_add_file(tune_fns, sc, hash_tune_fns)
+
   # -------------------------- Creates the UDF ---------------------------------
   # Uses the `loop_call` function as the base of the UDF that will be sent to
   # the Spark session. It works by modifying the text of the function, specifically
   # the file names it reads to load the different R object components
 
-  # Inject function capture code for Spark 4.1.1+ compatibility
-  function_capture_code <- "
-  library(tidymodels)
-  # Capture internal tune functions for Spark worker serialization
-  get_data_subsets <- getFromNamespace('get_data_subsets', 'tune')
-  if (exists('.loop_over_all_stages', where = asNamespace('tune'))) {
-    loop_over_all_stages <- getFromNamespace('.loop_over_all_stages', 'tune')
-  } else {
-    loop_over_all_stages <- getFromNamespace('loop_over_all_stages', 'tune')
-  }
-  "
+  # Inject function loading code for Spark 4.1.1+ compatibility
+  # This will be inserted at the top of loop_call and will load tune functions
+  function_capture_code <- "library(tidymodels)"
 
   grid_code <- loop_call |>
     deparse() |>
@@ -102,7 +108,8 @@ tune_grid_spark.pyspark_connection <- function(
     str_replace("debug <- TRUE", "debug <- FALSE") |>
     str_replace("xy <- 1", function_capture_code) |>
     str_replace("static.rds", path(hash_static, ext = "rds")) |>
-    str_replace("resamples.rds", path(hash_resamples, ext = "rds"))
+    str_replace("resamples.rds", path(hash_resamples, ext = "rds")) |>
+    str_replace("tune_fns.rds", path(hash_tune_fns, ext = "rds"))
 
   # -------------------- Creates and uploads the grid  -------------------------
   res_id_df <- purrr::map_df(
@@ -321,34 +328,40 @@ loop_call <- function(x) {
   }
   xy <- 1
 
-  # Fallback: Capture functions if not injected (for direct calls in tests)
-  if (!exists("get_data_subsets")) {
-    get_data_subsets <- getFromNamespace("get_data_subsets", "tune")
+  # ------------------- Reads files with needed R objects ----------------------
+  # Loads the needed R objects from disk
+  debug <- TRUE
+  static_fname <- "static.rds"
+  resample_fname <- "resamples.rds"
+  tune_fns_fname <- "tune_fns.rds"
+  if (isFALSE(debug)) {
+    pyspark <- reticulate::import("pyspark")
+    static_file <- pyspark$SparkFiles$get(static_fname)
+    resample_file <- pyspark$SparkFiles$get(resample_fname)
+    tune_fns_file <- pyspark$SparkFiles$get(tune_fns_fname)
+  } else {
+    temp_path <- Sys.getenv("TEMP_SPARK_GRID", unset = "~")
+    static_file <- file.path(temp_path, static_fname)
+    resample_file <- file.path(temp_path, resample_fname)
+    tune_fns_file <- file.path(temp_path, tune_fns_fname)
   }
-  if (!exists("loop_over_all_stages")) {
+  static <- readRDS(static_file)
+  resamples <- readRDS(resample_file)
+
+  # Load tune internal functions (or use fallback for direct test calls)
+  if (file.exists(tune_fns_file)) {
+    tune_fns <- readRDS(tune_fns_file)
+    get_data_subsets <- tune_fns$get_data_subsets
+    loop_over_all_stages <- tune_fns$loop_over_all_stages
+  } else {
+    # Fallback for direct calls in tests (debug mode without uploaded file)
+    get_data_subsets <- getFromNamespace("get_data_subsets", "tune")
     if (exists(".loop_over_all_stages", where = asNamespace("tune"))) {
       loop_over_all_stages <- getFromNamespace(".loop_over_all_stages", "tune")
     } else {
       loop_over_all_stages <- getFromNamespace("loop_over_all_stages", "tune")
     }
   }
-
-  # ------------------- Reads files with needed R objects ----------------------
-  # Loads the needed R objects from disk
-  debug <- TRUE
-  static_fname <- "static.rds"
-  resample_fname <- "resamples.rds"
-  if (isFALSE(debug)) {
-    pyspark <- reticulate::import("pyspark")
-    static_file <- pyspark$SparkFiles$get(static_fname)
-    resample_file <- pyspark$SparkFiles$get(resample_fname)
-  } else {
-    temp_path <- Sys.getenv("TEMP_SPARK_GRID", unset = "~")
-    static_file <- file.path(temp_path, static_fname)
-    resample_file <- file.path(temp_path, resample_fname)
-  }
-  static <- readRDS(static_file)
-  resamples <- readRDS(resample_file)
 
   # ------------ Iterates through all the combinations in `x` ------------------
   # Spark will more likely send more than one row (combination) in `x`. It

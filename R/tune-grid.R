@@ -1,3 +1,17 @@
+# Helper to get tune functions that may have dots in dev version
+tune_fn <- function(name) {
+  # Dev tune exports with dot prefix, CRAN tune without
+  dot_name <- paste0(".", name)
+  ns <- asNamespace("tune")
+  if (exists(dot_name, where = ns)) {
+    getFromNamespace(dot_name, "tune")
+  } else if (exists(name, where = ns)) {
+    getFromNamespace(name, "tune")
+  } else {
+    stop("Function '", name, "' not found in tune package")
+  }
+}
+
 #' @importFrom sparklyr tune_grid_spark
 #' @export
 tune_grid_spark.pyspark_connection <- function(
@@ -81,13 +95,10 @@ tune_grid_spark.pyspark_connection <- function(
   # ------------------- Upload tune internal functions -------------------------
   # For Spark 4.1.1+ with Python 3.13, internal functions don't serialize properly
   # Capture them here and upload as an RDS file
+  # Use tune_fn() to handle both dev (with dot) and CRAN (without dot) versions
   tune_fns <- list(
-    get_data_subsets = getFromNamespace("get_data_subsets", "tune"),
-    loop_over_all_stages = if (exists(".loop_over_all_stages", where = asNamespace("tune"))) {
-      getFromNamespace(".loop_over_all_stages", "tune")
-    } else {
-      getFromNamespace("loop_over_all_stages", "tune")
-    }
+    get_data_subsets = tune_fn("get_data_subsets"),
+    loop_over_all_stages = tune_fn("loop_over_all_stages")
   )
   hash_tune_fns <- "tune_fns"
   spark_session_add_file(tune_fns, sc, hash_tune_fns)
@@ -355,12 +366,17 @@ loop_call <- function(x) {
     loop_over_all_stages <- tune_fns$loop_over_all_stages
   } else {
     # Fallback for direct calls in tests (debug mode without uploaded file)
-    get_data_subsets <- getFromNamespace("get_data_subsets", "tune")
-    if (exists(".loop_over_all_stages", where = asNamespace("tune"))) {
+    # Try both naming conventions (dev uses dots, CRAN doesn't)
+    tryCatch({
+      get_data_subsets <- getFromNamespace(".get_data_subsets", "tune")
+    }, error = function(e) {
+      get_data_subsets <<- getFromNamespace("get_data_subsets", "tune")
+    })
+    tryCatch({
       loop_over_all_stages <- getFromNamespace(".loop_over_all_stages", "tune")
-    } else {
-      loop_over_all_stages <- getFromNamespace("loop_over_all_stages", "tune")
-    }
+    }, error = function(e) {
+      loop_over_all_stages <<- getFromNamespace("loop_over_all_stages", "tune")
+    })
   }
 
   # ------------ Iterates through all the combinations in `x` ------------------
@@ -485,7 +501,7 @@ prep_static <- function(
     data = resamples$splits[[1]]$data,
     grid_names = names(grid)
   )
-  grid <- tune::.check_grid(
+  grid <- tune_fn("check_grid")(
     grid = grid,
     workflow = wf,
     pset = param_info
@@ -509,7 +525,7 @@ prep_static <- function(
       control_err
     ))
   }
-  control <- tune::.update_parallel_over(control, resamples, grid)
+  control <- tune_fn("update_parallel_over")(control, resamples, grid)
   eval_time <- tune::check_eval_time_arg(eval_time, wf_metrics, call = call)
   needed_pkgs <- c(
     "rsample",
@@ -529,11 +545,11 @@ prep_static <- function(
   out$static <- list(
     wflow = wf,
     param_info = param_info,
-    configs = tune::.get_config_key(grid, wf),
+    configs = tune_fn("get_config_key")(grid, wf),
     post_estimation = workflows::.workflow_postprocessor_requires_fit(wf),
     metrics = wf_metrics,
     metric_info = tibble::as_tibble(wf_metrics),
-    pred_types = tune::.determine_pred_types(wf, wf_metrics),
+    pred_types = tune_fn("determine_pred_types")(wf, wf_metrics),
     eval_time = eval_time,
     split_args = rsample::.get_split_args(resamples),
     control = control,

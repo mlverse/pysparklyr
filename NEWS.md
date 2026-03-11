@@ -3,7 +3,12 @@
 ### Improvements
 
 - Adds support for `tune_grid_spark()`. It enables running a Tidymodels tune
-grid inside Spark Connect clusters. 
+grid inside Spark Connect clusters.
+
+- Databricks Connect now auto-detects the latest library version from PyPI when
+no `version` parameter is specified. When the auto-detected version differs from
+the cluster's DBR version, a warning is displayed with suggestions for ensuring
+version compatibility. 
 
 # pysparklyr 0.2.0
 

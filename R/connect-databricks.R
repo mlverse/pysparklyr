@@ -66,7 +66,12 @@ spark_connect_method.spark_method_databricks_connect <- function(
   db_sdk <- import_check("databricks.sdk", envname, silent = TRUE)
 
   if (is.null(token) || token == "") {
-    sdk_config <- db_sdk$core$Config(profile = profile)
+    if (!is.null(profile)) {
+      sdk_config <- db_sdk$core$Config(profile = profile)
+    } else {
+      sdk_config <- db_sdk$core$Config()
+    }
+
     token <- sdk_config$token %||% ""
   }
 

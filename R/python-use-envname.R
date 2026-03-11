@@ -24,8 +24,18 @@ use_envname <- function(
     return(set_names(envname, "argument"))
   }
 
+  version_from_pypi <- FALSE
   if (is.null(version)) {
-    cli_abort("A cluster {.code version} is required, please provide one")
+    if (!is.null(main_library)) {
+      lib_info <- python_library_info(main_library, fail = FALSE, verbose = FALSE)
+      if (!is.null(lib_info)) {
+        version <- lib_info$version
+        version_from_pypi <- TRUE
+      }
+    }
+    if (is.null(version)) {
+      cli_abort("A cluster {.code version} is required, please provide one")
+    }
   }
 
   env_base <- glue("r-sparklyr-{backend}-")
@@ -72,7 +82,8 @@ use_envname <- function(
 
   # There were 0 environments found
   if (!match_one && !match_exact) {
-    ret <- set_names(envname, "unavailable")
+    ret_name <- if (version_from_pypi) "latest" else "unavailable"
+    ret <- set_names(envname, ret_name)
     msg_1 <- msg_default
     msg_no <- " - Will use the default Python environment"
   }
@@ -103,7 +114,8 @@ use_envname <- function(
   if (match_one && !match_exact && !match_first) {
     msg_1 <- msg_default
     msg_no <- " - Will use the default Python environment"
-    ret <- set_names(envname, "unavailable")
+    ret_name <- if (version_from_pypi) "latest" else "unavailable"
+    ret <- set_names(envname, ret_name)
   }
 
   ret_name <- names(ret)
@@ -136,7 +148,7 @@ use_envname <- function(
         stop_quietly()
       }
     } else {
-      if (ret_name == "unavailable") {
+      if (ret_name %in% c("unavailable", "latest")) {
         reqs <- python_requirements(
           backend = backend,
           main_library = main_library,

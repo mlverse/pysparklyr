@@ -42,6 +42,9 @@ spark_connect_method.spark_method_databricks_connect <- function(
     version <- databricks_extract_version(cluster_info)
   }
 
+  # Track if version was provided by user
+  version_provided <- !is.null(version)
+
   # load python env
   envname <- use_envname(
     backend = "databricks",
@@ -63,7 +66,12 @@ spark_connect_method.spark_method_databricks_connect <- function(
   db_sdk <- import_check("databricks.sdk", envname, silent = TRUE)
 
   if (is.null(token) || token == "") {
-    sdk_config <- db_sdk$core$Config()
+    if (!is.null(profile)) {
+      sdk_config <- db_sdk$core$Config(profile = profile)
+    } else {
+      sdk_config <- db_sdk$core$Config()
+    }
+
     token <- sdk_config$token %||% ""
   }
 
@@ -85,6 +93,27 @@ spark_connect_method.spark_method_databricks_connect <- function(
         client = sdk_client,
         silent = silent
       )
+    }
+  }
+
+  # Check for version mismatch and warn user
+  if (!is.null(cluster_info) && !version_provided) {
+    cluster_version <- databricks_extract_version(cluster_info)
+    if (
+      !is.null(version) && cluster_version != "" && cluster_version != version
+    ) {
+      if (!silent) {
+        cli_div(theme = cli_colors())
+        cli_alert_warning(
+          paste0(
+            "Using databricks.connect version {.emph {version}}, which differs from ",
+            "Databricks' DBR version {.emph {cluster_version}}. If you experience instability, ",
+            "consider using {.code version = \"{cluster_version}\"} to ensure a matching ",
+            "version is used during the R session."
+          )
+        )
+        cli_end()
+      }
     }
   }
 

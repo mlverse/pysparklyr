@@ -66,7 +66,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
   db_sdk <- import_check("databricks.sdk", envname, silent = TRUE)
 
   if (is.null(token) || token == "") {
-    sdk_config <- db_sdk$core$Config()
+    sdk_config <- db_sdk$core$Config(profile = profile)
     token <- sdk_config$token %||% ""
   }
 
@@ -94,7 +94,9 @@ spark_connect_method.spark_method_databricks_connect <- function(
   # Check for version mismatch and warn user
   if (!is.null(cluster_info) && !version_provided) {
     cluster_version <- databricks_extract_version(cluster_info)
-    if (!is.null(version) && cluster_version != "" && cluster_version != version) {
+    if (
+      !is.null(version) && cluster_version != "" && cluster_version != version
+    ) {
       if (!silent) {
         cli_div(theme = cli_colors())
         cli_alert_warning(

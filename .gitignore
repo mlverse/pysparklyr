@@ -10,3 +10,4 @@
 derby.log
 spark-warehouse
 requirements.txt
+.claude

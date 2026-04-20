@@ -1,8 +1,26 @@
 on:
   push:
     branches: main
+    paths:
+      - '.github/workflows/test-coverage.yaml'
+      - 'R/**'
+      - 'tests/**'
+      - 'DESCRIPTION'
+      - 'NAMESPACE'
+      - 'man/**'
+      - 'inst/**'
+      - 'src/**'
   pull_request:
     branches: main
+    paths:
+      - '.github/workflows/test-coverage.yaml'
+      - 'R/**'
+      - 'tests/**'
+      - 'DESCRIPTION'
+      - 'NAMESPACE'
+      - 'man/**'
+      - 'inst/**'
+      - 'src/**'
 
 name: test-coverage
 

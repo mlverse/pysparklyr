@@ -1,14 +1,25 @@
-# pysparklyr (dev)
+# pysparklyr 0.2.1
 
-### Improvements
+### New
 
 - Adds support for `tune_grid_spark()`. It enables running a Tidymodels tune
 grid inside Spark Connect clusters.
 
+### Improvements
+
 - Databricks Connect now auto-detects the latest library version from PyPI when
 no `version` parameter is specified. When the auto-detected version differs from
 the cluster's DBR version, a warning is displayed with suggestions for ensuring
-version compatibility. 
+version compatibility.
+
+- Adds `profile` argument support to the Databricks SDK connection call.
+
+- When no cluster version is provided, uses the latest available main library
+version from PyPI.
+
+### Fixes
+
+- Fixes conversion of Pandas NULL columns and date types (#178 - @tobiasdut)
 
 # pysparklyr 0.2.0
 

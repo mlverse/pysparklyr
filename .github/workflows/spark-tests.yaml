@@ -1,8 +1,26 @@
 on:
   push:
     branches: main
+    paths:
+      - '.github/workflows/spark-tests.yaml'
+      - 'R/**'
+      - 'tests/**'
+      - 'DESCRIPTION'
+      - 'NAMESPACE'
+      - 'man/**'
+      - 'inst/**'
+      - 'src/**'
   pull_request:
     branches: main
+    paths:
+      - '.github/workflows/spark-tests.yaml'
+      - 'R/**'
+      - 'tests/**'
+      - 'DESCRIPTION'
+      - 'NAMESPACE'
+      - 'man/**'
+      - 'inst/**'
+      - 'src/**'
 
 name: Spark-Connect
 
@@ -17,7 +35,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {spark: '3.5.7', pyspark: '3.5.7', hadoop: '3', scala: '2.12', python: '3.10', name: 'PySpark 3'}
+          - {spark: '3.5.8', pyspark: '3.5.8', hadoop: '3', scala: '2.12', python: '3.10', name: 'PySpark 3'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}

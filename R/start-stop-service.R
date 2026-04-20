@@ -98,7 +98,7 @@ spark_connect_service_start <- function(
   }
 
   # Store the process for potential cleanup
-  assign("spark_connect_process", prs, envir = .GlobalEnv)
+  pysparklyr_env$spark_connect_process <- prs
 
   cli_end()
   invisible()
@@ -124,8 +124,8 @@ spark_connect_service_stop <- function(version = "4.0", ...) {
   cli_bullets(c(" " = "{.info - Shutdown command sent}"))
 
   # Clean up stored process reference
-  if (exists("spark_connect_process", envir = .GlobalEnv)) {
-    rm("spark_connect_process", envir = .GlobalEnv)
+  if (!is.null(pysparklyr_env$spark_connect_process)) {
+    pysparklyr_env$spark_connect_process <- NULL
   }
 
   cli_end()

@@ -69,6 +69,7 @@ jobs:
             any::probably
             any::rpart
             any::pak
+            any::connectcreds
           needs: check
 
       - name: Install sparklyr dev

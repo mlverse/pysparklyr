@@ -5,6 +5,11 @@
 - Adds support for `tune_grid_spark()`. It enables running a Tidymodels tune
 grid inside Spark Connect clusters.
 
+* Snowflake connections now support all native authenticators via the Snowflake
+  Python SDK, which also picks up on default credentials from Snowflake
+  `connections.toml` files. Viewer-based credentials on Posit Connect are now
+  supported, too (#181 - @atheriel).
+
 ### Improvements
 
 - Databricks Connect now auto-detects the latest library version from PyPI when

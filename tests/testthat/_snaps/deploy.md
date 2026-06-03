@@ -62,7 +62,7 @@
       [1] "databricks-connect"
       
       $envVars
-      [1] "CONNECT_DATABRICKS_HOST"  "CONNECT_DATABRICKS_TOKEN"
+      [1] "DATABRICKS_HOST"  "DATABRICKS_TOKEN"
       
       $env_var_message
                                     i                                 

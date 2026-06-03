@@ -13,73 +13,6 @@ test_that("DBR error code returns as expected", {
   expect_snapshot(databricks_dbr_error(""), error = TRUE)
 })
 
-test_that("Databricks Host works", {
-  expect_named(
-    withr::with_envvar(
-      new = c("DATABRICKS_HOST" = "test"),
-      {
-        databricks_host()
-      }
-    ),
-    "environment"
-  )
-  expect_named(databricks_host("thisisatest"), "argument")
-
-  expect_error(
-    withr::with_envvar(
-      new = c("DATABRICKS_HOST" = NA, "DATABRICKS_TOKEN" = NA),
-      {
-        databricks_host()
-      }
-    ),
-    "No Host URL was provided"
-  )
-
-  expect_named(
-    withr::with_envvar(
-      new = c("DATABRICKS_HOST" = NA, "CONNECT_DATABRICKS_HOST" = "testing"),
-      {
-        databricks_host()
-      }
-    ),
-    "environment_connect"
-  )
-})
-
-test_that("Databricks Token works", {
-  expect_named(
-    withr::with_envvar(
-      new = c("DATABRICKS_TOKEN" = "test"),
-      {
-        databricks_token()
-      }
-    ),
-    "environment"
-  )
-
-  expect_named(databricks_token("thisisatest"), "argument")
-
-  expect_error(
-    withr::with_envvar(
-      new = c("DATABRICKS_HOST" = NA, "DATABRICKS_TOKEN" = NA),
-      {
-        databricks_token(fail = TRUE)
-      }
-    ),
-    "No authentication token was identified"
-  )
-
-  expect_named(
-    withr::with_envvar(
-      new = c("DATABRICKS_TOKEN" = NA, "CONNECT_DATABRICKS_TOKEN" = "testing"),
-      {
-        databricks_token()
-      }
-    ),
-    "environment_connect"
-  )
-})
-
 test_that("Get cluster version", {
   vcr::local_cassette("databricks-cluster-version")
   expect_equal(
@@ -97,7 +30,6 @@ test_that("Cluster info runs as expected", {
 })
 
 test_that("Misc tests", {
-  expect_silent(databricks_desktop_login("xxxx", "xxxxx"))
   expect_snapshot(allowed_serverless_configs())
 })
 
@@ -107,10 +39,32 @@ test_that("DBR Python comes back as expected", {
   expect_equal(databricks_dbr_python("14.0"), "3.10")
 })
 
-test_that("Host sanitation works", {
-  clean_url <- "https://cloud.databricks.com"
-  expect_equal(sanitize_host("cloud.databricks.com"), clean_url)
-  expect_equal(sanitize_host("https://cloud.databricks.com"), clean_url)
-  expect_equal(sanitize_host("https://cloud.databricks.com/"), clean_url)
-  expect_equal(sanitize_host("https://cloud.databricks.com/?o=123#"), clean_url)
+test_that("connectcreds_databricks_token returns viewer token", {
+  local_mocked_connect_responses(token = "my-viewer-token")
+  result <- connectcreds_databricks_token("https://my.cloud.databricks.com")
+  expect_equal(result, "my-viewer-token")
+})
+
+test_that("connectcreds_databricks_token returns service account token", {
+  local_mocked_connect_responses(
+    token = "my-sa-token",
+    type = "service_account"
+  )
+  result <- connectcreds_databricks_token("https://my.cloud.databricks.com")
+  expect_equal(result, "my-sa-token")
+})
+
+test_that("connectcreds_databricks_token returns NULL when no token", {
+  local_mocked_bindings(
+    has_viewer_token = function(...) FALSE,
+    has_service_account_token = function(...) FALSE
+  )
+  result <- connectcreds_databricks_token("https://my.cloud.databricks.com")
+  expect_null(result)
+})
+
+test_that("connectcreds_databricks_token adds https:// prefix", {
+  local_mocked_connect_responses(token = "my-viewer-token")
+  result <- connectcreds_databricks_token("my.cloud.databricks.com")
+  expect_equal(result, "my-viewer-token")
 })

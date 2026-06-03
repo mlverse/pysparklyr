@@ -77,10 +77,12 @@ deploy_databricks <- function(
   cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
 
   if (is.null(version) && !is.null(cluster_id)) {
+    host <- host %||% Sys.getenv("DATABRICKS_HOST", unset = "")
+    token <- token %||% Sys.getenv("DATABRICKS_TOKEN", unset = "")
     version <- databricks_dbr_version(
       cluster_id = cluster_id,
-      host = databricks_host(host),
-      token = databricks_token(token)
+      host = host,
+      token = token
     )
   }
   env_vars <- NULL
@@ -89,7 +91,7 @@ deploy_databricks <- function(
 
   # Host URL
   if (!is.null(host)) {
-    env_vars <- c("CONNECT_DATABRICKS_HOST" = host)
+    env_vars <- c("DATABRICKS_HOST" = host)
   } else {
     env_host <- Sys.getenv("DATABRICKS_HOST", unset = "")
     if (env_host != "") {
@@ -111,7 +113,7 @@ deploy_databricks <- function(
 
   # Token
   if (!is.null(token)) {
-    env_vars <- c(env_vars, "CONNECT_DATABRICKS_TOKEN" = token)
+    env_vars <- c(env_vars, "DATABRICKS_TOKEN" = token)
   } else {
     env_token <- Sys.getenv("DATABRICKS_TOKEN", unset = "")
     if (env_token != "") {

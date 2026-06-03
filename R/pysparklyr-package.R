@@ -63,6 +63,7 @@
 #' @importFrom uuid UUIDgenerate
 #' @importFrom vctrs vec_as_names
 #' @importFrom connectcreds has_viewer_token connect_viewer_token
+#' @importFrom connectcreds has_service_account_token connect_service_account_token
 ## usethis namespace: end
 
 ## mockable bindings: start

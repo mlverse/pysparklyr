@@ -10,6 +10,10 @@ grid inside Spark Connect clusters.
   `connections.toml` files. Viewer-based credentials on Posit Connect are now
   supported, too (#181 - @atheriel).
 
+* Databricks connections now support all auth types via the Databricks SDK.
+  Service account-based credentials on Posit Connect are now supported, too
+  (#182 - @atheriel).
+
 ### Improvements
 
 - Databricks Connect now auto-detects the latest library version from PyPI when

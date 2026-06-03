@@ -255,6 +255,22 @@ use_test_db_host <- function() {
   return("https://adb-3256282566390055.15.azuredatabricks.net")
 }
 
+local_mocked_connect_responses <- function(
+  token = NULL,
+  type = "viewer",
+  env = parent.frame()
+) {
+  has_viewer <- identical(type, "viewer") && !is.null(token)
+  has_sa <- identical(type, "service_account") && !is.null(token)
+  local_mocked_bindings(
+    has_viewer_token = function(...) has_viewer,
+    connect_viewer_token = function(...) list(access_token = if (has_viewer) token),
+    has_service_account_token = function(...) has_sa,
+    connect_service_account_token = function(...) list(access_token = if (has_sa) token),
+    .env = env
+ )
+}
+
 skip_ml_missing <- function() {
   skip_if(!use_test_ml_installed(), "ML Python libraries not installed")
 }

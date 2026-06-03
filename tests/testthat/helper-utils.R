@@ -119,8 +119,8 @@ test_databricks_cluster_version <- function() {
     dbr <- try(
       databricks_dbr_version(
         cluster_id = test_databricks_cluster_id(),
-        host = databricks_host(),
-        token = databricks_token()
+        host = Sys.getenv("DATABRICKS_HOST"),
+        token = Sys.getenv("DATABRICKS_TOKEN")
       ),
       silent = TRUE
     )

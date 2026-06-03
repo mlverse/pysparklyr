@@ -19,8 +19,8 @@ skip_if_no_db_cluster_id <- function() {
     try(
       databricks_dbr_info(
         cluster_id = cluster_id,
-        host = databricks_host(),
-        token = databricks_token()
+        host = Sys.getenv("DATABRICKS_HOST"),
+        token = Sys.getenv("DATABRICKS_TOKEN")
       ),
       silent = TRUE
     ),
@@ -32,7 +32,7 @@ skip_if_no_db_cluster_id <- function() {
 
 skip_if_no_db_host <- function() {
   skip_if(
-    inherits(try(databricks_host(), silent = TRUE), "try-error"),
+    !nzchar(Sys.getenv("DATABRICKS_HOST")),
     "No Databricks Host available"
   )
 }
@@ -40,7 +40,7 @@ skip_if_no_db_host <- function() {
 skip_if_no_db_token <- function() {
   skip_if_no_db_host()
   skip_if(
-    inherits(try(databricks_token(), silent = TRUE), "try-error"),
+    !nzchar(Sys.getenv("DATABRICKS_TOKEN")),
     "No Databricks Token available"
   )
 }

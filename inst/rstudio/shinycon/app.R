@@ -102,30 +102,21 @@ connection_spark_ui <- function() {
 
 connection_spark_server <- function(input, output, session) {
   dbr_version <- reactiveVal("")
-  token <- pysparklyr:::databricks_token()
-  host <- pysparklyr:::databricks_host(fail = FALSE)
+  token <- Sys.getenv("DATABRICKS_TOKEN", unset = "")
+  host <- Sys.getenv("DATABRICKS_HOST", unset = "")
   output$auth_label <- reactive({
     ret <- ""
-    if (!is.null(names(token))) {
+    if (nzchar(token)) {
       ret <- "Password:"
     }
     ret
   })
 
   output$auth_ui <- reactive({
-    t_source <- names(token)
-    if (is.null(t_source)) {
-      ret <- ""
+    if (nzchar(token)) {
+      ret <- "✓ Found - Using 'DATABRICKS_TOKEN'"
     } else {
-      if (t_source == "environment") {
-        ret <- "✓ Found - Using 'DATABRICKS_TOKEN'"
-      }
-      if (t_source == "oauth") {
-        ret <- "✓ Found - Managed by Posit Workbench OAuth"
-      }
-      if (t_source == "") {
-        ret <- "✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable"
-      }
+      ret <- "✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable"
     }
     ret
   })

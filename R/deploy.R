@@ -77,12 +77,10 @@ deploy_databricks <- function(
   cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
 
   if (is.null(version) && !is.null(cluster_id)) {
-    host <- host %||% Sys.getenv("DATABRICKS_HOST", unset = "")
-    token <- token %||% Sys.getenv("DATABRICKS_TOKEN", unset = "")
     version <- databricks_dbr_version(
       cluster_id = cluster_id,
-      host = host,
-      token = token
+      host = host %||% Sys.getenv("DATABRICKS_HOST", unset = ""),
+      token = token %||% Sys.getenv("DATABRICKS_TOKEN", unset = "")
     )
   }
   env_vars <- NULL

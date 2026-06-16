@@ -60,6 +60,9 @@ test_that("Databricks Connect uses connectcreds viewer token", {
     initialize_connection = function(...) {
       return(list(...))
     },
+    databricks_dbr_info = function(...) {
+      return(list(cluster_name = "test_cluster"))
+    },
     import_check = function(...) {
       out <- list()
       out$DatabricksSession$builder$sdkConfig <- function(...) {
@@ -97,13 +100,13 @@ test_that("Databricks Connect uses connectcreds service account token", {
     "DATABRICKS_HOST" = "https://myworkspace.cloud.databricks.com",
     "DATABRICKS_TOKEN" = NA
   ))
-  connectcreds::local_mocked_connect_responses(
-    token = "sa-token-value",
-    type = "service_account"
-  )
+  connectcreds::local_mocked_connect_responses(token = "sa-token-value")
   local_mocked_bindings(
     initialize_connection = function(...) {
       return(list(...))
+    },
+    databricks_dbr_info = function(...) {
+      return(list(cluster_name = "test_cluster"))
     },
     import_check = function(...) {
       out <- list()

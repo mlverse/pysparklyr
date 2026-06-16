@@ -67,6 +67,7 @@ jobs:
             any::tidymodels
             any::probably
             any::rpart
+            any::connectcreds
           needs: check
 
       - name: Cache Spark

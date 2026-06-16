@@ -12,14 +12,10 @@ spark_connect_method.spark_method_snowpark_connect <- function(
   scala_version,
   ...
 ) {
-  if (missing(master) || is.null(master)) {
+  master_explicit <- !missing(master) && !is.null(master)
+  if (!master_explicit) {
     master <- Sys.getenv("SNOWFLAKE_ACCOUNT", unset = NA)
-    if (is.na(master)) {
-      cli_abort(paste(
-        "Please provide a `master` argument. It needs to be your Snowflake's",
-        "'Account Identifier', which can be found in the portal."
-      ))
-    }
+    if (is.na(master)) master <- NULL
   }
   args <- list(...)
   envname <- use_envname(
@@ -36,45 +32,58 @@ spark_connect_method.spark_method_snowpark_connect <- function(
   }
   pyspark <- import_check("snowflake.snowpark", envname)
   connection_parameters <- args$connection_parameters %||% list()
-  connection_parameters$account <- master
-  if (is.null(connection_parameters$password)) {
-    # Checks to see if there is a Posit Workbench token available
-    snowflake_home <- Sys.getenv("SNOWFLAKE_HOME", unset = NA)
-    if (!is.na(snowflake_home)) {
-      if (grepl("workbench", snowflake_home)) {
-        token <- try(
-          workbench_snowflake_token(master, snowflake_home),
-          silent = TRUE
-        )
-        if (!inherits(token, "try-error")) {
-          connection_parameters$authenticator <- "oauth"
-          connection_parameters$token <- token
-        }
-      }
+
+  using_named_connection <-
+    !is.null(connection_parameters$connection_name) ||
+    nzchar(Sys.getenv("SNOWFLAKE_DEFAULT_CONNECTION_NAME"))
+
+  effective_account <- if (!using_named_connection || master_explicit) {
+    master %||% connection_parameters$account
+  } else {
+    connection_parameters$account
+  }
+  snowflake_url <- if (!is.null(effective_account)) {
+    paste0("https://", effective_account, ".snowflakecomputing.com")
+  }
+
+  if (!is.null(snowflake_url) && has_viewer_token(snowflake_url)) {
+    token_obj <- connect_viewer_token(snowflake_url)
+    connection_parameters$account <- effective_account
+    connection_parameters$authenticator <- "oauth"
+    connection_parameters$token <- token_obj$access_token
+  } else if (!is.null(master) && (!using_named_connection || master_explicit)) {
+    connection_parameters$account <- master
+  }
+
+  if (!using_named_connection && !is.null(master)) {
+    missing_path <- NULL
+    if (is.null(connection_parameters$warehouse)) {
+      missing_path <- "warehouse"
+    }
+    if (is.null(connection_parameters$database)) {
+      missing_path <- c(missing_path, "database")
+    }
+    if (is.null(connection_parameters$schema)) {
+      missing_path <- c(missing_path, "schema")
+    }
+    if (!is.null(missing_path)) {
+      missing_path <- paste0("'", missing_path, "'")
+      cli_alert_warning(
+        "Argument{?s} {.pkg {missing_path}} will be needed to easily navigate Snowflake"
+      )
+      cli_bullets(
+        c(" " = "Please use the `connection_parameters` argument to pass them.")
+      )
     }
   }
-  missing_path <- NULL
-  if (is.null(connection_parameters$warehouse)) {
-    missing_path <- "warehouse"
-  }
-  if (is.null(connection_parameters$database)) {
-    missing_path <- c(missing_path, "database")
-  }
-  if (is.null(connection_parameters$schema)) {
-    missing_path <- c(missing_path, "schema")
-  }
-  if (!is.null(missing_path)) {
-    missing_path <- paste0("'", missing_path, "'")
-    cli_alert_warning(
-      "Argument{?s} {.pkg {missing_path}} will be needed to easily navigate Snowflake"
-    )
-    cli_bullets(
-      c(" " = "Please use the `connection_parameters` argument to pass them.")
-    )
-  }
+
   conn <- pyspark$Session$builder$configs(connection_parameters)
   con_class <- "connect_snowflake"
-  master_label <- glue("Snowpark Connect - {master}")
+  master_label <- if (!is.null(effective_account)) {
+    glue("Snowpark Connect - {effective_account}")
+  } else {
+    "Snowpark Connect"
+  }
   initialize_connection(
     conn = conn,
     master_label = master_label,
@@ -96,22 +105,3 @@ spark_connect_method.spark_method_snowpark_connect <- function(
 setOldClass(
   c("connect_snowflake", "pyspark_connection", "spark_connection")
 )
-
-# Copy of code from `odbc` which gets the Snowflake token from Workbench
-# https://github.com/r-dbi/odbc/blob/main/R/driver-snowflake.R
-workbench_snowflake_token <- function(account, sf_home) {
-  cfg <- readLines(file.path(sf_home, "connections.toml"))
-  # We don't attempt a full parse of the TOML syntax, instead relying on the
-  # fact that this file will always contain only one section.
-  if (!any(grepl(account, cfg, fixed = TRUE))) {
-    # The configuration doesn't actually apply to this account.
-    return(NULL)
-  }
-  line <- grepl("token = ", cfg, fixed = TRUE)
-  token <- gsub("token = ", "", cfg[line])
-  if (nchar(token) == 0) {
-    return(NULL)
-  }
-  # Drop enclosing quotes.
-  gsub("\"", "", token)
-}

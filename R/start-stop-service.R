@@ -77,7 +77,7 @@ spark_connect_service_start <- function(
   # Wait briefly to see if there's immediate output or errors
   # Don't use read_all_output() as it blocks until process closes stdout
   # Spark Connect is a long-running service, so we only check initial output
-  prs$poll_io(timeout = 2000)  # Wait max 2 seconds
+  prs$poll_io(timeout = 2000) # Wait max 2 seconds
 
   # Read only what's available, don't wait for EOF
   if (prs$is_alive()) {
@@ -119,7 +119,7 @@ spark_connect_service_stop <- function(version = "4.0", ...) {
   )
 
   # Wait for shutdown command to complete
-  prs$wait(timeout = 5000)  # Wait max 5 seconds
+  prs$wait(timeout = 5000) # Wait max 5 seconds
 
   cli_bullets(c(" " = "{.info - Shutdown command sent}"))
 

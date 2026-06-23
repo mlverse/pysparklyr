@@ -114,3 +114,19 @@ test_that("I() works", {
     "data.frame"
   )
 })
+
+test_that("spark_connection() recovers the full connection from a tbl (#185)", {
+  sc <- use_test_spark_connect()
+  tbl_mtcars <- use_test_table_mtcars()
+
+  # Regression test for #185: after the sparklyr 1.9.5 / dbplyr 2.6.0 source
+  # slot restructure, `spark_connection()` must still return the full pyspark
+  # connection (not the stripped `c("spark_connection", "DBIConnection")` stub),
+  # so that `invoke()` dispatches and printing/collecting do not error.
+  tbl_conn <- spark_connection(tbl_mtcars)
+  expect_s3_class(tbl_conn, "pyspark_connection")
+  expect_identical(tbl_conn$connection_id, sc$connection_id)
+
+  expect_no_error(spark_dataframe(tbl_mtcars))
+  expect_no_error(collect(head(tbl_mtcars)))
+})

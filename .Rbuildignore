@@ -13,3 +13,4 @@
 ^[.]?air[.]toml$
 ^\.vscode$
 ^\.claude$
+^\.roborev$

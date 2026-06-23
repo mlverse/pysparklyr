@@ -74,11 +74,15 @@ collect.tbl_pyspark <- function(x, ...) {
 }
 
 #' @export
+spark_connection.tbl_pyspark <- function(x, ...) {
+  dbplyr::remote_con(x)
+}
+
+#' @export
 spark_dataframe.tbl_pyspark <- function(x, ...) {
-  conn <- x[[1]]
-  query <- x[[2]]
-  qry <- query |>
-    sql_render(conn) |>
+  conn <- spark_connection(x)
+  qry <- x |>
+    remote_query() |>
     query_cleanup(conn)
   invoke(conn, "sql", qry)
 }
@@ -147,12 +151,24 @@ tbl.pyspark_connection <- function(src, from, ...) {
   if (inherits(from, "AsIs")) {
     sql_from <- from
   } else {
-    sql_from <- as.sql(from, con = src$con)
+    # `as.sql()` was deprecated in dbplyr 2.6.0 in favor of `as_table_path()`.
+    # `from` here is always a single-part name (multi-part names come through
+    # `I()` and take the `AsIs` branch above).
+    sql_from <- as_table_path(from, con = src$con)
   }
   con <- python_conn(src)
   pyspark_obj <- con$table(sql_from)
   vars <- as.character(pyspark_obj$columns)
   src <- python_obj_con_set(src, pyspark_obj)
+  # As of dbplyr 2.6.0, `tbl_sql()` copies `src$con` into the top-level `tbl$con`
+  # slot, and `dbplyr::remote_con()` (hence `spark_connection.tbl_pyspark()`) now
+  # reads from that slot rather than from `tbl$src`. Earlier versions preserved
+  # the connection passed as `src` directly. We therefore stash the full pyspark
+  # connection (carrying `$session`, `$state`, and the `invoke` method) on
+  # `src$con` so it survives into `remote_con()`; otherwise only the bare
+  # `c("spark_connection", "DBIConnection")` stub does, and `invoke()` fails to
+  # dispatch (#185). Revisit if a future dbplyr changes where `remote_con()` looks.
+  src$con <- src
   out <- tbl_sql(
     subclass = "pyspark",
     src = src,
@@ -183,10 +199,24 @@ same_src.pyspark_connection <- function(x, y) {
     identical(x$state, y$state)
 }
 
+#' @export
+same_src.tbl_pyspark <- function(x, y) {
+  # dbplyr's `same_src.tbl_sql()` compares `identical(x$con, y$con)`, but each
+  # `tbl_pyspark` carries its own connection object (`python_obj_con_set()`
+  # stores the per-table DataFrame on `$session`), so object identity is never
+  # TRUE across two tables. Compare the stable per-connection id instead, so
+  # two-table verbs (e.g. joins) recognize tables from the same Spark session.
+  inherits(y, "tbl_pyspark") &&
+    identical(
+      spark_connection(x)$connection_id,
+      spark_connection(y)$connection_id
+    )
+}
+
 tbl_pyspark_sdf <- function(x) {
   out <- python_sdf(x)
   if (is.null(out)) {
-    con <- python_conn(x[[1]])
+    con <- python_conn(spark_connection(x))
     qry <- x |>
       remote_query() |>
       query_cleanup(con)
@@ -273,7 +303,7 @@ python_obj_get.ml_connect_pipeline_model <- function(x) {
 
 #' @export
 python_obj_get.tbl_pyspark <- function(x) {
-  x[["src"]][["session"]]
+  spark_connection(x)[["session"]]
 }
 
 
@@ -285,7 +315,7 @@ python_obj_con_set <- function(sc, obj) {
 python_obj_tbl_set <- function(tbl, obj) {
   conn <- spark_connection(tbl)
   sc <- python_obj_con_set(conn, obj)
-  tbl[[1]] <- sc
+  tbl$con <- sc
   tbl
 }
 
@@ -317,7 +347,7 @@ setOldClass(c("tbl_pyspark", "tbl_spark"))
     sc <- spark_connection(x)
 
     pyspark.sql.types <- reticulate::import("pyspark.sql.types")
-    ss <- x$src$state$spark_context # SparkSession obj
+    ss <- spark_connection(x)$state$spark_context # SparkSession obj
     edf <- ss$createDataFrame(list(), pyspark.sql.types$StructType(list()))
 
     tmp_name <- tbl_temp_name()

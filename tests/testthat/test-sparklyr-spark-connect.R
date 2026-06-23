@@ -1,6 +1,6 @@
 test_that("User agent builder basic", {
   withr::with_envvar(
-    new = c("RSTUDIO_PRODUCT" = NA),
+    new = c("RSTUDIO_PRODUCT" = NA, "SPARK_CONNECT_USER_AGENT" = NA),
     {
       x <- build_user_agent()
       expect_equal(substr(x, 1, 8), "sparklyr")
@@ -10,7 +10,7 @@ test_that("User agent builder basic", {
 
 test_that("User agent builder acknowledges when product is Connectr", {
   withr::with_envvar(
-    new = c("RSTUDIO_PRODUCT" = "CONNECT"),
+    new = c("RSTUDIO_PRODUCT" = "CONNECT", "SPARK_CONNECT_USER_AGENT" = NA),
     {
       expect_equal(
         build_user_agent(),
@@ -39,7 +39,7 @@ use_test_rs_version <- function() {
 
 test_that("User agent works on RStudio Workbench", {
   withr::with_envvar(
-    new = c("RSTUDIO_PRODUCT" = NA),
+    new = c("RSTUDIO_PRODUCT" = NA, "SPARK_CONNECT_USER_AGENT" = NA),
     {
       local_mocked_bindings(
         check_rstudio = function(...) TRUE,
@@ -57,7 +57,7 @@ test_that("User agent works on RStudio Workbench", {
 
 test_that("User agent works on RStudio Pro", {
   withr::with_envvar(
-    new = c("RSTUDIO_PRODUCT" = NA),
+    new = c("RSTUDIO_PRODUCT" = NA, "SPARK_CONNECT_USER_AGENT" = NA),
     {
       local_mocked_bindings(
         check_rstudio = function(...) TRUE,
@@ -80,7 +80,10 @@ test_that("User agent works on RStudio Pro", {
 
 test_that("User agent builder works with Connect env var", {
   withr::with_envvar(
-    new = c("R_CONFIG_ACTIVE" = "rstudio_cloud"),
+    new = c(
+      "R_CONFIG_ACTIVE" = "rstudio_cloud",
+      "SPARK_CONNECT_USER_AGENT" = NA
+    ),
     {
       local_mocked_bindings(
         check_rstudio = function(...) TRUE,
@@ -105,7 +108,8 @@ test_that("User agent builder for Positron", {
     new = c(
       "RSTUDIO_PRODUCT" = NA,
       "POSITRON" = "1",
-      "POSITRON_VERSION" = "12345"
+      "POSITRON_VERSION" = "12345",
+      "SPARK_CONNECT_USER_AGENT" = NA
     ),
     {
       expect_equal(

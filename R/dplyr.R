@@ -74,11 +74,15 @@ collect.tbl_pyspark <- function(x, ...) {
 }
 
 #' @export
+spark_connection.tbl_pyspark <- function(x, ...) {
+  dbplyr::remote_con(x)
+}
+
+#' @export
 spark_dataframe.tbl_pyspark <- function(x, ...) {
-  conn <- x[[1]]
-  query <- x[[2]]
-  qry <- query |>
-    sql_render(conn) |>
+  conn <- spark_connection(x)
+  qry <- x |>
+    remote_query() |>
     query_cleanup(conn)
   invoke(conn, "sql", qry)
 }
@@ -153,6 +157,10 @@ tbl.pyspark_connection <- function(src, from, ...) {
   pyspark_obj <- con$table(sql_from)
   vars <- as.character(pyspark_obj$columns)
   src <- python_obj_con_set(src, pyspark_obj)
+  # Store the full connection where dbplyr keeps it (`remote_con()`), so that
+  # `spark_connection()` can recover it. As of sparklyr 1.9.5 / dbplyr 2.6.0 the
+  # `src` slot of the resulting `tbl` no longer preserves the full connection.
+  src$con <- src
   out <- tbl_sql(
     subclass = "pyspark",
     src = src,
@@ -186,7 +194,7 @@ same_src.pyspark_connection <- function(x, y) {
 tbl_pyspark_sdf <- function(x) {
   out <- python_sdf(x)
   if (is.null(out)) {
-    con <- python_conn(x[[1]])
+    con <- python_conn(spark_connection(x))
     qry <- x |>
       remote_query() |>
       query_cleanup(con)
@@ -273,7 +281,7 @@ python_obj_get.ml_connect_pipeline_model <- function(x) {
 
 #' @export
 python_obj_get.tbl_pyspark <- function(x) {
-  x[["src"]][["session"]]
+  spark_connection(x)[["session"]]
 }
 
 
@@ -285,7 +293,7 @@ python_obj_con_set <- function(sc, obj) {
 python_obj_tbl_set <- function(tbl, obj) {
   conn <- spark_connection(tbl)
   sc <- python_obj_con_set(conn, obj)
-  tbl[[1]] <- sc
+  tbl$con <- sc
   tbl
 }
 
@@ -317,7 +325,7 @@ setOldClass(c("tbl_pyspark", "tbl_spark"))
     sc <- spark_connection(x)
 
     pyspark.sql.types <- reticulate::import("pyspark.sql.types")
-    ss <- x$src$state$spark_context # SparkSession obj
+    ss <- spark_connection(x)$state$spark_context # SparkSession obj
     edf <- ss$createDataFrame(list(), pyspark.sql.types$StructType(list()))
 
     tmp_name <- tbl_temp_name()

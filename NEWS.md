@@ -24,6 +24,11 @@ version from PyPI.
 
 ### Fixes
 
+- Restores compatibility with sparklyr 1.9.5 / dbplyr 2.6.0, which restructured
+  the `tbl` source slot. Operations on a `tbl` (e.g. printing, `collect()`) no
+  longer fail with "no applicable method for 'invoke' applied to an object of
+  class 'c('spark_connection', 'DBIConnection')'" (#185)
+
 - Fixes conversion of Pandas NULL columns and date types (#178 - @tobiasdut)
 
 # pysparklyr 0.2.0

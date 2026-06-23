@@ -11,3 +11,5 @@ derby.log
 spark-warehouse
 requirements.txt
 .claude
+# roborev snapshots
+/.roborev/

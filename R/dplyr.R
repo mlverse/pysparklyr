@@ -151,15 +151,23 @@ tbl.pyspark_connection <- function(src, from, ...) {
   if (inherits(from, "AsIs")) {
     sql_from <- from
   } else {
-    sql_from <- as.sql(from, con = src$con)
+    # `as.sql()` was deprecated in dbplyr 2.6.0 in favor of `as_table_path()`.
+    # `from` here is always a single-part name (multi-part names come through
+    # `I()` and take the `AsIs` branch above).
+    sql_from <- as_table_path(from, con = src$con)
   }
   con <- python_conn(src)
   pyspark_obj <- con$table(sql_from)
   vars <- as.character(pyspark_obj$columns)
   src <- python_obj_con_set(src, pyspark_obj)
-  # Store the full connection where dbplyr keeps it (`remote_con()`), so that
-  # `spark_connection()` can recover it. As of sparklyr 1.9.5 / dbplyr 2.6.0 the
-  # `src` slot of the resulting `tbl` no longer preserves the full connection.
+  # As of dbplyr 2.6.0, `tbl_sql()` copies `src$con` into the top-level `tbl$con`
+  # slot, and `dbplyr::remote_con()` (hence `spark_connection.tbl_pyspark()`) now
+  # reads from that slot rather than from `tbl$src`. Earlier versions preserved
+  # the connection passed as `src` directly. We therefore stash the full pyspark
+  # connection (carrying `$session`, `$state`, and the `invoke` method) on
+  # `src$con` so it survives into `remote_con()`; otherwise only the bare
+  # `c("spark_connection", "DBIConnection")` stub does, and `invoke()` fails to
+  # dispatch (#185). Revisit if a future dbplyr changes where `remote_con()` looks.
   src$con <- src
   out <- tbl_sql(
     subclass = "pyspark",
@@ -189,6 +197,20 @@ same_src.pyspark_connection <- function(x, y) {
   identical(x$master, y$master) &&
     identical(x$method, y$method) &&
     identical(x$state, y$state)
+}
+
+#' @export
+same_src.tbl_pyspark <- function(x, y) {
+  # dbplyr's `same_src.tbl_sql()` compares `identical(x$con, y$con)`, but each
+  # `tbl_pyspark` carries its own connection object (`python_obj_con_set()`
+  # stores the per-table DataFrame on `$session`), so object identity is never
+  # TRUE across two tables. Compare the stable per-connection id instead, so
+  # two-table verbs (e.g. joins) recognize tables from the same Spark session.
+  inherits(y, "tbl_pyspark") &&
+    identical(
+      spark_connection(x)$connection_id,
+      spark_connection(y)$connection_id
+    )
 }
 
 tbl_pyspark_sdf <- function(x) {

@@ -4,8 +4,8 @@
       spark_read_csv(sc = sc, name = "csv_1", path = file_name, overwrite = TRUE,
         repartition = 2)
     Output
-      # Source:   table<`csv_1`> [?? x 11]
-      # Database: spark_connection
+      # A query:  ?? x 11
+      # Database: connect_spark
            mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
          <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
        1  21       6  160    110  3.9   2.62  16.5     0     1     4     4
@@ -26,8 +26,8 @@
       spark_read_csv(sc = sc, name = "csv_2", path = file_name, overwrite = TRUE,
         columns = paste0(names(mtcars), "t"))
     Output
-      # Source:   table<`csv_2`> [?? x 11]
-      # Database: spark_connection
+      # A query:  ?? x 11
+      # Database: connect_spark
          mpgt  cylt  dispt hpt   dratt wtt   qsect vst   amt   geart carbt
          <chr> <chr> <chr> <chr> <chr> <chr> <chr> <chr> <chr> <chr> <chr>
        1 21.0  6.0   160.0 110.0 3.9   2.62  16.46 0.0   1.0   4.0   4.0  
@@ -48,8 +48,8 @@
       spark_read_csv(sc = sc, name = "csv_3", path = file_name, overwrite = TRUE,
         memory = TRUE)
     Output
-      # Source:   table<`csv_3`> [?? x 11]
-      # Database: spark_connection
+      # A query:  ?? x 11
+      # Database: connect_spark
            mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
          <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
        1  21       6  160    110  3.9   2.62  16.5     0     1     4     4
@@ -69,8 +69,8 @@
     Code
       spark_read_parquet(sc, "csv_1", file_name, overwrite = TRUE)
     Output
-      # Source:   table<`csv_1`> [?? x 11]
-      # Database: spark_connection
+      # A query:  ?? x 11
+      # Database: connect_spark
            mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
          <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
        1  21       6  160    110  3.9   2.62  16.5     0     1     4     4
@@ -90,8 +90,8 @@
     Code
       spark_read_orc(sc, "csv_1", file_name, overwrite = TRUE)
     Output
-      # Source:   table<`csv_1`> [?? x 11]
-      # Database: spark_connection
+      # A query:  ?? x 11
+      # Database: connect_spark
            mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
          <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
        1  21       6  160    110  3.9   2.62  16.5     0     1     4     4
@@ -111,8 +111,8 @@
     Code
       spark_read_json(sc, "csv_1", file_name, overwrite = TRUE)
     Output
-      # Source:   table<`csv_1`> [?? x 11]
-      # Database: spark_connection
+      # A query:  ?? x 11
+      # Database: connect_spark
             am  carb   cyl  disp  drat  gear    hp   mpg  qsec    vs    wt
          <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
        1     1     4     6  160   3.9      4   110  21    16.5     0  2.62

@@ -148,7 +148,16 @@ use_envname <- function(
         stop_quietly()
       }
     } else {
-      if (ret_name %in% c("unavailable", "latest")) {
+      # `py_require()` can only declare ephemeral environment requirements
+      # before Python initializes. Once it has, re-declaring packages that are
+      # already in the requirements (e.g. on a second connection in the same
+      # session) emits reticulate's "After Python has initialized, only
+      # `action = 'add'` with new packages is supported" warning, and the
+      # environment is fixed anyway. So only declare requirements pre-init.
+      if (
+        ret_name %in% c("unavailable", "latest") &&
+          !reticulate::py_available(initialize = FALSE)
+      ) {
         reqs <- python_requirements(
           backend = backend,
           main_library = main_library,

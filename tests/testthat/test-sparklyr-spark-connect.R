@@ -80,7 +80,10 @@ test_that("User agent works on RStudio Pro", {
 
 test_that("User agent builder works with Connect env var", {
   withr::with_envvar(
-    new = c("R_CONFIG_ACTIVE" = "rstudio_cloud", "SPARK_CONNECT_USER_AGENT" = NA),
+    new = c(
+      "R_CONFIG_ACTIVE" = "rstudio_cloud",
+      "SPARK_CONNECT_USER_AGENT" = NA
+    ),
     {
       local_mocked_bindings(
         check_rstudio = function(...) TRUE,

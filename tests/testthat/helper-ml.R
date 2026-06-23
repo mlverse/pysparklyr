@@ -6,7 +6,10 @@ use_test_pull <- function(x, table = FALSE) {
 
   # Handle Spark ML vectors that come through as structured data frames
   # (Spark 4.1+ with Pandas 3.0+ converts ML vectors to data frames with type, size, indices, values columns)
-  if (is.data.frame(x) && all(c("type", "size", "indices", "values") %in% names(x))) {
+  if (
+    is.data.frame(x) &&
+      all(c("type", "size", "indices", "values") %in% names(x))
+  ) {
     # Extract the values column which contains the actual vector data
     x <- data.frame(
       x = map_chr(x$values, function(vec) {

@@ -1,4 +1,4 @@
-# pysparklyr 0.2.1
+# pysparklyr 0.2.1.9000
 
 ### New
 
@@ -27,7 +27,15 @@ version from PyPI.
 - Restores compatibility with sparklyr 1.9.5 / dbplyr 2.6.0, which restructured
   the `tbl` source slot. Operations on a `tbl` (e.g. printing, `collect()`) no
   longer fail with "no applicable method for 'invoke' applied to an object of
-  class 'c('spark_connection', 'DBIConnection')'" (#185)
+  class 'c('spark_connection', 'DBIConnection')'". Two-table verbs such as
+  `left_join()` no longer error with "`x` and `y` must share the same source",
+  and the deprecated `dbplyr::as.sql()` call was replaced with `as_table_path()`
+  (#185). This raises the minimum requirements to `sparklyr` >= 1.9.5 and
+  `dbplyr` >= 2.6.0.
+
+- No longer emits spurious reticulate "After Python has initialized, only
+  `action = 'add'` ..." warnings when opening additional connections in a
+  session that uses an ephemeral (`uv`) Python environment.
 
 - Fixes conversion of Pandas NULL columns and date types (#178 - @tobiasdut)
 

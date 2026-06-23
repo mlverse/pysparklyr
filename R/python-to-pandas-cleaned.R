@@ -59,7 +59,10 @@ to_pandas_cleaned <- function(x) {
     # Convert UTC timestamps to local timezone
     if (inherits(collected[[i]], "POSIXct")) {
       # If the timestamp is in UTC, convert to local timezone
-      if (!is.null(attr(collected[[i]], "tzone")) && attr(collected[[i]], "tzone") == "UTC") {
+      if (
+        !is.null(attr(collected[[i]], "tzone")) &&
+          attr(collected[[i]], "tzone") == "UTC"
+      ) {
         attr(collected[[i]], "tzone") <- ""
       }
     }
@@ -112,7 +115,9 @@ to_pandas_cleaned <- function(x) {
         as.Date(map_vec(col, clean_col), origin = "1970-01-01")
       } else if (py_type == "date" && r_type == "character") {
         as.Date(col, origin = "1970-01-01")
-      } else if (py_type == "date" && r_type %in% c("numeric", "integer", "logical")) {
+      } else if (
+        py_type == "date" && r_type %in% c("numeric", "integer", "logical")
+      ) {
         as.Date(col, origin = "1970-01-01")
       } else if (py_type == "boolean" && r_type == "list") {
         map_lgl(col, clean_col)

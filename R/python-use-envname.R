@@ -27,7 +27,11 @@ use_envname <- function(
   version_from_pypi <- FALSE
   if (is.null(version)) {
     if (!is.null(main_library)) {
-      lib_info <- python_library_info(main_library, fail = FALSE, verbose = FALSE)
+      lib_info <- python_library_info(
+        main_library,
+        fail = FALSE,
+        verbose = FALSE
+      )
       if (!is.null(lib_info)) {
         version <- lib_info$version
         version_from_pypi <- TRUE
@@ -155,7 +159,8 @@ use_envname <- function(
       # `action = 'add'` with new packages is supported" warning, and the
       # environment is fixed anyway. So only declare requirements pre-init.
       if (
-        ret_name %in% c("unavailable", "latest") &&
+        ret_name %in%
+          c("unavailable", "latest") &&
           !reticulate::py_available(initialize = FALSE)
       ) {
         reqs <- python_requirements(

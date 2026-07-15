@@ -46,7 +46,7 @@ Suggests:
     rsconnect,
     rsample,
     workflows,
-    tune,
+    tune (>= 2.1.0),
     parsnip,
     dials,
     tailor,

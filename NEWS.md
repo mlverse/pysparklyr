@@ -1,4 +1,4 @@
-# pysparklyr 0.2.1.9000
+# pysparklyr 0.2.2
 
 ### New
 

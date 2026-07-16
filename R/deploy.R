@@ -7,9 +7,9 @@ is_installed <- function(pkg) {
   res <- try(shhhh(pkg), silent = TRUE)
   res
 }
-rsconnect_accounts <- if (is_installed("rsconnect")) rsconnect::accounts
-rsconnect_deployments <- if (is_installed("rsconnect")) rsconnect::deployments
-rsconnect_deployApp <- if (is_installed("rsconnect")) rsconnect::deployApp
+rsconnect_accounts <- function(...) rsconnect::accounts(...)
+rsconnect_deployments <- function(...) rsconnect::deployments(...)
+rsconnect_deployApp <- function(...) rsconnect::deployApp(...)
 
 #' Deploys Databricks backed content to publishing server
 #'

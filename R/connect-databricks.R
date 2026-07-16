@@ -22,8 +22,8 @@ spark_connect_method.spark_method_databricks_connect <- function(
 
   method <- method[[1]]
 
-  master <- databricks_host(master, fail = FALSE)
-  token <- databricks_token(token, fail = FALSE)
+  host <- master %||% Sys.getenv("DATABRICKS_HOST", unset = "")
+  host <- normalize_databricks_host(host)
 
   # if serverless ignore specified cluster ids
   if (serverless) {
@@ -32,11 +32,15 @@ spark_connect_method.spark_method_databricks_connect <- function(
     cluster_id <- cluster_id %||% Sys.getenv("DATABRICKS_CLUSTER_ID")
   }
 
+  # Pre-flight cluster info: if we have enough to hit the REST API directly,
+
+  # fetch the DBR version before loading the Python env.
   cluster_info <- NULL
-  if (cluster_id != "" && !serverless && is.null(version) && !is.null(token)) {
+  if (cluster_id != "" && !serverless && is.null(version) &&
+    !is.null(token) && nzchar(host)) {
     cluster_info <- databricks_dbr_info(
       cluster_id = cluster_id,
-      host = master,
+      host = host,
       token = token
     )
     version <- databricks_extract_version(cluster_info)
@@ -65,25 +69,21 @@ spark_connect_method.spark_method_databricks_connect <- function(
   dbc <- import_check("databricks.connect", envname, silent)
   db_sdk <- import_check("databricks.sdk", envname, silent = TRUE)
 
-  if (is.null(token) || token == "") {
-    if (!is.null(profile)) {
-      sdk_config <- db_sdk$core$Config(profile = profile)
-    } else {
-      sdk_config <- db_sdk$core$Config()
-    }
+  # Build SDK config, delegating auth to the SDK. The only R-side auth is
 
-    token <- sdk_config$token %||% ""
-  }
-
-  # create workspace client
-  sdk_client <- databricks_sdk_client(
+  # connectcreds for Posit Connect.
+  workspace <- if (nzchar(host)) host
+  sdk_config <- databricks_sdk_config(
     sdk = db_sdk,
-    host = master,
-    serverless = serverless,
-    cluster_id = cluster_id,
+    host = host,
     token = token,
-    profile = profile
+    profile = profile,
+    cluster_id = if (!serverless) cluster_id,
+    serverless = serverless,
+    workspace = workspace
   )
+
+  sdk_client <- db_sdk$WorkspaceClient(config = sdk_config)
 
   # if serverless override cluster_id and set to `NULL`
   if (!serverless) {

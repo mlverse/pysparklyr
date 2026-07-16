@@ -224,8 +224,8 @@ test_that("Custom environment variables are passed when `host` and `token` are u
   withr::with_envvar(
     new = c(
       "WORKON_HOME" = use_test_env(),
-      "CONNECT_DATABRICKS_HOST" = "",
-      "CONNECT_DATABRICKS_TOKEN" = ""
+      "DATABRICKS_HOST" = "",
+      "DATABRICKS_TOKEN" = ""
     ),
     {
       local_mocked_bindings(
@@ -234,7 +234,7 @@ test_that("Custom environment variables are passed when `host` and `token` are u
       )
 
       out <- test_databricks_deploy_output()
-      out$envVars <- c("CONNECT_DATABRICKS_HOST", "CONNECT_DATABRICKS_TOKEN")
+      out$envVars <- c("DATABRICKS_HOST", "DATABRICKS_TOKEN")
 
       expect_equal(
         deploy_databricks(

@@ -4,7 +4,8 @@ test_that("Databricks Connect", {
     new = c(
       "WORKON_HOME" = use_test_env(),
       "DATABRICKS_HOST" = "testhost",
-      "DATABRICKS_TOKEN" = "testtoken"
+      "DATABRICKS_TOKEN" = "testtoken",
+      "RSTUDIO_PRODUCT" = NA
     ),
     {
       local_mocked_bindings(
@@ -24,13 +25,14 @@ test_that("Databricks Connect", {
             x
           }
           out$core$Config <- function(...) {
+            return(list(...))
+          }
+          out$WorkspaceClient <- function(...) {
             x <- list()
-            x$token <- "testtoken"
+            x$config <- list(...)
+            x
           }
           out
-        },
-        databricks_sdk_client = function(...) {
-          return(NULL)
         }
       )
 
@@ -45,6 +47,152 @@ test_that("Databricks Connect", {
       expect_equal(sc_out$cluster_id, "test_cluster")
     }
   )
+})
+
+test_that("Databricks Connect uses connectcreds viewer token", {
+  withr::local_envvar(c(
+    "WORKON_HOME" = use_test_env(),
+    "DATABRICKS_HOST" = "https://myworkspace.cloud.databricks.com",
+    "DATABRICKS_TOKEN" = NA
+  ))
+  connectcreds::local_mocked_connect_responses(token = "viewer-token-value")
+  local_mocked_bindings(
+    initialize_connection = function(...) {
+      return(list(...))
+    },
+    databricks_dbr_info = function(...) {
+      return(list(cluster_name = "test_cluster"))
+    },
+    import_check = function(...) {
+      out <- list()
+      out$DatabricksSession$builder$sdkConfig <- function(...) {
+        x <- list()
+        x$userAgent <- function(...) {
+          return(list())
+        }
+        x
+      }
+      out$core$Config <- function(...) {
+        return(list(...))
+      }
+      out$WorkspaceClient <- function(...) {
+        x <- list()
+        x$config <- list(...)
+        x
+      }
+      out
+    }
+  )
+
+  sc_out <- spark_connect_method.spark_method_databricks_connect(
+    method = "databricks_connect",
+    master = "https://myworkspace.cloud.databricks.com",
+    envname = use_test_python_environment(),
+    version = "17.1",
+    cluster_id = "test_cluster"
+  )
+  expect_equal(sc_out$cluster_id, "test_cluster")
+})
+
+test_that("Databricks Connect uses connectcreds service account token", {
+  withr::local_envvar(c(
+    "WORKON_HOME" = use_test_env(),
+    "DATABRICKS_HOST" = "https://myworkspace.cloud.databricks.com",
+    "DATABRICKS_TOKEN" = NA
+  ))
+  connectcreds::local_mocked_connect_responses(token = "sa-token-value")
+  local_mocked_bindings(
+    initialize_connection = function(...) {
+      return(list(...))
+    },
+    databricks_dbr_info = function(...) {
+      return(list(cluster_name = "test_cluster"))
+    },
+    import_check = function(...) {
+      out <- list()
+      out$DatabricksSession$builder$sdkConfig <- function(...) {
+        x <- list()
+        x$userAgent <- function(...) {
+          return(list())
+        }
+        x
+      }
+      out$core$Config <- function(...) {
+        return(list(...))
+      }
+      out$WorkspaceClient <- function(...) {
+        x <- list()
+        x$config <- list(...)
+        x
+      }
+      out
+    }
+  )
+
+  sc_out <- spark_connect_method.spark_method_databricks_connect(
+    method = "databricks_connect",
+    master = "https://myworkspace.cloud.databricks.com",
+    envname = use_test_python_environment(),
+    version = "17.1",
+    cluster_id = "test_cluster"
+  )
+  expect_equal(sc_out$cluster_id, "test_cluster")
+})
+
+test_that("Databricks Connect delegates to SDK when no token", {
+  withr::local_envvar(c(
+    "WORKON_HOME" = use_test_env(),
+    "DATABRICKS_HOST" = "https://myworkspace.cloud.databricks.com",
+    "DATABRICKS_TOKEN" = NA,
+    "RSTUDIO_PRODUCT" = NA
+  ))
+  sdk_config_args <- NULL
+  local_mocked_bindings(
+    initialize_connection = function(...) {
+      return(list(...))
+    },
+    databricks_dbr_info = function(...) {
+      return(list(cluster_name = "test_cluster_name"))
+    },
+    import_check = function(...) {
+      out <- list()
+      out$DatabricksSession$builder$sdkConfig <- function(...) {
+        x <- list()
+        x$userAgent <- function(...) {
+          return(list())
+        }
+        x
+      }
+      out$core$Config <- function(...) {
+        sdk_config_args <<- list(...)
+        return(list(...))
+      }
+      out$WorkspaceClient <- function(...) {
+        x <- list()
+        x$config <- list(...)
+        x$clusters <- list(
+          get = function(...) list(as_dict = function() list(cluster_name = "test"))
+        )
+        x
+      }
+      out
+    }
+  )
+
+  sc_out <- spark_connect_method.spark_method_databricks_connect(
+    method = "databricks_connect",
+    master = "https://myworkspace.cloud.databricks.com",
+    envname = use_test_python_environment(),
+    version = "17.1",
+    cluster_id = "test_cluster"
+  )
+  # Token should not be passed to the SDK — let it resolve auth itself
+  expect_null(sdk_config_args$token)
+  expect_equal(
+    sdk_config_args$host,
+    "https://myworkspace.cloud.databricks.com"
+  )
+  expect_equal(sdk_config_args$cluster_id, "test_cluster")
 })
 
 test_that("Snowpark Connect (Snowflake)", {
@@ -66,9 +214,6 @@ test_that("Snowpark Connect (Snowflake)", {
             list(...)
           }
           out
-        },
-        databricks_sdk_client = function(...) {
-          return(NULL)
         }
       )
       sc_out <- spark_connect_method.spark_method_snowpark_connect(

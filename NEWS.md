@@ -1,3 +1,8 @@
+# pysparklyr (dev)
+
+- Adds code to handle use an alternative value of the cluster's information object
+if the one originally used contains the word 'scala' (#188)
+
 # pysparklyr 0.2.2
 
 ### New

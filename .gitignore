@@ -13,3 +13,4 @@ requirements.txt
 .claude
 # roborev snapshots
 /.roborev/
+test-issue-189.R

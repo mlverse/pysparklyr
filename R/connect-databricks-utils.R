@@ -128,6 +128,9 @@ databricks_dbr_version_name <- function(
 
 databricks_extract_version <- function(x) {
   sp_version <- x$spark_version
+  if (grepl("scala", sp_version)) {
+    sp_version <- x$release_version
+  }
   if (!is.null(sp_version)) {
     sp_sep <- unlist(strsplit(sp_version, "\\."))
     version <- paste0(sp_sep[1], ".", sp_sep[2])

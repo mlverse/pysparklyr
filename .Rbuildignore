@@ -14,3 +14,4 @@
 ^\.vscode$
 ^\.claude$
 ^\.roborev$
+^test-issue-189\.R$

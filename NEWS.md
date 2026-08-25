@@ -3,6 +3,11 @@
 - Adds code to handle use an alternative value of the cluster's information object
 if the one originally used contains the word 'scala' (#188)
 
+- Fixes `spark_apply()` failing when using `group_by`, on clusters with rpy2
+3.6.0 or later. The UDF called `pandas2ri.activate()`, which rpy2 raises from as
+of that version. The call is now skipped, based on the rpy2 version found on the
+worker (#189)
+
 # pysparklyr 0.2.2
 
 ### New

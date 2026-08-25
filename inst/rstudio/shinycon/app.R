@@ -109,6 +109,9 @@ connection_spark_server <- function(input, output, session) {
   output$auth_label <- reactive("Password:")
 
   output$auth_ui <- reactive({
+    if (!has_token) {
+      return("✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable")
+    }
     switch(
       names(token) %||% "",
       "argument" = "✓ Found - Passed as an argument",
@@ -116,7 +119,7 @@ connection_spark_server <- function(input, output, session) {
       "environment_connect" = "✓ Found - Using 'CONNECT_DATABRICKS_TOKEN'",
       "workbench" = "✓ Found - Managed by Posit Workbench OAuth",
       "viewer" = "✓ Found - Using the Posit Connect viewer's OAuth token",
-      "✘ Not Found - Add it to your 'DATABRICKS_TOKEN' env variable"
+      ""
     )
   })
 

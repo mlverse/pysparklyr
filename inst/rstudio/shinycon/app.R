@@ -167,8 +167,9 @@ connection_spark_server <- function(input, output, session) {
   })
 
   output$matches_host <- reactive({
+    host_url <- input$host_url %||% ""
     ret <- ""
-    if (host != "" && !is.null(input$host_url) && input$host_url != host) {
+    if (host != "" && host_url != "" && host_url != host) {
       ret <- "✓ Using supplied custom Host URL in code"
     }
     ret
@@ -249,7 +250,7 @@ connection_spark_server <- function(input, output, session) {
     if (is.null(host_url)) {
       host_url <- ""
     }
-    if (host != "" && host != host_url) {
+    if (host != "" && host_url != "" && host != host_url) {
       host_label <- paste0("    master = \"", host_url, "\",")
     }
     if (!is.null(dbr)) {

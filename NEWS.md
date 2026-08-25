@@ -8,6 +8,14 @@ if the one originally used contains the word 'scala' (#188)
 of that version. The call is now skipped, based on the rpy2 version found on the
 worker (#189)
 
+- The RStudio Databricks connection widget recognizes every token source
+`pysparklyr` supports. It labels Posit Connect and Workbench OAuth tokens
+correctly, and treats an empty `DATABRICKS_TOKEN` as missing.
+
+- Fixes the RStudio Databricks connection widget dropping a custom Host URL. The
+typed URL now passes to `spark_connect()` as `master`, and its confirmation
+message is accurate.
+
 # pysparklyr 0.2.2
 
 ### New

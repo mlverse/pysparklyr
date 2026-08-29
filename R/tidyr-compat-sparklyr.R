@@ -149,7 +149,7 @@
       "`regex` should define ",
       length(into),
       " groups; ",
-      ncol(matches),
+      length(out),
       " found.",
       call. = FALSE
     )

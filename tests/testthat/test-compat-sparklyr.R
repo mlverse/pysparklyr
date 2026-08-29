@@ -6,3 +6,10 @@ test_that("Internal functions work", {
   expect_snapshot(.simplify_pieces(c("one", "two", "three"), 2, FALSE))
   expect_warning(.str_split_fixed("hello", "l", 1))
 })
+
+test_that(".str_extract reports the number of captured groups", {
+  expect_error(
+    .str_extract("alpha", c("first", "second"), "(alpha)"),
+    "`regex` should define 2 groups; 1 found."
+  )
+})

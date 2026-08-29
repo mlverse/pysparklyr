@@ -470,7 +470,7 @@ prep_static <- function(
   }
   if (!is.null(control_err)) {
     abort(c(
-      "The following incompatability errors in `control` were found:",
+      "The following incompatibility errors in `control` were found:",
       control_err
     ))
   }

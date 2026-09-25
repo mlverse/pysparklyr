@@ -106,7 +106,10 @@ Three places need a decision, not a rename:
   {version} is not yet available". For Sail the version comes from a
   published `pysail` pin, so it is always a real release, and when the pin is
   the newest client, which it is today, `compareVersion` returns `0` and the
-  message fires claiming an available version is unavailable. Skip the branch
+  message fires claiming an available version is unavailable. It only fires
+  with `match_first = TRUE` and another `r-sparklyr-sail-*` environment
+  present, which the Sail method will hit, since it copies
+  `match_first = TRUE` from `connect-spark.R`. Skip the branch
   when the version was derived from a pin rather than supplied by the user.
 
 **2. Update every caller.**
@@ -200,12 +203,12 @@ matching an existing `r-sparklyr-sail-*` environment, or an explicit
 `envname`.
 
 **Do not force the lookup early.** `use_envname()` returns at line 24 when
-`envname` is supplied and at line 97 on an exact environment match, both
-before anything needs the client version. Passing
+`envname` is supplied. On an exact environment match (line 97) it does not
+return, but the only reads of the library version, lines 58-72 and 166, sit
+behind `!match_exact` or the `unavailable`/`latest` names. Passing
 `main_library_version = sail_client_version(version)` as an argument means R
-evaluates it lazily, so those two paths make no network call at all. That
-only holds while nothing touches `main_library_version` ahead of those
-returns.
+evaluates it lazily, so neither path makes a network call. That only holds
+while nothing new reads `main_library_version` outside those guards.
 
 **5. Add a `connection_label()` branch.**
 
@@ -219,19 +222,27 @@ Model it on `R/connect-spark.R`, the shortest of the three existing methods:
 ```
 #' @export
 spark_connect_method.spark_method_sail <- function(x, method, master,
-                                                   spark_home, config, app_name,
-                                                   version = NULL, hadoop_version,
-                                                   extensions, scala_version, ...) {
+                                                   spark_home, config = NULL,
+                                                   app_name, version = NULL,
+                                                   hadoop_version, extensions,
+                                                   scala_version, ...) {
   # master is required; abort with a clear message if missing
   # backend_version is pysail's (e.g. "0.7"); main_library_version is
   # derived from it by sail_client_version(), see work item 4
+  args <- list(...)
   envname <- use_envname(
     backend = "sail",
     main_library = "pyspark-client",
     backend_version = version,
     main_library_version = sail_client_version(version),
-    ...
+    envname = args$envname,
+    messages = TRUE,
+    match_first = TRUE,
+    python_version = args$python_version
   )
+  if (is.null(envname)) {
+    return(invisible())
+  }
   pyspark <- import_check("pyspark", envname)
   conn <- pyspark$sql$SparkSession$builder$remote(master)
   initialize_connection(
@@ -239,7 +250,7 @@ spark_connect_method.spark_method_sail <- function(x, method, master,
     master_label = glue("Sail - {master}"),
     con_class = "connect_sail",
     method = method,
-    config = NULL # see work item 7
+    config = config # see work item 7
   )
 }
 
@@ -248,12 +259,17 @@ setOldClass(c("connect_sail", "pyspark_connection", "spark_connection"))
 
 The import is `pyspark`, the module name that `pyspark-client` provides.
 
+`use_envname()` has no `...`, so the arguments are picked out of `...` by
+name, as `R/connect-spark.R` does. Forwarding `...` directly would fail on any
+extra argument.
+
 **7. Start `config` at `NULL`.**
 
 `initialize_connection()` applies each config entry with `session$conf$set()`.
 `pyspark_config()` sets three `spark.sql.*` options, and whether Sail accepts
-them is unknown. Pass `config = NULL` for now, which skips the loop entirely.
-Phase 1b decides what goes back in.
+them is unknown. Default `config` to `NULL` for now, which skips the loop entirely, and pass
+the argument through so a user-supplied `config` still applies. Phase 1b
+decides what the default becomes.
 
 **8. Suppress the install hint.**
 
@@ -602,8 +618,12 @@ Two caveats:
 
 - **No `SparkFiles`.** There is no `pyspark/core/`, and `__init__.py` imports
   `SparkFiles` from `pyspark.core.files` behind `if not is_remote_only()`. The
-  one call site, `R/tune-grid.R:323`, is currently dead code behind a
-  hardcoded `debug <- TRUE`, but it would break if re-enabled.
+  call sites in `R/tune-grid.R` (lines 323-324 and 378) are live:
+  `R/tune-grid.R:94` rewrites `debug <- TRUE` to `debug <- FALSE` before the
+  code is shipped. But that code runs on the workers inside `spark_apply()`,
+  not in the client environment, so the client's missing `SparkFiles` does
+  not affect it. Whether Sail's workers provide it falls under the untested
+  `spark_apply()` surface.
 - **It collides with `pyspark`.** Both distributions install a top-level
   `pyspark/` package. A Sail environment must contain one or the other, never
   both. The module is imported as `pyspark` either way.

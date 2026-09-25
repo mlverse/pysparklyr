@@ -301,5 +301,8 @@ test_that("Requirements work", {
     main_library = "pyspark",
     backend_version = "3.4"
   )
-  expect_equal(c("packages", "python_version"), names(reqs))
+  expect_equal(
+    c("packages", "python_version", "library_version"),
+    names(reqs)
+  )
 })

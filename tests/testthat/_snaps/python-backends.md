@@ -85,6 +85,9 @@
       [[1]]$python_version
       [1] ">=3.10"
       
+      [[1]]$library_version
+      [1] "3.5.0"
+      
       
       [[2]]
       [[2]]$packages
@@ -95,6 +98,9 @@
       
       [[2]]$python_version
       [1] "3.12"
+      
+      [[2]]$library_version
+      [1] "16.1.0"
       
       
       [[3]]
@@ -107,6 +113,9 @@
       [[3]]$python_version
       [1] "3.10"
       
+      [[3]]$library_version
+      [1] "14.1.0"
+      
       
       [[4]]
       [[4]]$packages
@@ -116,6 +125,9 @@
       
       [[4]]$python_version
       [1] ">=3.10"
+      
+      [[4]]$library_version
+      [1] "1.20.0"
       
       
 
@@ -132,6 +144,9 @@
       
       $python_version
       [1] ">=3.10"
+      
+      $library_version
+      [1] "3.5.0"
       
 
 # Python requirements when PyPI cannot be reached
@@ -150,6 +165,9 @@
       $python_version
       [1] "3.10"
       
+      $library_version
+      [1] "3.5"
+      
 
 # Installed packages per back-end
 
@@ -160,10 +178,8 @@
       v Automatically naming the environment:'r-sparklyr-pyspark-3.5'
     Output
       $packages
-      [1] "pyspark==3.5.0"           "pandas!=2.1.0"           
-      [3] "PyArrow"                  "grpcio"                  
-      [5] "google-api-python-client" "grpcio_status"           
-      [7] "databricks-sdk"           "zstandard"               
+      [1] "pyspark==3.5.0"  "py4j==0.10.9.7"  "numpy>=1.21"     "pandas>=1.4.4"  
+      [5] "pyarrow>=11.0.0" "pip"            
       
       $envname
                    unavailable 
@@ -179,12 +195,9 @@
       v Automatically naming the environment:'r-sparklyr-pyspark-4.2'
     Output
       $packages
-       [1] "pyspark==4.2.0"           "pandas!=2.1.0"           
-       [3] "PyArrow"                  "grpcio"                  
-       [5] "google-api-python-client" "grpcio_status"           
-       [7] "databricks-sdk"           "zstandard"               
-       [9] "torch"                    "torcheval"               
-      [11] "scikit-learn"            
+      [1] "pyspark==4.2.0"  "py4j==0.10.9.7"  "numpy>=1.21"     "pandas>=1.4.4"  
+      [5] "pyarrow>=11.0.0" "pip"             "torch"           "torcheval"      
+      [9] "scikit-learn"   
       
       $envname
                    unavailable 
@@ -200,17 +213,17 @@
       v Automatically naming the environment:'r-sparklyr-databricks-16.1'
     Output
       $packages
-      [1] "databricks-connect==16.1.0" "pandas!=2.1.0"             
-      [3] "PyArrow"                    "grpcio"                    
-      [5] "google-api-python-client"   "grpcio_status"             
-      [7] "databricks-sdk"             "zstandard"                 
+      [1] "databricks-connect==16.1.0"       "databricks-sdk>=0.29.0"          
+      [3] "googleapis-common-protos>=1.56.4" "grpcio>=1.59.3"                  
+      [5] "pandas>=1.0.5"                    "pyarrow>=4.0.0"                  
+      [7] "pip"                             
       
       $envname
                        unavailable 
       "r-sparklyr-databricks-16.1" 
       
       $python_version
-      [1] ">=3.10"
+      [1] "3.12"
       
 
 # Installed packages when PyPI cannot be reached
@@ -223,6 +236,7 @@
       [3] "PyArrow"                    "grpcio"                    
       [5] "google-api-python-client"   "grpcio_status"             
       [7] "databricks-sdk"             "zstandard"                 
+      [9] "pip"                       
       
       $envname
                        unavailable 

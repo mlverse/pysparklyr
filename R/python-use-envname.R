@@ -228,7 +228,11 @@ python_requirements <- function(
 ) {
   cli_div(theme = cli_colors())
 
-  if (is.null(python_version) && backend == "databricks") {
+  if (
+    is.null(python_version) &&
+      identical(backend, "databricks") &&
+      !is.null(backend_version)
+  ) {
     python_version <- databricks_dbr_python(backend_version)
   }
 
@@ -243,6 +247,7 @@ python_requirements <- function(
       python_version <- library_info$requires_python
     }
     main_library_version <- library_info$version
+    ver_name <- main_library_version
   } else {
     if (!is.null(main_library_version)) {
       ver_name <- version_prep(main_library_version)
@@ -291,6 +296,7 @@ python_requirements <- function(
 
   list(
     packages = packages,
-    python_version = python_version
+    python_version = python_version,
+    library_version = ver_name
   )
 }

@@ -8,8 +8,8 @@
        [3] "PyArrow"                  "grpcio"                  
        [5] "google-api-python-client" "grpcio_status"           
        [7] "databricks-sdk"           "zstandard"               
-       [9] "torch"                    "torcheval"               
-      [11] "scikit-learn"            
+       [9] "pip"                      "torch"                   
+      [11] "torcheval"                "scikit-learn"            
       
       $envname
                    unavailable 
@@ -39,6 +39,7 @@
       [3] "PyArrow"                  "grpcio"                  
       [5] "google-api-python-client" "grpcio_status"           
       [7] "databricks-sdk"           "zstandard"               
+      [9] "pip"                     
       
       $envname
                    unavailable 

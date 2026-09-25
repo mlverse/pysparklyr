@@ -10,8 +10,7 @@ test_that("It checks with PyPi if library version is NULL", {
           spark_method = "pyspark_connect",
           backend = "pyspark",
           ml_version = "3.5",
-          new_env = FALSE,
-          python = Sys.which("python")
+          new_env = FALSE
         ),
         "Retrieving version from PyPi.org"
       )

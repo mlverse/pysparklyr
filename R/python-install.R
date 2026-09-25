@@ -177,30 +177,16 @@ install_environment <- function(
   ...
 ) {
   cli_div(theme = cli_colors())
-  library_info <- python_library_info(main_library, main_library_version)
+  reqs <- python_requirements(
+    backend = backend,
+    main_library = main_library,
+    backend_version = backend_version,
+    main_library_version = main_library_version,
+    python_version = python_version
+  )
+  python_version <- reqs$python_version
+  ver_name <- reqs$library_version
 
-  if (!is.null(library_info)) {
-    if (is.null(python_version)) {
-      python_version <- library_info$requires_python
-    }
-    main_library_version <- library_info$version
-    ver_name <- main_library_version
-  } else {
-    if (!is.null(main_library_version)) {
-      ver_name <- version_prep(main_library_version)
-      if (main_library_version == ver_name) {
-        main_library_version <- paste0(main_library_version, ".*")
-      }
-    } else {
-      cli_abort(
-        c(
-          "No `version` provided, and none could be found",
-          " " = "Please run again with a valid version number"
-        ),
-        call = NULL
-      )
-    }
-  }
   python_number <- sub(">", "", python_version)
   python_number <- sub("=", "", python_number)
   python_number <- trimws(python_number)
@@ -226,16 +212,7 @@ install_environment <- function(
     "{.header Automatically naming the environment:}{.emph '{envname}'}"
   )
 
-  packages <- c(
-    paste0(main_library, "==", main_library_version),
-    "pandas!=2.1.0", # deprecation warnings
-    "PyArrow",
-    "grpcio",
-    "google-api-python-client",
-    "grpcio_status",
-    "databricks-sdk",
-    "zstandard"
-  )
+  packages <- reqs$packages
 
   if (add_torch && install_ml) {
     packages <- c(packages, pysparklyr_env$ml_libraries)

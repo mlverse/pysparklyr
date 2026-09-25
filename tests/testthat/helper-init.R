@@ -191,7 +191,7 @@ use_test_python_environment <- function(use_uv = TRUE) {
           env <- use_envname(
             backend = "pyspark",
             main_library = "pyspark",
-            version = version,
+            backend_version = version,
             messages = TRUE,
             python_version = use_test_python_version(),
             ask_if_not_installed = FALSE
@@ -213,7 +213,7 @@ use_test_python_environment <- function(use_uv = TRUE) {
               env <- use_envname(
                 backend = "pyspark",
                 main_library = "pyspark",
-                version = version
+                backend_version = version
               )
             }
           }

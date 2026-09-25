@@ -20,7 +20,7 @@ test_that("Use first one", {
       expect_message(
         x <- use_envname(
           main_library = "pyspark",
-          version = "1.1",
+          backend_version = "1.1",
           messages = TRUE,
           match_first = TRUE,
           ask_if_not_installed = FALSE
@@ -40,7 +40,7 @@ test_that("Error if 'use_first' is not TRUE", {
     {
       expect_message(
         x <- use_envname(
-          version = "100.0",
+          backend_version = "100.0",
           messages = TRUE,
           match_first = TRUE,
           main_library = "pyspark",
@@ -58,7 +58,7 @@ test_that("Error if 'use_first' is not TRUE", {
     {
       expect_error(
         x <- use_envname(
-          version = "1.1",
+          backend_version = "1.1",
           messages = TRUE,
           match_first = FALSE,
           ask_if_not_installed = FALSE
@@ -83,7 +83,7 @@ test_that("'Ask to install', simulates menu selection 'Yes'", {
       expect_equal(
         use_envname(
           main_library = "pyspark",
-          version = "1.1",
+          backend_version = "1.1",
           messages = TRUE,
           match_first = FALSE,
           ask_if_not_installed = TRUE
@@ -109,7 +109,7 @@ test_that("'Ask to install', simulates menu selection 'No'", {
       expect_equal(
         use_envname(
           main_library = "pyspark",
-          version = "1.1",
+          backend_version = "1.1",
           messages = TRUE,
           match_first = FALSE,
           ask_if_not_installed = TRUE
@@ -134,7 +134,7 @@ test_that("'Ask to install', simulates menu selection 'Cancel'", {
       )
       expect_error(
         use_envname(
-          version = "1.1",
+          backend_version = "1.1",
           messages = TRUE,
           match_first = FALSE,
           ask_if_not_installed = TRUE
@@ -145,7 +145,7 @@ test_that("'Ask to install', simulates menu selection 'Cancel'", {
 })
 
 test_that("Expect error when no 'version' is provided and no 'main_library'", {
-  expect_error(use_envname(version = NULL, main_library = NULL))
+  expect_error(use_envname(backend_version = NULL, main_library = NULL))
 })
 
 test_that("Auto-detect version from PyPI when version is NULL", {
@@ -170,7 +170,7 @@ test_that("Auto-detect version from PyPI when version is NULL", {
       )
       x <- use_envname(
         main_library = "pyspark",
-        version = NULL,
+        backend_version = NULL,
         messages = FALSE,
         match_first = FALSE,
         ask_if_not_installed = FALSE
@@ -203,7 +203,7 @@ test_that("Auto-detect uses latest version for databricks.connect", {
       )
       x <- use_envname(
         main_library = "databricks.connect",
-        version = NULL,
+        backend_version = NULL,
         backend = "databricks",
         messages = FALSE,
         match_first = FALSE,
@@ -233,7 +233,7 @@ test_that("Falls back to error when PyPI query fails and no version provided", {
       expect_error(
         use_envname(
           main_library = "pyspark",
-          version = NULL,
+          backend_version = NULL,
           messages = FALSE
         ),
         "A cluster.*version.*is required"
@@ -249,7 +249,7 @@ test_that("Explicit version returns 'unavailable' not 'latest'", {
     {
       x <- use_envname(
         main_library = "pyspark",
-        version = "3.5.0",
+        backend_version = "3.5.0",
         messages = FALSE,
         match_first = FALSE,
         ask_if_not_installed = FALSE
@@ -283,7 +283,7 @@ test_that("Auto-detect finds exact match when environment exists", {
       )
       x <- use_envname(
         main_library = "pyspark",
-        version = NULL,
+        backend_version = NULL,
         messages = FALSE,
         match_first = FALSE,
         ask_if_not_installed = FALSE
@@ -299,7 +299,7 @@ test_that("Requirements work", {
   reqs <- python_requirements(
     backend = "pyspark",
     main_library = "pyspark",
-    version = "3.4"
+    backend_version = "3.4"
   )
   expect_equal(c("packages", "python_version"), names(reqs))
 })

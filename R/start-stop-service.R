@@ -48,7 +48,7 @@ spark_connect_service_start <- function(
     envname <- use_envname(
       backend = "pyspark",
       main_library = "pyspark",
-      version = version,
+      backend_version = version,
       python_version = python_version,
       messages = TRUE,
       ask_if_not_installed = FALSE

@@ -75,7 +75,7 @@
       $ml_version
       [1] "14.1"
       
-      $version
+      $backend_version
       [1] "14.1"
       
       $envname
@@ -114,7 +114,7 @@
       $ml_version
       [1] "14.1"
       
-      $version
+      $backend_version
       [1] "13.1"
       
       $envname

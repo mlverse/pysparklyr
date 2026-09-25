@@ -274,7 +274,7 @@ deploy_find_environment <- function(
   if (is.null(python)) {
     if (!is.null(version)) {
       env_name <- use_envname(
-        version = version,
+        backend_version = version,
         backend = backend,
         main_library = main_library
       )

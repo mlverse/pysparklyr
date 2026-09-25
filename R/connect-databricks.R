@@ -49,7 +49,7 @@ spark_connect_method.spark_method_databricks_connect <- function(
   envname <- use_envname(
     backend = "databricks",
     main_library = "databricks.connect",
-    version = version,
+    backend_version = version,
     envname = envname,
     messages = !silent,
     match_first = FALSE,

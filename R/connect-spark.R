@@ -24,7 +24,7 @@ spark_connect_method.spark_method_spark_connect <- function(
   envname <- use_envname(
     backend = "pyspark",
     main_library = "pyspark",
-    version = version,
+    backend_version = version,
     envname = envname,
     messages = TRUE,
     match_first = TRUE,

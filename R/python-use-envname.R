@@ -1,7 +1,8 @@
 use_envname <- function(
   envname = NULL,
   backend = "pyspark",
-  version = NULL,
+  backend_version = NULL,
+  main_library_version = backend_version,
   messages = FALSE,
   match_first = FALSE,
   ignore_reticulate_python = FALSE,
@@ -12,6 +13,10 @@ use_envname <- function(
   if (is.null(main_library) && !is.null(backend)) {
     cli_abort("Backend `{backend}` not valid")
   }
+  # Back-ends whose library is versioned separately (e.g. Sail) pass
+  # `main_library_version`. `missing()` does not force the promise, so a lazy
+  # lookup is only run if needed
+  library_version_separate <- !missing(main_library_version)
   cli_div(theme = cli_colors())
 
   ret_python <- reticulate_python_check(ignore_reticulate_python, unset = FALSE)
@@ -25,53 +30,63 @@ use_envname <- function(
   }
 
   version_from_pypi <- FALSE
-  if (is.null(version)) {
-    if (!is.null(main_library)) {
+  if (is.null(backend_version)) {
+    if (!is.null(main_library) && !library_version_separate) {
       lib_info <- python_library_info(
         main_library,
         fail = FALSE,
         verbose = FALSE
       )
       if (!is.null(lib_info)) {
-        version <- lib_info$version
+        backend_version <- lib_info$version
         version_from_pypi <- TRUE
       }
     }
-    if (is.null(version)) {
+    if (is.null(backend_version)) {
       cli_abort("A cluster {.code version} is required, please provide one")
     }
   }
+  if (!library_version_separate) {
+    main_library_version <- backend_version
+  }
 
   env_base <- glue("r-sparklyr-{backend}-")
-  run_code <- glue("pysparklyr::install_{backend}(version = \"{version}\")")
+  run_code <- glue(
+    "pysparklyr::install_{backend}(version = \"{backend_version}\")"
+  )
   run_full <- "{.header Run: {.run {run_code}} to install.}"
 
   con_label <- connection_label(backend)
-  sp_version <- version_prep(version)
+  sp_version <- version_prep(backend_version)
   envname <- as.character(glue("{env_base}{sp_version}"))
   envs <- find_environments(env_base)
 
   match_one <- length(envs) > 0
   match_exact <- length(envs[envs == envname]) > 0
-  install_ver <- version
+  install_ver <- backend_version
 
+  install_recent <- TRUE
   if (!is.null(main_library) && !match_exact) {
     lib_info <- python_library_info(main_library, fail = FALSE, verbose = FALSE)
     if (!is.null(lib_info)) {
       latest_ver <- lib_info$version
-      if (version == "latest") {
-        version <- latest_ver
+      if (main_library_version == "latest") {
+        main_library_version <- latest_ver
+        if (!library_version_separate) {
+          backend_version <- latest_ver
+        }
       }
-      vers <- compareVersion(latest_ver, version)
-      install_recent <- vers == 1
-      # For cases when the cluster's version is higher than the latest library
-      if (vers == -1) {
+      vers <- compareVersion(latest_ver, main_library_version)
+      # A separately versioned library comes from a published pin, so it is
+      # never "not yet available"
+      install_recent <- vers == 1 || library_version_separate
+      # For cases when the cluster's version is higher than the latest library.
+      # Only meaningful when both versions share the same scale
+      if (vers == -1 && !library_version_separate) {
         envname <- as.character(glue("{env_base}{latest_ver}"))
         install_ver <- latest_ver
       }
     }
-  } else {
-    install_recent <- TRUE
   }
 
   msg_default <- paste0(
@@ -108,7 +123,8 @@ use_envname <- function(
       ask_if_not_installed <- FALSE
       run_full <- NULL
       msg_1 <- paste0(
-        "{.header Library {.emph {con_label}} version {.emph {version}} is not ",
+        "{.header Library {.emph {con_label}} version ",
+        "{.emph {main_library_version}} is not ",
         "yet available}"
       )
     }
@@ -141,7 +157,7 @@ use_envname <- function(
         ret <- set_names(envname, "prompt")
         exec(
           .fn = glue("install_{backend}"),
-          version = version,
+          version = backend_version,
           as_job = FALSE
         )
       }
@@ -166,7 +182,8 @@ use_envname <- function(
         reqs <- python_requirements(
           backend = backend,
           main_library = main_library,
-          version = version,
+          backend_version = backend_version,
+          main_library_version = main_library_version,
           python_version = python_version,
           install_ml = FALSE,
           add_torch = FALSE
@@ -203,7 +220,8 @@ python_requirements <- function(
   backend = NULL,
   main_library = NULL,
   ml_version = NULL,
-  version = NULL,
+  backend_version = NULL,
+  main_library_version = backend_version,
   python_version = NULL,
   install_ml = FALSE,
   add_torch = FALSE
@@ -211,12 +229,12 @@ python_requirements <- function(
   cli_div(theme = cli_colors())
 
   if (is.null(python_version) && backend == "databricks") {
-    python_version <- databricks_dbr_python(version)
+    python_version <- databricks_dbr_python(backend_version)
   }
 
   library_info <- python_library_info(
     library_name = main_library,
-    library_version = version,
+    library_version = main_library_version,
     verbose = is.null(python_version)
   )
 
@@ -224,13 +242,12 @@ python_requirements <- function(
     if (is.null(python_version)) {
       python_version <- library_info$requires_python
     }
-    version <- library_info$version
-    ver_name <- version
+    main_library_version <- library_info$version
   } else {
-    if (!is.null(version)) {
-      ver_name <- version_prep(version)
-      if (version == ver_name) {
-        version <- paste0(version, ".*")
+    if (!is.null(main_library_version)) {
+      ver_name <- version_prep(main_library_version)
+      if (main_library_version == ver_name) {
+        main_library_version <- paste0(main_library_version, ".*")
       }
     } else {
       cli_abort(
@@ -245,7 +262,7 @@ python_requirements <- function(
 
   requires_dist <- as.character(library_info$requires_dist)
   packages <- c(
-    paste0(main_library, "==", version),
+    paste0(main_library, "==", main_library_version),
     if (length(requires_dist)) {
       with_extra <- grepl("; extra", requires_dist)
       extra_str <- strsplit(requires_dist[with_extra], "; extra")

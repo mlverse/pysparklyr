@@ -43,7 +43,7 @@ install_pyspark <- function(
     spark_method = "pyspark_connect",
     backend = "pyspark",
     ml_version = "3.5",
-    version = version,
+    backend_version = version,
     envname = envname,
     python_version = python_version,
     new_env = new_env,
@@ -99,7 +99,7 @@ install_databricks <- function(
     spark_method = "databricks_connect",
     backend = "databricks",
     ml_version = "14.1",
-    version = version,
+    backend_version = version,
     envname = envname,
     python_version = python_version,
     new_env = new_env,
@@ -115,7 +115,8 @@ install_as_job <- function(
   spark_method = NULL,
   backend = NULL,
   ml_version = NULL,
-  version = NULL,
+  backend_version = NULL,
+  main_library_version = backend_version,
   envname = NULL,
   python_version = NULL,
   new_env = NULL,
@@ -131,7 +132,7 @@ install_as_job <- function(
       "Installing '",
       main_library,
       "' version '",
-      version,
+      main_library_version,
       "'"
     )
     temp_file <- tempfile()
@@ -148,7 +149,8 @@ install_as_job <- function(
       spark_method = spark_method,
       backend = backend,
       ml_version = ml_version,
-      version = version,
+      backend_version = backend_version,
+      main_library_version = main_library_version,
       envname = envname,
       python_version = python_version,
       new_env = new_env,
@@ -164,7 +166,8 @@ install_environment <- function(
   spark_method = NULL,
   backend = NULL,
   ml_version = NULL,
-  version = NULL,
+  backend_version = NULL,
+  main_library_version = backend_version,
   envname = NULL,
   python_version = NULL,
   new_env = NULL,
@@ -174,19 +177,19 @@ install_environment <- function(
   ...
 ) {
   cli_div(theme = cli_colors())
-  library_info <- python_library_info(main_library, version)
+  library_info <- python_library_info(main_library, main_library_version)
 
   if (!is.null(library_info)) {
     if (is.null(python_version)) {
       python_version <- library_info$requires_python
     }
-    version <- library_info$version
-    ver_name <- version
+    main_library_version <- library_info$version
+    ver_name <- main_library_version
   } else {
-    if (!is.null(version)) {
-      ver_name <- version_prep(version)
-      if (version == ver_name) {
-        version <- paste0(version, ".*")
+    if (!is.null(main_library_version)) {
+      ver_name <- version_prep(main_library_version)
+      if (main_library_version == ver_name) {
+        main_library_version <- paste0(main_library_version, ".*")
       }
     } else {
       cli_abort(
@@ -213,7 +216,7 @@ install_environment <- function(
     }
     envname <- use_envname(
       backend = backend,
-      version = ver_name,
+      backend_version = backend_version %||% ver_name,
       main_library = main_library,
       ask_if_not_installed = FALSE,
       python_version = python_version
@@ -224,7 +227,7 @@ install_environment <- function(
   )
 
   packages <- c(
-    paste0(main_library, "==", version),
+    paste0(main_library, "==", main_library_version),
     "pandas!=2.1.0", # deprecation warnings
     "PyArrow",
     "grpcio",

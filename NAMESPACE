@@ -194,6 +194,7 @@ S3method(sdf_register,spark_pyobj)
 S3method(sdf_schema,tbl_pyspark)
 S3method(spark_apply,tbl_pyspark)
 S3method(spark_connect_method,spark_method_databricks_connect)
+S3method(spark_connect_method,spark_method_sail)
 S3method(spark_connect_method,spark_method_snowpark_connect)
 S3method(spark_connect_method,spark_method_spark_connect)
 S3method(spark_connection,pyspark_connection)
@@ -246,171 +247,191 @@ import(fs)
 import(glue)
 import(httr2)
 import(reticulate)
-importFrom(connectcreds,connect_viewer_token)
-importFrom(connectcreds,has_viewer_token)
-importFrom(dplyr,as_tibble)
-importFrom(dplyr,collect)
-importFrom(dplyr,compute)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,group_vars)
-importFrom(dplyr,mutate)
-importFrom(dplyr,same_src)
-importFrom(dplyr,sample_frac)
-importFrom(dplyr,sample_n)
-importFrom(dplyr,select)
-importFrom(dplyr,slice_sample)
-importFrom(dplyr,tbl)
-importFrom(dplyr,tbl_ptype)
-importFrom(dplyr,tibble)
+importFrom(connectcreds,
+  connect_viewer_token,
+  has_viewer_token
+)
+importFrom(dplyr,
+  as_tibble,
+  collect,
+  compute,
+  filter,
+  group_by,
+  group_vars,
+  mutate,
+  same_src,
+  sample_frac,
+  sample_n,
+  select,
+  slice_sample,
+  tbl,
+  tbl_ptype,
+  tibble
+)
 importFrom(glue,glue)
 importFrom(lifecycle,deprecated)
-importFrom(methods,is)
-importFrom(methods,new)
-importFrom(methods,setOldClass)
+importFrom(methods,
+  is,
+  new,
+  setOldClass
+)
 importFrom(processx,process)
-importFrom(purrr,as_mapper)
-importFrom(purrr,discard)
-importFrom(purrr,flatten)
-importFrom(purrr,imap)
-importFrom(purrr,imap_chr)
-importFrom(purrr,iwalk)
-importFrom(purrr,list_rbind)
-importFrom(purrr,map)
-importFrom(purrr,map2)
-importFrom(purrr,map_chr)
-importFrom(purrr,map_lgl)
-importFrom(purrr,map_vec)
-importFrom(purrr,pmap_chr)
-importFrom(purrr,reduce)
-importFrom(purrr,transpose)
-importFrom(purrr,walk)
-importFrom(rlang,`!!!`)
-importFrom(rlang,`!!`)
-importFrom(rlang,`%||%`)
-importFrom(rlang,abort)
-importFrom(rlang,arg_match)
-importFrom(rlang,as_utf8_character)
-importFrom(rlang,enquo)
-importFrom(rlang,exec)
-importFrom(rlang,is_character)
-importFrom(rlang,is_missing)
-importFrom(rlang,is_string)
-importFrom(rlang,parse_exprs)
-importFrom(rlang,quo_is_null)
-importFrom(rlang,set_names)
-importFrom(rlang,sym)
-importFrom(rlang,warn)
-importFrom(rstudioapi,getSourceEditorContext)
-importFrom(rstudioapi,jobRunScript)
-importFrom(rstudioapi,showQuestion)
-importFrom(sparklyr,connection_is_open)
-importFrom(sparklyr,ft_binarizer)
-importFrom(sparklyr,ft_bucketed_random_projection_lsh)
-importFrom(sparklyr,ft_bucketizer)
-importFrom(sparklyr,ft_count_vectorizer)
-importFrom(sparklyr,ft_dct)
-importFrom(sparklyr,ft_discrete_cosine_transform)
-importFrom(sparklyr,ft_elementwise_product)
-importFrom(sparklyr,ft_feature_hasher)
-importFrom(sparklyr,ft_hashing_tf)
-importFrom(sparklyr,ft_idf)
-importFrom(sparklyr,ft_imputer)
-importFrom(sparklyr,ft_index_to_string)
-importFrom(sparklyr,ft_interaction)
-importFrom(sparklyr,ft_max_abs_scaler)
-importFrom(sparklyr,ft_min_max_scaler)
-importFrom(sparklyr,ft_minhash_lsh)
-importFrom(sparklyr,ft_ngram)
-importFrom(sparklyr,ft_normalizer)
-importFrom(sparklyr,ft_one_hot_encoder)
-importFrom(sparklyr,ft_pca)
-importFrom(sparklyr,ft_polynomial_expansion)
-importFrom(sparklyr,ft_quantile_discretizer)
-importFrom(sparklyr,ft_r_formula)
-importFrom(sparklyr,ft_regex_tokenizer)
-importFrom(sparklyr,ft_robust_scaler)
-importFrom(sparklyr,ft_sql_transformer)
-importFrom(sparklyr,ft_standard_scaler)
-importFrom(sparklyr,ft_stop_words_remover)
-importFrom(sparklyr,ft_string_indexer)
-importFrom(sparklyr,ft_tokenizer)
-importFrom(sparklyr,ft_vector_assembler)
-importFrom(sparklyr,ft_vector_indexer)
-importFrom(sparklyr,ft_vector_slicer)
-importFrom(sparklyr,ft_word2vec)
-importFrom(sparklyr,hive_context)
-importFrom(sparklyr,invoke)
-importFrom(sparklyr,invoke_new)
-importFrom(sparklyr,invoke_static)
-importFrom(sparklyr,ml_aft_survival_regression)
-importFrom(sparklyr,ml_binary_classification_evaluator)
-importFrom(sparklyr,ml_bisecting_kmeans)
-importFrom(sparklyr,ml_clustering_evaluator)
-importFrom(sparklyr,ml_cross_validator)
-importFrom(sparklyr,ml_decision_tree_classifier)
-importFrom(sparklyr,ml_decision_tree_regressor)
-importFrom(sparklyr,ml_fit)
-importFrom(sparklyr,ml_gbt_classifier)
-importFrom(sparklyr,ml_gbt_regressor)
-importFrom(sparklyr,ml_generalized_linear_regression)
-importFrom(sparklyr,ml_isotonic_regression)
-importFrom(sparklyr,ml_kmeans)
-importFrom(sparklyr,ml_linear_regression)
-importFrom(sparklyr,ml_load)
-importFrom(sparklyr,ml_logistic_regression)
-importFrom(sparklyr,ml_multiclass_classification_evaluator)
-importFrom(sparklyr,ml_pipeline)
-importFrom(sparklyr,ml_predict)
-importFrom(sparklyr,ml_random_forest_classifier)
-importFrom(sparklyr,ml_random_forest_regressor)
-importFrom(sparklyr,ml_regression_evaluator)
-importFrom(sparklyr,ml_save)
-importFrom(sparklyr,ml_transform)
-importFrom(sparklyr,random_string)
-importFrom(sparklyr,sdf_copy_to)
-importFrom(sparklyr,sdf_read_column)
-importFrom(sparklyr,sdf_register)
-importFrom(sparklyr,sdf_schema)
-importFrom(sparklyr,spark_apply)
-importFrom(sparklyr,spark_connect_method)
-importFrom(sparklyr,spark_connection)
-importFrom(sparklyr,spark_dataframe)
-importFrom(sparklyr,spark_ide_columns)
-importFrom(sparklyr,spark_ide_connection_updated)
-importFrom(sparklyr,spark_ide_objects)
-importFrom(sparklyr,spark_ide_preview)
-importFrom(sparklyr,spark_install_find)
-importFrom(sparklyr,spark_integ_test_skip)
-importFrom(sparklyr,spark_jobj)
-importFrom(sparklyr,spark_log)
-importFrom(sparklyr,spark_read_csv)
-importFrom(sparklyr,spark_read_json)
-importFrom(sparklyr,spark_read_orc)
-importFrom(sparklyr,spark_read_parquet)
-importFrom(sparklyr,spark_read_text)
-importFrom(sparklyr,spark_session)
-importFrom(sparklyr,spark_table_name)
-importFrom(sparklyr,spark_version)
-importFrom(sparklyr,spark_web)
-importFrom(sparklyr,spark_write_csv)
-importFrom(sparklyr,spark_write_delta)
-importFrom(sparklyr,spark_write_json)
-importFrom(sparklyr,spark_write_orc)
-importFrom(sparklyr,spark_write_parquet)
-importFrom(sparklyr,spark_write_table)
-importFrom(sparklyr,spark_write_text)
-importFrom(sparklyr,tune_grid_spark)
-importFrom(stats,setNames)
-importFrom(stats,terms)
+importFrom(purrr,
+  as_mapper,
+  discard,
+  flatten,
+  imap,
+  imap_chr,
+  iwalk,
+  list_rbind,
+  map,
+  map2,
+  map_chr,
+  map_lgl,
+  map_vec,
+  pmap_chr,
+  reduce,
+  transpose,
+  walk
+)
+importFrom(rlang,
+  `!!!`,
+  `!!`,
+  `%||%`,
+  abort,
+  arg_match,
+  as_utf8_character,
+  enquo,
+  exec,
+  is_character,
+  is_missing,
+  is_string,
+  parse_exprs,
+  quo_is_null,
+  set_names,
+  sym,
+  warn
+)
+importFrom(rstudioapi,
+  getSourceEditorContext,
+  jobRunScript,
+  showQuestion
+)
+importFrom(sparklyr,
+  connection_is_open,
+  ft_binarizer,
+  ft_bucketed_random_projection_lsh,
+  ft_bucketizer,
+  ft_count_vectorizer,
+  ft_dct,
+  ft_discrete_cosine_transform,
+  ft_elementwise_product,
+  ft_feature_hasher,
+  ft_hashing_tf,
+  ft_idf,
+  ft_imputer,
+  ft_index_to_string,
+  ft_interaction,
+  ft_max_abs_scaler,
+  ft_min_max_scaler,
+  ft_minhash_lsh,
+  ft_ngram,
+  ft_normalizer,
+  ft_one_hot_encoder,
+  ft_pca,
+  ft_polynomial_expansion,
+  ft_quantile_discretizer,
+  ft_r_formula,
+  ft_regex_tokenizer,
+  ft_robust_scaler,
+  ft_sql_transformer,
+  ft_standard_scaler,
+  ft_stop_words_remover,
+  ft_string_indexer,
+  ft_tokenizer,
+  ft_vector_assembler,
+  ft_vector_indexer,
+  ft_vector_slicer,
+  ft_word2vec,
+  hive_context,
+  invoke,
+  invoke_new,
+  invoke_static,
+  ml_aft_survival_regression,
+  ml_binary_classification_evaluator,
+  ml_bisecting_kmeans,
+  ml_clustering_evaluator,
+  ml_cross_validator,
+  ml_decision_tree_classifier,
+  ml_decision_tree_regressor,
+  ml_fit,
+  ml_gbt_classifier,
+  ml_gbt_regressor,
+  ml_generalized_linear_regression,
+  ml_isotonic_regression,
+  ml_kmeans,
+  ml_linear_regression,
+  ml_load,
+  ml_logistic_regression,
+  ml_multiclass_classification_evaluator,
+  ml_pipeline,
+  ml_predict,
+  ml_random_forest_classifier,
+  ml_random_forest_regressor,
+  ml_regression_evaluator,
+  ml_save,
+  ml_transform,
+  random_string,
+  sdf_copy_to,
+  sdf_read_column,
+  sdf_register,
+  sdf_schema,
+  spark_apply,
+  spark_connect_method,
+  spark_connection,
+  spark_dataframe,
+  spark_ide_columns,
+  spark_ide_connection_updated,
+  spark_ide_objects,
+  spark_ide_preview,
+  spark_install_find,
+  spark_integ_test_skip,
+  spark_jobj,
+  spark_log,
+  spark_read_csv,
+  spark_read_json,
+  spark_read_orc,
+  spark_read_parquet,
+  spark_read_text,
+  spark_session,
+  spark_table_name,
+  spark_version,
+  spark_web,
+  spark_write_csv,
+  spark_write_delta,
+  spark_write_json,
+  spark_write_orc,
+  spark_write_parquet,
+  spark_write_table,
+  spark_write_text,
+  tune_grid_spark
+)
+importFrom(stats,
+  setNames,
+  terms
+)
 importFrom(tidyr,pivot_longer)
-importFrom(tidyselect,matches)
-importFrom(tidyselect,tidyselect_data_has_predicates)
-importFrom(utils,capture.output)
-importFrom(utils,compareVersion)
-importFrom(utils,head)
-importFrom(utils,installed.packages)
-importFrom(utils,menu)
-importFrom(utils,type.convert)
+importFrom(tidyselect,
+  matches,
+  tidyselect_data_has_predicates
+)
+importFrom(utils,
+  capture.output,
+  compareVersion,
+  head,
+  installed.packages,
+  menu,
+  type.convert
+)
 importFrom(uuid,UUIDgenerate)
 importFrom(vctrs,vec_as_names)

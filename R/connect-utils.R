@@ -190,6 +190,9 @@ connection_label <- function(x) {
     if (method == "databricks_connect" | method == "databricks") {
       ret <- "Databricks Connect"
     }
+    if (method == "sail") {
+      ret <- "Sail"
+    }
   }
   ret
 }

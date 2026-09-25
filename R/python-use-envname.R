@@ -55,6 +55,10 @@ use_envname <- function(
     "pysparklyr::install_{backend}(version = \"{backend_version}\")"
   )
   run_full <- "{.header Run: {.run {run_code}} to install.}"
+  # TODO: remove once `install_sail()` exists
+  if (identical(backend, "sail")) {
+    run_full <- NULL
+  }
 
   con_label <- connection_label(backend)
   sp_version <- version_prep(backend_version)
@@ -70,7 +74,7 @@ use_envname <- function(
     lib_info <- python_library_info(main_library, fail = FALSE, verbose = FALSE)
     if (!is.null(lib_info)) {
       latest_ver <- lib_info$version
-      if (main_library_version == "latest") {
+      if (is.null(main_library_version) || main_library_version == "latest") {
         main_library_version <- latest_ver
         if (!library_version_separate) {
           backend_version <- latest_ver
@@ -268,6 +272,7 @@ python_requirements <- function(
   requires_dist <- as.character(library_info$requires_dist)
   packages <- c(
     paste0(main_library, "==", main_library_version),
+    if (identical(backend, "sail")) sail_package(backend_version),
     if (length(requires_dist)) {
       with_extra <- grepl("; extra", requires_dist)
       extra_str <- strsplit(requires_dist[with_extra], "; extra")

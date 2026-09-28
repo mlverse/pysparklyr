@@ -142,6 +142,53 @@ Start a server with `sail spark server`. Write the answers into this file.
   `google-api-python-client`.
 - A missing pin shows a message; a found pin shows nothing.
 
+### Results
+
+Tested on 2026-09-28 against `pysail` 0.7.1 and `pyspark-client` 4.2.0.
+
+**Blocking issues, left as is for now:**
+
+- **`pyspark-client` exits Python on import from R.** `getOrCreate()` imports
+  `pyspark.sql.connect`, whose `check_dependencies()` treats a `__main__`
+  with no `__spec__`, `__file__`, or `sys.ps1` as a doctest run. It then
+  imports `pyspark.testing.connectutils`, which imports
+  `pyspark.testing.sqlutils`, which runs `_find_spark_home()` at import and
+  calls `sys.exit(-1)`. This happens in interactive R and in `Rscript`. The
+  user sees "Could not find valid SPARK_HOME" and advice to install PySpark.
+  Setting `SPARK_HOME` to any directory avoids it. Full `pyspark` does not
+  have the problem, since it ships a Spark distribution.
+- **The Sail server needs `pyspark` or `pyspark-client` in its own
+  environment.** Without it, `session$version` fails with "failed to get
+  PySpark version: No module named 'pyspark'", shown through the Databricks
+  error message. For servers started by the user, the docs need to cover
+  this, for example `uv tool install pysail --with pyspark-client`.
+
+**Results, with `SPARK_HOME` set and `pyspark-client` in the server's
+environment:**
+
+- Connect, `copy_to(memory = FALSE)`, a `dplyr` pipeline, `collect()`,
+  `dbGetQuery(sc, "select 1 as n")`, backtick identifiers, and
+  `spark_disconnect()` work.
+- `session$version` returns `4.2.0`.
+- Sail accepts all three `pyspark_config()` entries, and reads them back.
+- `show catalogs` (`sail`, `system`), `show databases in`, and
+  `show tables in` work. Temp views are filtered out, so the pane shows no
+  tables (see "After implementation"). Column lists and previews fail with
+  `` `sail`.`default`.`mtcars` `` but work with the name alone.
+- `catalog$tableExists()`, `catalog$dropTempView()`, `createDataFrame()`,
+  and `createOrReplaceTempView()` work. `persist()` is accepted but is a
+  no-op in Sail.
+- `CACHE TABLE` in every form, `catalog$cacheTable()`, `isCached()`, and
+  `clearCache()` fail with `UnsupportedOperationException`. Done:
+  `copy_to()` and `spark_read_*()` abort on `memory = TRUE`, `compute()`
+  aborts, and `copy_to(memory = FALSE)` names the temp view after the table.
+- `checkpoint()` needs `execution.checkpoint.path` set on the server.
+- Version matching works for 0.x: `0.7` and `0.7.1` match
+  `r-sparklyr-sail-0.7`.
+- The environment has `pyspark-client` 4.2.0 and `pysail` 0.7.1, and no
+  `pyspark`, `databricks-sdk`, or `google-api-python-client`.
+- A missing pin shows a message; a found pin shows nothing.
+
 ## Phase 4: fixes from manual testing
 
 - Set the `config` default.
@@ -216,6 +263,27 @@ Done when `devtools::test()` passes with and without `SAIL_VERSION` (ML and
   remote server with `sc://`.
 - List the configs and Connections pane features that work.
 - Say that ML functions and `spark_apply()` are not tested with Sail.
+
+## After implementation
+
+Changes for all back-ends, found while working on Sail.
+
+1. **Show named temp views in the Connections pane.** `catalog_python()` in
+   `R/ide-connections-pane.R` drops every temp view
+   (`tables[!tables$isTemporary, ]`), so tables from `copy_to()` never show,
+   on Spark or Sail.
+   - Drop only temp views whose names start with `temp_prefix()`
+     (`sparklyr_tmp_`), which are pysparklyr's intermediate results.
+   - In `rs_get_table()`, address temp views by name alone, since
+     `` `catalog`.`schema`.`view` `` usually fails for temp views on Spark.
+2. **Name the temp view for Snowflake.** `copy_to(memory = FALSE)` now
+   names the temp view after the table on Spark, Databricks, and Sail, but
+   not Snowflake. Check on Snowflake:
+   - Whether `createOrReplaceTempView(name)` works on a Snowpark DataFrame,
+     and whether `tbl(sc, "mtcars")` finds it, since Snowflake upper-cases
+     unquoted names.
+   - Whether `catalog$tableExists()` works on Snowpark, so the `overwrite`
+     check can run. If not, Snowflake needs its own existence check.
 
 ## Open questions
 

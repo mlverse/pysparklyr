@@ -87,8 +87,13 @@ spark_connect_method.spark_method_sail <- function(
 
 #' @export
 spark_disconnect.connect_sail <- function(sc, ...) {
-  # sparklyr's `spark_disconnect.spark_connection()` calls this method, and
-  # hides any errors, so failures are shown as warnings
+  # R dispatches here before sparklyr's `spark_disconnect.spark_connection()`,
+  # which does the cleanup, such as closing the Connections pane. That method
+  # then calls `spark_disconnect()` again, without the `spark_connection`
+  # class, so return early to stop the session and server only once
+  if (!inherits(sc, "spark_connection")) {
+    return(invisible())
+  }
   stopped <- try(python_conn(sc)$stop(), silent = TRUE)
   if (inherits(stopped, "try-error")) {
     cli_warn("Could not stop the Sail session")
@@ -99,7 +104,7 @@ spark_disconnect.connect_sail <- function(sc, ...) {
       cli_warn("Could not stop the local Sail server")
     }
   }
-  invisible()
+  NextMethod()
 }
 
 setOldClass(

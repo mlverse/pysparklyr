@@ -13,14 +13,8 @@ spark_connect_method.spark_method_sail <- function(
   ...
 ) {
   # `spark_connect()` sets `master` to "local" when it is not provided
-  if (missing(master) || is.null(master) || grepl("^local", master)) {
-    cli_abort(
-      c(
-        "A {.code master} is required to connect to Sail",
-        " " = "Please provide the address of a running Sail server, e.g. 'sc://localhost:50051'"
-      ),
-      call = NULL
-    )
+  if (missing(master) || is.null(master)) {
+    master <- "local"
   }
 
   # With no `version`, resolve both versions up front, since the environment
@@ -55,15 +49,57 @@ spark_connect_method.spark_method_sail <- function(
     new = c("SPARK_HOME" = Sys.getenv("SPARK_HOME", unset = tempdir())),
     import_check("pyspark", envname)
   )
-  conn <- pyspark$sql$SparkSession$builder$remote(master)
 
-  initialize_connection(
-    conn = conn,
-    master_label = glue("Sail - {master}"),
-    con_class = "connect_sail",
-    method = method,
-    config = config
+  # A "local" master starts a Sail server inside this R session, on a free
+  # port. It stops on `spark_disconnect()`, or when the R session ends
+  server <- NULL
+  if (grepl("^local", master)) {
+    pysail_spark <- import_check("pysail.spark", envname, silent = TRUE)
+    server <- pysail_spark$SparkConnectServer(ip = "127.0.0.1", port = 0L)
+    server$start(background = TRUE)
+    remote <- glue("sc://localhost:{server$listening_address[[2]]}")
+    master_label <- "Sail - local"
+  } else {
+    remote <- master
+    master_label <- glue("Sail - {master}")
+  }
+  conn <- pyspark$sql$SparkSession$builder$remote(remote)
+
+  tryCatch(
+    initialize_connection(
+      conn = conn,
+      master_label = master_label,
+      con_class = "connect_sail",
+      method = method,
+      config = config,
+      server = server,
+      # Each local connection has its own server, so it needs its own session
+      create = !is.null(server)
+    ),
+    error = function(e) {
+      if (!is.null(server)) {
+        server$stop()
+      }
+      stop(e)
+    }
   )
+}
+
+#' @export
+spark_disconnect.connect_sail <- function(sc, ...) {
+  # sparklyr's `spark_disconnect.spark_connection()` calls this method, and
+  # hides any errors, so failures are shown as warnings
+  stopped <- try(python_conn(sc)$stop(), silent = TRUE)
+  if (inherits(stopped, "try-error")) {
+    cli_warn("Could not stop the Sail session")
+  }
+  if (!is.null(sc$server)) {
+    stopped <- try(sc$server$stop(), silent = TRUE)
+    if (inherits(stopped, "try-error")) {
+      cli_warn("Could not stop the local Sail server")
+    }
+  }
+  invisible()
 }
 
 setOldClass(

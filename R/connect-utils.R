@@ -7,7 +7,9 @@ initialize_connection <- function(
   method = NULL,
   config = NULL,
   misc = NULL,
-  quote = NULL
+  quote = NULL,
+  server = NULL,
+  create = FALSE
 ) {
   warnings <- import("warnings")
   warnings$filterwarnings(
@@ -30,7 +32,13 @@ initialize_connection <- function(
     message = "Index.format is deprecated and will be removed in a future version"
   )
 
-  session <- conn$getOrCreate()
+  # `getOrCreate()` returns the active session if there is one, even for a
+  # different `remote()`. `create()` always starts a new one
+  if (create) {
+    session <- conn$create()
+  } else {
+    session <- conn$getOrCreate()
+  }
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) {
     if (con_class == "connect_databricks") {
@@ -90,6 +98,7 @@ initialize_connection <- function(
       serverless = serverless,
       misc = misc,
       quote = quote,
+      server = server,
       con = structure(list(), class = c("spark_connection", "DBIConnection")),
       connection_id = UUIDgenerate()
     ),

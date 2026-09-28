@@ -178,6 +178,11 @@ pyspark_read_generic <- function(
   options = list(),
   py_obj = NULL
 ) {
+  if (is_sail(sc) && memory) {
+    cli_abort(
+      "Sail does not support `memory = TRUE` please use `memory = FALSE`"
+    )
+  }
   opts <- c(args, options)
   rename_fields <- FALSE
   schema <- args$schema

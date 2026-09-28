@@ -57,12 +57,14 @@ spark_connect_method.spark_method_sail <- function(
     pysail_spark <- import_check("pysail.spark", envname, silent = TRUE)
     server <- pysail_spark$SparkConnectServer(ip = "127.0.0.1", port = 0L)
     server$start(background = TRUE)
-    remote <- glue("sc://localhost:{server$listening_address[[2]]}")
-    master_label <- "Sail - local"
+    port <- server$listening_address[[2]]
+    remote <- glue("sc://localhost:{port}")
   } else {
     remote <- master
-    master_label <- glue("Sail - {master}")
   }
+  # The URL includes the port, which tells local connections apart, e.g. in
+  # the Connections pane
+  master_label <- glue("Sail - {remote}")
   conn <- pyspark$sql$SparkSession$builder$remote(remote)
 
   tryCatch(

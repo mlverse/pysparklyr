@@ -146,7 +146,7 @@ Start a server with `sail spark server`. Write the answers into this file.
 
 Tested on 2026-09-28 against `pysail` 0.7.1 and `pyspark-client` 4.2.0.
 
-**Blocking issues, left as is for now:**
+**Blocking issues:**
 
 - **`pyspark-client` exits Python on import from R.** `getOrCreate()` imports
   `pyspark.sql.connect`, whose `check_dependencies()` treats a `__main__`
@@ -156,12 +156,17 @@ Tested on 2026-09-28 against `pysail` 0.7.1 and `pyspark-client` 4.2.0.
   calls `sys.exit(-1)`. This happens in interactive R and in `Rscript`. The
   user sees "Could not find valid SPARK_HOME" and advice to install PySpark.
   Setting `SPARK_HOME` to any directory avoids it. Full `pyspark` does not
-  have the problem, since it ships a Spark distribution.
+  have the problem, since it ships a Spark distribution. Done: the Sail
+  method wraps `import_check()` in `withr::with_envvar()`, keeping the
+  user's `SPARK_HOME` or using `tempdir()`. It has to be set when Python
+  starts, since Python does not see later changes, so it only works if
+  Python starts at the first Sail connection.
 - **The Sail server needs `pyspark` or `pyspark-client` in its own
   environment.** Without it, `session$version` fails with "failed to get
-  PySpark version: No module named 'pyspark'", shown through the Databricks
-  error message. For servers started by the user, the docs need to cover
-  this, for example `uv tool install pysail --with pyspark-client`.
+  PySpark version: No module named 'pyspark'". Done: non-Databricks
+  connections no longer show the Databricks error message. Still open: for
+  servers started by the user, the Phase 8 docs need to cover this, for
+  example `uv tool install pysail --with pyspark-client`.
 
 **Results, with `SPARK_HOME` set and `pyspark-client` in the server's
 environment:**

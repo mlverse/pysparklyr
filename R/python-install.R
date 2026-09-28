@@ -1,6 +1,10 @@
 #' Installs PySpark and Python dependencies
-#' @param version Version of 'pyspark' to install. Defaults to `NULL`. If `NULL`,
-#'   it will check against PyPi to get the current library version.
+#' @param version Version to install. Defaults to `NULL`. If `NULL`, it will
+#'   check against PyPi to get the current library version. For
+#'   `install_pyspark()`, the version of 'pyspark'. For `install_databricks()`,
+#'   the version of 'databricks.connect'. For `install_sail()`, the version of
+#'   Sail ('pysail'), and the matching 'pyspark-client' version is read from
+#'   it.
 #' @param envname The name of the Python Environment to use to install the
 #'   Python libraries. Defaults to `NULL.` If `NULL`, a name will automatically
 #'   be assigned based on the version that will be installed
@@ -55,8 +59,6 @@ install_pyspark <- function(
 }
 
 #' Installs Databricks Connect and Python dependencies
-#' @param version Version of 'databricks.connect' to install. Defaults to `NULL`.
-#'  If `NULL`, it will check against PyPi to get the current library version.
 #' @param cluster_id Target of the cluster ID that will be used with.
 #' If provided, this value will be used to extract the cluster's
 #' version
@@ -100,6 +102,36 @@ install_databricks <- function(
     backend = "databricks",
     ml_version = "14.1",
     backend_version = version,
+    envname = envname,
+    python_version = python_version,
+    new_env = new_env,
+    method = method,
+    as_job = as_job,
+    install_ml = install_ml,
+    ... = ...
+  )
+}
+
+#' @rdname install_pyspark
+#' @export
+install_sail <- function(
+  version = NULL,
+  envname = NULL,
+  python_version = NULL,
+  new_env = TRUE,
+  method = c("auto", "virtualenv", "conda"),
+  as_job = TRUE,
+  install_ml = FALSE,
+  ...
+) {
+  versions <- sail_versions(version)
+  install_as_job(
+    main_library = "pyspark-client",
+    spark_method = "sail",
+    backend = "sail",
+    ml_version = "3.5",
+    backend_version = versions$backend_version,
+    main_library_version = versions$main_library_version,
     envname = envname,
     python_version = python_version,
     new_env = new_env,

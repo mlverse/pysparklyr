@@ -55,10 +55,6 @@ use_envname <- function(
     "pysparklyr::install_{backend}(version = \"{backend_version}\")"
   )
   run_full <- "{.header Run: {.run {run_code}} to install.}"
-  # TODO: remove once `install_sail()` exists
-  if (identical(backend, "sail")) {
-    run_full <- NULL
-  }
 
   con_label <- connection_label(backend)
   sp_version <- version_prep(backend_version)

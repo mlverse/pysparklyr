@@ -23,10 +23,18 @@ expect_same_remote_result <- function(.data, pipeline) {
   if (inherits(remote, "try-error")) {
     expect_equal(remote[[1]], "")
   } else {
-    expect_equal(local, remote, ignore_attr = TRUE)
+    # Remote results have no defined row order (dbplyr's `pivot_longer()`
+    # docs say the same), so both sides are sorted before comparing. Values,
+    # types, and row counts are still compared
+    expect_equal(sort_rows(local), sort_rows(remote), ignore_attr = TRUE)
   }
 
   DBI::dbRemoveTable(sc, temp_name)
+}
+
+sort_rows <- function(x) {
+  x <- as.data.frame(x)
+  x[do.call(order, unname(as.list(x))), , drop = FALSE]
 }
 
 testthat_tbl <- function(name, data = NULL, repartition = 0L) {

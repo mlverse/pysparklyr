@@ -14,7 +14,9 @@ test_that("Pivot longer", {
         names_to = c(".value", "n"),
         names_sep = "_"
       ) %>%
-      collect()
+      collect() %>%
+      # Remote results have no defined row order
+      dplyr::arrange(id, n)
   )
 })
 
@@ -152,7 +154,8 @@ test_that(".value can be at any position in `names_to`", {
         names_sep = "_"
       )
     ),
-    collect
+    # Remote results have no defined row order
+    function(x) dplyr::arrange(collect(x), i, time)
   )
 
   expect_identical(pv[[1]], pv[[2]])

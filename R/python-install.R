@@ -494,7 +494,10 @@ build_job_code <- function(args) {
   args$method <- args$method[[1]]
   arg_list <- args |>
     imap(\(.x, .y) {
-      if (inherits(.x, "character")) {
+      if (is.null(.x)) {
+        # Written as `NULL`, since an empty argument falls back to the default
+        x <- "NULL"
+      } else if (inherits(.x, "character")) {
         x <- paste0("\"", .x, "\"")
       } else {
         x <- .x

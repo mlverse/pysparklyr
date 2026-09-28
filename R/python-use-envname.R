@@ -268,7 +268,8 @@ python_requirements <- function(
   requires_dist <- as.character(library_info$requires_dist)
   packages <- c(
     paste0(main_library, "==", main_library_version),
-    if (identical(backend, "sail")) sail_package(backend_version),
+    # `rpy2` is needed by `spark_apply()`
+    if (identical(backend, "sail")) c(sail_package(backend_version), "rpy2"),
     if (length(requires_dist)) {
       with_extra <- grepl("; extra", requires_dist)
       extra_str <- strsplit(requires_dist[with_extra], "; extra")

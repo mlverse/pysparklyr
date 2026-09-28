@@ -383,3 +383,16 @@ is_snowflake <- function(sc) {
 is_sail <- function(sc) {
   inherits(sc, "connect_sail")
 }
+
+# Whether the back-end can cache tables, e.g. with `compute()`
+supported_cache <- function(sc) {
+  UseMethod("supported_cache")
+}
+
+supported_cache.default <- function(sc) {
+  TRUE
+}
+
+supported_cache.connect_sail <- function(sc) {
+  FALSE
+}

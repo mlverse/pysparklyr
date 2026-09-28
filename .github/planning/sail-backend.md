@@ -165,7 +165,7 @@ Tested on 2026-09-28 against `pysail` 0.7.1 and `pyspark-client` 4.2.0.
   environment.** Without it, `session$version` fails with "failed to get
   PySpark version: No module named 'pyspark'". Done: non-Databricks
   connections no longer show the Databricks error message. Still open: for
-  servers started by the user, the Phase 8 docs need to cover this, for
+  servers started by the user, the Phase 9 docs need to cover this, for
   example `uv tool install pysail --with pyspark-client`.
 
 **Results, with `SPARK_HOME` set and `pyspark-client` in the server's
@@ -260,15 +260,56 @@ Done when `devtools::test()` passes with and without `SAIL_VERSION` (ML and
 `spark_apply()` tests skip on Sail), the workflow passes, and
 `devtools::check()` is clean.
 
-## Phase 8: docs and NEWS
+## Phase 8: `spark_apply()`
 
+Sail runs `mapInPandas()` and `applyInPandas()` with `rpy2`, on a local
+server and on a remote one. On a local server, the R code runs inside the
+user's R session, on Sail's threads. Tested by hand with hand-written UDFs:
+correct results over 8 partitions and 8 groups, 3 runs, no crashes.
+
+1. **Add Sail versions of the Python UDF files** in `inst/udf/`
+   (`udf-map.py`, `udf-apply.py`, and the two `-context` files), and have
+   `spark_apply()` use them for Sail. Every `rpy2` call, including
+   `robjects.r(...)`, goes inside `with localconverter(...)`: `rpy2` keeps its
+   conversion rules per thread, and Sail's threads have none. The R UDF
+   files are shared, and the UDF code runs the same way as on Spark.
+2. **Add an internal `supported_cache()` method**, `TRUE` by default and
+   `FALSE` for Sail. `spark_apply()` calls `compute()` on tables that are not
+   plain tables only if caching is supported, and uses a temp view
+   otherwise.
+3. **Install `rpy2` by default** in `install_sail()`, and in the temporary
+   environment declared at connect time.
+4. **Clearer error for a Python version mismatch** with a remote server, if
+   it is quick to do. Sail reports "Python version used to compile the UDF
+   (3.11) does not match the Python version at runtime (3.13)".
+5. **Test by hand** `arrow_max_records_per_batch`, `barrier`, `context`, and
+   `group_by`. Ask before adding formal tests for them.
+6. **Remove `skip_if_sail()`** from `test-sparklyr-spark-apply.R`.
+
+Out of scope: `tune_grid_spark()`. It uploads its data with
+`addArtifact(file = TRUE)`, which Sail does not support ("handle add
+artifacts"), and reads it with `SparkFiles`, which `pyspark-client` does not
+have. `test-tune-grid.R` stays skipped on Sail.
+
+Done when `test-sparklyr-spark-apply.R` passes on Sail, `spark_apply()`
+works on a local and on a remote Sail server, and the Spark tests still
+pass.
+
+## Phase 9: docs and NEWS
+
+- Mark the whole Sail back-end as experimental in NEWS.
 - NEWS bullets for the `sail` method, the `version` split, `install_sail()`,
-  local Sail connections, and the Sail CI workflow.
+  local Sail connections, `spark_apply()` on Sail, and the Sail CI workflow.
+- Call out the known issues in NEWS: with a local server, `spark_apply()`
+  runs R code inside the user's R session on Sail's threads, so a crash in
+  the UDF can end the session, and UDF code can change the session's global
+  environment.
 - README or vignette: run `install_sail()`, then
   `spark_connect("local", method = "sail")`. Also show connecting to a
-  remote server with `sc://`.
+  remote server with `sc://`, and what the server needs: `pyspark-client`,
+  plus `rpy2`, R, and the same Python version for `spark_apply()`.
 - List the configs and Connections pane features that work.
-- Say that ML functions and `spark_apply()` are not tested with Sail.
+- Say that ML functions and `tune_grid_spark()` are not supported on Sail.
 
 ## After implementation
 

@@ -1,3 +1,4 @@
+skip_if_sail()
 skip_spark_min_version(4.0)
 
 test_that("parallel_over resamples works", {

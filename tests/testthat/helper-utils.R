@@ -5,7 +5,12 @@ test_coverage_enable <- function() {
 expect_same_remote_result <- function(.data, pipeline) {
   sc <- use_test_spark_connect()
   temp_name <- random_table_name("test_")
-  spark_data <- dplyr::copy_to(sc, .data, temp_name)
+  spark_data <- dplyr::copy_to(
+    sc,
+    .data,
+    temp_name,
+    memory = use_memory_true()
+  )
 
   local <- pipeline(.data)
 
@@ -32,7 +37,13 @@ testthat_tbl <- function(name, data = NULL, repartition = 0L) {
     if (is.null(data)) {
       data <- eval(as.name(name), envir = parent.frame())
     }
-    tbl <- dplyr::copy_to(sc, data, name = name, repartition = repartition)
+    tbl <- dplyr::copy_to(
+      sc,
+      data,
+      name = name,
+      repartition = repartition,
+      memory = use_memory_true()
+    )
   }
 
   tbl
@@ -42,6 +53,12 @@ random_table_name <- function(prefix) {
   paste0(prefix, paste0(floor(runif(10, 0, 10)), collapse = ""))
 }
 
+
+# ML, `spark_apply()`, and Spark-only tests are not run against Sail. Call it
+# first in a file, so the file skips before anything connects
+skip_if_sail <- function() {
+  skip_if(use_test_sail(), "Not tested on Sail")
+}
 
 skip_spark_min_version <- function(version) {
   sc <- use_test_spark_connect()

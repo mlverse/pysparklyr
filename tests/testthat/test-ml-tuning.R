@@ -1,3 +1,4 @@
+skip_if_sail()
 skip_spark_min_version(4)
 
 test_that("Cross validator works", {

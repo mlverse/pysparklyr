@@ -13,6 +13,16 @@ spark_integ_test_skip.connect_spark <- function(sc, test_name) {
     supports("format-text", test_name)
 }
 
+#' @export
+spark_integ_test_skip.connect_sail <- function(sc, test_name) {
+  # Sail does not support ORC
+  spark_integ_generic(test_name) |>
+    supports("format-csv", test_name) |>
+    supports("format-parquet", test_name) |>
+    supports("format-json", test_name) |>
+    supports("format-text", test_name)
+}
+
 
 spark_integ_generic <- function(test_name) {
   out <- TRUE

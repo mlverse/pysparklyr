@@ -112,3 +112,19 @@ spark_disconnect.connect_sail <- function(sc, ...) {
 setOldClass(
   c("connect_sail", "pyspark_connection", "spark_connection")
 )
+
+# Sail's `DROP TABLE` does not drop temp views, which is what most tables are
+# on Sail, so try `dropTempView()` first
+#' @export
+setMethod(
+  "dbRemoveTable",
+  c("connect_sail", "character"),
+  function(conn, name, ..., fail_if_missing = TRUE) {
+    dropped <- python_conn(conn)$catalog$dropTempView(name)
+    if (!isTRUE(dropped)) {
+      if_exists <- if (fail_if_missing) "" else "IF EXISTS "
+      dbSendQuery(conn, paste0("DROP TABLE ", if_exists, "`", name, "`"))
+    }
+    invisible(TRUE)
+  }
+)

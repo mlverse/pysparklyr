@@ -1,3 +1,4 @@
+skip_if_sail()
 test_that("spark_apply() works", {
   tbl_mtcars <- use_test_table_mtcars()
   expect_s3_class(

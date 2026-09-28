@@ -32,6 +32,29 @@ use_test_version_spark <- function() {
   version
 }
 
+# When set, the tests run against Sail at that version instead of Spark
+use_test_version_sail <- function() {
+  version <- Sys.getenv("SAIL_VERSION", unset = NA)
+  if (is.na(version) || version == "") {
+    version <- NULL
+  }
+  version
+}
+
+use_test_sail <- function() {
+  !is.null(use_test_version_sail())
+}
+
+# Whether the back-end supports `memory = TRUE`. Sail cannot cache tables
+use_memory_true <- function() {
+  !use_test_sail()
+}
+
+# Snapshots that print the connection class are kept per back-end
+use_test_snapshot_variant <- function() {
+  if (use_test_sail()) "sail" else NULL
+}
+
 use_test_scala_spark <- function() {
   version <- Sys.getenv("SCALA_VERSION", unset = NA)
   if (is.na(version)) {
@@ -49,6 +72,25 @@ use_test_python_version <- function() {
 }
 
 use_test_connect_start <- function() {
+  if (is.null(.test_env$started) && use_test_sail()) {
+    if (!is.na(Sys.getenv("SPARK_VERSION", unset = NA))) {
+      cli_inform("`SPARK_VERSION` is ignored because `SAIL_VERSION` is set")
+    }
+    cli_h2("Sail: {use_test_version_sail()}")
+    cli_inform("WORKON_HOME: {use_test_env()}")
+    cli_inform("PYTHON_VERSION: {use_test_python_version()}")
+    cli_h2("")
+    # The server starts with each `master = "local"` connection
+    withr::with_envvar(
+      new = c("WORKON_HOME" = use_test_env()),
+      install_sail(
+        version = use_test_version_sail(),
+        python_version = use_test_python_version(),
+        as_job = FALSE
+      )
+    )
+    .test_env$started <- 0
+  }
   if (is.null(.test_env$started)) {
     env_path <- use_test_python_environment()
     version <- use_test_version_spark()
@@ -89,6 +131,21 @@ use_test_spark_connect <- function() {
     conf <- pyspark_config()
     conf$spark.python.worker.memory <- "50m"
     use_test_connect_start()
+    if (use_test_sail()) {
+      cli_h1("Connecting to Sail")
+      withr::with_envvar(
+        new = c("WORKON_HOME" = use_test_env()),
+        {
+          .test_env$sc <- sparklyr::spark_connect(
+            master = "local",
+            method = "sail",
+            version = use_test_version_sail(),
+            config = conf
+          )
+        }
+      )
+      return(.test_env$sc)
+    }
     cli_h1("Connecting to Spark cluster")
     withr::with_envvar(
       new = c(
@@ -114,7 +171,12 @@ use_test_spark_connect <- function() {
 use_test_table_mtcars <- function() {
   sc <- use_test_spark_connect()
   if (!"mtcars" %in% dbListTables(sc)) {
-    ret <- dplyr::copy_to(sc, mtcars, overwrite = TRUE)
+    ret <- dplyr::copy_to(
+      sc,
+      mtcars,
+      overwrite = TRUE,
+      memory = use_memory_true()
+    )
   } else {
     ret <- dplyr::tbl(sc, "mtcars")
   }
@@ -131,7 +193,12 @@ use_test_table_ovarian <- function() {
 use_test_table_iris <- function() {
   sc <- use_test_spark_connect()
   if (!"iris" %in% dbListTables(sc)) {
-    ret <- dplyr::copy_to(sc, iris, overwrite = TRUE)
+    ret <- dplyr::copy_to(
+      sc,
+      iris,
+      overwrite = TRUE,
+      memory = use_memory_true()
+    )
   } else {
     ret <- dplyr::tbl(sc, "iris")
   }
@@ -141,7 +208,13 @@ use_test_table_iris <- function() {
 use_test_table <- function(x, name) {
   sc <- use_test_spark_connect()
   if (!name %in% dbListTables(sc)) {
-    ret <- dplyr::copy_to(sc, x, name = name, overwrite = TRUE)
+    ret <- dplyr::copy_to(
+      sc,
+      x,
+      name = name,
+      overwrite = TRUE,
+      memory = use_memory_true()
+    )
   } else {
     ret <- dplyr::tbl(sc, name)
   }
@@ -161,7 +234,12 @@ use_test_table_reviews <- function() {
   )
   sc <- use_test_spark_connect()
   if (!"reviews" %in% dbListTables(sc)) {
-    ret <- dplyr::copy_to(sc, reviews, overwrite = TRUE)
+    ret <- dplyr::copy_to(
+      sc,
+      reviews,
+      overwrite = TRUE,
+      memory = use_memory_true()
+    )
   } else {
     ret <- dplyr::tbl(sc, "reviews")
   }

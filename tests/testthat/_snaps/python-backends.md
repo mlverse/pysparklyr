@@ -252,14 +252,14 @@
       install_pyspark(version = "3.5")
     Output
       Installing 'pyspark' version '3.5'
-      pysparklyr:::install_environment(main_library = "pyspark", spark_method = "pyspark_connect", backend = "pyspark", ml_version = "3.5", backend_version = "3.5", main_library_version = "3.5", envname = , python_version = , new_env = TRUE, method = "auto", install_ml = FALSE)
+      pysparklyr:::install_environment(main_library = "pyspark", spark_method = "pyspark_connect", backend = "pyspark", ml_version = "3.5", backend_version = "3.5", main_library_version = "3.5", envname = NULL, python_version = NULL, new_env = TRUE, method = "auto", install_ml = FALSE)
     Message
       v Running installation as a RStudio job 
     Code
       install_databricks(version = "16.1")
     Output
       Installing 'databricks-connect' version '16.1'
-      pysparklyr:::install_environment(main_library = "databricks-connect", spark_method = "databricks_connect", backend = "databricks", ml_version = "14.1", backend_version = "16.1", main_library_version = "16.1", envname = , python_version = , new_env = TRUE, method = "auto", install_ml = FALSE)
+      pysparklyr:::install_environment(main_library = "databricks-connect", spark_method = "databricks_connect", backend = "databricks", ml_version = "14.1", backend_version = "16.1", main_library_version = "16.1", envname = NULL, python_version = NULL, new_env = TRUE, method = "auto", install_ml = FALSE)
     Message
       v Running installation as a RStudio job 
 

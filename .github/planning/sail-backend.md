@@ -289,6 +289,12 @@ Changes for all back-ends, found while working on Sail.
      unquoted names.
    - Whether `catalog$tableExists()` works on Snowpark, so the `overwrite`
      check can run. If not, Snowflake needs its own existence check.
+3. **Drop temp views in `dbRemoveTable()` for the other back-ends.**
+   sparklyr's `dbRemoveTable()` sends `DROP TABLE`, which Sail rejects for
+   temp views, so Sail has its own method in `R/connect-sail.R` that tries
+   `catalog$dropTempView()` first. Check whether Spark Connect, Databricks,
+   and Snowflake should use the same approach, since `pivot_longer()` and
+   `spark_read_*(overwrite = TRUE)` drop temp views this way.
 
 ## Open questions
 

@@ -6,7 +6,10 @@ test_that("Write text works", {
     mutate(x = as.character(mpg)) |>
     select(x)
   expect_silent(spark_write_text(text_tbl, file_name, overwrite = ))
-  expect_s3_class(spark_read_text(sc, file_name), "tbl_pyspark")
+  expect_s3_class(
+    spark_read_text(sc, file_name, memory = use_memory_true()),
+    "tbl_pyspark"
+  )
 })
 
 test_that("Write table works", {
@@ -30,8 +33,10 @@ test_that("CSV works", {
       name = "csv_1",
       path = file_name,
       overwrite = TRUE,
-      repartition = 2
-    )
+      repartition = 2,
+      memory = use_memory_true()
+    ),
+    variant = use_test_snapshot_variant()
   )
   expect_snapshot(
     spark_read_csv(
@@ -39,8 +44,10 @@ test_that("CSV works", {
       name = "csv_2",
       path = file_name,
       overwrite = TRUE,
-      columns = paste0(names(mtcars), "t")
-    )
+      columns = paste0(names(mtcars), "t"),
+      memory = use_memory_true()
+    ),
+    variant = use_test_snapshot_variant()
   )
   expect_snapshot(
     spark_read_csv(
@@ -48,8 +55,9 @@ test_that("CSV works", {
       name = "csv_3",
       path = file_name,
       overwrite = TRUE,
-      memory = TRUE
-    )
+      memory = use_memory_true()
+    ),
+    variant = use_test_snapshot_variant()
   )
 })
 
@@ -59,17 +67,33 @@ test_that("Parquet works", {
   file_name <- tempfile()
   expect_silent(spark_write_parquet(tbl_mtcars, file_name))
   expect_snapshot(
-    spark_read_parquet(sc, "csv_1", file_name, overwrite = TRUE)
+    spark_read_parquet(
+      sc,
+      "csv_1",
+      file_name,
+      overwrite = TRUE,
+      memory = use_memory_true()
+    ),
+    variant = use_test_snapshot_variant()
   )
 })
 
 test_that("ORC works", {
+  # Sail does not support ORC
+  skip_if_sail()
   sc <- use_test_spark_connect()
   tbl_mtcars <- use_test_table_mtcars()
   file_name <- tempfile()
   expect_silent(spark_write_orc(tbl_mtcars, file_name))
   expect_snapshot(
-    spark_read_orc(sc, "csv_1", file_name, overwrite = TRUE)
+    spark_read_orc(
+      sc,
+      "csv_1",
+      file_name,
+      overwrite = TRUE,
+      memory = use_memory_true()
+    ),
+    variant = use_test_snapshot_variant()
   )
 })
 
@@ -79,7 +103,14 @@ test_that("JSON works", {
   file_name <- tempfile()
   expect_silent(spark_write_json(tbl_mtcars, file_name))
   expect_snapshot(
-    spark_read_json(sc, "csv_1", file_name, overwrite = TRUE)
+    spark_read_json(
+      sc,
+      "csv_1",
+      file_name,
+      overwrite = TRUE,
+      memory = use_memory_true()
+    ),
+    variant = use_test_snapshot_variant()
   )
 })
 

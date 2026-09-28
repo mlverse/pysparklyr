@@ -33,7 +33,14 @@ initialize_connection <- function(
   session <- conn$getOrCreate()
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) {
-    databricks_dbr_error(get_version)
+    if (con_class == "connect_databricks") {
+      databricks_dbr_error(get_version)
+    }
+    version_error <- conditionMessage(attr(get_version, "condition"))
+    cli_abort(
+      c("Connection error: {.emph {master_label}}", "x" = "{version_error}"),
+      call = NULL
+    )
   }
 
   if (!is.null(config)) {

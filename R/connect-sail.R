@@ -47,7 +47,14 @@ spark_connect_method.spark_method_sail <- function(
     return(invisible())
   }
 
-  pyspark <- import_check("pyspark", envname)
+  # When creating the session, `pyspark-client` can mistake reticulate's
+  # embedded Python for a doctest run, and exit if it finds no SPARK_HOME.
+  # Any value avoids that, so keep the user's, or use a temporary one. It is
+  # set while Python starts, since Python does not see later changes
+  pyspark <- withr::with_envvar(
+    new = c("SPARK_HOME" = Sys.getenv("SPARK_HOME", unset = tempdir())),
+    import_check("pyspark", envname)
+  )
   conn <- pyspark$sql$SparkSession$builder$remote(master)
 
   initialize_connection(

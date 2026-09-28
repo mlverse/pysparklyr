@@ -30,7 +30,8 @@ spark_connect_method.spark_method_sail <- function(
     backend = "sail",
     main_library = "pyspark-client",
     backend_version = version,
-    main_library_version = (versions %||% sail_versions(version))$main_library_version,
+    main_library_version = (versions %||%
+      sail_versions(version))$main_library_version,
     envname = args$envname,
     messages = TRUE,
     match_first = TRUE,
@@ -113,8 +114,17 @@ setOldClass(
   c("connect_sail", "pyspark_connection", "spark_connection")
 )
 
-# Sail's `DROP TABLE` does not drop temp views, which is what most tables are
-# on Sail, so try `dropTempView()` first
+#' Remove a table from a Sail connection
+#'
+#' Sail's `DROP TABLE` does not drop temp views, which is what most tables are
+#' on Sail, so this method tries `dropTempView()` first.
+#' @param conn A Sail connection
+#' @param name The name of the table
+#' @param ... Not used
+#' @param fail_if_missing If `FALSE`, no error is raised when the table does
+#'   not exist
+#' @returns `TRUE`, invisibly
+#' @keywords internal
 #' @export
 setMethod(
   "dbRemoveTable",

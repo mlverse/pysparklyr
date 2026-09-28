@@ -1,5 +1,49 @@
 # pysparklyr (dev)
 
+### Sail (experimental)
+
+- Adds experimental support for [Sail](https://github.com/lakehq/sail), a
+Spark Connect server written in Rust that needs no JVM. Use
+`spark_connect(method = "sail")`:
+  - With `master = "local"`, it starts a Sail server inside the R session, on
+  a free port. `spark_disconnect()` stops the server, and so does ending the R
+  session.
+  - With a `master` such as `"sc://localhost:50051"`, it connects to a Sail
+  server that is already running. That server's Python environment needs
+  `pyspark-client`, and for `spark_apply()`, also `rpy2`, R, and the same
+  Python version as the R session.
+
+- Adds `install_sail()`. It creates a Python environment with `pysail`, the
+`pyspark-client` version that `pysail` pins, and `rpy2`. Its `version` is the
+Sail version, for example `"0.7"`.
+
+- `spark_apply()` works with Sail. With a local server, the R code in the
+function runs inside the user's R session, on Sail's threads, instead of in a
+separate process. This means a crash in the function can end the R session, and
+the function can change the session's global environment.
+
+- Sail does not support caching. `copy_to()` and `spark_read_*()` need
+`memory = FALSE`, and `compute()` returns an error.
+
+- The ML functions and `tune_grid_spark()` are not supported with Sail.
+
+- Adds a CI workflow that runs the tests against Sail. Set the `SAIL_VERSION`
+environment variable to run the tests against Sail locally.
+
+- Internally, `pysparklyr` now keeps the back-end version, which names the
+Python environment, separate from the Python library version. They are the
+same number for every back-end except Sail.
+
+### Other changes
+
+- `copy_to(memory = FALSE)` now creates the table under its name, so
+`tbl(sc, name)` finds it. Before, it created a table with a random name. It
+also returns an error if the table exists, unless `overwrite = TRUE`. This does
+not apply to Snowflake yet.
+
+- Connection errors for back-ends other than Databricks no longer show a
+Databricks error message.
+
 - Adds code to handle use an alternative value of the cluster's information object
 if the one originally used contains the word 'scala' (#188)
 

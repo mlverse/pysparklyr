@@ -389,10 +389,12 @@ supported_cache <- function(sc) {
   UseMethod("supported_cache")
 }
 
+#' @exportS3Method
 supported_cache.default <- function(sc) {
   TRUE
 }
 
+#' @exportS3Method
 supported_cache.connect_sail <- function(sc) {
   FALSE
 }

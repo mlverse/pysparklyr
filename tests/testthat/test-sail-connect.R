@@ -33,11 +33,13 @@ test_that("Local connections start their own server", {
 
 test_that("Disconnecting stops the server and closes the pane entry", {
   closed <- NULL
-  withr::local_options(connectionObserver = list(
-    connectionOpened = function(...) invisible(),
-    connectionClosed = function(type, host, ...) closed <<- c(closed, host),
-    connectionUpdated = function(...) invisible()
-  ))
+  withr::local_options(
+    connectionObserver = list(
+      connectionOpened = function(...) invisible(),
+      connectionClosed = function(type, host, ...) closed <<- c(closed, host),
+      connectionUpdated = function(...) invisible()
+    )
+  )
   sc1 <- sail_test_connect()
   sc2 <- sail_test_connect()
   withr::defer(spark_disconnect(sc2))

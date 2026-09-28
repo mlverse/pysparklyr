@@ -165,8 +165,8 @@ Tested on 2026-09-28 against `pysail` 0.7.1 and `pyspark-client` 4.2.0.
   environment.** Without it, `session$version` fails with "failed to get
   PySpark version: No module named 'pyspark'". Done: non-Databricks
   connections no longer show the Databricks error message. Still open: for
-  servers started by the user, the Phase 9 docs need to cover this, for
-  example `uv tool install pysail --with pyspark-client`.
+  servers started by the user, the spark.posit.co article needs to cover
+  this (see "After implementation").
 
 **Results, with `SPARK_HOME` set and `pyspark-client` in the server's
 environment:**
@@ -295,7 +295,7 @@ Done when `test-sparklyr-spark-apply.R` passes on Sail, `spark_apply()`
 works on a local and on a remote Sail server, and the Spark tests still
 pass.
 
-## Phase 9: docs and NEWS
+## Phase 9: NEWS
 
 - Mark the whole Sail back-end as experimental in NEWS.
 - NEWS bullets for the `sail` method, the `version` split, `install_sail()`,
@@ -304,16 +304,13 @@ pass.
   runs R code inside the user's R session on Sail's threads, so a crash in
   the UDF can end the session, and UDF code can change the session's global
   environment.
-- README or vignette: run `install_sail()`, then
-  `spark_connect("local", method = "sail")`. Also show connecting to a
-  remote server with `sc://`, and what the server needs: `pyspark-client`,
-  plus `rpy2`, R, and the same Python version for `spark_apply()`.
-- List the configs and Connections pane features that work.
-- Say that ML functions and `tune_grid_spark()` are not supported on Sail.
+- Say in NEWS that ML functions and `tune_grid_spark()` are not supported
+  on Sail.
 
 ## After implementation
 
-Changes for all back-ends, found while working on Sail.
+Follow-up work, found while working on Sail. Items 1 to 3 are changes for
+all back-ends.
 
 1. **Show named temp views in the Connections pane.** `catalog_python()` in
    `R/ide-connections-pane.R` drops every temp view
@@ -337,6 +334,12 @@ Changes for all back-ends, found while working on Sail.
    `catalog$dropTempView()` first. Check whether Spark Connect, Databricks,
    and Snowflake should use the same approach, since `pivot_longer()` and
    `spark_read_*(overwrite = TRUE)` drop temp views this way.
+4. **Write an article on spark.posit.co.** Run `install_sail()`, then
+   `spark_connect("local", method = "sail")`. Also show connecting to a
+   remote server with `sc://`, and what the server needs: `pyspark-client`,
+   plus `rpy2`, R, and the same Python version for `spark_apply()`. For
+   example, `uv tool install pysail --with pyspark-client`.
+   - List the configs and Connections pane features that work.
 
 ## Open questions
 

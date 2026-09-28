@@ -130,6 +130,10 @@ setMethod(
   "dbRemoveTable",
   c("connect_sail", "character"),
   function(conn, name, ..., fail_if_missing = TRUE) {
+    # Same check as sparklyr's `dbRemoveTable()`, since the name goes into SQL
+    if (grepl("`", name, fixed = TRUE)) {
+      cli_abort("Can't escape back tick from string")
+    }
     dropped <- python_conn(conn)$catalog$dropTempView(name)
     if (!isTRUE(dropped)) {
       if_exists <- if (fail_if_missing) "" else "IF EXISTS "

@@ -253,7 +253,8 @@ stops the server (`$running` is `FALSE`).
 3. Add `tests/testthat/test-sail-connect.R`, like
    `test-zzz-spark-connect.R`. Skip unless `SAIL_VERSION` is set.
 4. Add `.github/workflows/sail-tests.yaml`, based on `spark-tests.yaml`:
-   no Java, matrix of `SAIL_VERSION` and Python (3.10 to 3.14) versions.
+   no Java, and one matrix line for now (Sail 0.7, Python 3.12). Add more
+   Sail or Python versions later if needed.
 
 Done when `devtools::test()` passes with and without `SAIL_VERSION` (ML and
 `spark_apply()` tests skip on Sail), the workflow passes, and

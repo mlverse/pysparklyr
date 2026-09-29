@@ -27,8 +27,8 @@ the function can change the session's global environment.
 
 - The ML functions and `tune_grid_spark()` are not supported with Sail.
 
-- Adds a CI workflow that runs the tests against Sail. Set the `SAIL_VERSION`
-environment variable to run the tests against Sail locally.
+- The test coverage workflow now also runs the tests against Sail. Set the
+`SAIL_VERSION` environment variable to run the tests against Sail locally.
 
 - Internally, `pysparklyr` now keeps the back-end version, which names the
 Python environment, separate from the Python library version. They are the

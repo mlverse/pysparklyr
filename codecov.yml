@@ -12,3 +12,7 @@ coverage:
         target: auto
         threshold: 1%
         informational: true
+
+codecov:
+  notify:
+    after_n_builds: 3

@@ -120,3 +120,37 @@ test_that("Other tests", {
     "1234_"
   )
 })
+
+test_that("JDBC works", {
+  # Uses the Derby JDBC driver that comes with Spark
+  skip_if_sail()
+  sc <- use_test_spark_connect()
+  tbl_mtcars <- use_test_table_mtcars()
+  jdbc_options <- list(
+    url = "jdbc:derby:memory:pysparklyr;create=true",
+    driver = "org.apache.derby.iapi.jdbc.AutoloadedDriver"
+  )
+  expect_error(
+    spark_write_jdbc(tbl_mtcars, "mtcars_jdbc", options = list()),
+    "url"
+  )
+  expect_silent(
+    spark_write_jdbc(
+      tbl_mtcars,
+      name = "mtcars_jdbc",
+      mode = "overwrite",
+      options = jdbc_options
+    )
+  )
+  tbl_jdbc <- spark_read_jdbc(
+    sc,
+    name = "mtcars_jdbc",
+    options = c(jdbc_options, dbtable = "mtcars_jdbc"),
+    memory = use_memory_true()
+  )
+  expect_s3_class(tbl_jdbc, "tbl_pyspark")
+  expect_equal(
+    sort(dplyr::pull(tbl_jdbc, mpg)),
+    sort(mtcars$mpg)
+  )
+})

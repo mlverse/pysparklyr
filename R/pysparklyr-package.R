@@ -49,11 +49,11 @@
 #' @importFrom sparklyr spark_ide_connection_updated spark_version
 #' @importFrom sparklyr spark_ide_objects spark_ide_columns sdf_read_column
 #' @importFrom sparklyr spark_read_csv spark_read_parquet spark_read_text
-#' @importFrom sparklyr spark_read_json spark_read_orc
+#' @importFrom sparklyr spark_read_json spark_read_orc spark_read_jdbc
 #' @importFrom sparklyr spark_session invoke invoke_new invoke_static
 #' @importFrom sparklyr spark_table_name spark_integ_test_skip spark_ide_preview
 #' @importFrom sparklyr spark_write_csv spark_write_parquet spark_write_text
-#' @importFrom sparklyr spark_write_delta
+#' @importFrom sparklyr spark_write_delta spark_write_jdbc
 #' @importFrom sparklyr spark_write_orc spark_write_json spark_write_table
 #' @importFrom stats terms setNames
 #' @importFrom tidyr pivot_longer

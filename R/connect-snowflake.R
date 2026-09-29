@@ -21,7 +21,7 @@ spark_connect_method.spark_method_snowpark_connect <- function(
   envname <- use_envname(
     backend = "snowflake",
     main_library = "snowflake-snowpark-python",
-    version = version %||% "latest",
+    backend_version = version %||% "latest",
     envname = args$envname,
     messages = TRUE,
     match_first = TRUE,

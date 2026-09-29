@@ -5,7 +5,7 @@ test_that("Pivot longer", {
     "A" ,    1 ,    2 ,    3 ,    4 ,    5 ,    6 ,
     "B" ,    7 ,    8 ,    9 ,   10 ,   11 ,   12 ,
   )
-  tbl_pivot <- copy_to(sc, local_pivot)
+  tbl_pivot <- copy_to(sc, local_pivot, memory = use_memory_true())
 
   expect_snapshot(
     tbl_pivot %>%
@@ -14,7 +14,9 @@ test_that("Pivot longer", {
         names_to = c(".value", "n"),
         names_sep = "_"
       ) %>%
-      collect()
+      collect() %>%
+      # Remote results have no defined row order
+      dplyr::arrange(id, n)
   )
 })
 
@@ -126,7 +128,8 @@ test_that(".value can be at any position in `names_to`", {
       y_t2 = rnorm(4),
       z_t1 = rep(3, 4),
       z_t2 = rep(-2, 4)
-    )
+    ),
+    memory = use_memory_true()
   )
   samp_sdf2 <- dplyr::rename(
     samp_sdf,
@@ -151,7 +154,8 @@ test_that(".value can be at any position in `names_to`", {
         names_sep = "_"
       )
     ),
-    collect
+    # Remote results have no defined row order
+    function(x) dplyr::arrange(collect(x), i, time)
   )
 
   expect_identical(pv[[1]], pv[[2]])
@@ -159,7 +163,11 @@ test_that(".value can be at any position in `names_to`", {
 
 test_that("reporting data type mismatch", {
   sc <- use_test_spark_connect()
-  sdf <- copy_to(sc, tibble::tibble(abc = 1, xyz = "b"))
+  sdf <- copy_to(
+    sc,
+    tibble::tibble(abc = 1, xyz = "b"),
+    memory = use_memory_true()
+  )
   err <- capture_error(tidyr::pivot_longer(sdf, tidyr::everything()))
 
   expect_true(grepl("data type mismatch", err$message, fixed = TRUE))

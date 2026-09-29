@@ -10,8 +10,7 @@ test_that("It checks with PyPi if library version is NULL", {
           spark_method = "pyspark_connect",
           backend = "pyspark",
           ml_version = "3.5",
-          new_env = FALSE,
-          python = Sys.which("python")
+          new_env = FALSE
         ),
         "Retrieving version from PyPi.org"
       )
@@ -28,7 +27,7 @@ test_that("Adds the ML libraries when prompted", {
         main_library = "pyspark",
         spark_method = "pyspark_connect",
         backend = "pyspark",
-        version = "3.5",
+        backend_version = "3.5",
         ml_version = "3.5",
         new_env = FALSE,
         python = Sys.which("python"),
@@ -52,7 +51,7 @@ test_that("Fails when passing an invalid library version", {
           new_env = FALSE,
           python = Sys.which("python"),
           # Arg(s) being tested
-          version = "0.1",
+          backend_version = "0.1",
         ),
         "Version '0.1' is not valid for 'pyspark'"
       )
@@ -88,7 +87,7 @@ test_that("Installation runs even if no response from PyPi", {
         main_library = "pyspark",
         spark_method = "pyspark_connect",
         backend = "pyspark",
-        version = "3.5",
+        backend_version = "3.5",
         ml_version = "3.5",
         new_env = FALSE,
         python = Sys.which("python")
@@ -136,7 +135,7 @@ test_that("Fails when non-existent Python version is used", {
           main_library = "pyspark",
           spark_method = "pyspark_connect",
           backend = "pyspark",
-          version = "3.5",
+          backend_version = "3.5",
           ml_version = "3.5",
           python = Sys.which("python"),
           # Arg(s) being tested

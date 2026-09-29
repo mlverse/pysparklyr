@@ -14,9 +14,12 @@ test_that("copy_to() works", {
   tbl_ordered <- use_test_table_mtcars() |>
     arrange(mpg, qsec, hp)
 
-  expect_snapshot(tbl_ordered)
+  expect_snapshot(tbl_ordered, variant = use_test_snapshot_variant())
 
-  expect_snapshot(print(head(tbl_ordered)))
+  expect_snapshot(
+    print(head(tbl_ordered)),
+    variant = use_test_snapshot_variant()
+  )
 })
 
 test_that("Sampling functions works", {
@@ -44,6 +47,8 @@ test_that("Sampling functions works", {
 })
 
 test_that("Misc functions", {
+  # Uses `compute()`, which Sail does not support
+  skip_if_sail()
   tbl_am <- use_test_table_mtcars() |>
     group_by(am) |>
     filter(mpg == max(mpg, na.rm = TRUE)) |>
@@ -59,24 +64,30 @@ test_that("Misc functions", {
 
   expect_error(tbl_ptype(tbl_am))
 
-  expect_snapshot(tbl_am[1])
+  expect_snapshot(tbl_am[1], variant = use_test_snapshot_variant())
 
-  expect_snapshot(tbl_join)
+  expect_snapshot(tbl_join, variant = use_test_snapshot_variant())
 })
 
 test_that("sdf_copy_to() workks", {
   sc <- use_test_spark_connect()
   test_df <- data.frame(a = 1:1000, b = 1:1000)
   expect_s3_class(
-    sdf_copy_to(sc, test_df, name = "test_df"),
+    sdf_copy_to(sc, test_df, name = "test_df", memory = use_memory_true()),
     "tbl_pyspark"
   )
   expect_error(
-    sdf_copy_to(sc, test_df, name = "test_df"),
+    sdf_copy_to(sc, test_df, name = "test_df", memory = use_memory_true()),
     "Temp table test_df already exists, use `overwrite = TRUE` to replace"
   )
   expect_s3_class(
-    sdf_copy_to(sc, test_df, name = "test_df", overwrite = TRUE),
+    sdf_copy_to(
+      sc,
+      test_df,
+      name = "test_df",
+      overwrite = TRUE,
+      memory = use_memory_true()
+    ),
     "tbl_pyspark"
   )
   expect_s3_class(
@@ -85,7 +96,8 @@ test_that("sdf_copy_to() workks", {
       test_df,
       name = "test_df",
       overwrite = TRUE,
-      repartition = 2
+      repartition = 2,
+      memory = use_memory_true()
     ),
     "tbl_pyspark"
   )

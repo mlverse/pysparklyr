@@ -1,6 +1,10 @@
 #' Installs PySpark and Python dependencies
-#' @param version Version of 'pyspark' to install. Defaults to `NULL`. If `NULL`,
-#'   it will check against PyPi to get the current library version.
+#' @param version Version to install. Defaults to `NULL`. If `NULL`, it will
+#'   check against PyPi to get the current library version. For
+#'   `install_pyspark()`, the version of 'pyspark'. For `install_databricks()`,
+#'   the version of 'databricks.connect'. For `install_sail()`, the version of
+#'   Sail ('pysail'), and the matching 'pyspark-client' version is read from
+#'   it.
 #' @param envname The name of the Python Environment to use to install the
 #'   Python libraries. Defaults to `NULL.` If `NULL`, a name will automatically
 #'   be assigned based on the version that will be installed
@@ -43,7 +47,7 @@ install_pyspark <- function(
     spark_method = "pyspark_connect",
     backend = "pyspark",
     ml_version = "3.5",
-    version = version,
+    backend_version = version,
     envname = envname,
     python_version = python_version,
     new_env = new_env,
@@ -55,8 +59,6 @@ install_pyspark <- function(
 }
 
 #' Installs Databricks Connect and Python dependencies
-#' @param version Version of 'databricks.connect' to install. Defaults to `NULL`.
-#'  If `NULL`, it will check against PyPi to get the current library version.
 #' @param cluster_id Target of the cluster ID that will be used with.
 #' If provided, this value will be used to extract the cluster's
 #' version
@@ -99,7 +101,37 @@ install_databricks <- function(
     spark_method = "databricks_connect",
     backend = "databricks",
     ml_version = "14.1",
-    version = version,
+    backend_version = version,
+    envname = envname,
+    python_version = python_version,
+    new_env = new_env,
+    method = method,
+    as_job = as_job,
+    install_ml = install_ml,
+    ... = ...
+  )
+}
+
+#' @rdname install_pyspark
+#' @export
+install_sail <- function(
+  version = NULL,
+  envname = NULL,
+  python_version = NULL,
+  new_env = TRUE,
+  method = c("auto", "virtualenv", "conda"),
+  as_job = TRUE,
+  install_ml = FALSE,
+  ...
+) {
+  versions <- sail_versions(version)
+  install_as_job(
+    main_library = "pyspark-client",
+    spark_method = "sail",
+    backend = "sail",
+    ml_version = "3.5",
+    backend_version = versions$backend_version,
+    main_library_version = versions$main_library_version,
     envname = envname,
     python_version = python_version,
     new_env = new_env,
@@ -115,7 +147,8 @@ install_as_job <- function(
   spark_method = NULL,
   backend = NULL,
   ml_version = NULL,
-  version = NULL,
+  backend_version = NULL,
+  main_library_version = backend_version,
   envname = NULL,
   python_version = NULL,
   new_env = NULL,
@@ -131,7 +164,7 @@ install_as_job <- function(
       "Installing '",
       main_library,
       "' version '",
-      version,
+      main_library_version,
       "'"
     )
     temp_file <- tempfile()
@@ -148,7 +181,8 @@ install_as_job <- function(
       spark_method = spark_method,
       backend = backend,
       ml_version = ml_version,
-      version = version,
+      backend_version = backend_version,
+      main_library_version = main_library_version,
       envname = envname,
       python_version = python_version,
       new_env = new_env,
@@ -164,7 +198,8 @@ install_environment <- function(
   spark_method = NULL,
   backend = NULL,
   ml_version = NULL,
-  version = NULL,
+  backend_version = NULL,
+  main_library_version = backend_version,
   envname = NULL,
   python_version = NULL,
   new_env = NULL,
@@ -174,30 +209,16 @@ install_environment <- function(
   ...
 ) {
   cli_div(theme = cli_colors())
-  library_info <- python_library_info(main_library, version)
+  reqs <- python_requirements(
+    backend = backend,
+    main_library = main_library,
+    backend_version = backend_version,
+    main_library_version = main_library_version,
+    python_version = python_version
+  )
+  python_version <- reqs$python_version
+  ver_name <- reqs$library_version
 
-  if (!is.null(library_info)) {
-    if (is.null(python_version)) {
-      python_version <- library_info$requires_python
-    }
-    version <- library_info$version
-    ver_name <- version
-  } else {
-    if (!is.null(version)) {
-      ver_name <- version_prep(version)
-      if (version == ver_name) {
-        version <- paste0(version, ".*")
-      }
-    } else {
-      cli_abort(
-        c(
-          "No `version` provided, and none could be found",
-          " " = "Please run again with a valid version number"
-        ),
-        call = NULL
-      )
-    }
-  }
   python_number <- sub(">", "", python_version)
   python_number <- sub("=", "", python_number)
   python_number <- trimws(python_number)
@@ -213,7 +234,7 @@ install_environment <- function(
     }
     envname <- use_envname(
       backend = backend,
-      version = ver_name,
+      backend_version = backend_version %||% ver_name,
       main_library = main_library,
       ask_if_not_installed = FALSE,
       python_version = python_version
@@ -223,16 +244,7 @@ install_environment <- function(
     "{.header Automatically naming the environment:}{.emph '{envname}'}"
   )
 
-  packages <- c(
-    paste0(main_library, "==", version),
-    "pandas!=2.1.0", # deprecation warnings
-    "PyArrow",
-    "grpcio",
-    "google-api-python-client",
-    "grpcio_status",
-    "databricks-sdk",
-    "zstandard"
-  )
+  packages <- reqs$packages
 
   if (add_torch && install_ml) {
     packages <- c(packages, pysparklyr_env$ml_libraries)
@@ -482,7 +494,10 @@ build_job_code <- function(args) {
   args$method <- args$method[[1]]
   arg_list <- args |>
     imap(\(.x, .y) {
-      if (inherits(.x, "character")) {
+      if (is.null(.x)) {
+        # Written as `NULL`, since an empty argument falls back to the default
+        x <- "NULL"
+      } else if (inherits(.x, "character")) {
         x <- paste0("\"", .x, "\"")
       } else {
         x <- .x

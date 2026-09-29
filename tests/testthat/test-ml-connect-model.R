@@ -1,3 +1,4 @@
+skip_if_sail()
 skip_on_ci()
 skip_spark_max_version("3.5.99")
 

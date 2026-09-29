@@ -48,6 +48,9 @@ sample_frac.tbl_pyspark <- function(
 
 #' @export
 compute.tbl_pyspark <- function(x, name = NULL, ...) {
+  if (is_sail(spark_connection(x))) {
+    cli_abort("Sail does not support `compute()` at this time")
+  }
   cache_query(x, name = name, storage_level = "MEMORY_AND_DISK")
 }
 
@@ -112,7 +115,12 @@ sdf_copy_to.pyspark_connection <- function(
     x <- as.list(x) |> transpose()
     schema <- col_names
   }
-  if (!is_snowflake(sc) && memory) {
+  if (is_sail(sc) && memory) {
+    cli_abort(
+      "Sail does not support `memory = TRUE` please use `memory = FALSE`"
+    )
+  }
+  if (!is_snowflake(sc)) {
     if (context$catalog$tableExists(name)) {
       if (overwrite) {
         context$catalog$dropTempView(name)
@@ -134,9 +142,12 @@ sdf_copy_to.pyspark_connection <- function(
     }
     out <- tbl(src = sc, from = name)
   } else {
+    cache <- memory && !sc$serverless
+    # When not caching, the temp view itself carries the table's name
+    tmp_name <- if (!cache && !is_snowflake(sc)) name
     out <- df_copy |>
-      tbl_pyspark_temp(sc)
-    if (memory && !sc$serverless) {
+      tbl_pyspark_temp(sc, tmp_name = tmp_name)
+    if (cache) {
       out <- cache_query(table = out, name = name)
     }
   }
@@ -367,4 +378,23 @@ query_cleanup <- function(x, con) {
 is_snowflake <- function(sc) {
   inherits(sc, "connect_snowflake") ||
     inherits(sc, "snowflake.snowpark.session.Session")
+}
+
+is_sail <- function(sc) {
+  inherits(sc, "connect_sail")
+}
+
+# Whether the back-end can cache tables, e.g. with `compute()`
+supported_cache <- function(sc) {
+  UseMethod("supported_cache")
+}
+
+#' @exportS3Method
+supported_cache.default <- function(sc) {
+  TRUE
+}
+
+#' @exportS3Method
+supported_cache.connect_sail <- function(sc) {
+  FALSE
 }

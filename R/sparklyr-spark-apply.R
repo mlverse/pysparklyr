@@ -128,6 +128,8 @@ sa_in_pandas <- function(
       .group_by = .group_by,
       .colnames = col_names,
       .context = .context,
+      # `tune_grid_spark()` passes Python DataFrames, and does not run on Sail
+      .sail = inherits(x, "tbl_spark") && is_sail(spark_connection(x)),
       ... = ...
     ) |>
     py_run_string()
@@ -138,9 +140,13 @@ sa_in_pandas <- function(
     df <- x
   }
   if (is.null(df)) {
-    df <- x |>
-      compute() |>
-      python_sdf()
+    if (supported_cache(spark_connection(x))) {
+      df <- x |>
+        compute() |>
+        python_sdf()
+    } else {
+      df <- tbl_pyspark_sdf(x)
+    }
   }
   if (!is.null(.group_by)) {
     # TODO: Add support for multiple grouping columns
@@ -193,6 +199,7 @@ sa_function_to_string <- function(
   .r_only = FALSE,
   .colnames = NULL,
   .context = NULL,
+  .sail = FALSE,
   ...
 ) {
   path_scripts <- pkg_path("udf")
@@ -204,8 +211,10 @@ sa_function_to_string <- function(
     readLines(path(path_scripts, glue("udf-{udf_fn}.R"))),
     collapse = ""
   )
+  # Sail has its own Python files, see `inst/udf/udf-map-sail.py`
+  py_fn <- if (.sail) glue("{udf_fn}-sail") else udf_fn
   fn_python <- paste0(
-    readLines(path(path_scripts, glue("udf-{udf_fn}.py"))),
+    readLines(path(path_scripts, glue("udf-{py_fn}.py"))),
     collapse = "\n"
   )
   if (!is.null(.group_by)) {

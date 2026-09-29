@@ -43,6 +43,7 @@
 #' @importFrom sparklyr ml_random_forest_classifier ml_random_forest_regressor ft_string_indexer
 #' @importFrom sparklyr ml_save ml_load spark_jobj spark_install_find spark_apply
 #' @importFrom sparklyr sdf_copy_to spark_connect_method spark_log random_string
+#' @importFrom sparklyr spark_disconnect
 #' @importFrom sparklyr spark_connection connection_is_open hive_context
 #' @importFrom sparklyr spark_dataframe spark_web sdf_register sdf_schema
 #' @importFrom sparklyr spark_ide_connection_updated spark_version

@@ -17,6 +17,9 @@ test_that("Object retrieval function work", {
     spark_ide_preview(sc, table = "mtcars", rowLimit = 10)
   )
 
+  # Sail's catalog is not named `spark_catalog`
+  skip_if_sail()
+
   expect_s3_class(
     catalog_python(sc, catalog = "spark_catalog"),
     "data.frame"

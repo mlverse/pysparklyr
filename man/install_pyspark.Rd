@@ -3,6 +3,7 @@
 \name{install_pyspark}
 \alias{install_pyspark}
 \alias{install_databricks}
+\alias{install_sail}
 \title{Installs PySpark and Python dependencies}
 \usage{
 install_pyspark(
@@ -27,10 +28,25 @@ install_databricks(
   install_ml = FALSE,
   ...
 )
+
+install_sail(
+  version = NULL,
+  envname = NULL,
+  python_version = NULL,
+  new_env = TRUE,
+  method = c("auto", "virtualenv", "conda"),
+  as_job = TRUE,
+  install_ml = FALSE,
+  ...
+)
 }
 \arguments{
-\item{version}{Version of 'databricks.connect' to install. Defaults to \code{NULL}.
-If \code{NULL}, it will check against PyPi to get the current library version.}
+\item{version}{Version to install. Defaults to \code{NULL}. If \code{NULL}, it will
+check against PyPi to get the current library version. For
+\code{install_pyspark()}, the version of 'pyspark'. For \code{install_databricks()},
+the version of 'databricks.connect'. For \code{install_sail()}, the version of
+Sail ('pysail'), and the matching 'pyspark-client' version is read from
+it.}
 
 \item{envname}{The name of the Python Environment to use to install the
 Python libraries. Defaults to \code{NULL.} If \code{NULL}, a name will automatically

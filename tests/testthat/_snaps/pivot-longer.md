@@ -2,7 +2,7 @@
 
     Code
       tbl_pivot %>% tidyr::pivot_longer(-id, names_to = c(".value", "n"), names_sep = "_") %>%
-        collect()
+        collect() %>% dplyr::arrange(id, n)
     Output
       # A tibble: 4 x 5
         id    n         z     y     x

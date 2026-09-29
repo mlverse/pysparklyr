@@ -7,7 +7,9 @@ initialize_connection <- function(
   method = NULL,
   config = NULL,
   misc = NULL,
-  quote = NULL
+  quote = NULL,
+  server = NULL,
+  create = FALSE
 ) {
   warnings <- import("warnings")
   warnings$filterwarnings(
@@ -30,10 +32,23 @@ initialize_connection <- function(
     message = "Index.format is deprecated and will be removed in a future version"
   )
 
-  session <- conn$getOrCreate()
+  # `getOrCreate()` returns the active session if there is one, even for a
+  # different `remote()`. `create()` always starts a new one
+  if (create) {
+    session <- conn$create()
+  } else {
+    session <- conn$getOrCreate()
+  }
   get_version <- try(session$version, silent = TRUE)
   if (inherits(get_version, "try-error")) {
-    databricks_dbr_error(get_version)
+    if (con_class == "connect_databricks") {
+      databricks_dbr_error(get_version)
+    }
+    version_error <- conditionMessage(attr(get_version, "condition"))
+    cli_abort(
+      c("Connection error: {.emph {master_label}}", "x" = "{version_error}"),
+      call = NULL
+    )
   }
 
   if (!is.null(config)) {
@@ -83,6 +98,7 @@ initialize_connection <- function(
       serverless = serverless,
       misc = misc,
       quote = quote,
+      server = server,
       con = structure(list(), class = c("spark_connection", "DBIConnection")),
       connection_id = UUIDgenerate()
     ),
@@ -189,6 +205,9 @@ connection_label <- function(x) {
     }
     if (method == "databricks_connect" | method == "databricks") {
       ret <- "Databricks Connect"
+    }
+    if (method == "sail") {
+      ret <- "Sail"
     }
   }
   ret

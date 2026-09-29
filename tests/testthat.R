@@ -9,6 +9,7 @@
 # Sys.setenv("CODE_COVERAGE" = "true")
 # Sys.setenv("SPARK_VERSION" = "4.1.1"); Sys.setenv("SCALA_VERSION" = "2.13"); Sys.setenv("PYTHON_VERSION" = "3.13")
 # Sys.setenv("SPARK_VERSION" = "3.5.7"); Sys.setenv("SCALA_VERSION" = "2.12"); Sys.setenv("PYTHON_VERSION" = "3.10")
+# Sys.setenv("SAIL_VERSION" = "0.7"); Sys.setenv("PYTHON_VERSION" = "3.12")
 if (identical(Sys.getenv("CODE_COVERAGE"), "true")) {
   library(testthat)
   library(pysparklyr)

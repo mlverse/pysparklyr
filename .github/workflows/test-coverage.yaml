@@ -95,18 +95,6 @@ jobs:
             )
         shell: Rscript {0}
 
-      - name: Cache Scala
-        id: cache-scala
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/scala/
-          key: scala-2
-
-      - name: Install Scala (via sparklyr)
-        if: steps.cache-scala.outputs.cache-hit != 'true'
-        run: |
-          sparklyr::download_scalac()
-        shell: Rscript {0}
 
       - name: R Installed Packages
         run: |

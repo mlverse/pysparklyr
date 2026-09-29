@@ -51,6 +51,8 @@ Suggests:
     dials,
     tailor,
     recipes
+Remotes:
+    sparklyr/sparklyr@fix-193
 Config/testthat/edition: 3
 Config/usethis/last-upkeep: 2025-11-12
 Encoding: UTF-8

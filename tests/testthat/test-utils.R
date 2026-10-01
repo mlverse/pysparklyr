@@ -34,3 +34,13 @@ test_that("Check arguments works", {
     "The 'x' argument is not currently supported for this back-end"
   )
 })
+
+test_that("list_diff reports new and changed entries once", {
+  expect_identical(
+    list_diff(
+      list(keep = 1, changed = 2, added = 3),
+      list(keep = 1, changed = 4, removed = 5)
+    ),
+    list(added = 3, changed = 2)
+  )
+})

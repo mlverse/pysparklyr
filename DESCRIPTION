@@ -30,7 +30,7 @@ Imports:
     reticulate (>= 1.44.0),
     rlang,
     rstudioapi,
-    sparklyr (>= 1.9.5),
+    sparklyr (>= 1.9.5.9003),
     tidyr,
     tidyselect,
     vctrs,
@@ -51,6 +51,8 @@ Suggests:
     dials,
     tailor,
     recipes
+Remotes:
+    sparklyr/sparklyr
 Config/testthat/edition: 3
 Config/usethis/last-upkeep: 2025-11-12
 Encoding: UTF-8

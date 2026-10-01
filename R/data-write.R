@@ -153,6 +153,42 @@ spark_write_json.tbl_pyspark <- function(
   )
 }
 
+#' @export
+spark_write_jdbc.tbl_pyspark <- function(
+  x,
+  name,
+  mode = NULL,
+  options = list(),
+  partition_by = NULL,
+  ...
+) {
+  url <- options[["url"]]
+  if (is.null(url)) {
+    cli_abort("Option {.arg url} is expected while using JDBC")
+  }
+  options[["url"]] <- NULL
+  # PySpark expects `properties` to be a dictionary of strings, or `None`
+  properties <- NULL
+  if (length(options) > 0) {
+    properties <- lapply(options, as.character)
+  }
+
+  query <- tbl_pyspark_sdf(x)
+  writer <- query$write
+  if (!is.null(partition_by)) {
+    writer <- writer$partitionBy(partition_by)
+  }
+
+  invisible(
+    writer$jdbc(
+      url = url,
+      table = name,
+      mode = mode,
+      properties = properties
+    )
+  )
+}
+
 pyspark_write_generic <- function(
   x,
   path,

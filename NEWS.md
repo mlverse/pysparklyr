@@ -60,6 +60,15 @@ correctly, and treats an empty `DATABRICKS_TOKEN` as missing.
 typed URL now passes to `spark_connect()` as `master`, and its confirmation
 message is accurate.
 
+- Fixes `sdf_read_column()` failing on Spark Connect with
+`[NOT_LIST_OF_COLUMN_OR_STR]`. A typo in the class name kept the `pysparklyr`
+method from running, so the `sparklyr` method ran instead (#193)
+
+- Adds `spark_read_jdbc()` and `spark_write_jdbc()` support for Spark Connect
+and Databricks Connect. Before, `spark_read_jdbc()` used the `sparklyr` method,
+which fails with `[NOT_LIST_OF_COLUMN_OR_STR]`. This needs the development
+version of `sparklyr`, where `spark_read_jdbc()` is an S3 generic (#193)
+
 # pysparklyr 0.2.2
 
 ### New

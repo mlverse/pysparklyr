@@ -165,6 +165,34 @@ spark_read_parquet.pyspark_connection <- function(
   )
 }
 
+#' @export
+spark_read_jdbc.pyspark_connection <- function(
+  sc,
+  name,
+  options = list(),
+  repartition = 0,
+  memory = TRUE,
+  overwrite = TRUE,
+  columns = NULL,
+  ...
+) {
+  read <- python_conn(sc)$read$format("jdbc") |>
+    py_invoke_options(options = options) |>
+    py_invoke("load")
+
+  pyspark_read_generic(
+    sc = sc,
+    path = NULL,
+    name = name,
+    format = NULL,
+    memory = memory,
+    repartition = repartition,
+    overwrite = overwrite,
+    options = NULL,
+    args = list(schema = columns),
+    py_obj = read
+  )
+}
 
 pyspark_read_generic <- function(
   sc,

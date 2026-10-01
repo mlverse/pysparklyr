@@ -128,7 +128,7 @@ test_that("JDBC works", {
   tbl_mtcars <- use_test_table_mtcars()
   jdbc_options <- list(
     url = "jdbc:derby:memory:pysparklyr;create=true",
-    driver = "org.apache.derby.iapi.jdbc.AutoloadedDriver"
+    driver = "org.apache.derby.jdbc.EmbeddedDriver"
   )
   expect_error(
     spark_write_jdbc(tbl_mtcars, "mtcars_jdbc", options = list()),

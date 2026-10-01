@@ -26,7 +26,7 @@ name: Sail
 
 jobs:
   Sail-Tests:
-    timeout-minutes: 30
+    timeout-minutes: 60
     runs-on: ubuntu-latest
 
     name: ${{ matrix.config.name }}

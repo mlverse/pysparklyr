@@ -265,30 +265,36 @@ python_requirements <- function(
     }
   }
 
-  requires_dist <- as.character(library_info$requires_dist)
-  packages <- c(
-    paste0(main_library, "==", main_library_version),
+  packages <- paste0(main_library, "==", main_library_version)
+
+  if (identical(backend, "sail")) {
     # `rpy2` is needed by `spark_apply()`
-    if (identical(backend, "sail")) c(sail_package(backend_version), "rpy2"),
-    if (length(requires_dist)) {
-      with_extra <- grepl("; extra", requires_dist)
-      extra_str <- strsplit(requires_dist[with_extra], "; extra")
-      extra_str <- lapply(extra_str, function(x) x[[1]])
-      extra_str <- as.character(extra_str)
-      extra_str <- unique(extra_str)
-      c(requires_dist[!with_extra], extra_str)
-    } else {
-      c(
-        "pandas!=2.1.0", # deprecation warnings
-        "PyArrow",
-        "grpcio",
-        "google-api-python-client",
-        "grpcio_status",
-        "databricks-sdk",
-        "zstandard"
-      )
+    packages <- c(packages, sail_package(backend_version), "rpy2")
+    if (pandas_needs_cap(main_library_version)) {
+      packages <- c(packages, "pandas<3")
     }
-  )
+  }
+
+  requires_dist <- as.character(library_info$requires_dist)
+  if (length(requires_dist)) {
+    with_extra <- grepl("; extra", requires_dist)
+    extra_str <- strsplit(requires_dist[with_extra], "; extra")
+    extra_str <- lapply(extra_str, function(x) x[[1]])
+    extra_str <- as.character(extra_str)
+    extra_str <- unique(extra_str)
+    packages <- c(packages, requires_dist[!with_extra], extra_str)
+  } else {
+    packages <- c(
+      packages,
+      "pandas!=2.1.0", # deprecation warnings
+      "PyArrow",
+      "grpcio",
+      "google-api-python-client",
+      "grpcio_status",
+      "databricks-sdk",
+      "zstandard"
+    )
+  }
 
   if (add_torch && install_ml) {
     packages <- c(packages, pysparklyr_env$ml_libraries)
@@ -301,4 +307,15 @@ python_requirements <- function(
     python_version = python_version,
     library_version = ver_name
   )
+}
+
+pandas_needs_cap <- function(main_library_version) {
+  # PySpark 4.2 warns when used with pandas 3. Only versions below
+  # `cap_below` are capped, so a future PySpark that requires pandas 3
+  # does not cause a dependency conflict. Raise the bound when a new
+  # PySpark release still warns.
+  cap_below <- "4.3"
+  version <- sub("\\.\\*$", "", as.character(main_library_version))
+  version <- numeric_version(version, strict = FALSE)
+  !is.na(version) && version < cap_below
 }

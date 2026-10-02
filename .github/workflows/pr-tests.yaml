@@ -1,19 +1,8 @@
 on:
-  push:
-    branches: main
-    paths:
-      - '.github/workflows/spark-tests.yaml'
-      - 'R/**'
-      - 'tests/**'
-      - 'DESCRIPTION'
-      - 'NAMESPACE'
-      - 'man/**'
-      - 'inst/**'
-      - 'src/**'
   pull_request:
     branches: main
     paths:
-      - '.github/workflows/spark-tests.yaml'
+      - '.github/workflows/pr-tests.yaml'
       - 'R/**'
       - 'tests/**'
       - 'DESCRIPTION'
@@ -22,20 +11,20 @@ on:
       - 'inst/**'
       - 'src/**'
 
-name: Spark-Connect
+name: PR-Tests
 
 jobs:
-  Spark-Tests:
+  PR-Tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-
     name: ${{ matrix.config.name }}
 
     strategy:
       fail-fast: false
       matrix:
         config:
-          - {spark: '3.5.8', pyspark: '3.5.8', hadoop: '3', scala: '2.12', python: '3.10', name: 'PySpark 3'}
+          - {spark: '4.1.2', pyspark: '4.1.2', hadoop: '3', scala: '2.13', python: '3.13', java: '21', name: 'PySpark 4'}
+          - {sail: '0.7', python: '3.12', name: 'Sail 0.7'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -45,14 +34,16 @@ jobs:
       PYSPARK_VERSION: ${{ matrix.config.pyspark }}
       PYTHON_VERSION:  ${{ matrix.config.python }}
       SCALA_VERSION:   ${{ matrix.config.scala }}
+      SAIL_VERSION:    ${{ matrix.config.sail }}
 
     steps:
       - uses: actions/checkout@v3
 
       - uses: actions/setup-java@v4
+        if: matrix.config.java
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: ${{ matrix.config.java }}
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -72,13 +63,14 @@ jobs:
 
       - name: Cache Spark
         id: cache-spark
+        if: matrix.config.spark
         uses: actions/cache@v3
         with:
           path: /home/runner/spark/spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
           key: sparklyr-spark-${{ matrix.config.spark }}-bin-hadoop${{ matrix.config.hadoop }}
 
       - name: Install Spark (via sparklyr)
-        if: steps.cache-spark.outputs.cache-hit != 'true'
+        if: matrix.config.spark && steps.cache-spark.outputs.cache-hit != 'true'
         run: |
           devtools::load_all()
           library(sparklyr)
@@ -86,15 +78,6 @@ jobs:
             version = Sys.getenv("SPARK_VERSION"),
             hadoop_version = Sys.getenv("HADOOP_VERSION")
             )
-        shell: Rscript {0}
-
-
-      - name: R Session Info
-        run: sessionInfo()
-        shell: Rscript {0}
-
-      - name: R Environment Variables
-        run: Sys.getenv()
         shell: Rscript {0}
 
       - name: R Installed Packages
@@ -106,7 +89,7 @@ jobs:
 
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: ${{ matrix.config.python }}
 
       - run: python --version
 
@@ -115,4 +98,3 @@ jobs:
           devtools::load_all()
           devtools::test(reporter = sparklyr_reporter())
         shell: Rscript {0}
-

@@ -11,6 +11,12 @@ initialize_connection <- function(
   server = NULL,
   create = FALSE
 ) {
+  # Hides gRPC info messages, such as the ones printed after the R
+  # session forks. Keeps any level the user already set
+  if (is.na(Sys.getenv("GRPC_VERBOSITY", unset = NA))) {
+    withr::local_envvar(GRPC_VERBOSITY = "ERROR")
+  }
+
   warnings <- import("warnings")
   warnings$filterwarnings(
     "ignore",
